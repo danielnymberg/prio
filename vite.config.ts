@@ -13,4 +13,5 @@ export default defineConfig({
     port: 5174, // Different port than anmarkt-beta
     host: true,
   },
+  publicDir: 'public', // Ensure public files are copied to dist
 })
