@@ -9,6 +9,7 @@ import { WeekView } from './components/views/WeekView';
 import { ArchiveView } from './components/views/ArchiveView';
 import { ImportView } from './components/views/ImportView';
 import { AllTasksView } from './components/views/AllTasksView';
+import { VoiceInterface } from './components/voice/VoiceInterface';
 
 function LoginPage() {
   return (
@@ -50,7 +51,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
-  return <AppLayout>{children}</AppLayout>;
+  return (
+    <AppLayout>
+      {children}
+      {/* Voice interface alltid tillgänglig när inloggad */}
+      <VoiceInterface />
+    </AppLayout>
+  );
 }
 
 function App() {
