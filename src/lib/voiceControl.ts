@@ -12,11 +12,13 @@ export function startSpeechRecognition(
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    onError?.('Speech recognition not supported in this browser');
+    onError?.('Speech recognition stöds inte i denna webbläsare. Använd Chrome eller Edge.');
     return () => {};
   }
 
   const recognition = new SpeechRecognition();
+
+  // Try Swedish first, fallback to English
   recognition.lang = 'sv-SE';
   recognition.continuous = false;
   recognition.interimResults = false;
@@ -27,12 +29,32 @@ export function startSpeechRecognition(
   };
 
   recognition.onerror = (event: any) => {
-    onError?.(event.error);
+    if (event.error === 'language-not-supported') {
+      // Fallback to English
+      recognition.lang = 'en-US';
+      recognition.start();
+      onError?.('Svenska stöds inte, använder engelska istället');
+    } else {
+      onError?.(event.error === 'no-speech'
+        ? 'Inget ljud hördes. Försök igen.'
+        : `Fel: ${event.error}`);
+    }
   };
 
-  recognition.start();
+  try {
+    recognition.start();
+  } catch (error) {
+    onError?.('Kunde inte starta röstinspelning. Kontrollera mikrofon-behörigheter.');
+    return () => {};
+  }
 
-  return () => recognition.stop();
+  return () => {
+    try {
+      recognition.stop();
+    } catch (e) {
+      // Already stopped
+    }
+  };
 }
 
 // Text-to-Speech (TTS) for notifications
