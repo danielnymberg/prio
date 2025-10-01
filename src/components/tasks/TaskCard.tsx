@@ -1,18 +1,27 @@
+import { useState, useRef, useEffect } from 'react';
 import { Task } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 import { formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Copy } from 'lucide-react';
+import { Copy, Edit2, Check, X, MoreVertical, Clock } from 'lucide-react';
+import { formatDuration, getDurationColor, getDurationIcon } from '@/lib/utils';
 
 interface TaskCardProps {
   task: Task;
   onClick: () => void;
   onDuplicate?: (task: Task) => void;
+  onUpdate?: (id: string, updates: Partial<Task>) => void;
+  viewMode?: 'compact' | 'expanded';
 }
 
-export function TaskCard({ task, onClick, onDuplicate }: TaskCardProps) {
+export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'compact' }: TaskCardProps) {
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(task.title);
+  const [showActions, setShowActions] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
   const {
     attributes,
     listeners,
@@ -27,6 +36,13 @@ export function TaskCard({ task, onClick, onDuplicate }: TaskCardProps) {
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
 
   const getDeadlineBadge = () => {
     if (!task.deadline) return null;
@@ -69,43 +85,165 @@ export function TaskCard({ task, onClick, onDuplicate }: TaskCardProps) {
     if (onDuplicate) onDuplicate(task);
   };
 
+  const handleTitleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditingTitle(true);
+  };
+
+  const handleTitleSave = () => {
+    if (editedTitle.trim() !== task.title && onUpdate) {
+      onUpdate(task.id, { title: editedTitle.trim() });
+    }
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleCancel = () => {
+    setEditedTitle(task.title);
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleTitleSave();
+    } else if (e.key === 'Escape') {
+      handleTitleCancel();
+    }
+  };
+
+  const handleStatusChange = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onUpdate) return;
+
+    const statusCycle = {
+      not_started: 'in_progress',
+      in_progress: 'done',
+      done: 'not_started',
+    } as const;
+
+    onUpdate(task.id, { status: statusCycle[task.status] });
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (isEditingTitle) return;
+    onClick();
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      onClick={onClick}
+      onClick={handleCardClick}
       className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-200 dark:border-gray-600 group relative"
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
     >
-      {onDuplicate && (
-        <button
-          onClick={handleDuplicate}
-          className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 dark:bg-gray-600 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-200 dark:hover:bg-gray-500"
-          title="Skapa liknande task"
-        >
-          <Copy className="h-3 w-3 text-gray-600 dark:text-gray-300" />
-        </button>
-      )}
+      {/* Action buttons */}
+      <div className={`absolute top-2 right-2 flex gap-1 transition-opacity ${showActions ? 'opacity-100' : 'opacity-0'}`}>
+        {onUpdate && !isEditingTitle && (
+          <button
+            onClick={handleTitleEdit}
+            className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500"
+            title="Redigera titel"
+          >
+            <Edit2 className="h-3 w-3 text-gray-600 dark:text-gray-300" />
+          </button>
+        )}
+        {onDuplicate && (
+          <button
+            onClick={handleDuplicate}
+            className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500"
+            title="Skapa liknande task"
+          >
+            <Copy className="h-3 w-3 text-gray-600 dark:text-gray-300" />
+          </button>
+        )}
+      </div>
 
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-semibold text-sm text-gray-900 dark:text-white truncate flex-1 pr-6">
-          {task.title}
-        </h3>
-        <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-          {task.priority.toFixed(1)}
-        </span>
+        {isEditingTitle ? (
+          <div className="flex items-center gap-2 flex-1 pr-6">
+            <input
+              ref={titleInputRef}
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              onKeyDown={handleTitleKeyDown}
+              onBlur={handleTitleSave}
+              className="flex-1 text-sm font-semibold bg-transparent border-b border-blue-500 focus:outline-none text-gray-900 dark:text-white"
+            />
+            <button
+              onClick={handleTitleSave}
+              className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+              title="Spara"
+            >
+              <Check className="h-3 w-3 text-green-600" />
+            </button>
+            <button
+              onClick={handleTitleCancel}
+              className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+              title="Avbryt"
+            >
+              <X className="h-3 w-3 text-red-600" />
+            </button>
+          </div>
+        ) : (
+          <h3 className="font-semibold text-sm text-gray-900 dark:text-white truncate flex-1 pr-6">
+            {task.title}
+          </h3>
+        )}
+        <div className="flex items-center gap-2">
+          {task.estimated_duration && (
+            <span className="text-xs" title={`Uppskattad tid: ${formatDuration(task.estimated_duration)}`}>
+              {getDurationIcon(task.estimated_duration)}
+            </span>
+          )}
+          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+            {task.priority.toFixed(1)}
+          </span>
+        </div>
       </div>
 
       {task.description && (
-        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <p className={`text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2 transition-opacity ${
+          viewMode === 'expanded' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        }`}>
           {task.description}
         </p>
       )}
 
+      {viewMode === 'expanded' && (
+        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-2">
+          <span>Viktighet: {task.importance}/10</span>
+          <span>Brådskande: {task.urgency}/10</span>
+          {task.estimated_duration && (
+            <span className={`flex items-center gap-1 ${getDurationColor(task.estimated_duration)}`}>
+              <Clock className="h-3 w-3" />
+              {formatDuration(task.estimated_duration)}
+            </span>
+          )}
+          {task.deadline && (
+            <span>Deadline: {new Date(task.deadline).toLocaleDateString('sv-SE')}</span>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {getStatusDot()}
+          {onUpdate ? (
+            <button
+              onClick={handleStatusChange}
+              className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded px-1 py-0.5 transition-colors"
+              title={`Status: ${task.status === 'not_started' ? 'Ej påbörjad' : task.status === 'in_progress' ? 'Pågående' : 'Klar'} (klicka för att ändra)`}
+            >
+              {getStatusDot()}
+              <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                {task.status === 'not_started' ? 'Ej påbörjad' : task.status === 'in_progress' ? 'Pågående' : 'Klar'}
+              </span>
+            </button>
+          ) : (
+            getStatusDot()
+          )}
           {getDeadlineBadge()}
         </div>
       </div>

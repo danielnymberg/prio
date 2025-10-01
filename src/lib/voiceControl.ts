@@ -90,30 +90,79 @@ export function speak(text: string, options?: {
 
 // Voice command parser
 export function parseVoiceCommand(transcript: string): {
-  action: 'create' | 'update' | 'complete' | 'navigate' | 'unknown';
+  action: 'create' | 'update' | 'complete' | 'navigate' | 'set_importance' | 'set_urgency' | 'unknown';
   params?: any;
 } {
-  // TODO: Implement NLP for Swedish voice commands
-  // Examples:
-  // - "skapa task fixa buggen" -> { action: 'create', params: { title: 'fixa buggen' } }
-  // - "markera som klar" -> { action: 'complete' }
-  // - "visa Q1" -> { action: 'navigate', params: { view: 'Q1' } }
-
   const lower = transcript.toLowerCase().trim();
 
-  if (lower.startsWith('skapa') || lower.startsWith('ny task')) {
-    const title = lower.replace(/^(skapa|ny task)\s+/, '');
+  // Create task commands
+  if (lower.startsWith('skapa') || lower.startsWith('ny task') || lower.startsWith('lägg till')) {
+    const title = lower.replace(/^(skapa|ny task|lägg till)(\s+task)?\s+/, '');
     return { action: 'create', params: { title } };
   }
 
-  if (lower.includes('markera som klar') || lower.includes('klar')) {
+  // Complete task commands
+  if (lower.includes('markera som klar') || lower.includes('färdig') || lower.includes('klar')) {
     return { action: 'complete' };
   }
 
-  if (lower.includes('visa')) {
+  // Importance commands
+  const importanceMatch = lower.match(/viktighet\s+(\d+)/);
+  if (importanceMatch) {
+    const value = Math.min(10, Math.max(1, parseInt(importanceMatch[1])));
+    return { action: 'set_importance', params: { importance: value } };
+  }
+
+  // Urgency commands
+  const urgencyMatch = lower.match(/(brådskande|brådska)\s+(\d+)/);
+  if (urgencyMatch) {
+    const value = Math.min(10, Math.max(1, parseInt(urgencyMatch[2])));
+    return { action: 'set_urgency', params: { urgency: value } };
+  }
+
+  // Navigate commands
+  if (lower.includes('visa') || lower.includes('gå till')) {
     const quadrantMatch = lower.match(/q[1-4]/i);
     if (quadrantMatch) {
       return { action: 'navigate', params: { quadrant: quadrantMatch[0].toUpperCase() } };
+    }
+  }
+
+  // Update task title
+  if (lower.startsWith('ändra till') || lower.startsWith('byt namn till')) {
+    const newTitle = lower.replace(/^(ändra till|byt namn till)\s+/, '');
+    return { action: 'update', params: { title: newTitle } };
+  }
+
+  // Duration commands
+  const durationPatterns = [
+    { pattern: /(\d+)\s*minut/, unit: 1 },
+    { pattern: /(\d+)\s*min/, unit: 1 },
+    { pattern: /(\d+)\s*timm/, unit: 60 },
+    { pattern: /(\d+)\s*h/, unit: 60 },
+    { pattern: /kvart/, duration: 15 },
+    { pattern: /halvtimme/, duration: 30 },
+    { pattern: /en timme/, duration: 60 },
+    { pattern: /två timmar/, duration: 120 },
+    { pattern: /tre timmar/, duration: 180 },
+    { pattern: /fyra timmar/, duration: 240 },
+    { pattern: /halv dag/, duration: 240 },
+    { pattern: /hel dag/, duration: 480 },
+    { pattern: /snabb/, duration: 5 },
+    { pattern: /kort/, duration: 30 },
+    { pattern: /lång/, duration: 240 },
+  ];
+
+  for (const pattern of durationPatterns) {
+    if ('duration' in pattern && pattern.pattern.test(lower)) {
+      return { action: 'set_duration', params: { duration: pattern.duration } };
+    }
+    if ('unit' in pattern) {
+      const match = lower.match(pattern.pattern);
+      if (match) {
+        const value = parseInt(match[1]) * pattern.unit;
+        return { action: 'set_duration', params: { duration: value } };
+      }
     }
   }
 

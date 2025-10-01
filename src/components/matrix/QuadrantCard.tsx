@@ -14,6 +14,8 @@ interface QuadrantCardProps {
   onTaskClick: (task: Task) => void;
   onAddTask: (quadrant: Quadrant) => void;
   onDuplicate?: (task: Task) => void;
+  onUpdate?: (id: string, updates: Partial<Task>) => void;
+  viewMode?: 'compact' | 'expanded';
 }
 
 const quadrantConfig = {
@@ -55,7 +57,7 @@ const quadrantConfig = {
   },
 };
 
-export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplicate }: QuadrantCardProps) {
+export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplicate, onUpdate, viewMode = 'compact' }: QuadrantCardProps) {
   const config = quadrantConfig[quadrant];
   const Icon = config.icon;
   const { setNodeRef, isOver } = useDroppable({ id: quadrant });
@@ -108,6 +110,8 @@ export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplic
                 task={task}
                 onClick={() => onTaskClick(task)}
                 onDuplicate={onDuplicate}
+                onUpdate={onUpdate}
+                viewMode={viewMode}
               />
             ))}
           </SortableContext>

@@ -82,3 +82,51 @@ export function isDueSoon(task: Task): boolean {
   const deadline = new Date(task.deadline);
   return isThisWeek(deadline) && !isPast(deadline);
 }
+
+// Duration helpers
+export function formatDuration(minutes: number | null | undefined): string {
+  if (!minutes) return '';
+
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (remainingMinutes === 0) {
+    return `${hours}h`;
+  }
+
+  return `${hours}h ${remainingMinutes}min`;
+}
+
+export function getDurationColor(minutes: number | null | undefined): string {
+  if (!minutes) return 'text-gray-500';
+
+  if (minutes <= 15) return 'text-green-600'; // Quick tasks
+  if (minutes <= 60) return 'text-blue-600';  // Short tasks
+  if (minutes <= 240) return 'text-amber-600'; // Medium tasks
+  return 'text-red-600'; // Long tasks
+}
+
+export function getDurationIcon(minutes: number | null | undefined): string {
+  if (!minutes) return '⏱️';
+
+  if (minutes <= 15) return '⚡'; // Quick
+  if (minutes <= 60) return '🔵'; // Short
+  if (minutes <= 240) return '🟡'; // Medium
+  return '🔴'; // Long
+}
+
+// Duration presets for quick selection
+export const DURATION_PRESETS = [
+  { label: '5 min', value: 5, icon: '⚡', description: 'Snabbt' },
+  { label: '15 min', value: 15, icon: '⚡', description: 'Kvick uppgift' },
+  { label: '30 min', value: 30, icon: '🔵', description: 'Kort session' },
+  { label: '1h', value: 60, icon: '🔵', description: 'En timme' },
+  { label: '2h', value: 120, icon: '🟡', description: 'Längre session' },
+  { label: '4h', value: 240, icon: '🟡', description: 'Halv dag' },
+  { label: '8h', value: 480, icon: '🔴', description: 'Hel dag' },
+  { label: 'Flera dagar', value: 1440, icon: '🔴', description: 'Stort projekt' },
+] as const;

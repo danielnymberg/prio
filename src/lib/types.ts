@@ -16,6 +16,7 @@ export interface Task {
   deadline: string | null; // ISO timestamp
   status: TaskStatus;
   project_id: string | null;
+  estimated_duration: number | null; // Minutes
   created_at: string;
   updated_at: string;
   completed_at: string | null;
@@ -40,6 +41,7 @@ export interface CreateTaskInput {
   deadline?: string;
   status?: TaskStatus;
   project_id?: string;
+  estimated_duration?: number; // Minutes
 }
 
 export interface UpdateTaskInput {
@@ -50,6 +52,7 @@ export interface UpdateTaskInput {
   deadline?: string;
   status?: TaskStatus;
   project_id?: string;
+  estimated_duration?: number; // Minutes
 }
 
 export interface CreateProjectInput {

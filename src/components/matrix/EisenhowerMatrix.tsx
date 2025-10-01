@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { useTasks } from '@/hooks/useTasks';
 import { getTaskQuadrant } from '@/lib/utils';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { CheckCheck } from 'lucide-react';
+import { CheckCheck, Grid, List } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 export function EisenhowerMatrix() {
@@ -14,6 +14,7 @@ export function EisenhowerMatrix() {
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [targetQuadrant, setTargetQuadrant] = useState<Quadrant | undefined>(undefined);
+  const [viewMode, setViewMode] = useState<'compact' | 'expanded'>('compact');
 
   const tasksByQuadrant: Record<Quadrant, Task[]> = {
     Q1: tasks.filter((t) => getTaskQuadrant(t) === 'Q1' && t.status !== 'done'),
@@ -118,8 +119,27 @@ export function EisenhowerMatrix() {
     <>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="space-y-4">
-          {tasksByQuadrant.Q4.length > 0 && (
-            <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === 'compact' ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('compact')}
+              >
+                <Grid className="h-4 w-4 mr-2" />
+                Kompakt
+              </Button>
+              <Button
+                variant={viewMode === 'expanded' ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('expanded')}
+              >
+                <List className="h-4 w-4 mr-2" />
+                Utökad
+              </Button>
+            </div>
+
+            {tasksByQuadrant.Q4.length > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -129,8 +149,8 @@ export function EisenhowerMatrix() {
                 <CheckCheck className="h-4 w-4 mr-2" />
                 Markera alla Q4 som klara ({tasksByQuadrant.Q4.length})
               </Button>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
           <QuadrantCard
@@ -139,6 +159,8 @@ export function EisenhowerMatrix() {
             onTaskClick={handleTaskClick}
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
+            onUpdate={updateTask}
+            viewMode={viewMode}
           />
           <QuadrantCard
             quadrant="Q2"
@@ -146,6 +168,8 @@ export function EisenhowerMatrix() {
             onTaskClick={handleTaskClick}
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
+            onUpdate={updateTask}
+            viewMode={viewMode}
           />
           <QuadrantCard
             quadrant="Q3"
@@ -153,6 +177,8 @@ export function EisenhowerMatrix() {
             onTaskClick={handleTaskClick}
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
+            onUpdate={updateTask}
+            viewMode={viewMode}
           />
           <QuadrantCard
             quadrant="Q4"
@@ -160,6 +186,8 @@ export function EisenhowerMatrix() {
             onTaskClick={handleTaskClick}
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
+            onUpdate={updateTask}
+            viewMode={viewMode}
           />
           </div>
         </div>
