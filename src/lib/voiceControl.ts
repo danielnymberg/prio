@@ -90,7 +90,7 @@ export function speak(text: string, options?: {
 
 // Voice command parser
 export function parseVoiceCommand(transcript: string): {
-  action: 'create' | 'update' | 'complete' | 'navigate' | 'set_importance' | 'set_urgency' | 'unknown';
+  action: 'create' | 'update' | 'complete' | 'navigate' | 'set_importance' | 'set_urgency' | 'set_duration' | 'unknown';
   params?: any;
 } {
   const lower = transcript.toLowerCase().trim();
@@ -135,7 +135,10 @@ export function parseVoiceCommand(transcript: string): {
   }
 
   // Duration commands
-  const durationPatterns = [
+  const durationPatterns: Array<
+    | { pattern: RegExp; unit: number }
+    | { pattern: RegExp; duration: number }
+  > = [
     { pattern: /(\d+)\s*minut/, unit: 1 },
     { pattern: /(\d+)\s*min/, unit: 1 },
     { pattern: /(\d+)\s*timm/, unit: 60 },
@@ -157,7 +160,7 @@ export function parseVoiceCommand(transcript: string): {
     if ('duration' in pattern && pattern.pattern.test(lower)) {
       return { action: 'set_duration', params: { duration: pattern.duration } };
     }
-    if ('unit' in pattern) {
+    if ('unit' in pattern && pattern.unit) {
       const match = lower.match(pattern.pattern);
       if (match) {
         const value = parseInt(match[1]) * pattern.unit;

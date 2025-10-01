@@ -159,7 +159,7 @@ export function EisenhowerMatrix() {
             onTaskClick={handleTaskClick}
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
-            onUpdate={updateTask}
+            onUpdate={(id, updates) => updateTask(id, updates as any)}
             viewMode={viewMode}
           />
           <QuadrantCard
@@ -168,7 +168,7 @@ export function EisenhowerMatrix() {
             onTaskClick={handleTaskClick}
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
-            onUpdate={updateTask}
+            onUpdate={(id, updates) => updateTask(id, updates as any)}
             viewMode={viewMode}
           />
           <QuadrantCard
@@ -177,7 +177,7 @@ export function EisenhowerMatrix() {
             onTaskClick={handleTaskClick}
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
-            onUpdate={updateTask}
+            onUpdate={(id, updates) => updateTask(id, updates as any)}
             viewMode={viewMode}
           />
           <QuadrantCard
@@ -186,7 +186,7 @@ export function EisenhowerMatrix() {
             onTaskClick={handleTaskClick}
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
-            onUpdate={updateTask}
+            onUpdate={(id, updates) => updateTask(id, updates as any)}
             viewMode={viewMode}
           />
           </div>

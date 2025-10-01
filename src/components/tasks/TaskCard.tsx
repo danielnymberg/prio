@@ -5,7 +5,7 @@ import { formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Copy, Edit2, Check, X, MoreVertical, Clock } from 'lucide-react';
+import { Copy, Edit2, Check, X, Clock } from 'lucide-react';
 import { formatDuration, getDurationColor, getDurationIcon } from '@/lib/utils';
 
 interface TaskCardProps {
@@ -123,7 +123,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
     onUpdate(task.id, { status: statusCycle[task.status] });
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const handleCardClick = () => {
     if (isEditingTitle) return;
     onClick();
   };
