@@ -1,0 +1,122 @@
+[
+  {
+    "title": "Oscarskyrkan invändiga ytskikt",
+    "description": "Deadline var igår - leverera innan lunch!",
+    "importance": 10,
+    "urgency": 10,
+    "deadline": "2025-10-01",
+    "status": "in_progress"
+  },
+  {
+    "title": "Notviken avslut och leverans",
+    "description": "3h ikväll, 30 min imorgon tidig. MÅSTE vara klar imorgon!",
+    "importance": 10,
+    "urgency": 10,
+    "deadline": "2025-10-02",
+    "status": "not_started"
+  },
+  {
+    "title": "Kv Albion - åtgärd imorgon",
+    "description": "Vad behöver göras? Ring/mail/dokument?",
+    "importance": 9,
+    "urgency": 9,
+    "deadline": "2025-10-02",
+    "status": "not_started"
+  },
+  {
+    "title": "Bygghandlingar KB",
+    "description": "Deadline måndag",
+    "importance": 8,
+    "urgency": 8,
+    "deadline": "2025-10-07",
+    "status": "not_started"
+  },
+  {
+    "title": "Bygghandlingar Kronobageriet",
+    "description": "Deadline måndag",
+    "importance": 8,
+    "urgency": 8,
+    "deadline": "2025-10-07",
+    "status": "not_started"
+  },
+  {
+    "title": "Fakturera Nordergravar",
+    "description": "Skicka till Länsstyrelsen",
+    "importance": 10,
+    "urgency": 7,
+    "deadline": "2025-10-06",
+    "status": "not_started"
+  },
+  {
+    "title": "Fakturera Hallgrens",
+    "description": "",
+    "importance": 10,
+    "urgency": 7,
+    "deadline": "2025-10-06",
+    "status": "not_started"
+  },
+  {
+    "title": "Uppdatera BH HTKR",
+    "description": "",
+    "importance": 7,
+    "urgency": 6,
+    "deadline": "2025-10-06",
+    "status": "not_started"
+  },
+  {
+    "title": "Pilträdet",
+    "description": "Deadline var fredag",
+    "importance": 7,
+    "urgency": 8,
+    "deadline": "2025-10-04",
+    "status": "not_started"
+  },
+  {
+    "title": "Boka Roma med Sonny och Ramirent",
+    "description": "",
+    "importance": 6,
+    "urgency": 6,
+    "deadline": null,
+    "status": "not_started"
+  },
+  {
+    "title": "Undersök alla projekt levererade & fakturerade",
+    "description": "Look into missing tasks - kontrollera att inget saknas innan 15 okt",
+    "importance": 9,
+    "urgency": 6,
+    "deadline": "2025-10-15",
+    "status": "not_started"
+  },
+  {
+    "title": "Synka mapparna Lab + Sammanställ ansökan",
+    "description": "Kombinera dessa två - deadline 15 okt",
+    "importance": 7,
+    "urgency": 6,
+    "deadline": "2025-10-15",
+    "status": "not_started"
+  },
+  {
+    "title": "Sammanställ projektlistan + Boka Lindahl strategimöte",
+    "description": "Gör projektlistan först (4h), sedan boka möte med Lindahl om app-strategi",
+    "importance": 8,
+    "urgency": 3,
+    "deadline": "2025-12-31",
+    "status": "not_started"
+  },
+  {
+    "title": "Prepare document for external - Kv Albion",
+    "description": "Deadline 10 okt",
+    "importance": 7,
+    "urgency": 5,
+    "deadline": "2025-10-10",
+    "status": "not_started"
+  },
+  {
+    "title": "Slutrapport Wallenstam (40 TIMMAR)",
+    "description": "Deadline december. BLOCKERA KALENDERN NU för 4-15 november, 8 dagar á 5h",
+    "importance": 10,
+    "urgency": 2,
+    "deadline": "2025-12-01",
+    "status": "not_started"
+  }
+]

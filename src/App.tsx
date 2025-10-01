@@ -1,22 +1,40 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { LoginForm } from './components/auth/LoginForm';
+import { ThemeToggle } from './components/ui/ThemeToggle';
+import { AppLayout } from './components/layout/AppLayout';
+import { Dashboard } from './components/views/Dashboard';
+import { TodayView } from './components/views/TodayView';
+import { WeekView } from './components/views/WeekView';
+import { ArchiveView } from './components/views/ArchiveView';
+import { ImportView } from './components/views/ImportView';
+import { AllTasksView } from './components/views/AllTasksView';
 
-// Placeholder components - you'll build these next
 function LoginPage() {
-  return <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <h1 className="text-4xl font-bold mb-4">Prio</h1>
-      <p className="text-gray-600 dark:text-gray-400">Login page - under construction</p>
-      <p className="text-sm text-gray-500 mt-4">Infrastructure is ready! Start building components.</p>
-    </div>
-  </div>;
-}
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
 
-function Dashboard() {
-  return <div className="p-8">
-    <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-    <p>Eisenhower Matrix will go here</p>
-  </div>;
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md mx-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Prio
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Håll fokus på det som är viktigt
+          </p>
+        </div>
+
+        <LoginForm />
+
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+          Samma inloggning som Anmärkt
+        </p>
+      </div>
+    </div>
+  );
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -32,7 +50,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
+  return <AppLayout>{children}</AppLayout>;
 }
 
 function App() {
@@ -45,6 +63,46 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/today"
+          element={
+            <ProtectedRoute>
+              <TodayView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/week"
+          element={
+            <ProtectedRoute>
+              <WeekView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/all"
+          element={
+            <ProtectedRoute>
+              <AllTasksView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/archive"
+          element={
+            <ProtectedRoute>
+              <ArchiveView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/import"
+          element={
+            <ProtectedRoute>
+              <ImportView />
             </ProtectedRoute>
           }
         />
