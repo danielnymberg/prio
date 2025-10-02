@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Task } from '@/lib/types';
+import { Task, UpdateTaskInput } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 import { formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns';
 import { sv } from 'date-fns/locale';
@@ -12,7 +12,7 @@ interface TaskCardProps {
   task: Task;
   onClick: () => void;
   onDuplicate?: (task: Task) => void;
-  onUpdate?: (id: string, updates: Partial<Task>) => void;
+  onUpdate?: (id: string, updates: UpdateTaskInput) => void;
   viewMode?: 'compact' | 'expanded';
 }
 

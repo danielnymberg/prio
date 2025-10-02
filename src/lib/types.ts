@@ -46,13 +46,13 @@ export interface CreateTaskInput {
 
 export interface UpdateTaskInput {
   title?: string;
-  description?: string;
+  description?: string | null;
   importance?: number;
   urgency?: number;
-  deadline?: string;
+  deadline?: string | null;
   status?: TaskStatus;
-  project_id?: string;
-  estimated_duration?: number; // Minutes
+  project_id?: string | null;
+  estimated_duration?: number | null; // Minutes
 }
 
 export interface CreateProjectInput {
