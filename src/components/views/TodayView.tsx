@@ -4,7 +4,8 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Task } from '@/lib/types';
-import { isToday, isPast } from 'date-fns';
+import { isToday, isPast, format } from 'date-fns';
+import { sv } from 'date-fns/locale';
 import { Calendar } from 'lucide-react';
 
 export function TodayView() {
@@ -31,7 +32,7 @@ export function TodayView() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Idag
+          Idag ({format(new Date(), 'd MMMM', { locale: sv })})
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
           Tasks med deadline idag {overdueTasks.length > 0 && `+ ${overdueTasks.length} försenade`}
@@ -51,6 +52,7 @@ export function TodayView() {
               key={task.id}
               task={task}
               onClick={() => handleTaskClick(task)}
+              onUpdate={(id, updates) => updateTask(id, updates as any)}
             />
           ))}
         </div>

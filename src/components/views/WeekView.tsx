@@ -45,6 +45,7 @@ export function WeekView() {
               key={task.id}
               task={task}
               onClick={() => handleTaskClick(task)}
+              onUpdate={(id, updates) => updateTask(id, updates as any)}
             />
           ))}
         </div>
