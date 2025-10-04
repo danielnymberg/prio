@@ -9,6 +9,7 @@ export class SpeechmaticsSTT {
   private audioContext: AudioContext | null = null;
   private processor: ScriptProcessorNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
+  private stream: MediaStream | null = null;
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
 
   constructor(private config: SpeechmaticsConfig) {}
@@ -18,7 +19,7 @@ export class SpeechmaticsSTT {
 
     try {
       // 1. Få mikrofon access
-      const stream = await navigator.mediaDevices.getUserMedia({
+      this.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
@@ -49,7 +50,7 @@ export class SpeechmaticsSTT {
         }));
 
         // Starta audio streaming
-        this.startAudioStream(stream);
+        this.startAudioStream(this.stream!);
       };
 
       this.ws.onmessage = (event) => {
@@ -103,13 +104,22 @@ export class SpeechmaticsSTT {
   }
 
   stopListening() {
+    // Stop and clean up WebSocket
     if (this.ws) {
-      this.ws.send(JSON.stringify({ message: 'EndOfStream' }));
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({ message: 'EndOfStream' }));
+      }
       this.ws.close();
+      this.ws.onopen = null;
+      this.ws.onmessage = null;
+      this.ws.onerror = null;
+      this.ws.onclose = null;
       this.ws = null;
     }
 
+    // Disconnect audio nodes
     if (this.processor) {
+      this.processor.onaudioprocess = null;
       this.processor.disconnect();
       this.processor = null;
     }
@@ -119,14 +129,25 @@ export class SpeechmaticsSTT {
       this.source = null;
     }
 
+    // Close audio context
     if (this.audioContext) {
       this.audioContext.close();
       this.audioContext = null;
     }
 
+    // Stop media recorder
     if (this.mediaRecorder) {
       this.mediaRecorder.stop();
       this.mediaRecorder = null;
     }
+
+    // Stop all media stream tracks (important for releasing microphone)
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+
+    // Clear callback
+    this.onTranscriptCallback = undefined;
   }
 }

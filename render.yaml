@@ -5,9 +5,41 @@ services:
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     headers:
+      # HTML och root - INGEN cache, alltid hämta senaste
+      - path: /
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
       - path: /*
         name: Cache-Control
-        value: public, max-age=0, must-revalidate
+        value: no-cache, no-store, must-revalidate
+      # Statiska assets med hash - lång cache (immutable)
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      # Service worker - aldrig cacha
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /registerSW.js
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      # Manifest och workbox
+      - path: /manifest.webmanifest
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /workbox-*.js
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      # Bilder och ikoner - medellång cache
+      - path: /pwa-*.png
+        name: Cache-Control
+        value: public, max-age=604800
+      - path: /favicon.svg
+        name: Cache-Control
+        value: public, max-age=604800
     routes:
       - type: redirect
         source: /favicon.ico

@@ -1,21 +1,39 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
-import { Dashboard } from './components/views/Dashboard';
-import { TodayView } from './components/views/TodayView';
-import { WeekView } from './components/views/WeekView';
-import { ArchiveView } from './components/views/ArchiveView';
-import { ImportView } from './components/views/ImportView';
-import { AllTasksView } from './components/views/AllTasksView';
 import { VoiceInterface } from './components/voice/VoiceInterface';
-import { FocusView } from './components/focus/FocusView';
-import { ActiveSession } from './components/focus/ActiveSession';
-import { BreakView } from './components/focus/BreakView';
-import { ResultImpactModal } from './components/tasks/ResultImpactModal';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
+import { VersionBanner } from './components/VersionBanner';
+import { InstallPrompt } from './components/pwa/InstallPrompt';
+import { OfflineBanner } from './components/pwa/OfflineBanner';
+import { ServiceWorkerUpdatePrompt } from './components/pwa/ServiceWorkerUpdatePrompt';
+
+// Lazy load routes för bättre initial load performance
+const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
+const TodayView = lazy(() => import('./components/views/TodayView').then(m => ({ default: m.TodayView })));
+const WeekView = lazy(() => import('./components/views/WeekView').then(m => ({ default: m.WeekView })));
+const ArchiveView = lazy(() => import('./components/views/ArchiveView').then(m => ({ default: m.ArchiveView })));
+const ImportView = lazy(() => import('./components/views/ImportView').then(m => ({ default: m.ImportView })));
+const AllTasksView = lazy(() => import('./components/views/AllTasksView').then(m => ({ default: m.AllTasksView })));
+const FocusView = lazy(() => import('./components/focus/FocusView').then(m => ({ default: m.FocusView })));
+const ActiveSession = lazy(() => import('./components/focus/ActiveSession').then(m => ({ default: m.ActiveSession })));
+const BreakView = lazy(() => import('./components/focus/BreakView').then(m => ({ default: m.BreakView })));
+const ResultImpactModal = lazy(() => import('./components/tasks/ResultImpactModal').then(m => ({ default: m.ResultImpactModal })));
+
+// Loading fallback component
+function RouteLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Laddar...</p>
+      </div>
+    </div>
+  );
+}
 
 function LoginPage() {
   return (
@@ -78,6 +96,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         isOpen={showWelcome}
         onComplete={() => setShowWelcome(false)}
       />
+      {/* PWA install prompt */}
+      <InstallPrompt />
     </AppLayout>
   );
 }
@@ -103,6 +123,9 @@ function HomePage() {
 function App() {
   return (
     <BrowserRouter>
+      <VersionBanner />
+      <OfflineBanner />
+      <ServiceWorkerUpdatePrompt />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route
@@ -117,7 +140,9 @@ function App() {
           path="/today"
           element={
             <ProtectedRoute>
-              <TodayView />
+              <Suspense fallback={<RouteLoader />}>
+                <TodayView />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -125,7 +150,9 @@ function App() {
           path="/week"
           element={
             <ProtectedRoute>
-              <WeekView />
+              <Suspense fallback={<RouteLoader />}>
+                <WeekView />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -133,7 +160,9 @@ function App() {
           path="/all"
           element={
             <ProtectedRoute>
-              <AllTasksView />
+              <Suspense fallback={<RouteLoader />}>
+                <AllTasksView />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -141,7 +170,9 @@ function App() {
           path="/archive"
           element={
             <ProtectedRoute>
-              <ArchiveView />
+              <Suspense fallback={<RouteLoader />}>
+                <ArchiveView />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -149,7 +180,9 @@ function App() {
           path="/import"
           element={
             <ProtectedRoute>
-              <ImportView />
+              <Suspense fallback={<RouteLoader />}>
+                <ImportView />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -157,7 +190,9 @@ function App() {
           path="/focus"
           element={
             <ProtectedRoute>
-              <FocusView />
+              <Suspense fallback={<RouteLoader />}>
+                <FocusView />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -165,7 +200,9 @@ function App() {
           path="/session/:taskId"
           element={
             <ProtectedRoute>
-              <ActiveSession />
+              <Suspense fallback={<RouteLoader />}>
+                <ActiveSession />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -173,7 +210,9 @@ function App() {
           path="/break"
           element={
             <ProtectedRoute>
-              <BreakView />
+              <Suspense fallback={<RouteLoader />}>
+                <BreakView />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -181,7 +220,9 @@ function App() {
           path="/task/:taskId/impact"
           element={
             <ProtectedRoute>
-              <ResultImpactModal />
+              <Suspense fallback={<RouteLoader />}>
+                <ResultImpactModal />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -190,7 +231,9 @@ function App() {
           path="/matrix"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Suspense fallback={<RouteLoader />}>
+                <Dashboard />
+              </Suspense>
             </ProtectedRoute>
           }
         />

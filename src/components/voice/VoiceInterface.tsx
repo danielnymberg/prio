@@ -29,9 +29,20 @@ export function VoiceInterface() {
   useEffect(() => {
     initializeServices();
 
+    // Proper cleanup function
     return () => {
-      sttRef.current?.stopListening();
-      ttsRef.current?.stop();
+      // Stop active services
+      if (sttRef.current) {
+        sttRef.current.stopListening();
+      }
+      if (ttsRef.current) {
+        ttsRef.current.stop();
+      }
+
+      // Clear references to allow garbage collection
+      sttRef.current = null;
+      ttsRef.current = null;
+      claudeRef.current = null;
     };
   }, []);
 

@@ -9,19 +9,20 @@ interface AzureTTSConfig {
 export class AzureTTS {
   private synthesizer: sdk.SpeechSynthesizer;
   private audioConfig: sdk.AudioConfig;
+  private speechConfig: sdk.SpeechConfig;
 
   constructor(config: AzureTTSConfig) {
-    const speechConfig = sdk.SpeechConfig.fromSubscription(
+    this.speechConfig = sdk.SpeechConfig.fromSubscription(
       config.subscriptionKey,
       config.region
     );
 
-    speechConfig.speechSynthesisVoiceName = config.voice;
-    speechConfig.speechSynthesisOutputFormat =
+    this.speechConfig.speechSynthesisVoiceName = config.voice;
+    this.speechConfig.speechSynthesisOutputFormat =
       sdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3;
 
     this.audioConfig = sdk.AudioConfig.fromDefaultSpeakerOutput();
-    this.synthesizer = new sdk.SpeechSynthesizer(speechConfig, this.audioConfig);
+    this.synthesizer = new sdk.SpeechSynthesizer(this.speechConfig, this.audioConfig);
   }
 
   async speak(text: string): Promise<void> {
@@ -58,7 +59,16 @@ export class AzureTTS {
   }
 
   stop() {
-    this.synthesizer.close();
+    // Properly cleanup all resources
+    if (this.synthesizer) {
+      this.synthesizer.close();
+    }
+    if (this.audioConfig) {
+      this.audioConfig.close();
+    }
+    if (this.speechConfig) {
+      this.speechConfig.close();
+    }
   }
 }
 

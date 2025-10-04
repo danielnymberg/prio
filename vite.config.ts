@@ -7,12 +7,54 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      // Prompt användaren istället för auto-update för bättre kontroll
+      registerType: 'prompt',
+      // Aggressiv cache cleanup för att undvika gamla versioner
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Viktiga inställningar för stabilt service worker-beteende
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+        // Runtime caching med strikta regler
+        runtimeCaching: [
+          // API-calls ska ALDRIG cachas - alltid nätverksförst
+          {
+            urlPattern: /^https:\/\/api\.anthropic\.com\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            urlPattern: /^https:\/\/.*\.speechmatics\.com\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            urlPattern: /^https:\/\/.*\.cognitiveservices\.azure\.com\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            handler: 'NetworkOnly',
+          },
+          // Navigering ska alltid vara nätverksförst
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24, // 24 timmar
+              },
+              networkTimeoutSeconds: 3,
+            },
+          },
+        ],
+      },
+      includeAssets: ['favicon.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'Prio - AI Priority Assistant',
+        name: 'Prio - Smart Prioritering',
         short_name: 'Prio',
-        description: 'Konversationell prioriteringsassistent med AI',
+        description: 'Håll fokus på det som är viktigt med CPM-modellen',
         theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',
@@ -33,25 +75,7 @@ export default defineConfig({
             purpose: 'any maskable',
           },
         ],
-        permissions: ['microphone'],
         categories: ['productivity', 'business'],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\.anthropic\.com\/.*/i,
-            handler: 'NetworkOnly',
-          },
-          {
-            urlPattern: /^https:\/\/.*\.speechmatics\.com\/.*/i,
-            handler: 'NetworkOnly',
-          },
-          {
-            urlPattern: /^https:\/\/.*\.cognitiveservices\.azure\.com\/.*/i,
-            handler: 'NetworkOnly',
-          },
-        ],
       },
     }),
   ],
