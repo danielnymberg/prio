@@ -4,7 +4,14 @@ services:
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
     routes:
+      - type: redirect
+        source: /favicon.ico
+        destination: /favicon.svg
       - type: rewrite
         source: /*
-        destination: /200.html
+        destination: /index.html
