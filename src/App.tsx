@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
@@ -15,6 +15,7 @@ import { FocusView } from './components/focus/FocusView';
 import { ActiveSession } from './components/focus/ActiveSession';
 import { BreakView } from './components/focus/BreakView';
 import { ResultImpactModal } from './components/tasks/ResultImpactModal';
+import { WelcomeModal } from './components/onboarding/WelcomeModal';
 
 function LoginPage() {
   return (
@@ -45,6 +46,17 @@ function LoginPage() {
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    // Kolla om användaren har slutfört onboarding
+    if (user && !loading) {
+      const completed = localStorage.getItem('prio_onboarding_completed');
+      if (!completed) {
+        setShowWelcome(true);
+      }
+    }
+  }, [user, loading]);
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">
@@ -61,6 +73,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {children}
       {/* Voice interface alltid tillgänglig när inloggad */}
       <VoiceInterface />
+      {/* Onboarding modal för nya användare */}
+      <WelcomeModal
+        isOpen={showWelcome}
+        onComplete={() => setShowWelcome(false)}
+      />
     </AppLayout>
   );
 }

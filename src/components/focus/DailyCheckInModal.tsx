@@ -249,6 +249,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
+              title="Blandning av korta och långa uppgifter baserat på CPM-algoritmen"
             >
               <div className="flex items-start gap-4">
                 <BarChart className="h-8 w-8 text-blue-500 flex-shrink-0" />
@@ -257,7 +258,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
                     ⚖️ Balanced
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Blandning av både korta och långa uppgifter - AI väljer optimalt
+                    Blandning av både korta och långa uppgifter - smart balansering
                   </div>
                 </div>
               </div>

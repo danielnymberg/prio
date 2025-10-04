@@ -1,12 +1,17 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid } from 'lucide-react';
+import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid, X } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { tasks, createTask } = useTasks();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -30,12 +35,34 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-4 flex flex-col">
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-40
+          w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700
+          p-4 flex flex-col
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* Stäng-knapp för mobil */}
+        <div className="lg:hidden flex justify-end mb-2">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            aria-label="Stäng meny"
+          >
+            <X className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+          </button>
+        </div>
+
         <Button
           variant="primary"
           size="md"
-          onClick={() => setIsFormOpen(true)}
-          className="w-full mb-6"
+          onClick={() => {
+            setIsFormOpen(true);
+            onClose(); // Stäng sidebar på mobil efter klick
+          }}
+          className="w-full mb-6 min-h-[44px]"
         >
           <Plus className="h-5 w-5 mr-2" />
           Ny task
@@ -46,8 +73,9 @@ export function Sidebar() {
             <NavLink
               key={to}
               to={to}
+              onClick={() => onClose()} // Stäng sidebar på mobil efter navigering
               className={({ isActive }) =>
-                `flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                `flex items-center justify-between px-3 py-3 rounded-lg transition-colors min-h-[44px] ${
                   highlight
                     ? isActive
                       ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
@@ -83,8 +111,9 @@ export function Sidebar() {
               <NavLink
                 key={to}
                 to={to}
+                onClick={() => onClose()} // Stäng sidebar på mobil efter navigering
                 className={({ isActive }) =>
-                  `flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                  `flex items-center justify-between px-3 py-3 rounded-lg transition-colors min-h-[44px] ${
                     isActive
                       ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
