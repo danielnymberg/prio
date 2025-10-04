@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, CalendarDays, List, Archive, Plus, Upload } from 'lucide-react';
+import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Sunrise } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';
@@ -16,7 +16,9 @@ export function Sidebar() {
   const overdueTasks = activeTasks.filter(t => t.deadline && isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline)));
 
   const navItems = [
-    { to: '/', icon: List, label: 'Dashboard', count: activeTasks.length },
+    { to: '/focus', icon: Target, label: '🎯 Focus Mode', count: null, highlight: true },
+    { to: '/morning-checkin', icon: Sunrise, label: 'Morning Check-In', count: null },
+    { to: '/', icon: List, label: 'Matrix', count: activeTasks.length },
     { to: '/today', icon: Calendar, label: 'Idag', count: todayTasks.length, alert: overdueTasks.length > 0 },
     { to: '/week', icon: CalendarDays, label: 'Denna vecka', count: weekTasks.length },
     { to: '/all', icon: List, label: 'Alla tasks', count: activeTasks.length },
@@ -38,13 +40,17 @@ export function Sidebar() {
         </Button>
 
         <nav className="space-y-1 flex-1">
-          {navItems.map(({ to, icon: Icon, label, count, alert }) => (
+          {navItems.map(({ to, icon: Icon, label, count, alert, highlight }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
                 `flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-                  isActive
+                  highlight
+                    ? isActive
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                      : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600 shadow-md'
+                    : isActive
                     ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`

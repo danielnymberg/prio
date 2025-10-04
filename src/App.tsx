@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
@@ -65,6 +66,40 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
+function HomePage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user has done daily check-in
+    const today = new Date().toISOString().split('T')[0];
+    const stored = localStorage.getItem('daily_checkin');
+
+    if (!stored) {
+      // No check-in ever, go to morning check-in
+      navigate('/morning-checkin');
+      return;
+    }
+
+    const checkIn = JSON.parse(stored);
+    if (checkIn.date !== today) {
+      // Old check-in, do new one
+      navigate('/morning-checkin');
+    } else {
+      // Already done check-in today, go to focus
+      navigate('/focus');
+    }
+  }, [navigate]);
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Laddar...</p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -74,7 +109,7 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <HomePage />
             </ProtectedRoute>
           }
         />
