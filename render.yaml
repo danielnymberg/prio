@@ -40,14 +40,11 @@ services:
       - path: /favicon.svg
         name: Cache-Control
         value: public, max-age=604800
-    routes:
+    redirects:
       - type: redirect
         source: /favicon.ico
         destination: /favicon.svg
-      # Rewrite alla routes UTOM statiska filer och assets till index.html (SPA routing)
+      # SPA routing - rewrite alla paths till index.html (Render serverar befintliga filer automatiskt)
       - type: rewrite
-        source: /(?!.*\.)(.*)
-        destination: /index.html
-      - type: rewrite
-        source: /
+        source: /*
         destination: /index.html
