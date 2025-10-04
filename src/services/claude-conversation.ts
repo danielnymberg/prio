@@ -110,7 +110,7 @@ DAGENS DATUM: ${today}
 ANVÄNDARENS KONTEXT:
 ${JSON.stringify({
   aktivaTasks: this.context.tasks.filter(t => t.status !== 'done').length,
-  q1Tasks: this.context.tasks.filter(t => t.importance >= 6 && t.urgency >= 6).length,
+  q1Tasks: this.context.tasks.filter(t => (t.value_score || t.importance || 5) >= 6 && (t.time_sensitivity || t.urgency || 5) >= 6).length,
   försenade: this.context.tasks.filter(t => t.deadline && new Date(t.deadline) < new Date()).length,
   dagensKalender: this.context.calendarEvents.length + ' händelser',
 }, null, 2)}
@@ -132,7 +132,7 @@ När användaren ber dig skapa en task, resonera om vilken quadrant den hör hem
 
 BEFINTLIGA TASKS:
 ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
-  `- ${t.title} (${t.importance}/${t.urgency}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`
+  `- ${t.title} (${t.value_score || t.importance || 5}/${t.time_sensitivity || t.urgency || 5}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`
 ).join('\n')}`;
   }
 
@@ -297,8 +297,8 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
 
   private async analyzePriorities(focusArea?: string) {
     const activeTasks = this.context.tasks.filter(t => t.status !== 'done');
-    const q1Tasks = activeTasks.filter(t => t.importance >= 6 && t.urgency >= 6);
-    const q2Tasks = activeTasks.filter(t => t.importance >= 6 && t.urgency < 6);
+    const q1Tasks = activeTasks.filter(t => (t.value_score || t.importance || 5) >= 6 && (t.time_sensitivity || t.urgency || 5) >= 6);
+    const q2Tasks = activeTasks.filter(t => (t.value_score || t.importance || 5) >= 6 && (t.time_sensitivity || t.urgency || 5) < 6);
     const overdueTasks = activeTasks.filter(t =>
       t.deadline && new Date(t.deadline) < new Date()
     );

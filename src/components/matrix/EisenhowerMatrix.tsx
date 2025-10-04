@@ -38,17 +38,19 @@ export function EisenhowerMatrix() {
   const handleFormSubmit = async (input: any) => {
     if (targetQuadrant && !selectedTask) {
       const quadrantDefaults = {
-        Q1: { importance: 8, urgency: 8 },
-        Q2: { importance: 8, urgency: 3 },
-        Q3: { importance: 3, urgency: 8 },
-        Q4: { importance: 3, urgency: 3 },
+        Q1: { value_score: 8, time_sensitivity: 8 },
+        Q2: { value_score: 8, time_sensitivity: 3 },
+        Q3: { value_score: 3, time_sensitivity: 8 },
+        Q4: { value_score: 3, time_sensitivity: 3 },
       };
 
       const defaults = quadrantDefaults[targetQuadrant];
       await createTask({
         ...input,
-        importance: input.importance ?? defaults.importance,
-        urgency: input.urgency ?? defaults.urgency,
+        value_score: input.value_score ?? defaults.value_score,
+        time_sensitivity: input.time_sensitivity ?? defaults.time_sensitivity,
+        confidence: input.confidence ?? 7,
+        effort: input.effort ?? 5,
       });
     } else if (selectedTask) {
       await updateTask(selectedTask.id, input);
@@ -65,10 +67,10 @@ export function EisenhowerMatrix() {
 
     const targetQuadrant = over.id as Quadrant;
     const quadrantUpdates = {
-      Q1: { importance: 8, urgency: 8 },
-      Q2: { importance: 8, urgency: 3 },
-      Q3: { importance: 3, urgency: 8 },
-      Q4: { importance: 3, urgency: 3 },
+      Q1: { value_score: 8, time_sensitivity: 8 },
+      Q2: { value_score: 8, time_sensitivity: 3 },
+      Q3: { value_score: 3, time_sensitivity: 8 },
+      Q4: { value_score: 3, time_sensitivity: 3 },
     };
 
     const updates = quadrantUpdates[targetQuadrant];
@@ -103,8 +105,10 @@ export function EisenhowerMatrix() {
       await createTask({
         title: `${task.title} (kopia)`,
         description: task.description || undefined,
-        importance: task.importance,
-        urgency: task.urgency,
+        value_score: task.value_score || 5,
+        time_sensitivity: task.time_sensitivity || 5,
+        confidence: task.confidence || 7,
+        effort: task.effort || 5,
         deadline: task.deadline || undefined,
         status: 'not_started',
       });

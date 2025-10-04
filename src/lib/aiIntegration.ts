@@ -40,7 +40,10 @@ export async function analyzeWorkload(tasks: Task[]): Promise<{
   // - Identify burnout risk (too many Q1 tasks)
   // - Suggest rebalancing strategies
 
-  const q1Count = tasks.filter(t => t.importance > 5 && t.urgency > 5).length;
+  const q1Count = tasks.filter(t =>
+    (t.value_score || t.importance || 5) > 5 &&
+    (t.time_sensitivity || t.urgency || 5) > 5
+  ).length;
   const totalActive = tasks.filter(t => t.status !== 'done').length;
 
   const overloaded = q1Count > 5 || totalActive > 20;

@@ -31,8 +31,12 @@ export function formatRelativeTime(date: string | null | undefined): string {
 
 // Eisenhower Matrix logic
 export function getTaskQuadrant(task: Task): Quadrant {
-  const isImportant = task.importance > 5;
-  const isUrgent = task.urgency > 5;
+  // Use value_score and time_sensitivity, fallback to legacy fields
+  const importance = task.value_score || task.importance || 5;
+  const urgency = task.time_sensitivity || task.urgency || 5;
+
+  const isImportant = importance > 5;
+  const isUrgent = urgency > 5;
 
   if (isImportant && isUrgent) return 'Q1';
   if (isImportant && !isUrgent) return 'Q2';

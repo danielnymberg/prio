@@ -10,6 +10,11 @@ import { ArchiveView } from './components/views/ArchiveView';
 import { ImportView } from './components/views/ImportView';
 import { AllTasksView } from './components/views/AllTasksView';
 import { VoiceInterface } from './components/voice/VoiceInterface';
+import { MorningCheckIn } from './components/focus/MorningCheckIn';
+import { FocusView } from './components/focus/FocusView';
+import { ActiveSession } from './components/focus/ActiveSession';
+import { BreakView } from './components/focus/BreakView';
+import { ResultImpactModal } from './components/tasks/ResultImpactModal';
 
 function LoginPage() {
   return (
@@ -110,6 +115,55 @@ function App() {
           element={
             <ProtectedRoute>
               <ImportView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/morning-checkin"
+          element={
+            <ProtectedRoute>
+              <MorningCheckIn />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/focus"
+          element={
+            <ProtectedRoute>
+              <FocusView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/session/:taskId"
+          element={
+            <ProtectedRoute>
+              <ActiveSession />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/break"
+          element={
+            <ProtectedRoute>
+              <BreakView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/task/:taskId/impact"
+          element={
+            <ProtectedRoute>
+              <ResultImpactModal />
+            </ProtectedRoute>
+          }
+        />
+        {/* Alias /matrix to Dashboard for backwards compatibility */}
+        <Route
+          path="/matrix"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
             </ProtectedRoute>
           }
         />

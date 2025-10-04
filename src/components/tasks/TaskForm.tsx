@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { VoiceButton } from '@/components/ui/VoiceButton';
 import { getTaskQuadrant, DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
-import { Clock } from 'lucide-react';
+import { Clock, AlertTriangle } from 'lucide-react';
 
 // TODO: DaNy AI integration point
 // Add "Föreslå prioritet" button using AI analysis of task title/description
@@ -22,8 +22,22 @@ interface TaskFormProps {
 export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [importance, setImportance] = useState(5);
-  const [urgency, setUrgency] = useState(5);
+
+  // CPM Parameters
+  const [valueScore, setValueScore] = useState(5);
+  const [timeSensitivity, setTimeSensitivity] = useState(5);
+  const [confidence, setConfidence] = useState(7);
+  const [effort, setEffort] = useState(5);
+
+  // Consequences
+  const [consequences, setConsequences] = useState({
+    oneWeek: '',
+    oneMonth: '',
+    oneYear: ''
+  });
+  const [consequenceDeadline, setConsequenceDeadline] = useState('');
+  const [blocksTaskIds, setBlocksTaskIds] = useState<string[]>([]);
+
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'done'>('not_started');
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
@@ -32,10 +46,10 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
   const handleVoiceCommand = (action: string, params: any) => {
     switch (action) {
       case 'set_importance':
-        setImportance(params.importance);
+        setValueScore(params.importance);
         break;
       case 'set_urgency':
-        setUrgency(params.urgency);
+        setTimeSensitivity(params.urgency);
         break;
       case 'update':
         if (params.title) setTitle(params.title);
@@ -55,16 +69,30 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
     if (task) {
       setTitle(task.title);
       setDescription(task.description || '');
-      setImportance(task.importance);
-      setUrgency(task.urgency);
+      setValueScore(task.value_score || 5);
+      setTimeSensitivity(task.time_sensitivity || 5);
+      setConfidence(task.confidence || 7);
+      setEffort(task.effort || 5);
+      setConsequences({
+        oneWeek: task.consequence_1week || '',
+        oneMonth: task.consequence_1month || '',
+        oneYear: task.consequence_1year || ''
+      });
+      setConsequenceDeadline(task.consequence_deadline ? task.consequence_deadline.split('T')[0] : '');
+      setBlocksTaskIds(task.blocks_task_ids || []);
       setDeadline(task.deadline ? task.deadline.split('T')[0] : '');
       setStatus(task.status);
       setEstimatedDuration(task.estimated_duration);
     } else {
       setTitle('');
       setDescription('');
-      setImportance(5);
-      setUrgency(5);
+      setValueScore(5);
+      setTimeSensitivity(5);
+      setConfidence(7);
+      setEffort(5);
+      setConsequences({ oneWeek: '', oneMonth: '', oneYear: '' });
+      setConsequenceDeadline('');
+      setBlocksTaskIds([]);
       setDeadline('');
       setStatus('not_started');
       setEstimatedDuration(null);
@@ -79,8 +107,15 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       const input = {
         title,
         description: description || undefined,
-        importance,
-        urgency,
+        value_score: valueScore,
+        time_sensitivity: timeSensitivity,
+        confidence,
+        effort,
+        consequence_1week: consequences.oneWeek || undefined,
+        consequence_1month: consequences.oneMonth || undefined,
+        consequence_1year: consequences.oneYear || undefined,
+        consequence_deadline: consequenceDeadline || undefined,
+        blocks_task_ids: blocksTaskIds.length > 0 ? blocksTaskIds : undefined,
         deadline: deadline || undefined,
         status,
         estimated_duration: estimatedDuration || undefined,
@@ -97,7 +132,9 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
     }
   };
 
-  const mockTask = { importance, urgency } as Task;
+  // Calculate priority preview
+  const priorityPreview = (valueScore * timeSensitivity * confidence) / effort;
+  const mockTask = { importance: valueScore, urgency: timeSensitivity } as Task;
   const quadrant = getTaskQuadrant(mockTask);
 
   const quadrantInfo = {
@@ -158,9 +195,67 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
           </div>
         </div>
 
+        {/* Consequences Section - Anti-urgency bias */}
+        <div className="space-y-4 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 mb-6">
+          <h3 className="font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5" />
+            Om du INTE gör denna uppgift:
+          </h3>
+
+          <div>
+            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+              Vad händer om 1 vecka?
+            </label>
+            <Input
+              value={consequences.oneWeek}
+              onChange={(e) => setConsequences({...consequences, oneWeek: e.target.value})}
+              placeholder="t.ex. Kunden blir frustrerad, missar deadline"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+              Vad händer om 1 månad?
+            </label>
+            <Input
+              value={consequences.oneMonth}
+              onChange={(e) => setConsequences({...consequences, oneMonth: e.target.value})}
+              placeholder="t.ex. Tappar kunden, måste hitta ny"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+              Vad händer om 1 år?
+            </label>
+            <Input
+              value={consequences.oneYear}
+              onChange={(e) => setConsequences({...consequences, oneYear: e.target.value})}
+              placeholder="t.ex. Verksamheten förlorat trovärdighet"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+              När träder konsekvensen i kraft? (deadline för konsekvens)
+            </label>
+            <Input
+              type="date"
+              value={consequenceDeadline}
+              onChange={(e) => setConsequenceDeadline(e.target.value)}
+            />
+          </div>
+
+          <p className="text-xs text-blue-700 dark:text-blue-300">
+            ⚠️ <strong>Forskningsbaserat:</strong> Att tänka igenom konsekvenser motverkar "urgency bias"
+            (tendensen att prioritera vad som känns brådskande istället för vad som är viktigt)
+          </p>
+        </div>
+
+        {/* CPM Parameters */}
         <div className="space-y-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Prioritering</h3>
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">CPM Prioritering</h3>
             <VoiceButton
               mode="smart"
               onTranscript={() => {}}
@@ -172,30 +267,101 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Viktighet: {importance}/10
+              Värde - Objektiva konsekvenser: {valueScore}/10
             </label>
             <input
               type="range"
               min="1"
               max="10"
-              value={importance}
-              onChange={(e) => setImportance(Number(e.target.value))}
+              value={valueScore}
+              onChange={(e) => setValueScore(Number(e.target.value))}
               className="w-full"
             />
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <span>Minimal</span>
+              <span>Kritisk</span>
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Brådskande: {urgency}/10
+              Tidskänslighet - Kostnad av fördröjning: {timeSensitivity}/10
             </label>
             <input
               type="range"
               min="1"
               max="10"
-              value={urgency}
-              onChange={(e) => setUrgency(Number(e.target.value))}
+              value={timeSensitivity}
+              onChange={(e) => setTimeSensitivity(Number(e.target.value))}
               className="w-full"
             />
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <span>Kan vänta</span>
+              <span>Akut</span>
+            </div>
+
+            {/* Stress warning */}
+            {timeSensitivity > 7 && (
+              <div className="mt-4 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-500 rounded-lg p-4">
+                <h4 className="font-bold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  ⚠️ Stress-varning!
+                </h4>
+                <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
+                  Denna uppgift känns mycket brådskande. Forskning visar att vi systematiskt
+                  övervärderar brådska när vi är stressade.
+                </p>
+                <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+                  Vad är den <strong>faktiska</strong> kostnaden av att vänta 24 timmar?
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Tillit/Säkerhet - Sannolikhet för resultat: {confidence}/10
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={confidence}
+              onChange={(e) => setConfidence(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <span>Osäker</span>
+              <span>Garanterad</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Ansträngning - Faktisk tid/resurser: {effort}/10
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={effort}
+              onChange={(e) => setEffort(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <span>Lätt</span>
+              <span>Mycket krävande</span>
+            </div>
+          </div>
+
+          {/* Priority Preview */}
+          <div className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+            <p className="text-sm font-medium text-indigo-900 dark:text-indigo-100">
+              📊 Beräknad prioritet: <span className="text-lg font-bold">{priorityPreview.toFixed(1)}</span>
+            </p>
+            <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-1">
+              Formel: (Värde × Tidskänslighet × Tillit) / Ansträngning
+            </p>
           </div>
         </div>
 

@@ -27,8 +27,10 @@ export function ImportView() {
           await createTask({
             title: task.title || task.namn || 'Untitled',
             description: task.description || task.beskrivning || null,
-            importance: task.importance || task.viktighet || 5,
-            urgency: task.urgency || task.brådskande || 5,
+            value_score: task.value_score || task.importance || task.viktighet || 5,
+            time_sensitivity: task.time_sensitivity || task.urgency || task.brådskande || 5,
+            confidence: task.confidence || 7,
+            effort: task.effort || 5,
             deadline: task.deadline || task.deadline_datum || null,
             status: task.status || 'not_started',
           });
