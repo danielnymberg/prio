@@ -44,6 +44,7 @@ services:
       - type: redirect
         source: /favicon.ico
         destination: /favicon.svg
+      # Rewrite alla routes UTOM statiska filer till index.html (SPA routing)
       - type: rewrite
-        source: /*
+        source: /((?!.*\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|webmanifest)).*$)
         destination: /index.html
