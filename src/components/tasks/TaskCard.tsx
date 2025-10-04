@@ -213,17 +213,37 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
       )}
 
       {viewMode === 'expanded' && (
-        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-2">
-          <span>Viktighet: {task.importance}/10</span>
-          <span>Brådskande: {task.urgency}/10</span>
-          {task.estimated_duration && (
-            <span className={`flex items-center gap-1 ${getDurationColor(task.estimated_duration)}`}>
-              <Clock className="h-3 w-3" />
-              {formatDuration(task.estimated_duration)}
-            </span>
-          )}
-          {task.deadline && (
-            <span>Deadline: {new Date(task.deadline).toLocaleDateString('sv-SE')}</span>
+        <div className="mb-2 space-y-2">
+          <div className="grid grid-cols-4 gap-2 text-xs">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded px-2 py-1">
+              <div className="text-gray-500 dark:text-gray-400 text-[10px]">Värde</div>
+              <div className="font-semibold text-green-700 dark:text-green-400">{task.value_score}/10</div>
+            </div>
+            <div className="bg-amber-50 dark:bg-amber-900/20 rounded px-2 py-1">
+              <div className="text-gray-500 dark:text-gray-400 text-[10px]">Tidskänsl.</div>
+              <div className="font-semibold text-amber-700 dark:text-amber-400">{task.time_sensitivity}/10</div>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded px-2 py-1">
+              <div className="text-gray-500 dark:text-gray-400 text-[10px]">Tillit</div>
+              <div className="font-semibold text-blue-700 dark:text-blue-400">{task.confidence}/10</div>
+            </div>
+            <div className="bg-red-50 dark:bg-red-900/20 rounded px-2 py-1">
+              <div className="text-gray-500 dark:text-gray-400 text-[10px]">Anstr.</div>
+              <div className="font-semibold text-red-700 dark:text-red-400">{task.effort}/10</div>
+            </div>
+          </div>
+          {(task.estimated_duration || task.deadline) && (
+            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+              {task.estimated_duration && (
+                <span className={`flex items-center gap-1 ${getDurationColor(task.estimated_duration)}`}>
+                  <Clock className="h-3 w-3" />
+                  {formatDuration(task.estimated_duration)}
+                </span>
+              )}
+              {task.deadline && (
+                <span>Deadline: {new Date(task.deadline).toLocaleDateString('sv-SE')}</span>
+              )}
+            </div>
           )}
         </div>
       )}

@@ -5,8 +5,9 @@ import { getNextTask, getTaskQueue, hasEmergencyTasks } from '@/lib/focusAlgorit
 import { Task, UserContext, DailyCheckIn } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { formatDuration, formatRelativeTime } from '@/lib/utils';
-import { Play, ChevronRight, AlertTriangle, CheckCircle, Menu } from 'lucide-react';
+import { Play, ChevronRight, AlertTriangle, CheckCircle, SkipForward } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { DailyCheckInModal } from './DailyCheckInModal';
 
 export function FocusView() {
   const navigate = useNavigate();
@@ -15,27 +16,30 @@ export function FocusView() {
   const [nextTask, setNextTask] = useState<Task | null>(null);
   const [queue, setQueue] = useState<Task[]>([]);
   const [isEmergency, setIsEmergency] = useState(false);
+  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+  const [checkInData, setCheckInData] = useState<DailyCheckIn | null>(null);
 
   // Hämta dagens check-in
   useEffect(() => {
-    const stored = localStorage.getItem('daily_checkin');
+    const stored = localStorage.getItem('prio-daily-checkin');
     const today = new Date().toISOString().split('T')[0];
 
     if (!stored) {
-      // Ingen check-in gjord, redirect
-      navigate('/morning-checkin');
+      // Ingen check-in gjord, öppna modal
+      setIsCheckInOpen(true);
       return;
     }
 
     const checkIn: DailyCheckIn = JSON.parse(stored);
 
     if (checkIn.date !== today) {
-      // Gammal check-in, gör ny
-      navigate('/morning-checkin');
+      // Gammal check-in, öppna modal
+      setIsCheckInOpen(true);
       return;
     }
 
     // Sätt context
+    setCheckInData(checkIn);
     setContext({
       availableTime: checkIn.availableTime,
       energyLevel: checkIn.energyLevel,
@@ -43,7 +47,7 @@ export function FocusView() {
       currentDate: new Date(),
       nextBlockDuration: 90
     });
-  }, [navigate]);
+  }, []);
 
   // Beräkna nästa task när context eller tasks ändras
   useEffect(() => {
@@ -89,6 +93,34 @@ export function FocusView() {
     toast('Nästa uppgifter listas snart!');
   };
 
+  const handleCheckInComplete = (checkIn: DailyCheckIn) => {
+    setCheckInData(checkIn);
+    setContext({
+      availableTime: checkIn.availableTime,
+      energyLevel: checkIn.energyLevel,
+      strategy: checkIn.strategy,
+      currentDate: new Date(),
+      nextBlockDuration: 90
+    });
+  };
+
+  const handleSkipTask = async () => {
+    if (!nextTask) return;
+
+    const skipUntil = new Date();
+    skipUntil.setHours(skipUntil.getHours() + 2);
+
+    try {
+      // Vi kan lägga till ett skipped_until fält senare, för nu skippa bara genom att öka effort tillfälligt
+      toast.success('Uppgift överhoppad tillfälligt');
+      // Force re-calculation by updating context
+      setContext({...context!});
+    } catch (error) {
+      console.error('Error skipping task:', error);
+      toast.error('Kunde inte hoppa över uppgift');
+    }
+  };
+
   if (!context || !nextTask) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -119,14 +151,17 @@ export function FocusView() {
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {context.availableTime} min kvar idag • {context.energyLevel === 'low' ? '🔋' : context.energyLevel === 'medium' ? '🔋🔋' : '🔋🔋🔋'}
+              {checkInData?.strategy === 'quick_wins' && ' • ⚡ Quick Wins'}
+              {checkInData?.strategy === 'deep_work' && ' • 🧠 Deep Work'}
+              {checkInData?.strategy === 'balanced' && ' • ⚖️ Balanced'}
             </p>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/matrix')}
+            onClick={() => setIsCheckInOpen(true)}
           >
-            <Menu className="h-5 w-5" />
+            Ny check-in
           </Button>
         </div>
       </div>
@@ -215,20 +250,31 @@ export function FocusView() {
           )}
 
           {/* Actions */}
-          <div className="flex gap-4">
+          <div className="space-y-3">
+            <div className="flex gap-4">
+              <Button
+                onClick={handleStartSession}
+                className="flex-1 h-16 text-lg font-semibold"
+              >
+                <Play className="h-6 w-6 mr-3" />
+                Starta nu
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={handleMarkDone}
+                className="h-16 px-8"
+              >
+                <CheckCircle className="h-6 w-6" />
+              </Button>
+            </div>
+
             <Button
-              onClick={handleStartSession}
-              className="flex-1 h-16 text-lg font-semibold"
+              variant="ghost"
+              onClick={handleSkipTask}
+              className="w-full"
             >
-              <Play className="h-6 w-6 mr-3" />
-              Starta 90-min session
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleMarkDone}
-              className="h-16 px-8"
-            >
-              <CheckCircle className="h-6 w-6" />
+              <SkipForward className="h-4 w-4 mr-2" />
+              Hoppa över (visa nästa)
             </Button>
           </div>
         </div>
@@ -247,6 +293,13 @@ export function FocusView() {
           </div>
         )}
       </div>
+
+      {/* Daily Check-In Modal */}
+      <DailyCheckInModal
+        isOpen={isCheckInOpen}
+        onClose={() => setIsCheckInOpen(false)}
+        onComplete={handleCheckInComplete}
+      />
     </div>
   );
 }

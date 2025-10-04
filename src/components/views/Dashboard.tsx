@@ -1,6 +1,7 @@
 import { useTasks } from '@/hooks/useTasks';
 import { EisenhowerMatrix } from '@/components/matrix/EisenhowerMatrix';
 import { Stats } from '@/components/ui/Stats';
+import { Alert } from '@/components/ui/Alert';
 import { getTaskQuadrant } from '@/lib/utils';
 import { isToday, isPast } from 'date-fns';
 import { Target } from 'lucide-react';
@@ -32,6 +33,10 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <Alert variant="info" title="Matrix (Beta)">
+        Eisenhower Matrix är nu i beta-läge. För bästa upplevelse rekommenderar vi vår nya <strong>Just Nu</strong>-vy som använder CPM (Consequence-Priority Model) för smartare prioritering baserat på forskningsbaserade principer.
+      </Alert>
+
       {highestPriorityTask && (
         <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-6">
           <div className="flex items-start gap-4">

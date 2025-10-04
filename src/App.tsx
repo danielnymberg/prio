@@ -11,7 +11,6 @@ import { ArchiveView } from './components/views/ArchiveView';
 import { ImportView } from './components/views/ImportView';
 import { AllTasksView } from './components/views/AllTasksView';
 import { VoiceInterface } from './components/voice/VoiceInterface';
-import { MorningCheckIn } from './components/focus/MorningCheckIn';
 import { FocusView } from './components/focus/FocusView';
 import { ActiveSession } from './components/focus/ActiveSession';
 import { BreakView } from './components/focus/BreakView';
@@ -66,28 +65,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
+// HomePage now just redirects to FocusView
 function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user has done daily check-in
-    const today = new Date().toISOString().split('T')[0];
-    const stored = localStorage.getItem('daily_checkin');
-
-    if (!stored) {
-      // No check-in ever, go to morning check-in
-      navigate('/morning-checkin');
-      return;
-    }
-
-    const checkIn = JSON.parse(stored);
-    if (checkIn.date !== today) {
-      // Old check-in, do new one
-      navigate('/morning-checkin');
-    } else {
-      // Already done check-in today, go to focus
-      navigate('/focus');
-    }
+    navigate('/focus');
   }, [navigate]);
 
   return (
@@ -150,14 +133,6 @@ function App() {
           element={
             <ProtectedRoute>
               <ImportView />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/morning-checkin"
-          element={
-            <ProtectedRoute>
-              <MorningCheckIn />
             </ProtectedRoute>
           }
         />

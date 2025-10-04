@@ -3,16 +3,17 @@ import { useTasks } from '@/hooks/useTasks';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Task, Quadrant } from '@/lib/types';
-import { getTaskQuadrant } from '@/lib/utils';
+import { Task } from '@/lib/types';
 import { List, Search, Filter } from 'lucide-react';
+
+type PriorityLevel = 'all' | 'high' | 'medium' | 'low';
 
 export function AllTasksView() {
   const { tasks, updateTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterQuadrant, setFilterQuadrant] = useState<Quadrant | 'all'>('all');
+  const [filterPriority, setFilterPriority] = useState<PriorityLevel>('all');
   const [filterStatus] = useState<'all' | 'not_started' | 'in_progress' | 'done'>('all');
 
   const activeTasks = tasks.filter(t => t.status !== 'done');
@@ -26,8 +27,13 @@ export function AllTasksView() {
     );
   }
 
-  if (filterQuadrant !== 'all') {
-    filteredTasks = filteredTasks.filter(t => getTaskQuadrant(t) === filterQuadrant);
+  if (filterPriority !== 'all') {
+    filteredTasks = filteredTasks.filter(t => {
+      if (filterPriority === 'high') return t.priority >= 50;
+      if (filterPriority === 'medium') return t.priority >= 20 && t.priority < 50;
+      if (filterPriority === 'low') return t.priority < 20;
+      return true;
+    });
   }
 
   if (filterStatus !== 'all') {
@@ -41,11 +47,10 @@ export function AllTasksView() {
     setIsFormOpen(true);
   };
 
-  const quadrantCounts = {
-    Q1: activeTasks.filter(t => getTaskQuadrant(t) === 'Q1').length,
-    Q2: activeTasks.filter(t => getTaskQuadrant(t) === 'Q2').length,
-    Q3: activeTasks.filter(t => getTaskQuadrant(t) === 'Q3').length,
-    Q4: activeTasks.filter(t => getTaskQuadrant(t) === 'Q4').length,
+  const priorityCounts = {
+    high: activeTasks.filter(t => t.priority >= 50).length,
+    medium: activeTasks.filter(t => t.priority >= 20 && t.priority < 50).length,
+    low: activeTasks.filter(t => t.priority < 20).length,
   };
 
   return (
@@ -76,9 +81,9 @@ export function AllTasksView() {
 
           <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={() => setFilterQuadrant('all')}
+              onClick={() => setFilterPriority('all')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterQuadrant === 'all'
+                filterPriority === 'all'
                   ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               }`}
@@ -86,44 +91,34 @@ export function AllTasksView() {
               Alla ({activeTasks.length})
             </button>
             <button
-              onClick={() => setFilterQuadrant('Q1')}
+              onClick={() => setFilterPriority('high')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterQuadrant === 'Q1'
-                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Q1 ({quadrantCounts.Q1})
-            </button>
-            <button
-              onClick={() => setFilterQuadrant('Q2')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterQuadrant === 'Q2'
+                filterPriority === 'high'
                   ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               }`}
             >
-              Q2 ({quadrantCounts.Q2})
+              Hög prioritet (≥50) ({priorityCounts.high})
             </button>
             <button
-              onClick={() => setFilterQuadrant('Q3')}
+              onClick={() => setFilterPriority('medium')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterQuadrant === 'Q3'
+                filterPriority === 'medium'
                   ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               }`}
             >
-              Q3 ({quadrantCounts.Q3})
+              Medel (20-50) ({priorityCounts.medium})
             </button>
             <button
-              onClick={() => setFilterQuadrant('Q4')}
+              onClick={() => setFilterPriority('low')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterQuadrant === 'Q4'
+                filterPriority === 'low'
                   ? 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               }`}
             >
-              Q4 ({quadrantCounts.Q4})
+              Låg (&lt;20) ({priorityCounts.low})
             </button>
           </div>
         </div>
