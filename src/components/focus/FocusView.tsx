@@ -121,12 +121,38 @@ export function FocusView() {
     }
   };
 
-  if (!context || !nextTask) {
+  if (!context) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">Beräknar nästa uppgift...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!nextTask) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-md text-center px-6">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            Inga uppgifter att göra just nu!
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {tasks.length === 0
+              ? 'Du har inga uppgifter. Skapa din första uppgift för att komma igång!'
+              : 'Alla tillgängliga uppgifter är antingen blockerade eller kräver mer tid/energi än du har tillgängligt just nu.'}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => setIsCheckInOpen(true)} variant="secondary">
+              Uppdatera check-in
+            </Button>
+            <Button onClick={() => navigate('/all')}>
+              Visa alla uppgifter
+            </Button>
+          </div>
         </div>
       </div>
     );
