@@ -40,7 +40,4 @@ services:
       - path: /favicon.svg
         name: Cache-Control
         value: public, max-age=604800
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    # SPA routing hanteras av _redirects fil (se public/_redirects)
