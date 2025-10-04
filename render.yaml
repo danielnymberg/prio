@@ -1,7 +1,7 @@
 services:
   - type: web
     name: prio
-    env: static
+    runtime: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     headers:
@@ -40,11 +40,7 @@ services:
       - path: /favicon.svg
         name: Cache-Control
         value: public, max-age=604800
-    redirects:
-      - type: redirect
-        source: /favicon.ico
-        destination: /favicon.svg
-      # SPA routing - rewrite alla paths till index.html (Render serverar befintliga filer automatiskt)
+    routes:
       - type: rewrite
         source: /*
         destination: /index.html
