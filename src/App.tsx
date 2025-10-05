@@ -11,7 +11,6 @@ import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
 import { toast } from 'react-hot-toast';
-import { useRef } from 'react';
 
 // Lazy load routes för bättre initial load performance
 const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -68,7 +67,6 @@ function LoginPage() {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
-  const voiceInterfaceRef = useRef<any>(null);
 
   useEffect(() => {
     // Kolla om användaren har slutfört onboarding
@@ -102,7 +100,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     <AppLayout>
       {children}
       {/* Voice interface alltid tillgänglig när inloggad */}
-      <VoiceInterface ref={voiceInterfaceRef} />
+      <VoiceInterface />
       {/* Quick capture bar för mobil */}
       <QuickCaptureBar onVoiceClick={handleVoiceClick} />
       {/* Onboarding modal för nya användare */}
