@@ -46,6 +46,21 @@ export function VoiceInterface() {
     };
   }, []);
 
+  // Listen for voice trigger events
+  useEffect(() => {
+    const handleVoiceTrigger = () => {
+      if (!isListening && !isSpeaking) {
+        handleStartListening();
+      }
+    };
+
+    window.addEventListener('trigger-voice', handleVoiceTrigger);
+
+    return () => {
+      window.removeEventListener('trigger-voice', handleVoiceTrigger);
+    };
+  }, [isListening, isSpeaking]);
+
   const initializeServices = async () => {
     try {
       // Initialize TTS

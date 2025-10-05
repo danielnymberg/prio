@@ -5,13 +5,14 @@ import { TaskForm } from '@/components/tasks/TaskForm';
 import { useTasks } from '@/hooks/useTasks';
 import { CreateTaskInput } from '@/lib/types';
 
-interface QuickCaptureBarProps {
-  onVoiceClick: () => void;
-}
-
-export function QuickCaptureBar({ onVoiceClick }: QuickCaptureBarProps) {
+export function QuickCaptureBar() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { createTask } = useTasks();
+
+  const handleVoiceClick = () => {
+    // Dispatch custom event to trigger VoiceInterface
+    window.dispatchEvent(new Event('trigger-voice'));
+  };
 
   // Photo capture kommer i FAS 3
   const handlePhotoCapture = () => {
@@ -26,7 +27,7 @@ export function QuickCaptureBar({ onVoiceClick }: QuickCaptureBarProps) {
           <Button
             variant="ghost"
             size="lg"
-            onClick={onVoiceClick}
+            onClick={handleVoiceClick}
             className="flex flex-col items-center gap-1 min-w-[80px] min-h-[60px]"
             title="Röstinmatning"
           >

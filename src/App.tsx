@@ -90,21 +90,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
-  const handleVoiceClick = () => {
-    // Trigger voice interface
-    const voiceButton = document.querySelector('[title*="Klicka för att prata"]') as HTMLButtonElement;
-    if (voiceButton) {
-      voiceButton.click();
-    }
-  };
-
   return (
     <AppLayout>
       {children}
       {/* Voice interface alltid tillgänglig när inloggad */}
       <VoiceInterface />
       {/* Quick capture bar för mobil */}
-      <QuickCaptureBar onVoiceClick={handleVoiceClick} />
+      <QuickCaptureBar />
       {/* Onboarding modal för nya användare */}
       <WelcomeModal
         isOpen={showWelcome}
@@ -129,15 +121,13 @@ function HomePage() {
       // Trigger voice interface
       navigate('/focus');
       setTimeout(() => {
-        const voiceButton = document.querySelector('[title*="Klicka för att prata"]') as HTMLButtonElement;
-        if (voiceButton) voiceButton.click();
+        window.dispatchEvent(new Event('trigger-voice'));
       }, 500);
     } else if (action === 'quick') {
       // Trigger quick task form
       navigate('/focus');
       setTimeout(() => {
-        const quickButton = document.querySelector('[title*="Skapa task"]') as HTMLButtonElement;
-        if (quickButton) quickButton.click();
+        window.dispatchEvent(new Event('trigger-quick-task'));
       }, 500);
     } else {
       // Default: go to focus view
