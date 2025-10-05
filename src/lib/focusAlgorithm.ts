@@ -2,6 +2,46 @@ import { Task, UserContext } from './types';
 import { differenceInDays, differenceInHours } from 'date-fns';
 
 /**
+ * Beräkna hur mycket av en uppgift som kan göras med tillgänglig tid
+ */
+export function calculatePartialWork(
+  taskDuration: number,
+  availableTime: number
+): {
+  canDoToday: number;
+  remainingTomorrow: number;
+  suggestion: string;
+} {
+  const canDoToday = Math.min(taskDuration, availableTime);
+  const remainingTomorrow = Math.max(0, taskDuration - availableTime);
+
+  if (remainingTomorrow === 0) {
+    return {
+      canDoToday,
+      remainingTomorrow: 0,
+      suggestion: `Kan göras klart idag på ${canDoToday} min`
+    };
+  }
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(9, 0, 0, 0);
+
+  const formatTime = (minutes: number) => {
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+  };
+
+  return {
+    canDoToday,
+    remainingTomorrow,
+    suggestion: `Gör ${formatTime(canDoToday)} idag, fortsätt ${formatTime(remainingTomorrow)} imorgon kl 09:00`
+  };
+}
+
+/**
  * Beräknar dynamisk prioritet baserat på CPM-modellen + kontext
  * Implementerar forskningsbaserade principer från:
  * - Mere Urgency Effect (Zhu et al. 2018)
@@ -22,22 +62,37 @@ export function calculateDynamicPriority(
   const E = task.effort;
   const basePriority = (V * T * C) / E;
 
-  // 1. DEADLINE MULTIPLIER (consequence_deadline, inte känslomässig deadline)
+  // 1. DEADLINE MULTIPLIER (baserat på deadline + tidskänslighet)
   let deadlineMultiplier = 1.0;
-  if (task.consequence_deadline) {
-    const hoursUntil = differenceInHours(new Date(task.consequence_deadline), now);
-    const daysUntil = differenceInDays(new Date(task.consequence_deadline), now);
+  if (task.deadline) {
+    const hoursUntil = differenceInHours(new Date(task.deadline), now);
+    const daysUntil = differenceInDays(new Date(task.deadline), now);
+    const timeSens = task.time_sensitivity || 5;
 
-    if (hoursUntil < 24) {
-      deadlineMultiplier = 5.0;  // EMERGENCY! Konsekvens inom 24h
-    } else if (daysUntil <= 1) {
-      deadlineMultiplier = 3.0;  // Konsekvens imorgon
-    } else if (daysUntil <= 3) {
-      deadlineMultiplier = 2.0;  // Konsekvens inom 3 dagar
-    } else if (daysUntil <= 7) {
-      deadlineMultiplier = 1.5;  // Konsekvens inom veckan
-    } else if (daysUntil > 30) {
-      deadlineMultiplier = 0.7;  // Långt bort - minska prio
+    // Emergency: deadline < 24h OCH hög tidskänslighet
+    if (hoursUntil < 24 && hoursUntil >= 0 && timeSens >= 7) {
+      deadlineMultiplier = 5.0;
+    }
+    // Försenad
+    else if (hoursUntil < 0) {
+      const daysOverdue = Math.abs(daysUntil);
+      deadlineMultiplier = 4.0 + Math.min(daysOverdue * 0.2, 2.0); // Max 6.0
+    }
+    // Imorgon
+    else if (daysUntil <= 1) {
+      deadlineMultiplier = 3.0;
+    }
+    // Inom 3 dagar
+    else if (daysUntil <= 3) {
+      deadlineMultiplier = 2.0;
+    }
+    // Inom veckan
+    else if (daysUntil <= 7) {
+      deadlineMultiplier = 1.5;
+    }
+    // Långt bort (> 30 dagar)
+    else if (daysUntil > 30) {
+      deadlineMultiplier = 0.7;
     }
   }
 
@@ -97,8 +152,18 @@ export function getNextTask(tasks: Task[], context: UserContext): Task | null {
       if (hasBlocker) return false;
     }
 
-    // För lång för tillgänglig tid? (om användaren sa "2h idag")
+    // För lång för tillgänglig tid? Behåll ändå om uppgiften är viktig/försenad
     if (t.estimated_duration && t.estimated_duration > context.availableTime) {
+      const isOverdue = t.deadline && new Date(t.deadline) < now;
+      const isHighValue = (t.value_score || 5) >= 8;
+      const isUrgent = (t.time_sensitivity || 5) >= 8;
+
+      // Behåll viktiga uppgifter för partiellt arbete
+      if (isOverdue || isHighValue || isUrgent) {
+        return true;
+      }
+
+      // Filtrera bort låga prio-uppgifter som är för långa
       return false;
     }
 
@@ -120,11 +185,12 @@ export function getNextTask(tasks: Task[], context: UserContext): Task | null {
   // STEG 3: Sortera efter dynamisk prioritet
   scored.sort((a, b) => b.dynamicPriority - a.dynamicPriority);
 
-  // STEG 4: Emergency override (konsekvens inom 24h)
+  // STEG 4: Emergency override (deadline inom 24h OCH hög tidskänslighet)
   const emergencies = scored.filter(s => {
-    if (!s.task.consequence_deadline) return false;
-    const hoursUntil = differenceInHours(new Date(s.task.consequence_deadline), now);
-    return hoursUntil < 24;
+    if (!s.task.deadline) return false;
+    const hoursUntil = differenceInHours(new Date(s.task.deadline), now);
+    const timeSens = s.task.time_sensitivity || 5;
+    return hoursUntil < 24 && hoursUntil >= 0 && timeSens >= 7;
   });
 
   if (emergencies.length > 0) {
@@ -176,8 +242,9 @@ export function getTaskQueue(
 export function hasEmergencyTasks(tasks: Task[]): boolean {
   const now = new Date();
   return tasks.some(t => {
-    if (t.status === 'done' || !t.consequence_deadline) return false;
-    const hoursUntil = differenceInHours(new Date(t.consequence_deadline), now);
-    return hoursUntil < 24;
+    if (t.status === 'done' || !t.deadline) return false;
+    const hoursUntil = differenceInHours(new Date(t.deadline), now);
+    const timeSens = t.time_sensitivity || 5;
+    return hoursUntil < 24 && hoursUntil >= 0 && timeSens >= 7;
   });
 }

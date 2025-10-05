@@ -24,13 +24,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
   const [confidence, setConfidence] = useState(7);
   const [effort, setEffort] = useState(5);
 
-  // Consequences
-  const [consequences, setConsequences] = useState({
-    oneWeek: '',
-    oneMonth: '',
-    oneYear: ''
-  });
-  const [consequenceDeadline, setConsequenceDeadline] = useState('');
   const [blocksTaskIds, setBlocksTaskIds] = useState<string[]>([]);
 
   const [deadline, setDeadline] = useState('');
@@ -46,12 +39,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       setTimeSensitivity(task.time_sensitivity || 5);
       setConfidence(task.confidence || 7);
       setEffort(task.effort || 5);
-      setConsequences({
-        oneWeek: task.consequence_1week || '',
-        oneMonth: task.consequence_1month || '',
-        oneYear: task.consequence_1year || ''
-      });
-      setConsequenceDeadline(task.consequence_deadline ? task.consequence_deadline.split('T')[0] : '');
       setBlocksTaskIds(task.blocks_task_ids || []);
       setDeadline(task.deadline ? task.deadline.split('T')[0] : '');
       setStatus(task.status);
@@ -63,8 +50,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       setTimeSensitivity(5);
       setConfidence(7);
       setEffort(5);
-      setConsequences({ oneWeek: '', oneMonth: '', oneYear: '' });
-      setConsequenceDeadline('');
       setBlocksTaskIds([]);
       setDeadline('');
       setStatus('not_started');
@@ -88,10 +73,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       };
 
       // Lägg bara till optional fields om de har värden
-      if (consequences.oneWeek) input.consequence_1week = consequences.oneWeek;
-      if (consequences.oneMonth) input.consequence_1month = consequences.oneMonth;
-      if (consequences.oneYear) input.consequence_1year = consequences.oneYear;
-      if (consequenceDeadline) input.consequence_deadline = consequenceDeadline;
       if (blocksTaskIds.length > 0) input.blocks_task_ids = blocksTaskIds;
       if (deadline) input.deadline = deadline;
       if (estimatedDuration) input.estimated_duration = estimatedDuration;
@@ -152,63 +133,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
           />
-        </div>
-
-        {/* Consequences Section - Anti-urgency bias */}
-        <div className="space-y-4 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-800 mb-6">
-          <h3 className="font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5" />
-            Om du INTE gör denna uppgift:
-          </h3>
-
-          <div>
-            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
-              Vad händer om 1 vecka?
-            </label>
-            <Input
-              value={consequences.oneWeek}
-              onChange={(e) => setConsequences({...consequences, oneWeek: e.target.value})}
-              placeholder="t.ex. Kunden blir frustrerad, missar deadline"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
-              Vad händer om 1 månad?
-            </label>
-            <Input
-              value={consequences.oneMonth}
-              onChange={(e) => setConsequences({...consequences, oneMonth: e.target.value})}
-              placeholder="t.ex. Tappar kunden, måste hitta ny"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
-              Vad händer om 1 år?
-            </label>
-            <Input
-              value={consequences.oneYear}
-              onChange={(e) => setConsequences({...consequences, oneYear: e.target.value})}
-              placeholder="t.ex. Verksamheten förlorat trovärdighet"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
-              När träder konsekvensen i kraft? (deadline för konsekvens)
-            </label>
-            <Input
-              type="date"
-              value={consequenceDeadline}
-              onChange={(e) => setConsequenceDeadline(e.target.value)}
-            />
-          </div>
-
-          <p className="text-xs text-blue-700 dark:text-blue-300">
-            ⚠️ <strong>Forskningsbaserat:</strong> Att tänka igenom konsekvenser motverkar "urgency bias"
-            (tendensen att prioritera vad som känns brådskande istället för vad som är viktigt)
-          </p>
         </div>
 
         {/* CPM Parameters */}

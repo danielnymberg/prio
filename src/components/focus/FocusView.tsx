@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
-import { getNextTask, getTaskQueue, hasEmergencyTasks } from '@/lib/focusAlgorithm';
+import { getNextTask, getTaskQueue, hasEmergencyTasks, calculatePartialWork } from '@/lib/focusAlgorithm';
 import { Task, UserContext, DailyCheckIn } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { formatDuration, formatRelativeTime } from '@/lib/utils';
-import { Play, ChevronRight, AlertTriangle, CheckCircle, SkipForward } from 'lucide-react';
+import { Play, ChevronRight, AlertTriangle, CheckCircle, SkipForward, Clock, Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { DailyCheckInModal } from './DailyCheckInModal';
 
@@ -149,23 +149,96 @@ export function FocusView() {
       <>
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
           <div className="max-w-md text-center px-6">
-            <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Inga uppgifter att göra just nu!
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {tasks.length === 0
-                ? 'Du har inga uppgifter. Skapa din första uppgift för att komma igång!'
-                : 'Alla tillgängliga uppgifter är antingen blockerade eller kräver mer tid/energi än du har tillgängligt just nu.'}
-            </p>
-            <div className="flex gap-3 justify-center">
-              <Button onClick={() => setIsCheckInOpen(true)} variant="secondary">
-                Uppdatera check-in
-              </Button>
-              <Button onClick={() => navigate('/all')}>
-                Visa alla uppgifter
-              </Button>
-            </div>
+            {(() => {
+              const activeTasks = tasks.filter(t => t.status !== 'done');
+              const blockedTasks = activeTasks.filter(t =>
+                t.blocked_by_task_ids && t.blocked_by_task_ids.length > 0 &&
+                t.blocked_by_task_ids.some(blockerId => {
+                  const blocker = tasks.find(bt => bt.id === blockerId);
+                  return blocker && blocker.status !== 'done';
+                })
+              );
+              const tooLongTasks = context ? activeTasks.filter(t =>
+                t.estimated_duration && t.estimated_duration > context.availableTime
+              ) : [];
+
+              if (tasks.length === 0) {
+                return (
+                  <>
+                    <div className="text-6xl mb-4">📝</div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                      Inga uppgifter ännu!
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      Skapa din första uppgift för att komma igång med smart prioritering.
+                    </p>
+                    <Button onClick={() => navigate('/all')} size="lg">
+                      <Plus className="h-5 w-5 mr-2" />
+                      Skapa första uppgiften
+                    </Button>
+                  </>
+                );
+              }
+
+              if (blockedTasks.length === activeTasks.length) {
+                return (
+                  <>
+                    <div className="text-6xl mb-4">🔒</div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                      Alla uppgifter är blockerade
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      {blockedTasks.length} uppgifter väntar på att andra uppgifter ska bli klara.
+                    </p>
+                    <Button onClick={() => navigate('/all')} variant="primary">
+                      Granska dependencies
+                    </Button>
+                  </>
+                );
+              }
+
+              if (activeTasks.length > 0 && tooLongTasks.length === activeTasks.length && context) {
+                return (
+                  <>
+                    <div className="text-6xl mb-4">⏰</div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                      Alla uppgifter tar för lång tid
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      Du har {activeTasks.length} uppgifter men alla kräver mer än {Math.floor(context.availableTime / 60)}h.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Button onClick={() => setIsCheckInOpen(true)} variant="primary">
+                        Uppdatera tillgänglig tid
+                      </Button>
+                      <Button onClick={() => navigate('/all')} variant="secondary">
+                        Dela upp uppgifter
+                      </Button>
+                    </div>
+                  </>
+                );
+              }
+
+              return (
+                <>
+                  <div className="text-6xl mb-4">🤷</div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                    Inga uppgifter tillgängliga just nu
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Det finns uppgifter men ingen passar dina nuvarande filter.
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button onClick={() => setIsCheckInOpen(true)} variant="primary">
+                      Uppdatera check-in
+                    </Button>
+                    <Button onClick={() => navigate('/all')} variant="secondary">
+                      Visa alla uppgifter
+                    </Button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
 
@@ -216,32 +289,54 @@ export function FocusView() {
       {/* Main Focus Card */}
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 border-4 border-blue-500 dark:border-blue-600">
-          {/* Emergency indicator */}
-          {nextTask.consequence_deadline && (
-            (() => {
-              const hoursUntil = Math.floor(
-                (new Date(nextTask.consequence_deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60)
-              );
-              if (hoursUntil < 24) {
-                return (
-                  <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-500 rounded-xl p-4 mb-6">
-                    <div className="flex items-start gap-3">
-                      <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-1" />
-                      <div>
-                        <h3 className="font-bold text-red-900 dark:text-red-100 mb-1">
-                          🚨 AKUT - Måste göras idag!
-                        </h3>
-                        <p className="text-sm text-red-800 dark:text-red-200">
-                          Konsekvens om {hoursUntil}h: {nextTask.consequence_1week}
-                        </p>
-                      </div>
+          {/* Deadline Warnings */}
+          {nextTask.deadline && (() => {
+            const deadline = new Date(nextTask.deadline);
+            const now = new Date();
+            const hoursUntil = Math.floor((deadline.getTime() - now.getTime()) / (1000 * 60 * 60));
+            const isOverdue = hoursUntil < 0;
+            const isEmergency = hoursUntil >= 0 && hoursUntil < 24 && (nextTask.time_sensitivity || 5) >= 7;
+
+            if (isOverdue) {
+              const hoursOverdue = Math.abs(hoursUntil);
+              return (
+                <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-500 rounded-xl p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-1" />
+                    <div>
+                      <h3 className="font-bold text-red-900 dark:text-red-100 mb-1">
+                        🚨 FÖRSENAD - {hoursOverdue < 24 ? `${hoursOverdue}h` : `${Math.floor(hoursOverdue / 24)} dagar`} sen!
+                      </h3>
+                      <p className="text-sm text-red-800 dark:text-red-200">
+                        Deadline var {deadline.toLocaleDateString('sv-SE')} kl {deadline.toLocaleTimeString('sv-SE', {hour: '2-digit', minute: '2-digit'})}.
+                        Denna uppgift bör prioriteras högst.
+                      </p>
                     </div>
                   </div>
-                );
-              }
-              return null;
-            })()
-          )}
+                </div>
+              );
+            }
+
+            if (isEmergency) {
+              return (
+                <div className="bg-orange-100 dark:bg-orange-900/30 border-2 border-orange-500 rounded-xl p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-6 w-6 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-1" />
+                    <div>
+                      <h3 className="font-bold text-orange-900 dark:text-orange-100 mb-1">
+                        ⚡ AKUT - Deadline om {hoursUntil}h
+                      </h3>
+                      <p className="text-sm text-orange-800 dark:text-orange-200">
+                        Deadline: {deadline.toLocaleDateString('sv-SE')} kl {deadline.toLocaleTimeString('sv-SE', {hour: '2-digit', minute: '2-digit'})}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            return null;
+          })()}
 
           {/* Title */}
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
@@ -265,36 +360,44 @@ export function FocusView() {
                 </div>
               </div>
             )}
-            {nextTask.consequence_deadline && (
+            {nextTask.deadline && (
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Konsekvens om</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Deadline</div>
                 <div className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {formatRelativeTime(nextTask.consequence_deadline)}
+                  {formatRelativeTime(nextTask.deadline)}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Consequences (om användaren fyllt i) */}
-          {(nextTask.consequence_1week || nextTask.consequence_1month) && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-8">
-              <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-3">
-                Om du INTE gör denna uppgift:
-              </h3>
-              <div className="space-y-2 text-sm text-amber-800 dark:text-amber-200">
-                {nextTask.consequence_1week && (
-                  <div>
-                    <span className="font-medium">Om 1 vecka:</span> {nextTask.consequence_1week}
+          {/* Partial Work Warning */}
+          {nextTask.estimated_duration &&
+           context &&
+           nextTask.estimated_duration > context.availableTime && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-600 rounded-xl p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-1">
+                    ⏱️ Uppgiften tar längre än tillgänglig tid
+                  </h3>
+                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                    Uppgiften tar {formatDuration(nextTask.estimated_duration)},
+                    du har {formatDuration(context.availableTime)} kvar idag.
+                  </p>
+                  <div className="bg-blue-100 dark:bg-blue-800 rounded-lg p-3 mt-2">
+                    <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                      💡 Förslag: {calculatePartialWork(
+                        nextTask.estimated_duration,
+                        context.availableTime
+                      ).suggestion}
+                    </p>
                   </div>
-                )}
-                {nextTask.consequence_1month && (
-                  <div>
-                    <span className="font-medium">Om 1 månad:</span> {nextTask.consequence_1month}
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           )}
+
 
           {/* Actions */}
           <div className="space-y-3">

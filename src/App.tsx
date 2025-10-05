@@ -6,6 +6,7 @@ import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
 import { VoiceInterface } from './components/voice/VoiceInterface';
 import { QuickCaptureBar } from './components/ui/QuickCaptureBar';
+import { QuickNoteInput } from './components/tasks/QuickNoteInput';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
@@ -95,6 +96,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {children}
       {/* Voice interface alltid tillgänglig när inloggad */}
       <VoiceInterface />
+      {/* Quick note input - ersätter röst tillsvidare */}
+      <QuickNoteInput />
       {/* Quick capture bar för mobil */}
       <QuickCaptureBar />
       {/* Onboarding modal för nya användare */}

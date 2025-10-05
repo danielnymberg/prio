@@ -24,12 +24,6 @@ export interface Task {
   importance?: number;           // Deprecated
   urgency?: number;              // Deprecated
 
-  // Konsekvens-metadata (anti-urgency-bias)
-  consequence_1week: string | null;
-  consequence_1month: string | null;
-  consequence_1year: string | null;
-  consequence_deadline: string | null;  // ISO timestamp
-
   // Dependency tracking
   blocks_task_ids: string[] | null;
   blocked_by_task_ids: string[] | null;
@@ -65,10 +59,6 @@ export interface CreateTaskInput {
   time_sensitivity: number;
   confidence: number;
   effort: number;
-  consequence_1week?: string;
-  consequence_1month?: string;
-  consequence_1year?: string;
-  consequence_deadline?: string;
   blocks_task_ids?: string[];
   deadline?: string;
   status?: TaskStatus;
@@ -83,10 +73,6 @@ export interface UpdateTaskInput {
   time_sensitivity?: number;
   confidence?: number;
   effort?: number;
-  consequence_1week?: string;
-  consequence_1month?: string;
-  consequence_1year?: string;
-  consequence_deadline?: string;
   blocks_task_ids?: string[];
   blocked_by_task_ids?: string[];
   result_impact?: number;
