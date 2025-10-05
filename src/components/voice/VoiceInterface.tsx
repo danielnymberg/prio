@@ -20,10 +20,12 @@ export function VoiceInterface() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>(''); // Ny: visa aktuell status
 
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
   const ttsRef = useRef<AzureTTS | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { tasks, createTask, updateTask } = useTasks();
 
   const initializeServices = async () => {
@@ -76,13 +78,15 @@ export function VoiceInterface() {
     };
     setConversationLog(prev => [...prev, userMessage]);
 
-    // Rensa transcript
+    // Rensa transcript och uppdatera status
     setTranscript('');
     setIsListening(false);
+    setStatus('AI tänker...');
     sttRef.current?.stopListening();
 
     if (!claudeRef.current) {
       setError('AI-assistent inte tillgänglig');
+      setStatus('');
       return;
     }
 
@@ -105,18 +109,26 @@ export function VoiceInterface() {
         // Speak response
         if (ttsRef.current) {
           setIsSpeaking(true);
+          setStatus('AI svarar...');
           try {
             await ttsRef.current.speak(response);
           } catch (error) {
             console.error('TTS error:', error);
+            setError('Kunde inte spela upp svar');
           } finally {
             setIsSpeaking(false);
+            setStatus('');
           }
+        } else {
+          setStatus('');
         }
+      } else {
+        setStatus('');
       }
     } catch (error) {
       console.error('Conversation error:', error);
       setError('Kunde inte få svar från AI-assistenten');
+      setStatus('');
     }
   }, [tasks]);
 
@@ -130,23 +142,35 @@ export function VoiceInterface() {
       setIsListening(true);
       setTranscript('');
       setError(null);
+      setStatus('Ansluter...');
 
       await sttRef.current.startListening((text, isFinal) => {
+        setStatus('Lyssnar...');
         setTranscript(text);
 
         if (isFinal && text.trim()) {
+          setStatus('Bearbetar...');
           handleUserMessage(text);
         }
       });
+
+      // Timeout: visa varning om ingen transcript efter 5 sekunder
+      setTimeout(() => {
+        if (isListening && !transcript) {
+          setStatus('Inget ljud upptäckt...');
+        }
+      }, 5000);
     } catch (error) {
       console.error('Failed to start listening:', error);
       setError('Kunde inte starta röstigenkänning');
+      setStatus('');
       setIsListening(false);
     }
-  }, [handleUserMessage]);
+  }, [handleUserMessage, isListening, transcript]);
 
   const handleStopListening = useCallback(() => {
     setIsListening(false);
+    setStatus('');
     sttRef.current?.stopListening();
   }, []);
 
@@ -188,6 +212,20 @@ export function VoiceInterface() {
   const clearConversation = () => {
     setConversationLog([]);
     claudeRef.current?.clearHistory();
+  };
+
+  // Långklick-hantering för att öppna conversation view
+  const handleMouseDown = () => {
+    longPressTimerRef.current = setTimeout(() => {
+      setIsExpanded(!isExpanded);
+    }, 500); // 500ms långklick
+  };
+
+  const handleMouseUp = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
   };
 
   if (!isInitialized) {
@@ -280,11 +318,29 @@ export function VoiceInterface() {
         </div>
       )}
 
-      {/* Live Transcript (when not expanded) */}
-      {!isExpanded && transcript && (
-        <div className="mb-4 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 w-80">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Du säger:</p>
-          <p className="text-gray-900 dark:text-white">{transcript}</p>
+      {/* Status/Transcript Box (when not expanded) */}
+      {!isExpanded && (status || transcript || error) && (
+        <div className={`mb-4 rounded-2xl shadow-xl p-4 w-80 ${
+          error
+            ? 'bg-red-50 dark:bg-red-900/20 border-2 border-red-500'
+            : 'bg-white dark:bg-gray-800'
+        }`}>
+          {error ? (
+            <>
+              <p className="text-sm text-red-600 dark:text-red-400 mb-1 font-semibold">Fel:</p>
+              <p className="text-red-800 dark:text-red-200">{error}</p>
+            </>
+          ) : transcript ? (
+            <>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Du säger:</p>
+              <p className="text-gray-900 dark:text-white">{transcript}</p>
+            </>
+          ) : status ? (
+            <>
+              <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Status:</p>
+              <p className="text-gray-900 dark:text-white">{status}</p>
+            </>
+          ) : null}
         </div>
       )}
 
@@ -294,7 +350,10 @@ export function VoiceInterface() {
           variant={isListening ? 'secondary' : isSpeaking ? 'secondary' : 'primary'}
           size="lg"
           onClick={isListening ? handleStopListening : handleStartListening}
-          onDoubleClick={() => setIsExpanded(!isExpanded)}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchEnd={handleMouseUp}
           className="rounded-full w-16 h-16 shadow-2xl transition-all flex items-center justify-center p-0"
           disabled={isSpeaking}
           title={
@@ -302,7 +361,7 @@ export function VoiceInterface() {
               ? 'AI talar...'
               : isListening
               ? 'Klicka för att sluta lyssna'
-              : 'Klicka för att prata, dubbelklicka för att öppna chat'
+              : 'Klicka för att prata, håll inne för att öppna chat'
           }
         >
           {isSpeaking ? (

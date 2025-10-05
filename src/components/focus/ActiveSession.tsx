@@ -18,12 +18,19 @@ export function ActiveSession() {
 
   useEffect(() => {
     const foundTask = tasks.find(t => t.id === taskId);
-    if (!foundTask) {
+
+    // Vänta tills tasks har laddats innan vi avgör om uppgiften saknas
+    if (!foundTask && tasks.length > 0) {
       toast.error('Uppgift hittades inte');
       navigate('/focus');
       return;
     }
-    setTask(foundTask);
+
+    // Om task hittades, sätt den
+    if (foundTask) {
+      setTask(foundTask);
+    }
+    // Annars vänta (tasks laddar fortfarande, visa "Laddar..." från rad 76)
   }, [taskId, tasks, navigate]);
 
   useEffect(() => {

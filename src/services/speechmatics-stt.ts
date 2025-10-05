@@ -64,11 +64,22 @@ export class SpeechmaticsSTT {
           this.onTranscriptCallback?.(data.metadata.transcript, true);
         } else if (data.message === 'Error') {
           console.error('Speechmatics error:', data);
+          const errorMsg = data.reason || 'Okänt fel från Speechmatics';
+          throw new Error(`Speechmatics: ${errorMsg}`);
+        } else if (data.message === 'Warning') {
+          console.warn('Speechmatics warning:', data);
         }
       };
 
       this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
+        throw new Error('Kunde inte ansluta till röstigenkänning');
+      };
+
+      this.ws.onclose = (event) => {
+        if (!event.wasClean) {
+          console.error('WebSocket closed unexpectedly:', event);
+        }
       };
 
     } catch (error) {
