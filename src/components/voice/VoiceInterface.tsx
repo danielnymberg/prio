@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Mic, MicOff, Volume2, MessageSquare, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
@@ -25,41 +25,6 @@ export function VoiceInterface() {
   const ttsRef = useRef<AzureTTS | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const { tasks, createTask, updateTask } = useTasks();
-
-  useEffect(() => {
-    initializeServices();
-
-    // Proper cleanup function
-    return () => {
-      // Stop active services
-      if (sttRef.current) {
-        sttRef.current.stopListening();
-      }
-      if (ttsRef.current) {
-        ttsRef.current.stop();
-      }
-
-      // Clear references to allow garbage collection
-      sttRef.current = null;
-      ttsRef.current = null;
-      claudeRef.current = null;
-    };
-  }, []);
-
-  // Listen for voice trigger events
-  useEffect(() => {
-    const handleVoiceTrigger = () => {
-      if (!isListening && !isSpeaking) {
-        handleStartListening();
-      }
-    };
-
-    window.addEventListener('trigger-voice', handleVoiceTrigger);
-
-    return () => {
-      window.removeEventListener('trigger-voice', handleVoiceTrigger);
-    };
-  }, [isListening, isSpeaking]);
 
   const initializeServices = async () => {
     try {
@@ -102,37 +67,7 @@ export function VoiceInterface() {
     }
   };
 
-  const handleStartListening = async () => {
-    if (!sttRef.current) {
-      setError('Röstigenkänning inte tillgänglig');
-      return;
-    }
-
-    try {
-      setIsListening(true);
-      setTranscript('');
-      setError(null);
-
-      await sttRef.current.startListening((text, isFinal) => {
-        setTranscript(text);
-
-        if (isFinal && text.trim()) {
-          handleUserMessage(text);
-        }
-      });
-    } catch (error) {
-      console.error('Failed to start listening:', error);
-      setError('Kunde inte starta röstigenkänning');
-      setIsListening(false);
-    }
-  };
-
-  const handleStopListening = () => {
-    setIsListening(false);
-    sttRef.current?.stopListening();
-  };
-
-  const handleUserMessage = async (message: string) => {
+  const handleUserMessage = useCallback(async (message: string) => {
     // Lägg till i log
     const userMessage: ConversationMessage = {
       role: 'user',
@@ -183,8 +118,72 @@ export function VoiceInterface() {
       console.error('Conversation error:', error);
       setError('Kunde inte få svar från AI-assistenten');
     }
-  };
+  }, [tasks]);
 
+  const handleStartListening = useCallback(async () => {
+    if (!sttRef.current) {
+      setError('Röstigenkänning inte tillgänglig');
+      return;
+    }
+
+    try {
+      setIsListening(true);
+      setTranscript('');
+      setError(null);
+
+      await sttRef.current.startListening((text, isFinal) => {
+        setTranscript(text);
+
+        if (isFinal && text.trim()) {
+          handleUserMessage(text);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to start listening:', error);
+      setError('Kunde inte starta röstigenkänning');
+      setIsListening(false);
+    }
+  }, [handleUserMessage]);
+
+  const handleStopListening = useCallback(() => {
+    setIsListening(false);
+    sttRef.current?.stopListening();
+  }, []);
+
+  useEffect(() => {
+    initializeServices();
+
+    // Proper cleanup function
+    return () => {
+      // Stop active services
+      if (sttRef.current) {
+        sttRef.current.stopListening();
+      }
+      if (ttsRef.current) {
+        ttsRef.current.stop();
+      }
+
+      // Clear references to allow garbage collection
+      sttRef.current = null;
+      ttsRef.current = null;
+      claudeRef.current = null;
+    };
+  }, []);
+
+  // Listen for voice trigger events
+  useEffect(() => {
+    const handleVoiceTrigger = () => {
+      if (!isListening && !isSpeaking) {
+        handleStartListening();
+      }
+    };
+
+    window.addEventListener('trigger-voice', handleVoiceTrigger);
+
+    return () => {
+      window.removeEventListener('trigger-voice', handleVoiceTrigger);
+    };
+  }, [isListening, isSpeaking, handleStartListening]);
 
   const clearConversation = () => {
     setConversationLog([]);
