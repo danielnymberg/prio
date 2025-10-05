@@ -5,7 +5,7 @@ import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
-import { Task } from '@/lib/types';
+import { Task, CreateTaskInput } from '@/lib/types';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -151,7 +151,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           if (selectedTask) {
             await updateTask(selectedTask.id, input);
           } else {
-            await createTask(input as any);
+            await createTask(input as CreateTaskInput);
           }
         }}
         task={selectedTask}

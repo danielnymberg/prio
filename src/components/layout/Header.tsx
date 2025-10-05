@@ -4,6 +4,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { useTasks } from '@/hooks/useTasks';
+import { CreateTaskInput } from '@/lib/types';
 import { LogOut, User, Plus, Menu } from 'lucide-react';
 
 interface HeaderProps {
@@ -79,7 +80,9 @@ export function Header({ onMenuClick }: HeaderProps) {
       <TaskForm
         isOpen={isQuickAddOpen}
         onClose={() => setIsQuickAddOpen(false)}
-        onSubmit={(input) => createTask(input as any)}
+        onSubmit={async (input) => {
+          await createTask(input as CreateTaskInput);
+        }}
       />
     </header>
   );

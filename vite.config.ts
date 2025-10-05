@@ -7,8 +7,8 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // Prompt användaren istället för auto-update för bättre kontroll
-      registerType: 'prompt',
+      // Auto-update för snabba, pålitliga uppdateringar
+      registerType: 'autoUpdate',
       // Aggressiv cache cleanup för att undvika gamla versioner
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],

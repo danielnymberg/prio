@@ -9,7 +9,7 @@ import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
-import { ServiceWorkerUpdatePrompt } from './components/pwa/ServiceWorkerUpdatePrompt';
+import { toast } from 'react-hot-toast';
 
 // Lazy load routes för bättre initial load performance
 const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -121,11 +121,25 @@ function HomePage() {
 }
 
 function App() {
+  // Track app version for update notifications
+  useEffect(() => {
+    const currentVersion = import.meta.env.VITE_APP_VERSION || '1.0.0';
+    const storedVersion = localStorage.getItem('prio_app_version');
+
+    if (storedVersion && storedVersion !== currentVersion) {
+      toast.success('Appen har uppdaterats till v' + currentVersion, {
+        duration: 5000,
+        icon: '🎉',
+      });
+    }
+
+    localStorage.setItem('prio_app_version', currentVersion);
+  }, []);
+
   return (
     <BrowserRouter>
       <VersionBanner />
       <OfflineBanner />
-      <ServiceWorkerUpdatePrompt />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route

@@ -3,13 +3,13 @@ import { useTasks } from '@/hooks/useTasks';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Task } from '@/lib/types';
+import { Task, CreateTaskInput } from '@/lib/types';
 import { List, Search, Filter } from 'lucide-react';
 
 type PriorityLevel = 'all' | 'high' | 'medium' | 'low';
 
 export function AllTasksView() {
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask, createTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,9 +145,16 @@ export function AllTasksView() {
 
       <TaskForm
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
+        onClose={() => {
+          setIsFormOpen(false);
+          setSelectedTask(undefined);
+        }}
         onSubmit={async (input) => {
-          if (selectedTask) await updateTask(selectedTask.id, input);
+          if (selectedTask) {
+            await updateTask(selectedTask.id, input);
+          } else {
+            await createTask(input as CreateTaskInput);
+          }
         }}
         task={selectedTask}
       />

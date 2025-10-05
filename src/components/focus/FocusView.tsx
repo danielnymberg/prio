@@ -18,6 +18,7 @@ export function FocusView() {
   const [isEmergency, setIsEmergency] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [checkInData, setCheckInData] = useState<DailyCheckIn | null>(null);
+  const [skippedTaskIds, setSkippedTaskIds] = useState<string[]>([]);
 
   // Hämta dagens check-in
   useEffect(() => {
@@ -53,14 +54,17 @@ export function FocusView() {
   useEffect(() => {
     if (!context || tasks.length === 0) return;
 
-    const next = getNextTask(tasks, context);
-    const upcoming = getTaskQueue(tasks, context, 5);
-    const emergency = hasEmergencyTasks(tasks);
+    // Filtrera bort skippade tasks
+    const availableTasks = tasks.filter(t => !skippedTaskIds.includes(t.id));
+
+    const next = getNextTask(availableTasks, context);
+    const upcoming = getTaskQueue(availableTasks, context, 5);
+    const emergency = hasEmergencyTasks(availableTasks);
 
     setNextTask(next);
     setQueue(upcoming.slice(1)); // Skippa första (det är nextTask)
     setIsEmergency(emergency);
-  }, [context, tasks]);
+  }, [context, tasks, skippedTaskIds]);
 
   const handleStartSession = () => {
     if (!nextTask) return;
@@ -104,21 +108,12 @@ export function FocusView() {
     });
   };
 
-  const handleSkipTask = async () => {
+  const handleSkipTask = () => {
     if (!nextTask) return;
 
-    const skipUntil = new Date();
-    skipUntil.setHours(skipUntil.getHours() + 2);
-
-    try {
-      // Vi kan lägga till ett skipped_until fält senare, för nu skippa bara genom att öka effort tillfälligt
-      toast.success('Uppgift överhoppad tillfälligt');
-      // Force re-calculation by updating context
-      setContext({...context!});
-    } catch (error) {
-      console.error('Error skipping task:', error);
-      toast.error('Kunde inte hoppa över uppgift');
-    }
+    // Lägg till current task i skipped-listan
+    setSkippedTaskIds(prev => [...prev, nextTask.id]);
+    toast.success('Uppgift överhoppad - visar nästa');
   };
 
   if (!context) {
