@@ -1,8 +1,3 @@
-interface SpeechmaticsConfig {
-  apiKey: string;
-  language: 'sv'; // Svenska
-}
-
 export class SpeechmaticsSTT {
   private ws: WebSocket | null = null;
   private mediaRecorder: MediaRecorder | null = null;
@@ -12,7 +7,7 @@ export class SpeechmaticsSTT {
   private stream: MediaStream | null = null;
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
 
-  constructor(private config: SpeechmaticsConfig) {}
+  constructor() {}
 
   async startListening(onTranscript: (text: string, isFinal: boolean) => void) {
     this.onTranscriptCallback = onTranscript;
@@ -33,24 +28,8 @@ export class SpeechmaticsSTT {
       this.ws = new WebSocket(backendUrl);
 
       this.ws.onopen = () => {
-        // Skicka config - backend injicerar auth_token
-        this.ws?.send(JSON.stringify({
-          message: 'StartRecognition',
-          audio_format: {
-            type: 'raw',
-            encoding: 'pcm_s16le',
-            sample_rate: 16000
-          },
-          transcription_config: {
-            language: this.config.language,
-            enable_partials: true,
-            max_delay: 2,
-            diarization: 'none',
-          },
-          // auth_token injiceras av backend-servern
-        }));
-
-        // Starta audio streaming
+        // Backend hanterar StartRecognition automatiskt med rätt auth
+        // Vi bara startar audio streaming
         this.startAudioStream(this.stream!);
       };
 
@@ -128,9 +107,7 @@ export class SpeechmaticsSTT {
   stopListening() {
     // Stop and clean up WebSocket
     if (this.ws) {
-      if (this.ws.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ message: 'EndOfStream' }));
-      }
+      // Backend skickar EndOfStream när client disconnectar
       this.ws.close();
       this.ws.onopen = null;
       this.ws.onmessage = null;

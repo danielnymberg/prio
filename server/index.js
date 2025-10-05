@@ -1,97 +1,128 @@
-const express = require('express');
-const { WebSocketServer } = require('ws');
-const http = require('http');
-const cors = require('cors');
-const WebSocket = require('ws');
+import WebSocket, { WebSocketServer } from 'ws';
+import express from 'express';
+import cors from 'cors';
 
 const app = express();
-app.use(cors());
-
 const PORT = process.env.PORT || 10000;
 const SPEECHMATICS_API_KEY = process.env.SPEECHMATICS_API_KEY;
+const SPEECHMATICS_WS_URL = 'wss://eu2.rt.speechmatics.com/v2';
 
 if (!SPEECHMATICS_API_KEY) {
-  console.error('ERROR: SPEECHMATICS_API_KEY environment variable not set!');
+  console.error('❌ SPEECHMATICS_API_KEY missing!');
   process.exit(1);
 }
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'prio-backend' });
+app.use(cors());
+app.get('/health', (req, res) => res.json({ status: 'ok', service: 'prio-backend' }));
+
+const server = app.listen(PORT, () => {
+  console.log(`✅ Prio Backend running on port ${PORT}`);
 });
 
-// Create HTTP server
-const server = http.createServer(app);
-
-// Create WebSocket server
 const wss = new WebSocketServer({ server });
 
 wss.on('connection', (clientWs) => {
-  console.log('Client connected');
+  console.log('👤 Client connected');
 
-  // Connect to Speechmatics
-  const speechmaticsWs = new WebSocket('wss://eu2.rt.speechmatics.com/v2');
+  let speechmaticsWs = null;
+  let speechmaticsConnected = false;
 
-  speechmaticsWs.on('open', () => {
-    console.log('Connected to Speechmatics');
+  try {
+    // Connect to Speechmatics with Authorization header
+    speechmaticsWs = new WebSocket(SPEECHMATICS_WS_URL, {
+      headers: {
+        'Authorization': `Bearer ${SPEECHMATICS_API_KEY}`
+      }
+    });
 
-    // Forward client's initial message (StartRecognition) but inject our API key
-    clientWs.on('message', (data) => {
-      try {
-        const message = JSON.parse(data);
+    speechmaticsWs.on('open', () => {
+      console.log('✅ Connected to Speechmatics API');
+      speechmaticsConnected = true;
 
-        // If it's StartRecognition, inject the server's API key
-        if (message.message === 'StartRecognition') {
-          message.auth_token = SPEECHMATICS_API_KEY;
-          console.log('Starting recognition with server API key');
+      // Automatically send StartRecognition when connected
+      const startMessage = {
+        message: 'StartRecognition',
+        audio_format: {
+          type: 'raw',
+          encoding: 'pcm_s16le',
+          sample_rate: 16000
+        },
+        transcription_config: {
+          language: 'sv',
+          enable_partials: true,
+          max_delay: 2,
+          max_delay_mode: 'fixed',
+          operating_point: 'enhanced',
+          punctuation_overrides: {
+            permitted_marks: ['.', ',', '?', '!', ':', ';'],
+            sensitivity: 0.5
+          }
         }
+      };
 
-        // Forward to Speechmatics
-        speechmaticsWs.send(JSON.stringify(message));
+      speechmaticsWs.send(JSON.stringify(startMessage));
+      console.log('📝 StartRecognition sent for Swedish');
+    });
+
+    speechmaticsWs.on('message', (data) => {
+      // Log messages for debugging
+      try {
+        const parsed = JSON.parse(data);
+        console.log('📨 Speechmatics:', parsed.message);
       } catch (err) {
-        // Not JSON, forward as-is (audio data)
+        // Binary data
+      }
+
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.send(data);
+      }
+    });
+
+    speechmaticsWs.on('error', (error) => {
+      console.error('❌ Speechmatics error:', error.message);
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.send(JSON.stringify({
+          message: 'Error',
+          type: 'speechmatics_connection',
+          reason: error.message
+        }));
+      }
+    });
+
+    speechmaticsWs.on('close', (code, reason) => {
+      console.log(`🔌 Speechmatics closed: ${code} ${reason}`);
+      speechmaticsConnected = false;
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.close(1000, 'Speechmatics connection closed');
+      }
+    });
+
+    // Forward audio data from client to Speechmatics
+    clientWs.on('message', (data) => {
+      if (speechmaticsConnected && speechmaticsWs.readyState === WebSocket.OPEN) {
         speechmaticsWs.send(data);
       }
     });
-  });
 
-  // Forward Speechmatics responses to client
-  speechmaticsWs.on('message', (data) => {
-    clientWs.send(data);
-  });
+    clientWs.on('close', () => {
+      console.log('👤 Client disconnected');
+      if (speechmaticsConnected && speechmaticsWs.readyState === WebSocket.OPEN) {
+        speechmaticsWs.send(JSON.stringify({
+          message: 'EndOfStream',
+          last_seq_no: 0
+        }));
+        speechmaticsWs.close(1000, 'Client disconnected');
+      }
+    });
 
-  // Handle errors
-  speechmaticsWs.on('error', (error) => {
-    console.error('Speechmatics error:', error);
-    clientWs.send(JSON.stringify({
-      message: 'Error',
-      reason: 'Speechmatics connection error'
-    }));
-  });
+    clientWs.on('error', (error) => {
+      console.error('❌ Client error:', error.message);
+    });
 
-  speechmaticsWs.on('close', () => {
-    console.log('Speechmatics connection closed');
-    clientWs.close();
-  });
-
-  // Handle client disconnect
-  clientWs.on('close', () => {
-    console.log('Client disconnected');
-    if (speechmaticsWs.readyState === WebSocket.OPEN) {
-      speechmaticsWs.send(JSON.stringify({ message: 'EndOfStream' }));
-      speechmaticsWs.close();
+  } catch (error) {
+    console.error('❌ Connection error:', error.message);
+    if (clientWs.readyState === WebSocket.OPEN) {
+      clientWs.close(1011, 'Internal server error');
     }
-  });
-
-  clientWs.on('error', (error) => {
-    console.error('Client error:', error);
-    if (speechmaticsWs.readyState === WebSocket.OPEN) {
-      speechmaticsWs.close();
-    }
-  });
-});
-
-server.listen(PORT, () => {
-  console.log(`🚀 Prio Backend running on port ${PORT}`);
-  console.log(`WebSocket endpoint: ws://localhost:${PORT}`);
+  }
 });

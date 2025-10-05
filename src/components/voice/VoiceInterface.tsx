@@ -39,11 +39,8 @@ export function VoiceInterface() {
         });
       }
 
-      // Initialize STT (API key hanteras nu av backend)
-      sttRef.current = new SpeechmaticsSTT({
-        apiKey: '', // Inte använd - backend injicerar nyckeln
-        language: 'sv',
-      });
+      // Initialize STT (backend hanterar auth och config)
+      sttRef.current = new SpeechmaticsSTT();
 
       // Initialize Claude
       if (import.meta.env.VITE_ANTHROPIC_API_KEY) {
