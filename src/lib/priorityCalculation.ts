@@ -4,10 +4,10 @@ import { Task } from './types';
  * Beräknar urgency boost baserat på hur nära deadline är
  *
  * Logik:
+ * - Försenad: Sätter alltid till 10 (max urgency)
  * - < 6h till deadline: +5 boost
  * - < 24h till deadline: +3 boost
  * - < 48h till deadline: +1 boost
- * - Äldre än deadline: +8 boost (försenade tasks!)
  */
 export function calculateUrgencyBoost(deadline: string | null, baseTimeSensitivity: number): number {
   if (!deadline) return baseTimeSensitivity;
@@ -16,9 +16,9 @@ export function calculateUrgencyBoost(deadline: string | null, baseTimeSensitivi
   const deadlineTime = new Date(deadline).getTime();
   const hoursUntilDeadline = (deadlineTime - now) / (1000 * 60 * 60);
 
-  // Försenad task - MYCKET hög boost
+  // Försenad task - ALLTID max urgency
   if (hoursUntilDeadline < 0) {
-    return Math.min(10, baseTimeSensitivity + 8);
+    return 10;
   }
 
   // Mindre än 6 timmar - kritisk boost

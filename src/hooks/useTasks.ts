@@ -83,6 +83,23 @@ export function useTasks() {
         .single();
 
       if (error) throw error;
+
+      // Optimistic update - lägg till ny task direkt
+      setTasks(prevTasks => {
+        const newTask = { ...data, priority: calculatePriority(data) };
+        const allTasks = [...prevTasks, newTask];
+
+        // Omberäkna priority för alla och sortera
+        const withPriority = allTasks.map(task => ({
+          ...task,
+          priority: calculatePriority(task),
+        }));
+
+        withPriority.sort((a, b) => b.priority - a.priority);
+
+        return withPriority;
+      });
+
       toast.success('Task skapad!');
       return data;
     } catch (error) {
