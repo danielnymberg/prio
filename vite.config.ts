@@ -50,7 +50,7 @@ export default defineConfig({
           },
         ],
       },
-      includeAssets: ['favicon.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: ['favicon.svg'],
       manifest: {
         name: 'Prio - Smart Prioritering',
         short_name: 'Prio',
@@ -63,15 +63,9 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable',
-          },
-          {
-            src: '/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: '/favicon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
             purpose: 'any maskable',
           },
         ],
@@ -82,28 +76,24 @@ export default defineConfig({
             short_name: 'Röst',
             description: 'Skapa task med röst',
             url: '/?action=voice',
-            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
           {
             name: 'Ny task',
             short_name: 'Ny',
             description: 'Skapa task snabbt',
             url: '/?action=quick',
-            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
           {
             name: 'Inbox',
             short_name: 'Inbox',
             description: 'Granska tasks',
             url: '/inbox',
-            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
           {
             name: 'Just Nu',
             short_name: 'Focus',
             description: 'Fokusläge',
             url: '/focus',
-            icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
         ],
         share_target: {
