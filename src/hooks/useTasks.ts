@@ -135,10 +135,13 @@ export function useTasks() {
         return withPriority;
       });
 
-      // Rensa bort undefined-värden (null är OK - det rensar fält)
-      const cleanInput = Object.fromEntries(
-        Object.entries(input).filter(([_, v]) => v !== undefined)
-      );
+      // Konvertera undefined till null för Supabase (null rensar fält)
+      const cleanInput: Record<string, any> = {};
+      Object.entries(input).forEach(([key, value]) => {
+        if (value !== undefined) {
+          cleanInput[key] = value;
+        }
+      });
 
       const { data, error } = await supabase
         .from('tasks')

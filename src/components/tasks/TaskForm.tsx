@@ -77,22 +77,24 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
     setLoading(true);
 
     try {
-      const input = {
+      const input: any = {
         title,
-        description, // Skicka alltid (även tom sträng för att rensa)
+        description: description.trim() || '', // Tom eller whitespace blir tom sträng
         value_score: valueScore,
         time_sensitivity: timeSensitivity,
         confidence,
         effort,
-        consequence_1week: consequences.oneWeek || null,
-        consequence_1month: consequences.oneMonth || null,
-        consequence_1year: consequences.oneYear || null,
-        consequence_deadline: consequenceDeadline || null,
-        blocks_task_ids: blocksTaskIds.length > 0 ? blocksTaskIds : null,
-        deadline: deadline || null,
         status,
-        estimated_duration: estimatedDuration || null,
       };
+
+      // Lägg bara till optional fields om de har värden
+      if (consequences.oneWeek) input.consequence_1week = consequences.oneWeek;
+      if (consequences.oneMonth) input.consequence_1month = consequences.oneMonth;
+      if (consequences.oneYear) input.consequence_1year = consequences.oneYear;
+      if (consequenceDeadline) input.consequence_deadline = consequenceDeadline;
+      if (blocksTaskIds.length > 0) input.blocks_task_ids = blocksTaskIds;
+      if (deadline) input.deadline = deadline;
+      if (estimatedDuration) input.estimated_duration = estimatedDuration;
 
       await onSubmit(input);
       onClose();
