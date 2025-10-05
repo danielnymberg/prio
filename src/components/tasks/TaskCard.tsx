@@ -20,6 +20,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [showActions, setShowActions] = useState(false);
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -111,17 +112,15 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
     }
   };
 
-  const handleStatusChange = (e: React.MouseEvent) => {
+  const handleStatusMenuToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowStatusMenu(!showStatusMenu);
+  };
+
+  const handleStatusChange = (newStatus: Task['status']) => {
     if (!onUpdate) return;
-
-    const statusCycle = {
-      not_started: 'in_progress',
-      in_progress: 'done',
-      done: 'not_started',
-    } as const;
-
-    onUpdate(task.id, { status: statusCycle[task.status] });
+    onUpdate(task.id, { status: newStatus });
+    setShowStatusMenu(false);
   };
 
   const handleCardClick = () => {
@@ -261,16 +260,44 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {onUpdate ? (
-            <button
-              onClick={handleStatusChange}
-              className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded px-1 py-0.5 transition-colors"
-              title={`Status: ${task.status === 'not_started' ? 'Ej påbörjad' : task.status === 'in_progress' ? 'Pågående' : 'Klar'} (klicka för att ändra)`}
-            >
-              {getStatusDot()}
-              <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                {task.status === 'not_started' ? 'Ej påbörjad' : task.status === 'in_progress' ? 'Pågående' : 'Klar'}
-              </span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={handleStatusMenuToggle}
+                className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded px-1 py-0.5 transition-colors"
+                title="Klicka för att ändra status"
+              >
+                {getStatusDot()}
+                <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                  {task.status === 'not_started' ? 'Ej påbörjad' : task.status === 'in_progress' ? 'Pågående' : 'Klar'}
+                </span>
+              </button>
+
+              {showStatusMenu && (
+                <div className="absolute bottom-full left-0 mb-1 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 py-1 z-10 min-w-[140px]">
+                  <button
+                    onClick={() => handleStatusChange('not_started')}
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-gray-400" />
+                    Ej påbörjad
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('in_progress')}
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-amber-400" />
+                    Pågående
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('done')}
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-green-400" />
+                    Klar
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             getStatusDot()
           )}

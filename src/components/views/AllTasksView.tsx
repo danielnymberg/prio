@@ -4,9 +4,11 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Task, CreateTaskInput } from '@/lib/types';
-import { List, Search, Filter } from 'lucide-react';
+import { List, Search, Filter, Calendar, Clock, CalendarDays, CalendarRange } from 'lucide-react';
+import { isToday, isTomorrow, isThisWeek, isThisMonth, isPast } from 'date-fns';
 
 type PriorityLevel = 'all' | 'high' | 'medium' | 'low';
+type ViewMode = 'grid' | 'timeline';
 
 export function AllTasksView() {
   const { tasks, updateTask, createTask } = useTasks();
@@ -15,6 +17,7 @@ export function AllTasksView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<PriorityLevel>('all');
   const [filterStatus] = useState<'all' | 'not_started' | 'in_progress' | 'done'>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('timeline');
 
   const activeTasks = tasks.filter(t => t.status !== 'done');
 
@@ -53,6 +56,21 @@ export function AllTasksView() {
     low: activeTasks.filter(t => t.priority < 20).length,
   };
 
+  // Gruppera tasks efter deadline
+  const groupTasksByDeadline = (tasks: Task[]) => {
+    const overdue = tasks.filter(t => t.deadline && isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline)));
+    const today = tasks.filter(t => t.deadline && isToday(new Date(t.deadline)));
+    const tomorrow = tasks.filter(t => t.deadline && isTomorrow(new Date(t.deadline)));
+    const thisWeek = tasks.filter(t => t.deadline && isThisWeek(new Date(t.deadline)) && !isToday(new Date(t.deadline)) && !isTomorrow(new Date(t.deadline)));
+    const thisMonth = tasks.filter(t => t.deadline && isThisMonth(new Date(t.deadline)) && !isThisWeek(new Date(t.deadline)));
+    const later = tasks.filter(t => t.deadline && !isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline)) && !isTomorrow(new Date(t.deadline)) && !isThisWeek(new Date(t.deadline)) && !isThisMonth(new Date(t.deadline)));
+    const noDeadline = tasks.filter(t => !t.deadline);
+
+    return { overdue, today, tomorrow, thisWeek, thisMonth, later, noDeadline };
+  };
+
+  const timelineGroups = groupTasksByDeadline(sortedTasks);
+
   return (
     <div className="space-y-6">
       <div>
@@ -76,10 +94,11 @@ export function AllTasksView() {
           />
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
-          <Filter className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Filter className="h-5 w-5 text-gray-500 dark:text-gray-400" />
 
-          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setFilterPriority('all')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
@@ -120,6 +139,32 @@ export function AllTasksView() {
             >
               Låg (&lt;20) ({priorityCounts.low})
             </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode('timeline')}
+              className={`p-2 rounded-lg transition-colors ${
+                viewMode === 'timeline'
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+              }`}
+              title="Tidslinjevy"
+            >
+              <Calendar className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-lg transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+              }`}
+              title="Rutnätsvy"
+            >
+              <List className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -130,7 +175,7 @@ export function AllTasksView() {
           title={searchQuery ? "Inga tasks hittades" : "Inga aktiva tasks"}
           description={searchQuery ? `Inga tasks matchar "${searchQuery}"` : "Skapa din första task för att komma igång!"}
         />
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedTasks.map((task) => (
             <TaskCard
@@ -140,6 +185,148 @@ export function AllTasksView() {
               onUpdate={updateTask}
             />
           ))}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {timelineGroups.overdue.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                <Clock className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Försenade ({timelineGroups.overdue.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {timelineGroups.overdue.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => handleTaskClick(task)}
+                    onUpdate={updateTask}
+                    viewMode="compact"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {timelineGroups.today.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
+                <Calendar className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Idag ({timelineGroups.today.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {timelineGroups.today.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => handleTaskClick(task)}
+                    onUpdate={updateTask}
+                    viewMode="compact"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {timelineGroups.tomorrow.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                <CalendarDays className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Imorgon ({timelineGroups.tomorrow.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {timelineGroups.tomorrow.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => handleTaskClick(task)}
+                    onUpdate={updateTask}
+                    viewMode="compact"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {timelineGroups.thisWeek.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                <CalendarDays className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Denna vecka ({timelineGroups.thisWeek.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {timelineGroups.thisWeek.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => handleTaskClick(task)}
+                    onUpdate={updateTask}
+                    viewMode="compact"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {timelineGroups.thisMonth.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                <CalendarRange className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Denna månad ({timelineGroups.thisMonth.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {timelineGroups.thisMonth.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => handleTaskClick(task)}
+                    onUpdate={updateTask}
+                    viewMode="compact"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {timelineGroups.later.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <CalendarRange className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Senare ({timelineGroups.later.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {timelineGroups.later.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => handleTaskClick(task)}
+                    onUpdate={updateTask}
+                    viewMode="compact"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {timelineGroups.noDeadline.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-500">
+                <List className="h-5 w-5" />
+                <h3 className="font-semibold text-lg">Ingen deadline ({timelineGroups.noDeadline.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {timelineGroups.noDeadline.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => handleTaskClick(task)}
+                    onUpdate={updateTask}
+                    viewMode="compact"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
