@@ -31,6 +31,18 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Konvertera ISO datetime till datetime-local format (YYYY-MM-DDTHH:MM)
+  const formatDatetimeLocal = (isoString: string | null): string => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   useEffect(() => {
     if (task) {
       setTitle(task.title);
@@ -40,7 +52,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       setConfidence(task.confidence || 7);
       setEffort(task.effort || 5);
       setBlocksTaskIds(task.blocks_task_ids || []);
-      setDeadline(task.deadline ? task.deadline.split('T')[0] : '');
+      setDeadline(task.deadline ? formatDatetimeLocal(task.deadline) : '');
       setStatus(task.status);
       setEstimatedDuration(task.estimated_duration);
     } else {
@@ -74,7 +86,18 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
 
       // Lägg bara till optional fields om de har värden
       if (blocksTaskIds.length > 0) input.blocks_task_ids = blocksTaskIds;
-      if (deadline) input.deadline = deadline;
+
+      // Smart deadline-hantering: Lägg till 17:00 om endast datum anges
+      if (deadline) {
+        if (!deadline.includes('T')) {
+          // Endast datum (YYYY-MM-DD) angavs - lägg till 17:00
+          input.deadline = `${deadline}T17:00:00`;
+        } else {
+          // Datum + tid angavs - lägg till sekunder om de saknas
+          input.deadline = deadline.includes(':00:00') ? deadline : `${deadline}:00`;
+        }
+      }
+
       if (estimatedDuration) input.estimated_duration = estimatedDuration;
 
       await onSubmit(input);
@@ -302,10 +325,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
         </div>
 
         <Input
-          type="date"
-          label="Deadline (valfritt)"
+          type="datetime-local"
+          label="Deadline (datum och tid)"
           value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
+          placeholder="Välj datum och tid"
         />
 
         <div>
