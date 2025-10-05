@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Task, UpdateTaskInput } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
-import { formatDistanceToNow, isPast, isToday, isTomorrow } from 'date-fns';
-import { sv } from 'date-fns/locale';
+import { isPast, isToday, isTomorrow } from 'date-fns';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Copy, Edit2, Check, X, Clock } from 'lucide-react';
