@@ -5,7 +5,7 @@ import { PublicClientApplication, InteractionRequiredAuthError } from '@azure/ms
 const msalConfig = {
   auth: {
     clientId: import.meta.env.VITE_AZURE_CLIENT_ID || '',
-    authority: 'https://login.microsoftonline.com/consumers', // Personal Microsoft accounts only
+    authority: 'https://login.microsoftonline.com/organizations', // Multi-tenant organizational accounts
     redirectUri: window.location.origin,
   },
   cache: {
