@@ -3,10 +3,11 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
-    VitePWA({
+    // PWA endast i production - mycket lättare utveckling!
+    ...(mode === 'production' ? [VitePWA({
       // Auto-update för snabba, pålitliga uppdateringar
       registerType: 'autoUpdate',
       // Aggressiv cache cleanup för att undvika gamla versioner
@@ -107,7 +108,7 @@ export default defineConfig({
           },
         },
       },
-    }),
+    })] : []),
   ],
   resolve: {
     alias: {
@@ -120,4 +121,4 @@ export default defineConfig({
     https: true, // Required for microphone access in production-like environment
   },
   publicDir: 'public', // Ensure public files are copied to dist
-})
+}))

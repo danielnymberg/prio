@@ -46,13 +46,14 @@ export class SpeechmaticsSTT {
           console.log('📨 Received message:', data.message, data);
 
           if (data.message === 'AddPartialTranscript') {
-            // Partial (live transcription)
+            // Partial (live transcription) - använd metadata.transcript
             console.log('📝 Partial transcript:', data.metadata.transcript);
             this.onTranscriptCallback?.(data.metadata.transcript, false);
           } else if (data.message === 'AddTranscript') {
-            // Final transcription
-            console.log('✅ Final transcript:', data.metadata.transcript);
-            this.onTranscriptCallback?.(data.metadata.transcript, true);
+            // Final transcription - bygg från results array istället för metadata
+            const fullText = data.results?.map((r: any) => r.alternatives?.[0]?.content || '').join(' ').trim() || data.metadata.transcript;
+            console.log('✅ Final transcript from results:', fullText, '(raw results:', data.results, ')');
+            this.onTranscriptCallback?.(fullText, true);
           } else if (data.message === 'Error') {
             console.error('Speechmatics error:', data);
             const errorMsg = data.reason || 'Okänt fel från Speechmatics';
