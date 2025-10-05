@@ -5,6 +5,7 @@ import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
+import { Task } from '@/lib/types';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,8 +13,9 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const { tasks, createTask } = useTasks();
+  const { tasks, createTask, updateTask } = useTasks();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
 
   const activeTasks = tasks.filter(t => t.status !== 'done');
   const todayTasks = activeTasks.filter(t => t.deadline && isToday(new Date(t.deadline)));
@@ -59,6 +61,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           variant="primary"
           size="md"
           onClick={() => {
+            setSelectedTask(undefined); // Reset för ny task
             setIsFormOpen(true);
             onClose(); // Stäng sidebar på mobil efter klick
           }}
@@ -140,8 +143,18 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       <TaskForm
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={(input) => createTask(input as any)}
+        onClose={() => {
+          setIsFormOpen(false);
+          setSelectedTask(undefined);
+        }}
+        onSubmit={async (input) => {
+          if (selectedTask) {
+            await updateTask(selectedTask.id, input);
+          } else {
+            await createTask(input as any);
+          }
+        }}
+        task={selectedTask}
       />
     </>
   );

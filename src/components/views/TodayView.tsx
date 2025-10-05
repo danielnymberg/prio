@@ -60,7 +60,10 @@ export function TodayView() {
 
       <TaskForm
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
+        onClose={() => {
+          setIsFormOpen(false);
+          setSelectedTask(undefined);
+        }}
         onSubmit={async (input) => {
           if (selectedTask) await updateTask(selectedTask.id, input);
         }}
