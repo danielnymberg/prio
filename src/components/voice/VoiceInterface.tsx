@@ -140,10 +140,13 @@ export function VoiceInterface() {
       setStatus('Ansluter...');
 
       await sttRef.current.startListening((text, isFinal) => {
+        console.log('🎤 Transcript callback:', { text, isFinal });
         setStatus('Lyssnar...');
         setTranscript(text);
+        console.log('📝 State updated - transcript:', text);
 
         if (isFinal && text.trim()) {
+          console.log('✅ Final transcript, sending to AI');
           setStatus('Bearbetar...');
           handleUserMessage(text);
         }

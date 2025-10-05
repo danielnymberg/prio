@@ -28,6 +28,7 @@ export class SpeechmaticsSTT {
       this.ws = new WebSocket(backendUrl);
 
       this.ws.onopen = () => {
+        console.log('🔌 WebSocket opened to backend');
         // Backend hanterar StartRecognition automatiskt med rätt auth
         // Vi bara startar audio streaming
         this.startAudioStream(this.stream!);
@@ -36,17 +37,21 @@ export class SpeechmaticsSTT {
       this.ws.onmessage = (event) => {
         // Ignorera binära meddelanden (audio echoes från Speechmatics)
         if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
+          console.log('🔇 Ignored binary message');
           return;
         }
 
         try {
           const data = JSON.parse(event.data);
+          console.log('📨 Received message:', data.message, data);
 
           if (data.message === 'AddPartialTranscript') {
             // Partial (live transcription)
+            console.log('📝 Partial transcript:', data.metadata.transcript);
             this.onTranscriptCallback?.(data.metadata.transcript, false);
           } else if (data.message === 'AddTranscript') {
             // Final transcription
+            console.log('✅ Final transcript:', data.metadata.transcript);
             this.onTranscriptCallback?.(data.metadata.transcript, true);
           } else if (data.message === 'Error') {
             console.error('Speechmatics error:', data);
