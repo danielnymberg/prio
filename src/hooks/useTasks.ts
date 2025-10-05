@@ -135,7 +135,7 @@ export function useTasks() {
         return withPriority;
       });
 
-      // Rensa bort undefined-värden som Supabase inte gillar
+      // Rensa bort undefined-värden (null är OK - det rensar fält)
       const cleanInput = Object.fromEntries(
         Object.entries(input).filter(([_, v]) => v !== undefined)
       );

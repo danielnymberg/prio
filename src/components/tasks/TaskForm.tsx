@@ -79,19 +79,19 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
     try {
       const input = {
         title,
-        description: description || undefined,
+        description, // Skicka alltid (även tom sträng för att rensa)
         value_score: valueScore,
         time_sensitivity: timeSensitivity,
         confidence,
         effort,
-        consequence_1week: consequences.oneWeek || undefined,
-        consequence_1month: consequences.oneMonth || undefined,
-        consequence_1year: consequences.oneYear || undefined,
-        consequence_deadline: consequenceDeadline || undefined,
-        blocks_task_ids: blocksTaskIds.length > 0 ? blocksTaskIds : undefined,
-        deadline: deadline || undefined,
+        consequence_1week: consequences.oneWeek || null,
+        consequence_1month: consequences.oneMonth || null,
+        consequence_1year: consequences.oneYear || null,
+        consequence_deadline: consequenceDeadline || null,
+        blocks_task_ids: blocksTaskIds.length > 0 ? blocksTaskIds : null,
+        deadline: deadline || null,
         status,
-        estimated_duration: estimatedDuration || undefined,
+        estimated_duration: estimatedDuration || null,
       };
 
       await onSubmit(input);
