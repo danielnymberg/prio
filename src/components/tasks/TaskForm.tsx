@@ -8,10 +8,6 @@ import { getTaskQuadrant, DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
 
-// TODO: DaNy AI integration point
-// Add "Föreslå prioritet" button using AI analysis of task title/description
-// Show AI reasoning for suggested importance/urgency values
-
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;

@@ -256,13 +256,27 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
                   type: 'string',
                   enum: ['not_started', 'in_progress', 'done']
                 },
-                importance: {
+                value_score: {
                   type: 'number',
+                  description: '1-10: Objektiva konsekvenser om det INTE görs',
                   minimum: 1,
                   maximum: 10
                 },
-                urgency: {
+                time_sensitivity: {
                   type: 'number',
+                  description: '1-10: Kostnad av att vänta',
+                  minimum: 1,
+                  maximum: 10
+                },
+                confidence: {
+                  type: 'number',
+                  description: '1-10: Säkerhet i bedömningen',
+                  minimum: 1,
+                  maximum: 10
+                },
+                effort: {
+                  type: 'number',
+                  description: '1-10: Uppskattad ansträngning',
                   minimum: 1,
                   maximum: 10
                 },

@@ -6,12 +6,6 @@ import { getTaskQuadrant } from '@/lib/utils';
 import { isToday, isPast } from 'date-fns';
 import { Target } from 'lucide-react';
 
-// TODO: DaNy AI integration point
-// Add workload analysis widget showing:
-// - Burnout risk indicator
-// - Suggested focus area (Q1/Q2/Q3/Q4)
-// - Smart scheduling recommendations
-
 export function Dashboard() {
   const { tasks } = useTasks();
 

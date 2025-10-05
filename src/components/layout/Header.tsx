@@ -24,9 +24,6 @@ export function Header({ onMenuClick }: HeaderProps) {
     window.location.reload();
   };
 
-  // TODO: Voice control integration point
-  // Add speech-to-text for quick task creation via microphone button
-
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 sm:py-4">
       <div className="flex items-center justify-between">
