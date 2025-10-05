@@ -55,20 +55,30 @@ export class SpeechmaticsSTT {
       };
 
       this.ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        // Ignorera binära meddelanden (audio echoes från Speechmatics)
+        if (event.data instanceof Blob || event.data instanceof ArrayBuffer) {
+          return;
+        }
 
-        if (data.message === 'AddPartialTranscript') {
-          // Partial (live transcription)
-          this.onTranscriptCallback?.(data.metadata.transcript, false);
-        } else if (data.message === 'AddTranscript') {
-          // Final transcription
-          this.onTranscriptCallback?.(data.metadata.transcript, true);
-        } else if (data.message === 'Error') {
-          console.error('Speechmatics error:', data);
-          const errorMsg = data.reason || 'Okänt fel från Speechmatics';
-          throw new Error(`Speechmatics: ${errorMsg}`);
-        } else if (data.message === 'Warning') {
-          console.warn('Speechmatics warning:', data);
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.message === 'AddPartialTranscript') {
+            // Partial (live transcription)
+            this.onTranscriptCallback?.(data.metadata.transcript, false);
+          } else if (data.message === 'AddTranscript') {
+            // Final transcription
+            this.onTranscriptCallback?.(data.metadata.transcript, true);
+          } else if (data.message === 'Error') {
+            console.error('Speechmatics error:', data);
+            const errorMsg = data.reason || 'Okänt fel från Speechmatics';
+            throw new Error(`Speechmatics: ${errorMsg}`);
+          } else if (data.message === 'Warning') {
+            console.warn('Speechmatics warning:', data);
+          }
+        } catch (err) {
+          // Ignorera parse-fel för icke-JSON meddelanden
+          console.debug('Non-JSON message from server:', event.data);
         }
       };
 
