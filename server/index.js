@@ -50,8 +50,8 @@ wss.on('connection', (clientWs) => {
         transcription_config: {
           language: 'sv',
           enable_partials: true,
-          max_delay: 2,
-          max_delay_mode: 'fixed',
+          max_delay: 5, // Längre fördröjning så hela meningar hinner sägas
+          max_delay_mode: 'flexible', // Flexibel så den väntar på naturliga pauser
           operating_point: 'enhanced',
           punctuation_overrides: {
             permitted_marks: ['.', ',', '?', '!', ':', ';'],
