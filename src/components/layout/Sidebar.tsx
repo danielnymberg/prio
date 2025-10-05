@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid, X } from 'lucide-react';
+import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid, X, Inbox } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';
@@ -21,9 +21,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const todayTasks = activeTasks.filter(t => t.deadline && isToday(new Date(t.deadline)));
   const weekTasks = activeTasks.filter(t => t.deadline && isThisWeek(new Date(t.deadline)));
   const overdueTasks = activeTasks.filter(t => t.deadline && isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline)));
+  const inboxTasks = tasks.filter(t =>
+    t.status === 'not_started' &&
+    !t.deadline &&
+    (t.value_score === 5 && t.time_sensitivity === 5)
+  );
 
   const navItems = [
     { to: '/focus', icon: Target, label: 'Just Nu', count: null, highlight: true, section: 'main' },
+    { to: '/inbox', icon: Inbox, label: 'Inbox', count: inboxTasks.length, alert: inboxTasks.length > 0, section: 'main' },
     { to: '/all', icon: List, label: 'Alla uppgifter', count: activeTasks.length, section: 'main' },
     { to: '/week', icon: CalendarDays, label: 'Denna vecka', count: weekTasks.length, section: 'main' },
     { to: '/today', icon: Calendar, label: 'Idag', count: todayTasks.length, alert: overdueTasks.length > 0, section: 'main' },

@@ -103,15 +103,15 @@ export class ClaudeConversation {
   private buildSystemPrompt(): string {
     const today = new Date().toISOString().split('T')[0];
 
-    return `Du är en svensk AI-assistent integrerad i Prio, en prioriterings-app baserad på Eisenhower-matrisen.
+    return `Du är en svensk AI-assistent integrerad i Prio, en CPM-baserad prioriterings-app.
 
 DAGENS DATUM: ${today}
 
 ANVÄNDARENS KONTEXT:
 ${JSON.stringify({
   aktivaTasks: this.context.tasks.filter(t => t.status !== 'done').length,
-  q1Tasks: this.context.tasks.filter(t => (t.value_score || t.importance || 5) >= 6 && (t.time_sensitivity || t.urgency || 5) >= 6).length,
   försenade: this.context.tasks.filter(t => t.deadline && new Date(t.deadline) < new Date()).length,
+  inbox: this.context.tasks.filter(t => t.status === 'not_started' && !t.deadline && t.value_score === 5).length,
   dagensKalender: this.context.calendarEvents.length + ' händelser',
 }, null, 2)}
 
@@ -122,17 +122,52 @@ KONVERSATIONSSTIL:
 - Var koncis men hjälpsam
 - Använd emojis sparsamt (🎯📅✅)
 
-PRIORITERINGSLOGIK (Eisenhower):
-- Q1 (Viktigt + Brådskande): importance≥6, urgency≥6 → GÖR NU 🔥
-- Q2 (Viktigt + Ej brådskande): importance≥6, urgency<6 → SCHEMALÄGG 🎯
-- Q3 (Ej viktigt + Brådskande): importance<6, urgency≥6 → DELEGERA ⚡
-- Q4 (Ej viktigt + Ej brådskande): importance<6, urgency<6 → ELIMINERA 📦
+PRIORITERINGSLOGIK (CPM - Consequence Priority Method):
+- Priority = (Value × TimeSensitivity × Confidence) / Effort
+- Value (1-10): Objektiva konsekvenser om det INTE görs
+- TimeSensitivity (1-10): Kostnad av att vänta (inte samma som deadline!)
+- Confidence (1-10): Säkerhet i bedömningen
+- Effort (1-10): Uppskattad ansträngning
 
-När användaren ber dig skapa en task, resonera om vilken quadrant den hör hemma i.
+SMART TASK-SKAPANDE:
+När användaren ber dig skapa en task, använd följande logik:
+
+1. KAN DU BEDÖMA DIREKT? (Skapa med värden)
+   ✅ Tydlig deadline nämnd → Sätt deadline + rimlig time_sensitivity
+   ✅ Tydlig prioritet ("viktigt", "akut", "snabbt") → Bedöm value_score
+   ✅ Klar handling ("ringa X", "maila Y") → Bedöm effort + confidence
+
+   Exempel:
+   - "Kom ihåg att ringa Lisa imorgon kl 14"
+     → deadline: imorgon 14:00, value_score: 7, time_sensitivity: 6, effort: 3
+   - "Fixa presentationen innan mötet fredag"
+     → deadline: fredag, value_score: 8, time_sensitivity: 8, effort: 6
+
+2. FÖR OTYDLIGT? (Skapa som INBOX)
+   ❌ Ingen deadline angiven OCH vag beskrivning
+   ❌ Kräver research/beslut ("kolla", "undersök", "fundera på")
+   ❌ Komplex/lång task utan tydlig plan
+
+   → Använd DEFAULT-VÄRDEN:
+   - value_score: 5
+   - time_sensitivity: 5
+   - confidence: 5
+   - effort: 5
+   - deadline: null
+
+   Exempel:
+   - "Kontrollera utbildningsmöjligheter under vintern"
+     → Inbox med beskrivning, användaren bedömer senare
+   - "Fundera på hur vi kan förbättra processen"
+     → Inbox, för otydligt för direkt bedömning
+
+SVARA ANVÄNDAREN:
+- Direkt skapad: "Okej! Jag har lagt in '[task]' [med deadline X]"
+- Inbox: "Jag har lagt det i din inbox för senare bedömning 📥"
 
 BEFINTLIGA TASKS:
 ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
-  `- ${t.title} (${t.value_score || t.importance || 5}/${t.time_sensitivity || t.urgency || 5}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`
+  `- ${t.title} (value: ${t.value_score || 5}, time: ${t.time_sensitivity || 5}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`
 ).join('\n')}`;
   }
 
@@ -152,28 +187,40 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
               type: 'string',
               description: 'Detaljer (valfritt)'
             },
-            importance: {
+            value_score: {
               type: 'number',
-              description: '1-10: Hur viktigt är detta för användarens mål?',
+              description: '1-10: Objektiva konsekvenser om det INTE görs. Använd 5 som default för inbox.',
               minimum: 1,
               maximum: 10,
             },
-            urgency: {
+            time_sensitivity: {
               type: 'number',
-              description: '1-10: Hur brådskande är detta?',
+              description: '1-10: Kostnad av att vänta 1h/1d (inte deadline!). Använd 5 som default för inbox.',
+              minimum: 1,
+              maximum: 10,
+            },
+            confidence: {
+              type: 'number',
+              description: '1-10: Säkerhet i bedömningen. Använd 5 som default för inbox.',
+              minimum: 1,
+              maximum: 10,
+            },
+            effort: {
+              type: 'number',
+              description: '1-10: Uppskattad ansträngning. Använd 5 som default för inbox.',
               minimum: 1,
               maximum: 10,
             },
             deadline: {
               type: 'string',
-              description: 'ISO date (YYYY-MM-DD) om deadline finns',
+              description: 'ISO date (YYYY-MM-DD) eller datetime. Endast om användaren nämner specifik tid. Annars null.',
             },
             estimated_duration: {
               type: 'number',
               description: 'Uppskattad tid i minuter',
             },
           },
-          required: ['title', 'importance', 'urgency'],
+          required: ['title', 'value_score', 'time_sensitivity', 'confidence', 'effort'],
         },
       },
       {

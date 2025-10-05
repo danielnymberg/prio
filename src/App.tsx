@@ -5,11 +5,13 @@ import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
 import { VoiceInterface } from './components/voice/VoiceInterface';
+import { QuickCaptureBar } from './components/ui/QuickCaptureBar';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
 import { toast } from 'react-hot-toast';
+import { useRef } from 'react';
 
 // Lazy load routes för bättre initial load performance
 const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -18,6 +20,7 @@ const WeekView = lazy(() => import('./components/views/WeekView').then(m => ({ d
 const ArchiveView = lazy(() => import('./components/views/ArchiveView').then(m => ({ default: m.ArchiveView })));
 const ImportView = lazy(() => import('./components/views/ImportView').then(m => ({ default: m.ImportView })));
 const AllTasksView = lazy(() => import('./components/views/AllTasksView').then(m => ({ default: m.AllTasksView })));
+const InboxView = lazy(() => import('./components/views/InboxView').then(m => ({ default: m.InboxView })));
 const FocusView = lazy(() => import('./components/focus/FocusView').then(m => ({ default: m.FocusView })));
 const ActiveSession = lazy(() => import('./components/focus/ActiveSession').then(m => ({ default: m.ActiveSession })));
 const BreakView = lazy(() => import('./components/focus/BreakView').then(m => ({ default: m.BreakView })));
@@ -65,6 +68,7 @@ function LoginPage() {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
+  const voiceInterfaceRef = useRef<any>(null);
 
   useEffect(() => {
     // Kolla om användaren har slutfört onboarding
@@ -86,11 +90,21 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
+  const handleVoiceClick = () => {
+    // Trigger voice interface
+    const voiceButton = document.querySelector('[title*="Klicka för att prata"]') as HTMLButtonElement;
+    if (voiceButton) {
+      voiceButton.click();
+    }
+  };
+
   return (
     <AppLayout>
       {children}
       {/* Voice interface alltid tillgänglig när inloggad */}
-      <VoiceInterface />
+      <VoiceInterface ref={voiceInterfaceRef} />
+      {/* Quick capture bar för mobil */}
+      <QuickCaptureBar onVoiceClick={handleVoiceClick} />
       {/* Onboarding modal för nya användare */}
       <WelcomeModal
         isOpen={showWelcome}
@@ -166,6 +180,16 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <WeekView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/inbox"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <InboxView />
               </Suspense>
             </ProtectedRoute>
           }
