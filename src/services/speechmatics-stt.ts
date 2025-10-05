@@ -28,11 +28,12 @@ export class SpeechmaticsSTT {
         }
       });
 
-      // 2. Koppla till Speechmatics WebSocket
-      this.ws = new WebSocket('wss://eu2.rt.speechmatics.com/v2');
+      // 2. Koppla till vår backend som proxar till Speechmatics
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'wss://prio-backend.onrender.com';
+      this.ws = new WebSocket(backendUrl);
 
       this.ws.onopen = () => {
-        // Skicka auth + config
+        // Skicka config - backend injicerar auth_token
         this.ws?.send(JSON.stringify({
           message: 'StartRecognition',
           audio_format: {
@@ -46,7 +47,7 @@ export class SpeechmaticsSTT {
             max_delay: 2,
             diarization: 'none',
           },
-          auth_token: this.config.apiKey,
+          // auth_token injiceras av backend-servern
         }));
 
         // Starta audio streaming

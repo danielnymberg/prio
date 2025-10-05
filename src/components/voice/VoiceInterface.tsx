@@ -39,13 +39,11 @@ export function VoiceInterface() {
         });
       }
 
-      // Initialize STT
-      if (import.meta.env.VITE_SPEECHMATICS_KEY) {
-        sttRef.current = new SpeechmaticsSTT({
-          apiKey: import.meta.env.VITE_SPEECHMATICS_KEY,
-          language: 'sv',
-        });
-      }
+      // Initialize STT (API key hanteras nu av backend)
+      sttRef.current = new SpeechmaticsSTT({
+        apiKey: '', // Inte använd - backend injicerar nyckeln
+        language: 'sv',
+      });
 
       // Initialize Claude
       if (import.meta.env.VITE_ANTHROPIC_API_KEY) {
