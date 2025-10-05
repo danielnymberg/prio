@@ -50,10 +50,25 @@ export class SpeechmaticsSTT {
             console.log('📝 Partial transcript:', data.metadata.transcript);
             this.onTranscriptCallback?.(data.metadata.transcript, false);
           } else if (data.message === 'AddTranscript') {
-            // Final transcription - bygg från results array istället för metadata
-            const fullText = data.results?.map((r: any) => r.alternatives?.[0]?.content || '').join(' ').trim() || data.metadata.transcript;
-            console.log('✅ Final transcript from results:', fullText, '(raw results:', data.results, ')');
-            this.onTranscriptCallback?.(fullText, true);
+            // Final transcription - prova flera metoder för att få hela texten
+            let fullText = '';
+
+            // Metod 1: Använd metadata.transcript direkt (mest pålitlig)
+            if (data.metadata?.transcript) {
+              fullText = data.metadata.transcript;
+              console.log('✅ Final transcript from metadata:', fullText);
+            }
+            // Metod 2: Bygg från results array (fallback)
+            else if (data.results && data.results.length > 0) {
+              fullText = data.results.map((r: any) => r.alternatives?.[0]?.content || '').join(' ').trim();
+              console.log('✅ Final transcript from results array:', fullText, '(results:', data.results, ')');
+            }
+
+            if (fullText.trim()) {
+              this.onTranscriptCallback?.(fullText, true);
+            } else {
+              console.warn('⚠️ Empty final transcript!', data);
+            }
           } else if (data.message === 'Error') {
             console.error('Speechmatics error:', data);
             const errorMsg = data.reason || 'Okänt fel från Speechmatics';
