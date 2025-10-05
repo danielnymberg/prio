@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid, X, Inbox } from 'lucide-react';
+import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid, X, Inbox, Settings } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';
@@ -39,6 +39,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const advancedItems = [
     { to: '/matrix', icon: Grid, label: 'Matrix (beta)', count: null, section: 'advanced' },
     { to: '/import', icon: Upload, label: 'Importera', count: null, section: 'advanced' },
+    { to: '/settings', icon: Settings, label: 'Inställningar', count: null, section: 'advanced' },
   ];
 
   return (

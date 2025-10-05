@@ -24,6 +24,8 @@ const FocusView = lazy(() => import('./components/focus/FocusView').then(m => ({
 const ActiveSession = lazy(() => import('./components/focus/ActiveSession').then(m => ({ default: m.ActiveSession })));
 const BreakView = lazy(() => import('./components/focus/BreakView').then(m => ({ default: m.BreakView })));
 const ResultImpactModal = lazy(() => import('./components/tasks/ResultImpactModal').then(m => ({ default: m.ResultImpactModal })));
+const ShareHandler = lazy(() => import('./components/share/ShareHandler').then(m => ({ default: m.ShareHandler })));
+const SettingsView = lazy(() => import('./components/settings/SettingsView').then(m => ({ default: m.SettingsView })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -114,12 +116,33 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
-// HomePage now just redirects to FocusView
+// HomePage handles PWA shortcuts and redirects
 function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate('/focus');
+    // Check for action parameter from PWA shortcuts
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+
+    if (action === 'voice') {
+      // Trigger voice interface
+      navigate('/focus');
+      setTimeout(() => {
+        const voiceButton = document.querySelector('[title*="Klicka för att prata"]') as HTMLButtonElement;
+        if (voiceButton) voiceButton.click();
+      }, 500);
+    } else if (action === 'quick') {
+      // Trigger quick task form
+      navigate('/focus');
+      setTimeout(() => {
+        const quickButton = document.querySelector('[title*="Skapa task"]') as HTMLButtonElement;
+        if (quickButton) quickButton.click();
+      }, 500);
+    } else {
+      // Default: go to focus view
+      navigate('/focus');
+    }
   }, [navigate]);
 
   return (
@@ -269,6 +292,28 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <Dashboard />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Web Share Target API endpoint */}
+        <Route
+          path="/share"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <ShareHandler />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Settings */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <SettingsView />
               </Suspense>
             </ProtectedRoute>
           }

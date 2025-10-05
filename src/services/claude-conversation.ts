@@ -165,6 +165,25 @@ SVARA ANVÄNDAREN:
 - Direkt skapad: "Okej! Jag har lagt in '[task]' [med deadline X]"
 - Inbox: "Jag har lagt det i din inbox för senare bedömning 📥"
 
+KALENDER-INTEGRATION (MICROSOFT GRAPH):
+När användaren frågar om deadlines baserat på tillgänglig tid:
+
+1. "Når kan jag leverera X som tar Y timmar?"
+   → Använd calculate_realistic_deadline med required_hours
+
+2. "Hur mycket tid har jag kommande veckan?"
+   → Använd analyze_calendar_capacity
+
+3. "Boka in tid för X"
+   → Använd block_calendar_time
+
+VIKTIGT: Om användaren INTE är inloggad på Microsoft, förklara att de behöver logga in i inställningar för att använda kalenderfunktioner.
+
+EXEMPEL PÅ SMART DEADLINE-FÖRSLAG:
+- User: "Jag har ett uppdrag som tar 32 timmar, när kan jag leverera?"
+- Du: [använder calculate_realistic_deadline med 32h]
+- Svar: "Baserat på din kalender har du 45h ledigt de kommande 14 dagarna. Med 20% buffert för oväntade tasks kan du realistiskt leverera senast [datum]. Vill du att jag bokar in fokustid?"
+
 BEFINTLIGA TASKS:
 ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
   `- ${t.title} (value: ${t.value_score || 5}, time: ${t.time_sensitivity || 5}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`
@@ -270,6 +289,75 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
           },
         },
       },
+      {
+        name: 'analyze_calendar_capacity',
+        description: 'Analysera användarens kalender och hitta lediga tider för att kunna ge realistiska deadline-förslag',
+        input_schema: {
+          type: 'object',
+          properties: {
+            days_ahead: {
+              type: 'number',
+              description: 'Hur många dagar framåt att analysera (standard 14)',
+              minimum: 1,
+              maximum: 60,
+            },
+            min_slot_hours: {
+              type: 'number',
+              description: 'Minsta antal timmar per fokus-session (standard 1)',
+              minimum: 0.5,
+              maximum: 8,
+            },
+          },
+        },
+      },
+      {
+        name: 'calculate_realistic_deadline',
+        description: 'Beräkna när en task verkligen kan bli klar baserat på tillgänglig tid i kalendern. ANVÄND DETTA när användaren frågar "när kan jag leverera X?" eller "när hinner jag klart?"',
+        input_schema: {
+          type: 'object',
+          properties: {
+            required_hours: {
+              type: 'number',
+              description: 'Antal timmar som krävs för att slutföra tasken',
+              minimum: 0.5,
+            },
+            preferred_deadline: {
+              type: 'string',
+              description: 'Önskad deadline (ISO format). Valfritt - om null analyseras 30 dagar framåt',
+            },
+            buffer_percentage: {
+              type: 'number',
+              description: 'Buffert i procent för oväntade tasks (standard 20%)',
+              minimum: 0,
+              maximum: 50,
+            },
+          },
+          required: ['required_hours'],
+        },
+      },
+      {
+        name: 'block_calendar_time',
+        description: 'Blockera tid i användarens kalender för fokusarbete på en task',
+        input_schema: {
+          type: 'object',
+          properties: {
+            start_time: {
+              type: 'string',
+              description: 'Starttid (ISO datetime format)',
+            },
+            duration_minutes: {
+              type: 'number',
+              description: 'Längd på fokus-session i minuter',
+              minimum: 15,
+            },
+            task_title: {
+              type: 'string',
+              description: 'Titel på tasken att fokusera på',
+            },
+          },
+          required: ['start_time', 'duration_minutes', 'task_title'],
+        },
+      },
     ];
   }
 
@@ -290,6 +378,26 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
               break;
             case 'analyze_priorities':
               result = await this.analyzePriorities((block.input as any).focus_area);
+              break;
+            case 'analyze_calendar_capacity':
+              result = await this.analyzeCalendarCapacity(
+                (block.input as any).days_ahead,
+                (block.input as any).min_slot_hours
+              );
+              break;
+            case 'calculate_realistic_deadline':
+              result = await this.calculateRealisticDeadline(
+                (block.input as any).required_hours,
+                (block.input as any).preferred_deadline,
+                (block.input as any).buffer_percentage
+              );
+              break;
+            case 'block_calendar_time':
+              result = await this.blockCalendarTime(
+                (block.input as any).start_time,
+                (block.input as any).duration_minutes,
+                (block.input as any).task_title
+              );
               break;
             default:
               result = { error: 'Unknown tool' };
@@ -376,5 +484,105 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
 
   clearHistory() {
     this.conversationHistory = [];
+  }
+
+  private async analyzeCalendarCapacity(daysAhead: number = 14, minSlotHours: number = 1) {
+    try {
+      const { findFreeTimeSlots, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft. Be dem logga in i inställningar först.',
+          requires_login: true,
+        };
+      }
+
+      const now = new Date();
+      const endDate = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+
+      const freeSlots = await findFreeTimeSlots(now, endDate, minSlotHours * 60);
+      const totalHours = freeSlots.reduce((sum, slot) => sum + slot.durationMinutes / 60, 0);
+
+      return {
+        total_free_hours: Math.round(totalHours * 10) / 10,
+        free_slots_count: freeSlots.length,
+        next_7_days_hours: Math.round(
+          freeSlots
+            .filter(slot => slot.start < new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000))
+            .reduce((sum, slot) => sum + slot.durationMinutes / 60, 0) * 10
+        ) / 10,
+        summary: `${Math.round(totalHours)}h ledigt de kommande ${daysAhead} dagarna`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte analysera kalender' };
+    }
+  }
+
+  private async calculateRealisticDeadline(
+    requiredHours: number,
+    preferredDeadline?: string,
+    bufferPercentage: number = 20
+  ) {
+    try {
+      const { calculateRealisticDeadline, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft. Be dem logga in i inställningar först.',
+          requires_login: true,
+        };
+      }
+
+      const deadline = preferredDeadline ? new Date(preferredDeadline) : undefined;
+      const analysis = await calculateRealisticDeadline(requiredHours, deadline, bufferPercentage);
+
+      return {
+        estimated_deadline: new Date(analysis.estimatedDeadline).toLocaleDateString('sv-SE', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        total_available_hours: analysis.totalAvailableHours,
+        required_hours: analysis.requiredHours,
+        is_realistic: analysis.isRealistic,
+        warning: analysis.warning,
+        summary: analysis.isRealistic
+          ? `✅ Realistiskt att hinna till ${new Date(analysis.estimatedDeadline).toLocaleDateString('sv-SE')}`
+          : `⚠️ ${analysis.warning}`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte beräkna deadline' };
+    }
+  }
+
+  private async blockCalendarTime(startTime: string, durationMinutes: number, taskTitle: string) {
+    try {
+      const { blockCalendarTime, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft. Be dem logga in i inställningar först.',
+          requires_login: true,
+        };
+      }
+
+      const success = await blockCalendarTime(new Date(startTime), durationMinutes, taskTitle);
+
+      if (success) {
+        return {
+          success: true,
+          message: `✅ Blockerat ${durationMinutes} min i kalendern för "${taskTitle}"`,
+          start: new Date(startTime).toLocaleString('sv-SE'),
+        };
+      } else {
+        return { error: 'Kunde inte blockera tid i kalendern' };
+      }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte blockera tid' };
+    }
   }
 }
