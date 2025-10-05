@@ -7,6 +7,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Copy, Edit2, Check, X, Clock } from 'lucide-react';
 import { formatDuration, getDurationColor, getDurationIcon } from '@/lib/utils';
+import { isEmergencyTask, isOverdueTask, formatTimeUntilDeadline } from '@/lib/priorityCalculation';
 
 interface TaskCardProps {
   task: Task;
@@ -47,23 +48,24 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
   const getDeadlineBadge = () => {
     if (!task.deadline) return null;
 
+    const timeRemaining = formatTimeUntilDeadline(task.deadline);
     const deadlineDate = new Date(task.deadline);
 
     if (isPast(deadlineDate) && !isToday(deadlineDate)) {
-      return <Badge variant="danger">Försenad</Badge>;
+      return <Badge variant="danger">{timeRemaining}</Badge>;
     }
 
     if (isToday(deadlineDate)) {
-      return <Badge variant="danger">Idag</Badge>;
+      return <Badge variant="danger">{timeRemaining}</Badge>;
     }
 
     if (isTomorrow(deadlineDate)) {
-      return <Badge variant="warning">Imorgon</Badge>;
+      return <Badge variant="warning">{timeRemaining}</Badge>;
     }
 
     return (
       <Badge variant="default">
-        {formatDistanceToNow(deadlineDate, { locale: sv, addSuffix: true })}
+        {timeRemaining}
       </Badge>
     );
   };
@@ -128,6 +130,9 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
     onClick();
   };
 
+  const isEmergency = isEmergencyTask(task);
+  const isOverdue = isOverdueTask(task);
+
   return (
     <div
       ref={setNodeRef}
@@ -135,7 +140,13 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
       {...attributes}
       {...listeners}
       onClick={handleCardClick}
-      className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-200 dark:border-gray-600 group relative"
+      className={`bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer group relative ${
+        isOverdue
+          ? 'border-2 border-red-500 dark:border-red-600'
+          : isEmergency
+          ? 'border-2 border-orange-500 dark:border-orange-600'
+          : 'border border-gray-200 dark:border-gray-600'
+      }`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >

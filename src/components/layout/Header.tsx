@@ -3,9 +3,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { TaskForm } from '@/components/tasks/TaskForm';
+import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
 import { useTasks } from '@/hooks/useTasks';
-import { CreateTaskInput } from '@/lib/types';
-import { LogOut, User, Plus, Menu } from 'lucide-react';
+import { CreateTaskInput, DailyCheckIn } from '@/lib/types';
+import { LogOut, User, Plus, Menu, RefreshCw } from 'lucide-react';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -15,6 +16,13 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut } = useAuth();
   const { createTask } = useTasks();
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+
+  const handleCheckInComplete = (checkIn: DailyCheckIn) => {
+    localStorage.setItem('prio-daily-checkin', JSON.stringify(checkIn));
+    // Reload för att uppdatera FocusView med ny strategi
+    window.location.reload();
+  };
 
   // TODO: Voice control integration point
   // Add speech-to-text for quick task creation via microphone button
@@ -41,6 +49,17 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsCheckInOpen(true)}
+            title="Gör ny check-in"
+            className="min-h-[44px]"
+          >
+            <RefreshCw className="h-4 w-4 sm:mr-1" />
+            <span className="hidden lg:inline">Check-in</span>
+          </Button>
+
           <Button
             variant="primary"
             size="sm"
@@ -83,6 +102,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         onSubmit={async (input) => {
           await createTask(input as CreateTaskInput);
         }}
+      />
+
+      <DailyCheckInModal
+        isOpen={isCheckInOpen}
+        onClose={() => setIsCheckInOpen(false)}
+        onComplete={handleCheckInComplete}
       />
     </header>
   );

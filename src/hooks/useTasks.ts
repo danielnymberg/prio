@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import type { Task, CreateTaskInput, UpdateTaskInput } from '@/lib/types';
 import { useAuth } from '@/contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { calculatePriority } from '@/lib/priorityCalculation';
 
 export function useTasks() {
   const { user } = useAuth();
@@ -47,11 +48,19 @@ export function useTasks() {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .eq('user_id', user.id)
-        .order('priority', { ascending: false });
+        .eq('user_id', user.id);
 
       if (error) throw error;
-      setTasks(data || []);
+
+      // Beräkna priority med deadline boost och sortera
+      const tasksWithPriority = (data || []).map(task => ({
+        ...task,
+        priority: calculatePriority(task),
+      }));
+
+      tasksWithPriority.sort((a, b) => b.priority - a.priority);
+
+      setTasks(tasksWithPriority);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast.error('Kunde inte hämta tasks');
@@ -85,19 +94,72 @@ export function useTasks() {
 
   const updateTask = async (id: string, input: UpdateTaskInput) => {
     try {
+      // Optimistic update - uppdatera lokalt direkt för snabb feedback
+      setTasks(prevTasks => {
+        const updated = prevTasks.map(task =>
+          task.id === id
+            ? {
+                ...task,
+                ...input,
+                updated_at: new Date().toISOString(),
+              }
+            : task
+        );
+
+        // Omberäkna priority med deadline boost för alla tasks
+        const withPriority = updated.map(task => ({
+          ...task,
+          priority: calculatePriority(task),
+        }));
+
+        // Sortera efter ny priority
+        withPriority.sort((a, b) => b.priority - a.priority);
+
+        return withPriority;
+      });
+
+      // Rensa bort undefined-värden som Supabase inte gillar
+      const cleanInput = Object.fromEntries(
+        Object.entries(input).filter(([_, v]) => v !== undefined)
+      );
+
       const { data, error } = await supabase
         .from('tasks')
-        .update(input)
+        .update(cleanInput)
         .eq('id', id)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        console.error('Input that failed:', cleanInput);
+        // Återställ vid fel
+        fetchTasks();
+        throw error;
+      }
+
+      // Uppdatera med faktisk data från server
+      setTasks(prevTasks => {
+        const updated = prevTasks.map(task => (task.id === id ? data : task));
+
+        // Omberäkna priority med deadline boost för alla tasks
+        const withPriority = updated.map(task => ({
+          ...task,
+          priority: calculatePriority(task),
+        }));
+
+        // Sortera efter ny priority
+        withPriority.sort((a, b) => b.priority - a.priority);
+
+        return withPriority;
+      });
+
       toast.success('Task uppdaterad!');
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating task:', error);
-      toast.error('Kunde inte uppdatera task');
+      console.error('Error details:', error.message, error.details, error.hint);
+      toast.error(`Kunde inte uppdatera task: ${error.message || 'Okänt fel'}`);
       return null;
     }
   };

@@ -269,6 +269,9 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Värde - Objektiva konsekvenser: {valueScore}/10
             </label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 italic">
+              💡 Vad händer om du INTE gör detta? (Inte hur viktigt det känns)
+            </p>
             <input
               type="range"
               min="1"
@@ -278,8 +281,8 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
               className="w-full"
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
-              <span>Minimal</span>
-              <span>Kritisk</span>
+              <span>Minimal påverkan</span>
+              <span>Allvarliga konsekvenser</span>
             </div>
           </div>
 
@@ -287,6 +290,9 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tidskänslighet - Kostnad av fördröjning: {timeSensitivity}/10
             </label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 italic">
+              💡 Vad kostar det att vänta 1 timme/1 dag? (Inte när deadline är)
+            </p>
             <input
               type="range"
               min="1"
@@ -296,8 +302,8 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
               className="w-full"
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
-              <span>Kan vänta</span>
-              <span>Akut</span>
+              <span>Kan vänta (låg kostnad)</span>
+              <span>Ökar kraftigt per timme</span>
             </div>
 
             {/* Stress warning */}
@@ -312,7 +318,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
                   övervärderar brådska när vi är stressade.
                 </p>
                 <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
-                  Vad är den <strong>faktiska</strong> kostnaden av att vänta 24 timmar?
+                  <strong>Exempel:</strong> "Måste vara klar till lunch imorgon" betyder INTE automatiskt hög tidskänslighet!
+                  Fråga dig: Vad kostar det att göra det ikväll vs tidigt imorgon?
+                </p>
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  Hög tidskänslighet (8-10) = Kostnaden ÖKAR KRAFTIGT för varje timme (ex: förlorar kund om jag inte svarar nu)
                 </p>
               </div>
             )}
