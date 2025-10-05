@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { Task, CreateTaskInput, UpdateTaskInput } from '@/lib/types';
+import { parseNaturalDateTime } from '@/lib/dateParser';
 
 const client = new Anthropic({
   apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
@@ -132,18 +133,22 @@ PRIORITERINGSLOGIK (CPM - Consequence Priority Method):
 SMART TASK-SKAPANDE:
 När användaren ber dig skapa en task, använd följande logik:
 
-1. KAN DU BEDÖMA DIREKT? (Skapa med värden)
-   ✅ Tydlig deadline nämnd → Sätt deadline + rimlig time_sensitivity
+1. TOLKA NATURLIGA TIDER MED parse_natural_time
+   När användaren säger "kl 14", "imorgon", "på fredag", etc:
+   → Använd parse_natural_time först för att få ISO datetime
+   → Sätt sedan deadline till det returnerade värdet
+
+   Exempel:
+   - "Ring Lisa kl 14" → parse_natural_time("kl 14") → deadline: 2025-10-05T14:00:00
+   - "Möte imorgon kl 10" → parse_natural_time("imorgon kl 10") → deadline: 2025-10-06T10:00:00
+   - "Presentation på fredag" → parse_natural_time("på fredag") → deadline: fredag 09:00
+
+2. KAN DU BEDÖMA DIREKT? (Skapa med värden)
+   ✅ Tydlig deadline nämnd → Använd parse_natural_time + sätt rimlig time_sensitivity
    ✅ Tydlig prioritet ("viktigt", "akut", "snabbt") → Bedöm value_score
    ✅ Klar handling ("ringa X", "maila Y") → Bedöm effort + confidence
 
-   Exempel:
-   - "Kom ihåg att ringa Lisa imorgon kl 14"
-     → deadline: imorgon 14:00, value_score: 7, time_sensitivity: 6, effort: 3
-   - "Fixa presentationen innan mötet fredag"
-     → deadline: fredag, value_score: 8, time_sensitivity: 8, effort: 6
-
-2. FÖR OTYDLIGT? (Skapa som INBOX)
+3. FÖR OTYDLIGT? (Skapa som INBOX)
    ❌ Ingen deadline angiven OCH vag beskrivning
    ❌ Kräver research/beslut ("kolla", "undersök", "fundera på")
    ❌ Komplex/lång task utan tydlig plan
@@ -155,15 +160,23 @@ När användaren ber dig skapa en task, använd följande logik:
    - effort: 5
    - deadline: null
 
+4. AUTOMATISK KALENDERBOKNING (VIKTIGT!)
+   När en task skapas med estimated_duration >= 60 minuter:
+
+   a) Kolla tillgänglig tid: analyze_calendar_capacity
+   b) Föreslå bokning: "Du har X timmar ledigt imorgon kl 09-15. Vill du att jag bokar [duration] fokustid?"
+   c) Om användaren svarar ja → block_calendar_time
+
    Exempel:
-   - "Kontrollera utbildningsmöjligheter under vintern"
-     → Inbox med beskrivning, användaren bedömer senare
-   - "Fundera på hur vi kan förbättra processen"
-     → Inbox, för otydligt för direkt bedömning
+   - User: "Fixa presentationen, tar 4 timmar"
+   - Du: [skapar task] "Jag har lagt in tasken. Du har 6h ledigt imorgon 09:00-15:00. Ska jag boka 4h fokustid imorgon 09:00?"
+   - User: "Ja"
+   - Du: [block_calendar_time] "✅ Jag har bokat 4h i din kalender imorgon 09:00!"
 
 SVARA ANVÄNDAREN:
 - Direkt skapad: "Okej! Jag har lagt in '[task]' [med deadline X]"
 - Inbox: "Jag har lagt det i din inbox för senare bedömning 📥"
+- Med kalenderbokning: "✅ Task skapad + [X timmar] bokad i kalendern!"
 
 KALENDER-INTEGRATION (MICROSOFT GRAPH):
 När användaren frågar om deadlines baserat på tillgänglig tid:
@@ -372,6 +385,20 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
           required: ['start_time', 'duration_minutes', 'task_title'],
         },
       },
+      {
+        name: 'parse_natural_time',
+        description: 'Konvertera naturliga tidsuttryck till ISO datetime. Använd detta för att tolka "kl 14", "imorgon", "på fredag", etc.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            natural_expression: {
+              type: 'string',
+              description: 'Naturligt tidsuttryck från användaren (t.ex. "kl 14", "imorgon kl 10", "på fredag")',
+            },
+          },
+          required: ['natural_expression'],
+        },
+      },
     ];
   }
 
@@ -412,6 +439,9 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
                 (block.input as any).duration_minutes,
                 (block.input as any).task_title
               );
+              break;
+            case 'parse_natural_time':
+              result = this.parseNaturalTime((block.input as any).natural_expression);
               break;
             default:
               result = { error: 'Unknown tool' };
@@ -597,6 +627,30 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       }
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte blockera tid' };
+    }
+  }
+
+  private parseNaturalTime(naturalExpression: string) {
+    const parsed = parseNaturalDateTime(naturalExpression);
+
+    if (parsed) {
+      return {
+        success: true,
+        iso_datetime: parsed,
+        formatted: new Date(parsed).toLocaleString('sv-SE', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      };
+    } else {
+      return {
+        success: false,
+        error: `Kunde inte tolka tidsuttrycket: "${naturalExpression}"`,
+      };
     }
   }
 }

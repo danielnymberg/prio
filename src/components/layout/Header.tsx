@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
@@ -6,7 +7,7 @@ import { TaskForm } from '@/components/tasks/TaskForm';
 import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
 import { useTasks } from '@/hooks/useTasks';
 import { CreateTaskInput, DailyCheckIn } from '@/lib/types';
-import { LogOut, User, Plus, Menu, RefreshCw } from 'lucide-react';
+import { LogOut, User, Plus, Menu, RefreshCw, Settings } from 'lucide-react';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -15,6 +16,7 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut } = useAuth();
   const { createTask } = useTasks();
+  const navigate = useNavigate();
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
 
@@ -46,6 +48,16 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/settings')}
+            title="Inställningar"
+            className="min-h-[44px]"
+          >
+            <Settings className="h-4 w-4" />
+          </Button>
+
           <Button
             variant="secondary"
             size="sm"

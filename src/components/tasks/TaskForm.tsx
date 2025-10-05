@@ -3,7 +3,6 @@ import { Task, CreateTaskInput, UpdateTaskInput } from '@/lib/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { VoiceButton } from '@/components/ui/VoiceButton';
 import { getTaskQuadrant, DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
@@ -38,28 +37,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'done'>('not_started');
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const handleVoiceCommand = (action: string, params: any) => {
-    switch (action) {
-      case 'set_importance':
-        setValueScore(params.importance);
-        break;
-      case 'set_urgency':
-        setTimeSensitivity(params.urgency);
-        break;
-      case 'update':
-        if (params.title) setTitle(params.title);
-        break;
-      case 'complete':
-        setStatus('done');
-        break;
-      case 'set_duration':
-        if (params.duration) setEstimatedDuration(params.duration);
-        break;
-      default:
-        break;
-    }
-  };
 
   useEffect(() => {
     if (task) {
@@ -151,44 +128,28 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <div className="flex items-end gap-2">
-            <div className="flex-1">
-              <Input
-                label="Titel"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Vad ska du göra?"
-                required
-                maxLength={100}
-                autoFocus
-              />
-            </div>
-            <VoiceButton
-              onTranscript={(text) => setTitle(text)}
-              size="md"
-            />
-          </div>
+          <Input
+            label="Titel"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Vad ska du göra?"
+            required
+            maxLength={100}
+            autoFocus
+          />
         </div>
 
         <div>
-          <div className="flex items-end gap-2">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Beskrivning
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Detaljer (valfritt)"
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
-              />
-            </div>
-            <VoiceButton
-              onTranscript={(text) => setDescription(text)}
-              size="md"
-            />
-          </div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Beskrivning
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Detaljer (valfritt)"
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+          />
         </div>
 
         {/* Consequences Section - Anti-urgency bias */}
@@ -250,16 +211,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
 
         {/* CPM Parameters */}
         <div className="space-y-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">CPM Prioritering</h3>
-            <VoiceButton
-              mode="smart"
-              onTranscript={() => {}}
-              onCommand={handleVoiceCommand}
-              placeholder="Säg 'viktighet 8' eller 'brådska 5'"
-              size="sm"
-            />
-          </div>
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">CPM Prioritering</h3>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -378,25 +330,16 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Tidsuppskattning
-                {estimatedDuration && (
-                  <span className="ml-2 text-blue-600 dark:text-blue-400">
-                    ({formatDuration(estimatedDuration)})
-                  </span>
-                )}
-              </label>
-            </div>
-            <VoiceButton
-              mode="smart"
-              onTranscript={() => {}}
-              onCommand={handleVoiceCommand}
-              placeholder="Säg '30 minuter' eller 'en timme'"
-              size="sm"
-            />
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Tidsuppskattning
+              {estimatedDuration && (
+                <span className="ml-2 text-blue-600 dark:text-blue-400">
+                  ({formatDuration(estimatedDuration)})
+                </span>
+              )}
+            </label>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
