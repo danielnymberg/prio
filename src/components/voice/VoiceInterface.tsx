@@ -295,7 +295,7 @@ export function VoiceInterface() {
           size="lg"
           onClick={isListening ? handleStopListening : handleStartListening}
           onDoubleClick={() => setIsExpanded(!isExpanded)}
-          className="rounded-full w-16 h-16 shadow-2xl transition-all"
+          className="rounded-full w-16 h-16 shadow-2xl transition-all flex items-center justify-center p-0"
           disabled={isSpeaking}
           title={
             isSpeaking
