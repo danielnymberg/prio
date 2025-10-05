@@ -58,7 +58,7 @@ export class ClaudeConversation {
   private async getContinuationResponse(): Promise<string> {
     try {
       const response = await client.messages.create({
-        model: 'claude-3-5-sonnet-20250129',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 2000,
         system: this.buildSystemPrompt(),
         messages: this.conversationHistory,
