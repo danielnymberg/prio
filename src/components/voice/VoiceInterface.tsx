@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic, MicOff, Volume2, MessageSquare, X } from 'lucide-react';
+import { Mic, MicOff, MessageSquare, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
-import { AzureTTS } from '@/services/azure-tts';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { useTasks } from '@/hooks/useTasks';
 
@@ -14,7 +13,6 @@ interface ConversationMessage {
 
 export function VoiceInterface() {
   const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [conversationLog, setConversationLog] = useState<ConversationMessage[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -23,21 +21,13 @@ export function VoiceInterface() {
   const [status, setStatus] = useState<string>(''); // Ny: visa aktuell status
 
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
-  const ttsRef = useRef<AzureTTS | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { tasks, createTask, updateTask } = useTasks();
 
   const initializeServices = async () => {
     try {
-      // Initialize TTS
-      if (import.meta.env.VITE_AZURE_SPEECH_KEY) {
-        ttsRef.current = new AzureTTS({
-          subscriptionKey: import.meta.env.VITE_AZURE_SPEECH_KEY,
-          region: import.meta.env.VITE_AZURE_SPEECH_REGION || 'westeurope',
-          voice: 'sv-SE-SofieNeural',
-        });
-      }
+      // TTS borttagen - använder text-dialog istället för att undvika feedback loop
 
       // Initialize STT (backend hanterar auth och config)
       sttRef.current = new SpeechmaticsSTT();
@@ -101,22 +91,11 @@ export function VoiceInterface() {
         };
         setConversationLog(prev => [...prev, assistantMessage]);
 
-        // Speak response
-        if (ttsRef.current) {
-          setIsSpeaking(true);
-          setStatus('AI svarar...');
-          try {
-            await ttsRef.current.speak(response);
-          } catch (error) {
-            console.error('TTS error:', error);
-            setError('Kunde inte spela upp svar');
-          } finally {
-            setIsSpeaking(false);
-            setStatus('');
-          }
-        } else {
-          setStatus('');
-        }
+        // Visa textsvar istället för TTS (undviker feedback loop)
+        setStatus('');
+
+        // Expandera automatiskt för att visa svaret
+        setIsExpanded(true);
       } else {
         setStatus('');
       }
@@ -181,13 +160,9 @@ export function VoiceInterface() {
       if (sttRef.current) {
         sttRef.current.stopListening();
       }
-      if (ttsRef.current) {
-        ttsRef.current.stop();
-      }
 
       // Clear references to allow garbage collection
       sttRef.current = null;
-      ttsRef.current = null;
       claudeRef.current = null;
     };
   }, []);
@@ -195,7 +170,7 @@ export function VoiceInterface() {
   // Listen for voice trigger events
   useEffect(() => {
     const handleVoiceTrigger = () => {
-      if (!isListening && !isSpeaking) {
+      if (!isListening) {
         handleStartListening();
       }
     };
@@ -205,7 +180,7 @@ export function VoiceInterface() {
     return () => {
       window.removeEventListener('trigger-voice', handleVoiceTrigger);
     };
-  }, [isListening, isSpeaking, handleStartListening]);
+  }, [isListening, handleStartListening]);
 
   const clearConversation = () => {
     setConversationLog([]);
@@ -345,7 +320,7 @@ export function VoiceInterface() {
       {/* Voice Button */}
       <div className="relative">
         <Button
-          variant={isListening ? 'secondary' : isSpeaking ? 'secondary' : 'primary'}
+          variant={isListening ? 'secondary' : 'primary'}
           size="lg"
           onClick={isListening ? handleStopListening : handleStartListening}
           onMouseDown={handleMouseDown}
@@ -353,18 +328,13 @@ export function VoiceInterface() {
           onTouchStart={handleMouseDown}
           onTouchEnd={handleMouseUp}
           className="rounded-full w-16 h-16 shadow-2xl transition-all flex items-center justify-center p-0"
-          disabled={isSpeaking}
           title={
-            isSpeaking
-              ? 'AI talar...'
-              : isListening
+            isListening
               ? 'Klicka för att sluta lyssna'
               : 'Klicka för att prata, håll inne för att öppna chat'
           }
         >
-          {isSpeaking ? (
-            <Volume2 className="h-8 w-8 animate-pulse" />
-          ) : isListening ? (
+          {isListening ? (
             <MicOff className="h-8 w-8" />
           ) : (
             <Mic className="h-8 w-8" />
@@ -374,11 +344,6 @@ export function VoiceInterface() {
         {/* Pulsing Animation */}
         {isListening && (
           <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-20" />
-        )}
-
-        {/* Speaking Animation */}
-        {isSpeaking && (
-          <div className="absolute inset-0 rounded-full bg-blue-500 animate-pulse opacity-30" />
         )}
 
         {/* Notification Badge */}
