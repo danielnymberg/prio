@@ -38,10 +38,25 @@ export function VoiceInterface() {
 
       // Initialize Claude
       if (import.meta.env.VITE_ANTHROPIC_API_KEY) {
+        // Hämta kalenderhändelser om användaren är inloggad på Microsoft
+        let calendarEvents: any[] = [];
+        try {
+          const { getCalendarEvents, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
+          const isLoggedIn = await isMicrosoftLoggedIn();
+
+          if (isLoggedIn) {
+            const now = new Date();
+            const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dagar framåt
+            calendarEvents = await getCalendarEvents(now, endDate);
+          }
+        } catch (error) {
+          console.error('Failed to fetch calendar events:', error);
+        }
+
         claudeRef.current = new ClaudeConversation(
           {
             tasks,
-            calendarEvents: [],
+            calendarEvents,
             recentFiles: [],
             userId: user.id,
           },
@@ -81,8 +96,22 @@ export function VoiceInterface() {
     }
 
     try {
-      // Uppdatera Claude context med senaste tasks
-      claudeRef.current.updateContext({ tasks });
+      // Uppdatera Claude context med senaste tasks och kalender
+      let calendarEvents: any[] = [];
+      try {
+        const { getCalendarEvents, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
+        const isLoggedIn = await isMicrosoftLoggedIn();
+
+        if (isLoggedIn) {
+          const now = new Date();
+          const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+          calendarEvents = await getCalendarEvents(now, endDate);
+        }
+      } catch (error) {
+        console.error('Failed to fetch calendar events:', error);
+      }
+
+      claudeRef.current.updateContext({ tasks, calendarEvents });
 
       // Skicka till Claude
       const response = await claudeRef.current.chat(message);

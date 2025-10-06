@@ -41,11 +41,26 @@ export function ShareHandler() {
 
       setMessage('Claude analyserar innehållet...');
 
+      // Hämta kalenderhändelser om användaren är inloggad på Microsoft
+      let calendarEvents: any[] = [];
+      try {
+        const { getCalendarEvents, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
+        const isLoggedIn = await isMicrosoftLoggedIn();
+
+        if (isLoggedIn) {
+          const now = new Date();
+          const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dagar framåt
+          calendarEvents = await getCalendarEvents(now, endDate);
+        }
+      } catch (error) {
+        console.error('Failed to fetch calendar events:', error);
+      }
+
       // Create conversation with Claude
       const conversation = new ClaudeConversation(
         {
           tasks,
-          calendarEvents: [],
+          calendarEvents,
           recentFiles: [],
           userId: user.id,
         },
