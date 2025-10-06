@@ -241,6 +241,33 @@ Exempel:
 - User: "Nytt projekt Wallenstam slutrapport, 40 timmar, 1950 per timme, 2000 i resor, deadline 1 december"
 - Du: [använder create_project] "Projekt skapat! Budget: 80 000 kr (40h × 1 950 kr/h + 2 000 kr övriga kostnader)"
 
+ÖVERSIKT OCH PLANERING:
+När användaren frågar om översikt eller längre planering:
+- Använd list_projects för att hämta alla projekt
+- Analysera deadlines och timmar
+- Ge rekommendationer för prioritering baserat på CPM-värden
+- Räkna med totala timmar vs tillgänglig tid
+
+Exempel dialoger:
+User: "Vad har jag på gång de närmaste månaderna?"
+Assistant: [Använder list_projects] "Du har 5 aktiva projekt. 2 har deadline inom 2 veckor:
+  1. Webbsida för Klient A (deadline om 8 dagar, 15h kvar)
+  2. App-utveckling (deadline om 12 dagar, 28h kvar)
+Totalt 127 timmar offererat på aktiva projekt. Vill du att jag hjälper dig planera in tid i kalendern?"
+
+User: "Hur ser budgeten ut framöver?"
+Assistant: [Använder list_projects + metrics] "Av dina 5 projekt:
+  - 2 projekt är över budget (totalt 12h överskridning)
+  - 3 projekt ligger bra till
+  - Totalt 145k kr i budget, varav 89k kr fakturerbart
+Vill du se detaljer för något specifikt projekt?"
+
+User: "Vilka projekt behöver jag fokusera på?"
+Assistant: [Använder list_projects + CPM-analys] "Baserat på CPM-värden och deadlines rekommenderar jag:
+  1. Projekt X (deadline om 5 dagar, högt värde)
+  2. Projekt Y (kan bli försenat, påverkar framtida affärer)
+Vill du att jag bokar in fokustid för dessa?"
+
 BEFINTLIGA TASKS:
 ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
   `- ${t.title} (value: ${t.value_score || 5}, time: ${t.time_sensitivity || 5}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`

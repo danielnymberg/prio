@@ -31,6 +31,7 @@ const ShareHandler = lazy(() => import('./components/share/ShareHandler').then(m
 const SettingsView = lazy(() => import('./components/settings/SettingsView').then(m => ({ default: m.SettingsView })));
 const ProjectsView = lazy(() => import('./components/projects/ProjectsView').then(m => ({ default: m.ProjectsView })));
 const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetailView').then(m => ({ default: m.ProjectDetailView })));
+const OverviewView = lazy(() => import('./components/overview/OverviewView').then(m => ({ default: m.OverviewView })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -357,6 +358,17 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <SettingsView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Overview */}
+        <Route
+          path="/overview"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <OverviewView />
               </Suspense>
             </ProtectedRoute>
           }

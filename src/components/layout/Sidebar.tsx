@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid, X, Inbox, Settings, FolderKanban } from 'lucide-react';
+import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid, X, Inbox, Settings, FolderKanban, BarChart3 } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';
@@ -34,6 +34,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { to: '/week', icon: CalendarDays, label: 'Denna vecka', count: weekTasks.length, section: 'main' },
     { to: '/today', icon: Calendar, label: 'Idag', count: todayTasks.length, alert: overdueTasks.length > 0, section: 'main' },
     { to: '/archive', icon: Archive, label: 'Klara', count: tasks.filter(t => t.status === 'done').length, section: 'main' },
+    { to: '/overview', icon: BarChart3, label: 'Översikt', count: null, section: 'main' },
   ];
 
   const advancedItems = [
