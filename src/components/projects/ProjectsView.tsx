@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Project } from '@/lib/types';
 import { ProjectForm } from './ProjectForm';
+import { ProjectOnboardingModal } from '../onboarding/ProjectOnboardingModal';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, DollarSign, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -13,10 +14,17 @@ export function ProjectsView() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchProjects();
+
+      // Check if user has seen project onboarding
+      const completed = localStorage.getItem('prio_project_onboarding_completed');
+      if (!completed) {
+        setShowOnboarding(true);
+      }
     }
   }, [user]);
 
@@ -132,6 +140,12 @@ export function ProjectsView() {
           ))}
         </div>
       )}
+
+      {/* Onboarding Modal */}
+      <ProjectOnboardingModal
+        isOpen={showOnboarding}
+        onComplete={() => setShowOnboarding(false)}
+      />
     </div>
   );
 }

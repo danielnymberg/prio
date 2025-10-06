@@ -1,0 +1,310 @@
+import { useState } from 'react';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
+import { FolderKanban, Sparkles, Calculator, TrendingUp, FileText, ArrowRight, CheckCircle } from 'lucide-react';
+
+interface ProjectOnboardingModalProps {
+  isOpen: boolean;
+  onComplete: () => void;
+}
+
+export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboardingModalProps) {
+  const [step, setStep] = useState(1);
+
+  const handleComplete = () => {
+    localStorage.setItem('prio_project_onboarding_completed', 'true');
+    onComplete();
+  };
+
+  const handleSkip = () => {
+    localStorage.setItem('prio_project_onboarding_completed', 'true');
+    onComplete();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={handleSkip} title="Välkommen till Projekthantering" size="lg">
+      {/* Progress Indicator */}
+      <div className="flex gap-2 mb-6">
+        {[1, 2, 3, 4].map(s => (
+          <div
+            key={s}
+            className={`h-2 flex-1 rounded transition-all ${
+              s <= step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="text-center mb-4 text-sm text-gray-600 dark:text-gray-400">
+        Steg {step} av 4
+      </div>
+
+      {/* Steg 1: Vad är projekthantering? */}
+      {step === 1 && (
+        <div className="space-y-6">
+          <div className="text-center">
+            <div className="text-6xl mb-4">💼</div>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+              Hantera kundprojekt med ekonomi
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Håll koll på budget, timmar och leveranser
+            </p>
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl p-6">
+            <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+              <FolderKanban className="h-6 w-6" />
+              Vad kan du göra?
+            </h3>
+            <div className="space-y-3 text-blue-800 dark:text-blue-200">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <p>Skapa projekt med <strong>offererade timmar</strong> och <strong>timpris</strong></p>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <p>Se <strong>auto-beräknad total budget</strong> (timmar × pris + övriga kostnader)</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <p>Spåra <strong>completion %</strong> och få budget-varningar</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                <p>Koppla tasks till projekt för <strong>automatisk tidsspårning</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={handleSkip} className="flex-1">
+              Hoppa över
+            </Button>
+            <Button onClick={() => setStep(2)} className="flex-1">
+              Nästa <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Steg 2: AI-driven skapande */}
+      {step === 2 && (
+        <div className="space-y-6">
+          <div className="text-center mb-6">
+            <Sparkles className="h-16 w-16 text-purple-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              AI-driven projektinmatning
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Skapa projekt super snabbt med naturligt språk
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-xl p-6">
+            <h3 className="font-bold text-purple-900 dark:text-purple-100 mb-4 flex items-center gap-2">
+              <Sparkles className="h-6 w-6" />
+              Så här fungerar det:
+            </h3>
+
+            <div className="space-y-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Du säger:</p>
+                <div className="bg-blue-50 dark:bg-blue-900/30 rounded p-3 font-medium text-blue-900 dark:text-blue-100">
+                  "Nytt projekt Wallenstam slutrapport, 40 timmar, 1950 per timme, 2000 i resor, deadline 1 december"
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center">
+                <ArrowRight className="h-6 w-6 text-purple-500" />
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Claude skapar automatiskt:</p>
+                <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                  <li>✅ Projektnamn: "Wallenstam slutrapport"</li>
+                  <li>✅ Klient: "Wallenstam"</li>
+                  <li>✅ Offererade timmar: 40h</li>
+                  <li>✅ Timpris: 1 950 kr/h</li>
+                  <li>✅ Övriga kostnader: 2 000 kr</li>
+                  <li>✅ Total budget: <strong>80 000 kr</strong></li>
+                  <li>✅ Deadline: 1 december 2025</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 border border-amber-300 dark:border-amber-700">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              <strong>💡 Tips:</strong> Använd AI-chatten (högst ner till höger) eller röstkommando
+              för att skapa projekt blixtnabbt!
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => setStep(1)} className="flex-1">
+              Tillbaka
+            </Button>
+            <Button onClick={() => setStep(3)} className="flex-1">
+              Nästa <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Steg 3: Budget & Ekonomi */}
+      {step === 3 && (
+        <div className="space-y-6">
+          <div className="text-center mb-6">
+            <Calculator className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Auto-beräknad ekonomi
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Håll koll på budget och lönsamhet i realtid
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <h4 className="font-bold text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                Total Budget
+              </h4>
+              <p className="text-sm text-green-800 dark:text-green-200 mb-2">
+                Beräknas automatiskt när du skapar projekt:
+              </p>
+              <div className="bg-white dark:bg-gray-800 rounded p-3 font-mono text-sm">
+                Budget = (Timmar × Timpris) + Övriga kostnader
+              </div>
+              <p className="text-xs text-green-700 dark:text-green-300 mt-2">
+                Exempel: (40h × 1 950 kr/h) + 2 000 kr = <strong>80 000 kr</strong>
+              </p>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <h4 className="font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Completion % (kommer i Fas 2)
+              </h4>
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                Du kommer kunna sätta completion % med reglage och få:
+              </p>
+              <ul className="text-xs text-blue-700 dark:text-blue-300 mt-2 space-y-1 list-disc list-inside">
+                <li>Återstående timmar att fakturera</li>
+                <li>Förbrukad budget hittills</li>
+                <li>Varningar om du går över budget</li>
+              </ul>
+            </div>
+
+            <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+              <h4 className="font-bold text-purple-900 dark:text-purple-100 mb-2 flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                PDF-upload (kommer i Fas 4)
+              </h4>
+              <p className="text-sm text-purple-800 dark:text-purple-200">
+                Dra in en PDF-offert så extraherar Claude automatiskt:
+              </p>
+              <ul className="text-xs text-purple-700 dark:text-purple-300 mt-2 space-y-1 list-disc list-inside">
+                <li>Projektnamn från offertens titel</li>
+                <li>Kund från mottagare</li>
+                <li>Timmar och timpris från prislista</li>
+                <li>Externa kostnader från specifikation</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => setStep(2)} className="flex-1">
+              Tillbaka
+            </Button>
+            <Button onClick={() => setStep(4)} className="flex-1">
+              Nästa <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Steg 4: Kom igång */}
+      {step === 4 && (
+        <div className="space-y-6">
+          <div className="text-center mb-6">
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Redo att skapa ditt första projekt!
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Tre sätt att komma igång
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+                1
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+                  <FolderKanban className="h-4 w-4" />
+                  Manuellt formulär
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Klicka på <strong>"Nytt projekt"</strong> och fyll i formuläret
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border-2 border-purple-300 dark:border-purple-700">
+              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                2
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  AI-chat (rekommenderat!)
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Öppna chatten (högst ner till höger) och skriv:<br />
+                  <code className="text-xs bg-white dark:bg-gray-800 px-2 py-1 rounded mt-1 inline-block">
+                    "Nytt projekt för [Kund], [X] timmar, [Y] kr/h"
+                  </code>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-lg border-2 border-green-300 dark:border-green-700">
+              <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">
+                3
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  PDF-upload (kommer snart)
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Dra in en offert-PDF så extraherar Claude all info automatiskt
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+            <p className="text-sm text-center text-blue-900 dark:text-blue-100">
+              <strong>🎯 Nu kör vi!</strong> Skapa ditt första projekt och testa funktionerna.
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => setStep(3)} className="flex-1">
+              Tillbaka
+            </Button>
+            <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Kom igång!
+            </Button>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
