@@ -358,65 +358,74 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           )}
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Deadline
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            <Input
-              type="date"
-              value={deadlineDate}
-              onChange={(e) => setDeadlineDate(e.target.value)}
-              placeholder="Datum"
-            />
-            <select
-              value={deadlineHour}
-              onChange={(e) => setDeadlineHour(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            >
-              <option value="00">00:00</option>
-              <option value="06">06:00</option>
-              <option value="09">09:00</option>
-              <option value="12">12:00</option>
-              <option value="15">15:00</option>
-              <option value="17">17:00</option>
-              <option value="18">18:00</option>
-              <option value="21">21:00</option>
-            </select>
+        {/* Status och Deadline i två spalter */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Status - vänster spalt */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Status
+            </label>
+            <div className="space-y-2">
+              {[
+                { value: 'not_started', label: 'Ej påbörjad', color: 'gray' },
+                { value: 'in_progress', label: 'Pågår', color: 'amber' },
+                { value: 'done', label: 'Klar', color: 'green' },
+              ].map(({ value, label, color }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setStatus(value as any)}
+                  className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-colors text-left ${
+                    status === value
+                      ? color === 'green'
+                        ? 'bg-green-600 text-white'
+                        : color === 'amber'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-gray-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Status
-          </label>
-          <div className="flex gap-2">
-            {[
-              { value: 'not_started', label: 'Ej påbörjad' },
-              { value: 'in_progress', label: 'Pågår' },
-              { value: 'done', label: 'Klar' },
-            ].map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setStatus(value as any)}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                  status === value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+          {/* Deadline - höger spalt */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Deadline
+            </label>
+            <div className="space-y-2">
+              <Input
+                type="date"
+                value={deadlineDate}
+                onChange={(e) => setDeadlineDate(e.target.value)}
+                placeholder="Datum"
+              />
+              <select
+                value={deadlineHour}
+                onChange={(e) => setDeadlineHour(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
-                {label}
-              </button>
-            ))}
+                <option value="00">00:00</option>
+                <option value="06">06:00</option>
+                <option value="09">09:00</option>
+                <option value="12">12:00</option>
+                <option value="15">15:00</option>
+                <option value="17">17:00</option>
+                <option value="18">18:00</option>
+                <option value="21">21:00</option>
+              </select>
+            </div>
           </div>
         </div>
 
+        {/* Action buttons */}
         <div className="flex gap-2 pt-4">
           {task && onDelete && (
-            <Button
+            <button
               type="button"
-              variant="ghost"
               onClick={async () => {
                 if (confirm(`Är du säker på att du vill radera "${task.title}"?`)) {
                   await onDelete(task.id);
@@ -424,27 +433,25 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                   toast.success('Task raderad');
                 }
               }}
-              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
             >
               Radera
-            </Button>
+            </button>
           )}
-          <Button
+          <button
             type="button"
-            variant="secondary"
             onClick={onClose}
-            className="flex-1"
+            className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             Avbryt
-          </Button>
-          <Button
+          </button>
+          <button
             type="submit"
-            variant="primary"
             disabled={loading || !title.trim()}
-            className="flex-1"
+            className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Sparar...' : task ? 'Uppdatera' : 'Skapa'}
-          </Button>
+            {loading ? 'Sparar...' : 'Spara'}
+          </button>
         </div>
       </form>
 
