@@ -31,6 +31,7 @@ const ResultImpactModal = lazy(() => import('./components/tasks/ResultImpactModa
 const ShareHandler = lazy(() => import('./components/share/ShareHandler').then(m => ({ default: m.ShareHandler })));
 const SettingsView = lazy(() => import('./components/settings/SettingsView').then(m => ({ default: m.SettingsView })));
 const ProjectsView = lazy(() => import('./components/projects/ProjectsView').then(m => ({ default: m.ProjectsView })));
+const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetailView').then(m => ({ default: m.ProjectDetailView })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -376,6 +377,16 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <ProjectsView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects/:id"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <ProjectDetailView />
               </Suspense>
             </ProtectedRoute>
           }

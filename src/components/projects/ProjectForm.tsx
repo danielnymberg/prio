@@ -53,33 +53,33 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Projektnamn *
         </label>
         <input
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-4 py-2 border rounded-lg"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Klient/Beställare
         </label>
         <input
           type="text"
           value={formData.client_name || ''}
           onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-          className="w-full px-4 py-2 border rounded-lg"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Offererade timmar *
           </label>
           <input
@@ -87,13 +87,13 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             step="0.5"
             value={formData.quoted_hours}
             onChange={(e) => setFormData({ ...formData, quoted_hours: parseFloat(e.target.value) || 0 })}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Timpris (kr) *
           </label>
           <input
@@ -101,14 +101,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             step="50"
             value={formData.hourly_rate}
             onChange={(e) => setFormData({ ...formData, hourly_rate: parseFloat(e.target.value) || 0 })}
-            className="w-full px-4 py-2 border rounded-lg"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             required
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Övriga kostnader (resor, externa tjänster, kr)
         </label>
         <input
@@ -116,7 +116,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           step="100"
           value={formData.external_costs || 0}
           onChange={(e) => setFormData({ ...formData, external_costs: parseFloat(e.target.value) || 0 })}
-          className="w-full px-4 py-2 border rounded-lg"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
         />
       </div>
 
@@ -134,25 +134,25 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Deadline
         </label>
         <input
           type="date"
           value={formData.project_deadline || ''}
           onChange={(e) => setFormData({ ...formData, project_deadline: e.target.value })}
-          className="w-full px-4 py-2 border rounded-lg"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Beskrivning
         </label>
         <textarea
           value={formData.description || ''}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full px-4 py-2 border rounded-lg"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           rows={3}
         />
       </div>
