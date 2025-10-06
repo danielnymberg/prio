@@ -331,16 +331,15 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 key={preset.value}
                 type="button"
                 onClick={() => setEstimatedDuration(preset.value)}
-                className={`p-3 rounded-lg border text-center transition-all hover:shadow-sm ${
+                className={`p-2 rounded-lg border text-center transition-all hover:shadow-sm ${
                   estimatedDuration === preset.value
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
                 title={preset.description}
               >
-                <div className="text-lg mb-1">{preset.icon}</div>
+                <div className="text-lg">{preset.icon}</div>
                 <div className="text-xs font-medium">{preset.label}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{preset.description}</div>
               </button>
             ))}
           </div>
