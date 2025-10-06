@@ -28,7 +28,8 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
 
   const [blocksTaskIds, setBlocksTaskIds] = useState<string[]>([]);
 
-  const [deadline, setDeadline] = useState('');
+  const [deadlineDate, setDeadlineDate] = useState('');
+  const [deadlineHour, setDeadlineHour] = useState('17');
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'done'>('not_started');
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,16 +38,15 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
   const [showAutoBook, setShowAutoBook] = useState(false);
   const [freeSlots, setFreeSlots] = useState<FreeTimeSlot[]>([]);
 
-  // Konvertera ISO datetime till datetime-local format (YYYY-MM-DDTHH:MM)
-  const formatDatetimeLocal = (isoString: string | null): string => {
-    if (!isoString) return '';
+  // Konvertera ISO datetime till datum (YYYY-MM-DD) och timme
+  const parseDeadline = (isoString: string | null): { date: string; hour: string } => {
+    if (!isoString) return { date: '', hour: '17' };
     const date = new Date(isoString);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return { date: `${year}-${month}-${day}`, hour: hours };
   };
 
   useEffect(() => {
@@ -58,7 +58,9 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       setConfidence(task.confidence || 7);
       setEffort(task.effort || 5);
       setBlocksTaskIds(task.blocks_task_ids || []);
-      setDeadline(task.deadline ? formatDatetimeLocal(task.deadline) : '');
+      const parsed = parseDeadline(task.deadline);
+      setDeadlineDate(parsed.date);
+      setDeadlineHour(parsed.hour);
       setStatus(task.status);
       setEstimatedDuration(task.estimated_duration);
     } else {
@@ -69,7 +71,8 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       setConfidence(7);
       setEffort(5);
       setBlocksTaskIds([]);
-      setDeadline('');
+      setDeadlineDate('');
+      setDeadlineHour('17');
       setStatus('not_started');
       setEstimatedDuration(null);
     }
@@ -93,15 +96,9 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       // Lägg bara till optional fields om de har värden
       if (blocksTaskIds.length > 0) input.blocks_task_ids = blocksTaskIds;
 
-      // Smart deadline-hantering: Lägg till 17:00 om endast datum anges
-      if (deadline) {
-        if (!deadline.includes('T')) {
-          // Endast datum (YYYY-MM-DD) angavs - lägg till 17:00
-          input.deadline = `${deadline}T17:00:00`;
-        } else {
-          // Datum + tid angavs - lägg till sekunder om de saknas
-          input.deadline = deadline.includes(':00:00') ? deadline : `${deadline}:00`;
-        }
+      // Bygg deadline från datum + timme
+      if (deadlineDate) {
+        input.deadline = `${deadlineDate}T${deadlineHour}:00:00`;
       }
 
       if (estimatedDuration) input.estimated_duration = estimatedDuration;
@@ -113,7 +110,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
         !task && // Only for new tasks
         estimatedDuration &&
         estimatedDuration >= 60 && // At least 1 hour
-        deadline &&
+        deadlineDate &&
         (await isMicrosoftLoggedIn());
 
       if (shouldAutoBook) {
@@ -360,13 +357,33 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
           )}
         </div>
 
-        <Input
-          type="datetime-local"
-          label="Deadline (datum och tid)"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-          placeholder="Välj datum och tid"
-        />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Deadline
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              type="date"
+              value={deadlineDate}
+              onChange={(e) => setDeadlineDate(e.target.value)}
+              placeholder="Datum"
+            />
+            <select
+              value={deadlineHour}
+              onChange={(e) => setDeadlineHour(e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            >
+              <option value="00">00:00</option>
+              <option value="06">06:00</option>
+              <option value="09">09:00</option>
+              <option value="12">12:00</option>
+              <option value="15">15:00</option>
+              <option value="17">17:00</option>
+              <option value="18">18:00</option>
+              <option value="21">21:00</option>
+            </select>
+          </div>
+        </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
