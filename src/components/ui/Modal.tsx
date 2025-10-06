@@ -38,15 +38,15 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-charcoal-950/60 backdrop-blur-sm"
         onClick={onClose}
       />
 
       <div
-        className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full ${sizes[size]} max-h-[90vh] overflow-hidden flex flex-col`}
+        className={`relative bg-cream-50 dark:bg-charcoal-900 rounded-3xl shadow-medium w-full ${sizes[size]} max-h-[90vh] overflow-hidden flex flex-col`}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between p-8 border-b border-sand-200 dark:border-charcoal-800">
+          <h2 className="text-xl font-bold text-stone-900 dark:text-cream-50">
             {title}
           </h2>
           <Button
@@ -59,7 +59,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-8">
           {children}
         </div>
       </div>

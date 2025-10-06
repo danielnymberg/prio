@@ -27,22 +27,22 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 sm:py-4">
+    <header className="bg-cream-100 dark:bg-charcoal-900 border-b border-sand-200 dark:border-charcoal-800 px-6 sm:px-8 py-4 sm:py-5">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-3 sm:gap-4">
           {/* Hamburgermeny - endast synlig på mobil/tablet */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-sand-200 dark:hover:bg-charcoal-850 rounded-xl transition-colors"
             aria-label="Öppna meny"
           >
-            <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+            <Menu className="h-6 w-6 text-stone-700 dark:text-stone-300" />
           </button>
 
-          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-xl sm:text-2xl font-bold text-copper-600 dark:text-copper-400">
             Prio
           </h1>
-          <span className="hidden sm:inline text-sm text-gray-500 dark:text-gray-400">
+          <span className="hidden sm:inline text-sm text-stone-500 dark:text-stone-400">
             Håll fokus på det som är viktigt
           </span>
         </div>
@@ -83,10 +83,10 @@ export function Header({ onMenuClick }: HeaderProps) {
           <ThemeToggle />
 
           {user && (
-            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-sand-200 dark:border-charcoal-800">
               <div className="hidden md:flex items-center gap-2">
-                <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <User className="h-4 w-4 text-stone-600 dark:text-stone-400" />
+                <span className="text-sm text-stone-700 dark:text-stone-300">
                   {user.email}
                 </span>
               </div>

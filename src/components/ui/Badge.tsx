@@ -8,16 +8,16 @@ interface BadgeProps {
 
 export function Badge({ children, variant = 'default', size = 'sm' }: BadgeProps) {
   const variants = {
-    default: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-    success: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    warning: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    danger: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    info: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    default: 'bg-sand-200 text-stone-700 dark:bg-charcoal-800 dark:text-stone-300',
+    success: 'bg-success-100 text-success-700 dark:bg-success-950 dark:text-success-400',
+    warning: 'bg-warning-100 text-warning-700 dark:bg-warning-950 dark:text-warning-400',
+    danger: 'bg-error-100 text-error-700 dark:bg-error-950 dark:text-error-400',
+    info: 'bg-copper-100 text-copper-700 dark:bg-copper-950 dark:text-copper-400',
   };
 
   const sizes = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-3 py-1 text-sm',
+    sm: 'px-2.5 py-1 text-xs',
+    md: 'px-3 py-1.5 text-sm',
   };
 
   return (

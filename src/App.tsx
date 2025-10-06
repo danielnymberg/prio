@@ -36,10 +36,10 @@ const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetail
 // Loading fallback component
 function RouteLoader() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto mb-4"></div>
-        <p className="text-gray-600 dark:text-gray-400">Laddar...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500 mx-auto mb-4"></div>
+        <p className="text-stone-600 dark:text-stone-400">Laddar...</p>
       </div>
     </div>
   );
@@ -47,24 +47,24 @@ function RouteLoader() {
 
 function LoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="absolute top-4 right-4">
+    <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
+      <div className="absolute top-6 right-6">
         <ThemeToggle />
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md mx-4">
+      <div className="bg-cream-100 dark:bg-charcoal-900 p-10 rounded-3xl shadow-medium w-full max-w-md mx-4">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 text-copper-600 dark:text-copper-400">
             Prio
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-stone-600 dark:text-stone-400">
             Håll fokus på det som är viktigt
           </p>
         </div>
 
         <LoginForm />
 
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+        <p className="text-center text-sm text-stone-500 dark:text-stone-400 mt-6">
           Samma inloggning som Anmärkt
         </p>
       </div>
@@ -135,8 +135,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [user, loading]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white"></div>
+    return <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500"></div>
     </div>;
   }
 
@@ -198,10 +198,10 @@ function HomePage() {
   }, [navigate]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto mb-4"></div>
-        <p className="text-gray-600 dark:text-gray-400">Laddar...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500 mx-auto mb-4"></div>
+        <p className="text-stone-600 dark:text-stone-400">Laddar...</p>
       </div>
     </div>
   );

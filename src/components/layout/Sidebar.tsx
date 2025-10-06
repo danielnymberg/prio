@@ -48,20 +48,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-40
-          w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700
-          p-4 flex flex-col
+          w-64 bg-cream-50 dark:bg-charcoal-900 border-r border-sand-200 dark:border-charcoal-800
+          p-6 flex flex-col
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Stäng-knapp för mobil */}
-        <div className="lg:hidden flex justify-end mb-2">
+        <div className="lg:hidden flex justify-end mb-4">
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-sand-100 dark:hover:bg-charcoal-800 rounded-xl transition-colors"
             aria-label="Stäng meny"
           >
-            <X className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+            <X className="h-6 w-6 text-stone-600 dark:text-stone-400" />
           </button>
         </div>
 
@@ -86,14 +86,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               to={to}
               onClick={() => onClose()} // Stäng sidebar på mobil efter navigering
               className={({ isActive }) =>
-                `flex items-center justify-between px-3 py-3 rounded-lg transition-colors min-h-[44px] ${
+                `flex items-center justify-between px-4 py-3 rounded-xl transition-all min-h-[44px] ${
                   highlight
                     ? isActive
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
-                      : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600 shadow-md'
+                      ? 'bg-copper-500 text-white shadow-soft'
+                      : 'bg-copper-400 text-white hover:bg-copper-500 shadow-subtle'
                     : isActive
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-sand-200 dark:bg-charcoal-800 text-copper-600 dark:text-copper-400'
+                    : 'text-stone-700 dark:text-stone-300 hover:bg-sand-100 dark:hover:bg-charcoal-850'
                 }`
               }
             >
@@ -104,9 +104,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               {count !== null && (
                 <div className="flex items-center gap-2">
                   {alert && (
-                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    <span className="w-2 h-2 bg-error-500 rounded-full animate-pulse" />
                   )}
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-sm text-stone-500 dark:text-stone-400">
                     {count}
                   </span>
                 </div>
@@ -114,8 +114,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </NavLink>
           ))}
 
-          <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="px-3 mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+          <div className="pt-6 mt-6 border-t border-sand-200 dark:border-charcoal-800">
+            <div className="px-4 mb-3 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
               Avancerat
             </div>
             {advancedItems.map(({ to, icon: Icon, label }) => (
@@ -124,10 +124,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 to={to}
                 onClick={() => onClose()} // Stäng sidebar på mobil efter navigering
                 className={({ isActive }) =>
-                  `flex items-center justify-between px-3 py-3 rounded-lg transition-colors min-h-[44px] ${
+                  `flex items-center justify-between px-4 py-3 rounded-xl transition-all min-h-[44px] ${
                     isActive
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-sand-200 dark:bg-charcoal-800 text-copper-600 dark:text-copper-400'
+                      : 'text-stone-700 dark:text-stone-300 hover:bg-sand-100 dark:hover:bg-charcoal-850'
                   }`
                 }
               >
@@ -141,8 +141,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {overdueTasks.length > 0 && (
-          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm font-medium text-red-700 dark:text-red-400">
+          <div className="mt-6 p-4 bg-error-50 dark:bg-error-950 border border-error-200 dark:border-error-800 rounded-xl">
+            <p className="text-sm font-medium text-error-700 dark:text-error-400">
               ⚠️ {overdueTasks.length} försenade tasks
             </p>
           </div>

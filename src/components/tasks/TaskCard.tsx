@@ -149,43 +149,43 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
       {...attributes}
       {...listeners}
       onClick={handleCardClick}
-      className={`bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer group relative ${
+      className={`bg-cream-100 dark:bg-charcoal-850 rounded-xl p-4 shadow-subtle hover:shadow-soft transition-all cursor-pointer group relative ${
         isOverdue
-          ? 'border-2 border-red-500 dark:border-red-600'
+          ? 'border-2 border-error-500 dark:border-error-600'
           : isEmergency
-          ? 'border-2 border-orange-500 dark:border-orange-600'
-          : 'border border-gray-200 dark:border-gray-600'
+          ? 'border-2 border-warning-500 dark:border-warning-600'
+          : 'border border-sand-200 dark:border-charcoal-800'
       }`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
       {/* Action buttons */}
-      <div className={`absolute top-2 right-2 flex gap-1 transition-opacity ${showActions || isTouchDevice ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`absolute top-3 right-3 flex gap-1 transition-opacity ${showActions || isTouchDevice ? 'opacity-100' : 'opacity-0'}`}>
         {onUpdate && !isEditingTitle && (
           <button
             onClick={handleTitleEdit}
-            className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500"
+            className="p-1.5 rounded-lg bg-sand-200 dark:bg-charcoal-800 hover:bg-sand-300 dark:hover:bg-charcoal-700"
             title="Redigera titel"
           >
-            <Edit2 className="h-3 w-3 text-gray-600 dark:text-gray-300" />
+            <Edit2 className="h-3 w-3 text-stone-600 dark:text-stone-300" />
           </button>
         )}
         {onDuplicate && (
           <button
             onClick={handleDuplicate}
-            className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500"
+            className="p-1.5 rounded-lg bg-sand-200 dark:bg-charcoal-800 hover:bg-sand-300 dark:hover:bg-charcoal-700"
             title="Skapa liknande task"
           >
-            <Copy className="h-3 w-3 text-gray-600 dark:text-gray-300" />
+            <Copy className="h-3 w-3 text-stone-600 dark:text-stone-300" />
           </button>
         )}
         {onDelete && (
           <button
             onClick={handleDelete}
-            className="p-1.5 rounded-md bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50"
+            className="p-1.5 rounded-lg bg-error-100 dark:bg-error-950 hover:bg-error-200 dark:hover:bg-error-900"
             title="Radera task"
           >
-            <Trash2 className="h-3 w-3 text-red-600 dark:text-red-400" />
+            <Trash2 className="h-3 w-3 text-error-600 dark:text-error-400" />
           </button>
         )}
       </div>
@@ -199,25 +199,25 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               onChange={(e) => setEditedTitle(e.target.value)}
               onKeyDown={handleTitleKeyDown}
               onBlur={handleTitleSave}
-              className="flex-1 text-sm font-semibold bg-transparent border-b border-blue-500 focus:outline-none text-gray-900 dark:text-white"
+              className="flex-1 text-sm font-semibold bg-transparent border-b border-copper-500 focus:outline-none text-stone-900 dark:text-cream-50"
             />
             <button
               onClick={handleTitleSave}
-              className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+              className="p-1 rounded-lg hover:bg-sand-100 dark:hover:bg-charcoal-800"
               title="Spara"
             >
-              <Check className="h-3 w-3 text-green-600" />
+              <Check className="h-3 w-3 text-success-600" />
             </button>
             <button
               onClick={handleTitleCancel}
-              className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
+              className="p-1 rounded-lg hover:bg-sand-100 dark:hover:bg-charcoal-800"
               title="Avbryt"
             >
-              <X className="h-3 w-3 text-red-600" />
+              <X className="h-3 w-3 text-error-600" />
             </button>
           </div>
         ) : (
-          <h3 className="font-semibold text-sm text-gray-900 dark:text-white truncate flex-1 pr-6">
+          <h3 className="font-semibold text-sm text-stone-900 dark:text-cream-50 truncate flex-1 pr-6">
             {task.title}
           </h3>
         )}
@@ -227,14 +227,14 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               {getDurationIcon(task.estimated_duration)}
             </span>
           )}
-          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+          <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">
             {task.priority.toFixed(1)}
           </span>
         </div>
       </div>
 
       {task.description && (
-        <p className={`text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2 transition-opacity ${
+        <p className={`text-xs text-stone-600 dark:text-stone-400 line-clamp-2 mb-2 transition-opacity ${
           viewMode === 'expanded' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         }`}>
           {task.description}
@@ -244,25 +244,25 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
       {viewMode === 'expanded' && (
         <div className="mb-2 space-y-2">
           <div className="grid grid-cols-4 gap-2 text-xs">
-            <div className="bg-green-50 dark:bg-green-900/20 rounded px-2 py-1">
-              <div className="text-gray-500 dark:text-gray-400 text-[10px]">Värde</div>
-              <div className="font-semibold text-green-700 dark:text-green-400">{task.value_score}/10</div>
+            <div className="bg-success-50 dark:bg-success-950 rounded-lg px-2 py-1">
+              <div className="text-stone-500 dark:text-stone-400 text-[10px]">Värde</div>
+              <div className="font-semibold text-success-700 dark:text-success-400">{task.value_score}/10</div>
             </div>
-            <div className="bg-amber-50 dark:bg-amber-900/20 rounded px-2 py-1">
-              <div className="text-gray-500 dark:text-gray-400 text-[10px]">Tidskänsl.</div>
-              <div className="font-semibold text-amber-700 dark:text-amber-400">{task.time_sensitivity}/10</div>
+            <div className="bg-warning-50 dark:bg-warning-950 rounded-lg px-2 py-1">
+              <div className="text-stone-500 dark:text-stone-400 text-[10px]">Tidskänsl.</div>
+              <div className="font-semibold text-warning-700 dark:text-warning-400">{task.time_sensitivity}/10</div>
             </div>
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded px-2 py-1">
-              <div className="text-gray-500 dark:text-gray-400 text-[10px]">Tillit</div>
-              <div className="font-semibold text-blue-700 dark:text-blue-400">{task.confidence}/10</div>
+            <div className="bg-copper-50 dark:bg-copper-950 rounded-lg px-2 py-1">
+              <div className="text-stone-500 dark:text-stone-400 text-[10px]">Tillit</div>
+              <div className="font-semibold text-copper-700 dark:text-copper-400">{task.confidence}/10</div>
             </div>
-            <div className="bg-red-50 dark:bg-red-900/20 rounded px-2 py-1">
-              <div className="text-gray-500 dark:text-gray-400 text-[10px]">Anstr.</div>
-              <div className="font-semibold text-red-700 dark:text-red-400">{task.effort}/10</div>
+            <div className="bg-error-50 dark:bg-error-950 rounded-lg px-2 py-1">
+              <div className="text-stone-500 dark:text-stone-400 text-[10px]">Anstr.</div>
+              <div className="font-semibold text-error-700 dark:text-error-400">{task.effort}/10</div>
             </div>
           </div>
           {(task.estimated_duration || task.deadline) && (
-            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400">
               {task.estimated_duration && (
                 <span className={`flex items-center gap-1 ${getDurationColor(task.estimated_duration)}`}>
                   <Clock className="h-3 w-3" />
@@ -283,36 +283,36 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
             <div className="relative">
               <button
                 onClick={handleStatusMenuToggle}
-                className="flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded px-1 py-0.5 transition-colors"
+                className="flex items-center gap-1 hover:bg-sand-100 dark:hover:bg-charcoal-800 rounded-lg px-2 py-1 transition-colors"
                 title="Klicka för att ändra status"
               >
                 {getStatusDot()}
-                <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                <span className="text-xs text-stone-500 dark:text-stone-400 capitalize">
                   {task.status === 'not_started' ? 'Ej påbörjad' : task.status === 'in_progress' ? 'Pågående' : 'Klar'}
                 </span>
               </button>
 
               {showStatusMenu && (
-                <div className="absolute bottom-full left-0 mb-1 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 py-1 z-10 min-w-[140px]">
+                <div className="absolute bottom-full left-0 mb-1 bg-cream-50 dark:bg-charcoal-850 rounded-xl shadow-medium border border-sand-200 dark:border-charcoal-800 py-1 z-10 min-w-[140px]">
                   <button
                     onClick={() => handleStatusChange('not_started')}
-                    className="w-full px-3 py-2 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-sand-100 dark:hover:bg-charcoal-800 flex items-center gap-2"
                   >
-                    <div className="w-2 h-2 rounded-full bg-gray-400" />
+                    <div className="w-2 h-2 rounded-full bg-stone-400" />
                     Ej påbörjad
                   </button>
                   <button
                     onClick={() => handleStatusChange('in_progress')}
-                    className="w-full px-3 py-2 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-sand-100 dark:hover:bg-charcoal-800 flex items-center gap-2"
                   >
-                    <div className="w-2 h-2 rounded-full bg-amber-400" />
+                    <div className="w-2 h-2 rounded-full bg-warning-400" />
                     Pågående
                   </button>
                   <button
                     onClick={() => handleStatusChange('done')}
-                    className="w-full px-3 py-2 text-left text-xs hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-sand-100 dark:hover:bg-charcoal-800 flex items-center gap-2"
                   >
-                    <div className="w-2 h-2 rounded-full bg-green-400" />
+                    <div className="w-2 h-2 rounded-full bg-success-400" />
                     Klar
                   </button>
                 </div>
