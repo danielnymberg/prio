@@ -1,5 +1,5 @@
 import { useState, FormEvent, useEffect } from 'react';
-import { Task, CreateTaskInput, UpdateTaskInput } from '@/lib/types';
+import { Task, CreateTaskInput, UpdateTaskInput, Project } from '@/lib/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { getTaskQuadrant, DURATION_PRESETS, formatDuration } from '@/lib/utils';
@@ -7,6 +7,8 @@ import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { AutoBookModal } from './AutoBookModal';
 import { findFreeTimeSlots, isMicrosoftLoggedIn, FreeTimeSlot } from '@/services/microsoft-graph';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -17,6 +19,7 @@ interface TaskFormProps {
 }
 
 export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskFormProps) {
+  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -32,12 +35,36 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
   const [deadlineHour, setDeadlineHour] = useState('17');
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'done'>('not_started');
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Projects state
+  const [projects, setProjects] = useState<Project[]>([]);
 
   // Auto-booking state
   const [showAutoBook, setShowAutoBook] = useState(false);
   const [freeSlots, setFreeSlots] = useState<FreeTimeSlot[]>([]);
   const [autoBookDeadline, setAutoBookDeadline] = useState<Date | undefined>(undefined);
+
+  // Fetch projects
+  useEffect(() => {
+    if (user) {
+      fetchProjects();
+    }
+  }, [user]);
+
+  const fetchProjects = async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .order('name');
+
+    setProjects(data || []);
+  };
 
   // Konvertera ISO datetime till datum (YYYY-MM-DD) och timme
   const parseDeadline = (isoString: string | null): { date: string; hour: string } => {
@@ -64,6 +91,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       setDeadlineHour(parsed.hour);
       setStatus(task.status);
       setEstimatedDuration(task.estimated_duration);
+      setProjectId(task.project_id || null);
     } else {
       setTitle('');
       setDescription('');
@@ -76,6 +104,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       setDeadlineHour('17');
       setStatus('not_started');
       setEstimatedDuration(null);
+      setProjectId(null);
     }
   }, [task, isOpen]);
 
@@ -103,6 +132,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       }
 
       if (estimatedDuration) input.estimated_duration = estimatedDuration;
+      if (projectId) input.project_id = projectId;
 
       await onSubmit(input);
 
@@ -191,6 +221,25 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
           />
+        </div>
+
+        {/* Project Selection */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Projekt (valfritt)
+          </label>
+          <select
+            value={projectId || ''}
+            onChange={(e) => setProjectId(e.target.value || null)}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          >
+            <option value="">Inget projekt</option>
+            {projects.map(project => (
+              <option key={project.id} value={project.id}>
+                {project.name} {project.client_name ? `(${project.client_name})` : ''}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* CPM Parameters */}
