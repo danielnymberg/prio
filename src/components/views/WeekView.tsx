@@ -8,7 +8,7 @@ import { isThisWeek } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 
 export function WeekView() {
-  const { tasks, updateTask, createTask } = useTasks();
+  const { tasks, updateTask, createTask, deleteTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -46,6 +46,7 @@ export function WeekView() {
               task={task}
               onClick={() => handleTaskClick(task)}
               onUpdate={updateTask}
+              onDelete={deleteTask}
             />
           ))}
         </div>
@@ -64,6 +65,7 @@ export function WeekView() {
             await createTask(input as CreateTaskInput);
           }
         }}
+        onDelete={deleteTask}
         task={selectedTask}
       />
     </div>

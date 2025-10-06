@@ -13,10 +13,11 @@ interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (input: CreateTaskInput | UpdateTaskInput) => Promise<void>;
+  onDelete?: (id: string) => Promise<boolean>;
   task?: Task;
 }
 
-export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
+export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -412,6 +413,22 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
         </div>
 
         <div className="flex gap-2 pt-4">
+          {task && onDelete && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={async () => {
+                if (confirm(`Är du säker på att du vill radera "${task.title}"?`)) {
+                  await onDelete(task.id);
+                  onClose();
+                  toast.success('Task raderad');
+                }
+              }}
+              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+            >
+              Radera
+            </Button>
+          )}
           <Button
             type="button"
             variant="secondary"

@@ -11,7 +11,7 @@ type PriorityLevel = 'all' | 'high' | 'medium' | 'low';
 type ViewMode = 'grid' | 'timeline';
 
 export function AllTasksView() {
-  const { tasks, updateTask, createTask } = useTasks();
+  const { tasks, updateTask, createTask, deleteTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -183,6 +183,7 @@ export function AllTasksView() {
               task={task}
               onClick={() => handleTaskClick(task)}
               onUpdate={updateTask}
+              onDelete={deleteTask}
             />
           ))}
         </div>
@@ -343,6 +344,7 @@ export function AllTasksView() {
             await createTask(input as CreateTaskInput);
           }
         }}
+        onDelete={deleteTask}
         task={selectedTask}
       />
     </div>

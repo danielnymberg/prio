@@ -10,7 +10,7 @@ import { CheckCheck, Grid, List } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 export function EisenhowerMatrix() {
-  const { tasks, createTask, updateTask } = useTasks();
+  const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [targetQuadrant, setTargetQuadrant] = useState<Quadrant | undefined>(undefined);
@@ -164,6 +164,7 @@ export function EisenhowerMatrix() {
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
             onUpdate={(id, updates) => updateTask(id, updates as any)}
+            onDelete={deleteTask}
             viewMode={viewMode}
           />
           <QuadrantCard
@@ -173,6 +174,7 @@ export function EisenhowerMatrix() {
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
             onUpdate={(id, updates) => updateTask(id, updates as any)}
+            onDelete={deleteTask}
             viewMode={viewMode}
           />
           <QuadrantCard
@@ -182,6 +184,7 @@ export function EisenhowerMatrix() {
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
             onUpdate={(id, updates) => updateTask(id, updates as any)}
+            onDelete={deleteTask}
             viewMode={viewMode}
           />
           <QuadrantCard
@@ -191,6 +194,7 @@ export function EisenhowerMatrix() {
             onAddTask={handleAddTask}
             onDuplicate={handleDuplicate}
             onUpdate={(id, updates) => updateTask(id, updates as any)}
+            onDelete={deleteTask}
             viewMode={viewMode}
           />
           </div>
@@ -201,6 +205,7 @@ export function EisenhowerMatrix() {
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleFormSubmit}
+        onDelete={deleteTask}
         task={selectedTask}
       />
     </>

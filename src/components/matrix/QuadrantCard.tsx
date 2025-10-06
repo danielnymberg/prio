@@ -15,6 +15,7 @@ interface QuadrantCardProps {
   onAddTask: (quadrant: Quadrant) => void;
   onDuplicate?: (task: Task) => void;
   onUpdate?: (id: string, updates: Partial<Task>) => void;
+  onDelete?: (id: string) => Promise<boolean>;
   viewMode?: 'compact' | 'expanded';
 }
 
@@ -57,7 +58,7 @@ const quadrantConfig = {
   },
 };
 
-export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplicate, onUpdate, viewMode = 'compact' }: QuadrantCardProps) {
+export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplicate, onUpdate, onDelete, viewMode = 'compact' }: QuadrantCardProps) {
   const config = quadrantConfig[quadrant];
   const Icon = config.icon;
   const { setNodeRef, isOver } = useDroppable({ id: quadrant });
@@ -111,6 +112,7 @@ export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplic
                 onClick={() => onTaskClick(task)}
                 onDuplicate={onDuplicate}
                 onUpdate={onUpdate}
+                onDelete={onDelete}
                 viewMode={viewMode}
               />
             ))}

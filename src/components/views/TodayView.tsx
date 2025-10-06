@@ -9,7 +9,7 @@ import { sv } from 'date-fns/locale';
 import { Calendar } from 'lucide-react';
 
 export function TodayView() {
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask, deleteTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -53,6 +53,7 @@ export function TodayView() {
               task={task}
               onClick={() => handleTaskClick(task)}
               onUpdate={updateTask}
+              onDelete={deleteTask}
             />
           ))}
         </div>
@@ -67,6 +68,7 @@ export function TodayView() {
         onSubmit={async (input) => {
           if (selectedTask) await updateTask(selectedTask.id, input);
         }}
+        onDelete={deleteTask}
         task={selectedTask}
       />
     </div>

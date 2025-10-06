@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { isPast, isToday, isTomorrow } from 'date-fns';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Copy, Edit2, Check, X, Clock } from 'lucide-react';
+import { Copy, Edit2, Check, X, Clock, Trash2 } from 'lucide-react';
 import { formatDuration, getDurationColor, getDurationIcon } from '@/lib/utils';
 import { isEmergencyTask, isOverdueTask, formatTimeUntilDeadline } from '@/lib/priorityCalculation';
 
@@ -13,10 +13,11 @@ interface TaskCardProps {
   onClick: () => void;
   onDuplicate?: (task: Task) => void;
   onUpdate?: (id: string, updates: UpdateTaskInput) => void;
+  onDelete?: (id: string) => Promise<boolean>;
   viewMode?: 'compact' | 'expanded';
 }
 
-export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'compact' }: TaskCardProps) {
+export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewMode = 'compact' }: TaskCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [showActions, setShowActions] = useState(false);
@@ -88,6 +89,13 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
   const handleDuplicate = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDuplicate) onDuplicate(task);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDelete && confirm(`Är du säker på att du vill radera "${task.title}"?`)) {
+      onDelete(task.id);
+    }
   };
 
   const handleTitleEdit = (e: React.MouseEvent) => {
@@ -169,6 +177,15 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
             title="Skapa liknande task"
           >
             <Copy className="h-3 w-3 text-gray-600 dark:text-gray-300" />
+          </button>
+        )}
+        {onDelete && (
+          <button
+            onClick={handleDelete}
+            className="p-1.5 rounded-md bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50"
+            title="Radera task"
+          >
+            <Trash2 className="h-3 w-3 text-red-600 dark:text-red-400" />
           </button>
         )}
       </div>

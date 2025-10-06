@@ -116,6 +116,7 @@ export function InboxView() {
                     task={task}
                     onClick={() => handleTaskClick(task)}
                     onUpdate={updateTask}
+                    onDelete={deleteTask}
                     viewMode="expanded"
                   />
                 </div>
@@ -138,6 +139,7 @@ export function InboxView() {
             await createTask(input as CreateTaskInput);
           }
         }}
+        onDelete={deleteTask}
         task={selectedTask}
       />
     </div>

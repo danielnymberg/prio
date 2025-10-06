@@ -7,7 +7,7 @@ import { Task, CreateTaskInput } from '@/lib/types';
 import { Archive } from 'lucide-react';
 
 export function ArchiveView() {
-  const { tasks, updateTask, createTask } = useTasks();
+  const { tasks, updateTask, createTask, deleteTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -48,6 +48,7 @@ export function ArchiveView() {
               task={task}
               onClick={() => handleTaskClick(task)}
               onUpdate={updateTask}
+              onDelete={deleteTask}
             />
           ))}
         </div>
@@ -66,6 +67,7 @@ export function ArchiveView() {
             await createTask(input as CreateTaskInput);
           }
         }}
+        onDelete={deleteTask}
         task={selectedTask}
       />
     </div>
