@@ -45,8 +45,9 @@ export function QuickNoteInput() {
   }, [chatHistory]);
 
   const handleQuickAdd = async () => {
-    if (!note.trim()) return;
+    if (!note.trim() || isProcessing) return;
 
+    setIsProcessing(true);
     try {
       await createTask({
         title: note.trim(),
@@ -61,8 +62,10 @@ export function QuickNoteInput() {
       setNote('');
       setIsExpanded(false);
     } catch (error) {
-      console.error('Quick note error:', error);
-      toast.error('Kunde inte lägga till anteckning');
+      console.error('Error creating quick note:', error);
+      toast.error('Kunde inte skapa anteckning');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -265,7 +268,7 @@ export function QuickNoteInput() {
               ) : mode === 'note' ? (
                 <>
                   <Plus className="h-4 w-4 mr-1" />
-                  Lägg till
+                  {isProcessing ? 'Lägger till...' : 'Lägg till'}
                 </>
               ) : (
                 <>

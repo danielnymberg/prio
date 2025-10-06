@@ -427,6 +427,34 @@ export function FocusView() {
             )}
           </div>
 
+          {/* Too Late Warning */}
+          {(nextTask as any).isTooLate && (
+            <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-500 dark:border-red-600 rounded-xl p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-red-900 dark:text-red-100 mb-1">
+                    🚨 För sent att påbörja denna uppgift
+                  </h3>
+                  <p className="text-sm text-red-800 dark:text-red-200 mb-2">
+                    {(nextTask as any).tooLateReason}
+                  </p>
+                  <div className="bg-red-100 dark:bg-red-800 rounded-lg p-3 mt-2">
+                    <p className="text-sm font-semibold text-red-900 dark:text-red-100">
+                      💡 Förslag:
+                    </p>
+                    <ul className="text-sm text-red-800 dark:text-red-200 mt-1 space-y-1">
+                      <li>• Omförhandla deadline med beställare</li>
+                      <li>• Delegera uppgiften till någon annan</li>
+                      <li>• Dela upp i mindre delar och gör det viktigaste först</li>
+                      <li>• Markera som "ej genomförbar" och dokumentera varför</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Partial Work Warning */}
           {nextTask.estimated_duration &&
            context &&

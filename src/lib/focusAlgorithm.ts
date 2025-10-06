@@ -1,5 +1,5 @@
 import { Task, UserContext } from './types';
-import { differenceInDays, differenceInHours } from 'date-fns';
+import { calculateWorkingHoursUntil, canFinishBeforeDeadline } from './workingHours';
 
 /**
  * Beräkna hur mycket av en uppgift som kan göras med tillgänglig tid
@@ -62,36 +62,40 @@ export function calculateDynamicPriority(
   const E = task.effort;
   const basePriority = (V * T * C) / E;
 
-  // 1. DEADLINE MULTIPLIER (baserat på deadline + tidskänslighet)
+  // 1. DEADLINE MULTIPLIER (baserat på ARBETSTIMMAR, inte klocktimmar)
   let deadlineMultiplier = 1.0;
   if (task.deadline) {
-    const hoursUntil = differenceInHours(new Date(task.deadline), now);
-    const daysUntil = differenceInDays(new Date(task.deadline), now);
+    const workingHoursUntil = calculateWorkingHoursUntil(new Date(task.deadline), now);
     const timeSens = task.time_sensitivity || 5;
 
-    // Emergency: deadline < 24h OCH hög tidskänslighet
-    if (hoursUntil < 24 && hoursUntil >= 0 && timeSens >= 7) {
-      deadlineMultiplier = 5.0;
-    }
-    // Försenad
-    else if (hoursUntil < 0) {
-      const daysOverdue = Math.abs(daysUntil);
+    // FÖRSENAD (negativa arbetstimmar)
+    if (workingHoursUntil < 0) {
+      const daysOverdue = Math.abs(Math.floor(workingHoursUntil / 8));
       deadlineMultiplier = 4.0 + Math.min(daysOverdue * 0.2, 2.0); // Max 6.0
     }
-    // Imorgon
-    else if (daysUntil <= 1) {
-      deadlineMultiplier = 3.0;
+    // EMERGENCY: < 8 arbetstimmar (1 arbetsdag) OCH hög tidskänslighet
+    else if (workingHoursUntil < 8 && timeSens >= 7) {
+      deadlineMultiplier = 5.0;
     }
-    // Inom 3 dagar
-    else if (daysUntil <= 3) {
+    // IDAG: < 8 arbetstimmar men inte emergency
+    else if (workingHoursUntil < 8) {
+      // Gradvis ökning: 2h kvar = 4.0x, 4h kvar = 3.5x, 6h kvar = 3.25x
+      deadlineMultiplier = 3.0 + (1.0 - (workingHoursUntil / 8));  // 3.0-4.0
+    }
+    // IMORGON: 8-16 arbetstimmar (1-2 arbetsdagar)
+    else if (workingHoursUntil >= 8 && workingHoursUntil < 16) {
+      deadlineMultiplier = 2.5;
+    }
+    // DENNA VECKA: < 40 arbetstimmar (5 arbetsdagar)
+    else if (workingHoursUntil < 40) {
       deadlineMultiplier = 2.0;
     }
-    // Inom veckan
-    else if (daysUntil <= 7) {
+    // NÄSTA VECKA: < 80 arbetstimmar (10 arbetsdagar)
+    else if (workingHoursUntil < 80) {
       deadlineMultiplier = 1.5;
     }
-    // Långt bort (> 30 dagar)
-    else if (daysUntil > 30) {
+    // LÅNGT BORT: > 240 arbetstimmar (30 arbetsdagar)
+    else if (workingHoursUntil > 240) {
       deadlineMultiplier = 0.7;
     }
   }
@@ -152,6 +156,18 @@ export function getNextTask(tasks: Task[], context: UserContext): Task | null {
       if (hasBlocker) return false;
     }
 
+    // Flagga tasks som är för sent att påbörja
+    if (t.deadline && t.estimated_duration) {
+      const finishCheck = canFinishBeforeDeadline(t, context.availableTime, now);
+
+      if (!finishCheck.canFinish && finishCheck.workingHoursUntil >= 0) {
+        // Task har deadline framåt i tiden men vi hinner inte klart
+        console.warn(`Task "${t.title}" är för sent att påbörja: ${finishCheck.reason}`);
+        (t as any).isTooLate = true;
+        (t as any).tooLateReason = finishCheck.reason;
+      }
+    }
+
     // För lång för tillgänglig tid? Behåll ändå om uppgiften är viktig/försenad
     if (t.estimated_duration && t.estimated_duration > context.availableTime) {
       const isOverdue = t.deadline && new Date(t.deadline) < now;
@@ -185,12 +201,17 @@ export function getNextTask(tasks: Task[], context: UserContext): Task | null {
   // STEG 3: Sortera efter dynamisk prioritet
   scored.sort((a, b) => b.dynamicPriority - a.dynamicPriority);
 
-  // STEG 4: Emergency override (deadline inom 24h OCH hög tidskänslighet)
+  // STEG 4: Emergency override
   const emergencies = scored.filter(s => {
     if (!s.task.deadline) return false;
-    const hoursUntil = differenceInHours(new Date(s.task.deadline), now);
+
+    const workingHoursUntil = calculateWorkingHoursUntil(new Date(s.task.deadline), now);
     const timeSens = s.task.time_sensitivity || 5;
-    return hoursUntil < 24 && hoursUntil >= 0 && timeSens >= 7;
+
+    // EMERGENCY om:
+    // - Deadline < 8 arbetstimmar (1 arbetsdag) OCH hög tidskänslighet (>= 7)
+    // - ELLER deadline redan passerad (försenad task)
+    return (workingHoursUntil < 8 && workingHoursUntil >= 0 && timeSens >= 7) || workingHoursUntil < 0;
   });
 
   if (emergencies.length > 0) {
@@ -243,8 +264,8 @@ export function hasEmergencyTasks(tasks: Task[]): boolean {
   const now = new Date();
   return tasks.some(t => {
     if (t.status === 'done' || !t.deadline) return false;
-    const hoursUntil = differenceInHours(new Date(t.deadline), now);
+    const workingHoursUntil = calculateWorkingHoursUntil(new Date(t.deadline), now);
     const timeSens = t.time_sensitivity || 5;
-    return hoursUntil < 24 && hoursUntil >= 0 && timeSens >= 7;
+    return (workingHoursUntil < 8 && workingHoursUntil >= 0 && timeSens >= 7) || workingHoursUntil < 0;
   });
 }

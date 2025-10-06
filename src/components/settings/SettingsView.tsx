@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, LogOut, LogIn, Info, Bell, BellOff } from 'lucide-react';
+import { Calendar, LogOut, LogIn, Info, Bell, BellOff, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import {
   loginToMicrosoft,
@@ -12,6 +12,7 @@ import {
   requestNotificationPermission,
   NotificationConfig,
 } from '@/services/notifications';
+import { getWorkingHoursConfig, saveWorkingHoursConfig, WorkingHoursConfig } from '@/lib/workingHours';
 import { toast } from 'react-hot-toast';
 
 export function SettingsView() {
@@ -21,6 +22,7 @@ export function SettingsView() {
   const [notificationPermission, setNotificationPermission] = useState(
     typeof Notification !== 'undefined' ? Notification.permission : 'denied'
   );
+  const [workingHours, setWorkingHours] = useState<WorkingHoursConfig>(getWorkingHoursConfig());
 
   useEffect(() => {
     checkMicrosoftConnection();
@@ -92,6 +94,11 @@ export function SettingsView() {
     saveNotificationConfig(newConfig);
   };
 
+  const handleSaveWorkingHours = () => {
+    saveWorkingHoursConfig(workingHours);
+    toast.success('Arbetstider sparade!');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
       <div>
@@ -101,6 +108,80 @@ export function SettingsView() {
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
           Hantera integrationer och preferenser
         </p>
+      </div>
+
+      {/* Working Hours Configuration */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <Clock className="h-5 w-5" />
+          Arbetstider
+        </h2>
+
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Ange dina normala arbetstider så att appen kan beräkna deadlines korrekt baserat på faktisk arbetstid.
+        </p>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Normal arbetsdag: Start
+              </label>
+              <select
+                value={workingHours.normalStart}
+                onChange={(e) => setWorkingHours({ ...workingHours, normalStart: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                {Array.from({ length: 13 }, (_, i) => i + 6).map(hour => (
+                  <option key={hour} value={hour}>
+                    {String(hour).padStart(2, '0')}:00
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Normal arbetsdag: Slut
+              </label>
+              <select
+                value={workingHours.normalEnd}
+                onChange={(e) => setWorkingHours({ ...workingHours, normalEnd: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                {Array.from({ length: 13 }, (_, i) => i + 12).map(hour => (
+                  <option key={hour} value={hour}>
+                    {String(hour).padStart(2, '0')}:00
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              💡 <strong>Flexibilitet:</strong> Du kan arbeta mellan {String(workingHours.flexStart).padStart(2, '0')}:00-{String(workingHours.flexEnd).padStart(2, '0')}:00
+              {' '}när det behövs, men appen räknar med {String(workingHours.normalStart).padStart(2, '0')}:00-{String(workingHours.normalEnd).padStart(2, '0')}:00 som normal arbetstid.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="includeWeekends"
+              checked={workingHours.includeWeekends}
+              onChange={(e) => setWorkingHours({ ...workingHours, includeWeekends: e.target.checked })}
+              className="w-4 h-4 text-blue-600 rounded"
+            />
+            <label htmlFor="includeWeekends" className="text-sm text-gray-700 dark:text-gray-300">
+              Inkludera helger i arbetstidsberäkning
+            </label>
+          </div>
+
+          <Button onClick={handleSaveWorkingHours} variant="primary">
+            Spara arbetstider
+          </Button>
+        </div>
       </div>
 
       {/* Microsoft Calendar Integration */}
