@@ -1,22 +1,18 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { Task, CreateTaskInput, UpdateTaskInput } from '@/lib/types';
 import { parseNaturalDateTime } from '@/lib/dateParser';
 
-const client = new Anthropic({
-  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
-  dangerouslyAllowBrowser: true,
-});
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
 
 export interface ConversationContext {
   tasks: Task[];
   calendarEvents: any[];
   recentFiles: any[];
-  conversationHistory: Anthropic.MessageParam[];
+  conversationHistory: any[];
 }
 
 export class ClaudeConversation {
   private context: ConversationContext;
-  private conversationHistory: Anthropic.MessageParam[] = [];
+  private conversationHistory: any[] = [];
   private onTaskCreate?: (input: CreateTaskInput) => Promise<Task>;
   private onTaskUpdate?: (id: string, input: UpdateTaskInput) => Promise<Task>;
 
@@ -57,22 +53,34 @@ export class ClaudeConversation {
 
   private async getContinuationResponse(): Promise<string> {
     try {
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        system: this.buildSystemPrompt(),
-        messages: this.conversationHistory,
-        tools: this.getTools(),
+      // Anropa backend istället för direkt API-call
+      const response = await fetch(`${BACKEND_URL}/api/claude-chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: this.conversationHistory,
+          system: this.buildSystemPrompt(),
+          tools: this.getTools(),
+          max_tokens: 2000,
+        }),
       });
 
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
       // Hantera tool calls
-      if (response.stop_reason === 'tool_use') {
-        const toolResults = await this.executeTools(response.content);
+      if (data.stop_reason === 'tool_use') {
+        const toolResults = await this.executeTools(data.content);
 
         // Lägg till assistant response med tool calls
         this.conversationHistory.push({
           role: 'assistant',
-          content: response.content,
+          content: data.content,
         });
 
         // Lägg till tool results
@@ -86,7 +94,7 @@ export class ClaudeConversation {
       }
 
       // Extrahera text response
-      const textBlock = response.content.find(c => c.type === 'text');
+      const textBlock = data.content.find((c: any) => c.type === 'text');
       const assistantMessage = textBlock?.text || 'Förlåt, jag kunde inte generera ett svar.';
 
       this.conversationHistory.push({
@@ -97,7 +105,9 @@ export class ClaudeConversation {
       return assistantMessage;
     } catch (error) {
       console.error('Claude conversation error:', error);
-      return 'Förlåt, jag hade problem att förstå det. Kan du försöka igen?';
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to communicate with AI assistant'
+      );
     }
   }
 
@@ -203,7 +213,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
 ).join('\n')}`;
   }
 
-  private getTools(): Anthropic.Tool[] {
+  private getTools(): any[] {
     return [
       {
         name: 'create_task',
@@ -402,8 +412,8 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
     ];
   }
 
-  private async executeTools(content: Anthropic.ContentBlock[]): Promise<Anthropic.MessageParam['content']> {
-    const toolResults: Anthropic.ToolResultBlockParam[] = [];
+  private async executeTools(content: any[]): Promise<any> {
+    const toolResults: any[] = [];
 
     for (const block of content) {
       if (block.type === 'tool_use') {

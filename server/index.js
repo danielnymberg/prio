@@ -1,19 +1,58 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import express from 'express';
 import cors from 'cors';
+import Anthropic from '@anthropic-ai/sdk';
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 const SPEECHMATICS_API_KEY = process.env.SPEECHMATICS_API_KEY;
 const SPEECHMATICS_WS_URL = 'wss://eu2.rt.speechmatics.com/v2';
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 if (!SPEECHMATICS_API_KEY) {
   console.error('❌ SPEECHMATICS_API_KEY missing!');
   process.exit(1);
 }
 
+if (!ANTHROPIC_API_KEY) {
+  console.error('❌ ANTHROPIC_API_KEY missing!');
+  process.exit(1);
+}
+
+// Initialize Claude client (server-side - SÄKERT!)
+const anthropic = new Anthropic({
+  apiKey: ANTHROPIC_API_KEY,
+});
+
 app.use(cors());
+app.use(express.json());
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'prio-backend' }));
+
+// Endpoint för Claude chat
+app.post('/api/claude-chat', async (req, res) => {
+  try {
+    const { messages, system, tools, max_tokens = 2000 } = req.body;
+
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Messages array required' });
+    }
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens,
+      system: system || '',
+      messages,
+      tools: tools || [],
+    });
+
+    res.json(response);
+  } catch (error) {
+    console.error('Claude API error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to communicate with Claude'
+    });
+  }
+});
 
 const server = app.listen(PORT, () => {
   console.log(`✅ Prio Backend running on port ${PORT}`);
