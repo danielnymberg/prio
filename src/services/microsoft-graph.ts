@@ -7,10 +7,11 @@ const msalConfig = {
     clientId: import.meta.env.VITE_AZURE_CLIENT_ID || '',
     authority: 'https://login.microsoftonline.com/organizations', // Multi-tenant organizational accounts
     redirectUri: window.location.origin,
+    navigateToLoginRequestUrl: false, // Viktigt för PWA
   },
   cache: {
-    cacheLocation: 'localStorage',
-    storeAuthStateInCookie: false,
+    cacheLocation: 'localStorage' as 'localStorage',
+    storeAuthStateInCookie: true, // Viktigt för PWA/Service Worker kompatibilitet
   },
 };
 
@@ -25,6 +26,13 @@ async function getMsalInstance() {
   if (!msalInstance && import.meta.env.VITE_AZURE_CLIENT_ID) {
     msalInstance = new PublicClientApplication(msalConfig);
     await msalInstance.initialize();
+
+    // Hantera redirect callback vid retur från Microsoft login
+    try {
+      await msalInstance.handleRedirectPromise();
+    } catch (error) {
+      console.error('Error handling redirect:', error);
+    }
   }
   return msalInstance;
 }
@@ -110,11 +118,26 @@ export async function loginToMicrosoft(): Promise<boolean> {
   }
 
   try {
-    await msal.loginPopup(loginRequest);
+    // Använd popup med explicit konfiguration för PWA
+    await msal.loginPopup({
+      ...loginRequest,
+      redirectUri: window.location.origin,
+      prompt: 'select_account',
+    });
     return true;
   } catch (error) {
     console.error('Microsoft login failed:', error);
-    return false;
+    // Om popup blockeras eller misslyckas, försök med redirect som fallback
+    try {
+      await msal.loginRedirect({
+        ...loginRequest,
+        redirectUri: window.location.origin,
+      });
+      return true;
+    } catch (redirectError) {
+      console.error('Microsoft redirect login also failed:', redirectError);
+      return false;
+    }
   }
 }
 

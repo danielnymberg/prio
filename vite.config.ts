@@ -36,6 +36,11 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: 'NetworkOnly',
           },
+          // Microsoft OAuth (login.microsoftonline.com)
+          {
+            urlPattern: /^https:\/\/login\.microsoftonline\.com\/.*/i,
+            handler: 'NetworkOnly',
+          },
           // Navigering ska alltid vara nätverksförst
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
