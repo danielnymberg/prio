@@ -25,18 +25,18 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
     <Modal isOpen={isOpen} onClose={handleSkip} title="Välkommen till Projekthantering" size="lg">
       {/* Progress Indicator */}
       <div className="flex gap-2 mb-6">
-        {[1, 2, 3, 4].map(s => (
+        {[1, 2, 3, 4, 5].map(s => (
           <div
             key={s}
             className={`h-2 flex-1 rounded transition-all ${
-              s <= step ? 'bg-copper-600' : 'bg-gray-200 dark:bg-gray-700'
+              s <= step ? 'bg-amber-600' : 'bg-gray-200 dark:bg-gray-700'
             }`}
           />
         ))}
       </div>
 
       <div className="text-center mb-4 text-sm text-gray-600 dark:text-gray-400">
-        Steg {step} av 4
+        Steg {step} av 5
       </div>
 
       {/* Steg 1: Vad är projekthantering? */}
@@ -200,7 +200,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
               <h4 className="font-bold text-purple-900 dark:text-purple-100 mb-2 flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                PDF-upload (kommer i Fas 4)
+                PDF-upload (tillgängligt nu!)
               </h4>
               <p className="text-sm text-purple-800 dark:text-purple-200">
                 Dra in en PDF-offert så extraherar Claude automatiskt:
@@ -225,8 +225,137 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
         </div>
       )}
 
-      {/* Steg 4: Kom igång */}
+      {/* Steg 4: PDF-upload NYTT! */}
       {step === 4 && (
+        <div className="space-y-6">
+          <div className="text-center mb-6">
+            <div className="relative inline-block">
+              <FileText className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+              <Sparkles className="h-8 w-8 text-purple-500 absolute -top-2 -right-2 animate-pulse" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              AI PDF-upload är här! 🎉
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Skapa projekt från offert-PDF på 15 sekunder
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-xl p-6">
+            <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-4 flex items-center gap-2">
+              <Sparkles className="h-6 w-6" />
+              Så här funkar det:
+            </h3>
+
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  1
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                    Gå till "Nytt projekt"
+                  </p>
+                  <p className="text-xs text-amber-800 dark:text-amber-200">
+                    Klicka på knappen "Ladda upp PDF"
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  2
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                    Dra och släpp din offert-PDF
+                  </p>
+                  <p className="text-xs text-amber-800 dark:text-amber-200">
+                    Eller klicka för att välja fil
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  3
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                    Vänta 5-15 sekunder medan Claude analyserar
+                  </p>
+                  <p className="text-xs text-amber-800 dark:text-amber-200">
+                    AI läser och extraherar all viktig info
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  4
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                    Granska och justera data om nödvändigt
+                  </p>
+                  <p className="text-xs text-amber-800 dark:text-amber-200">
+                    Formuläret fylls i automatiskt
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  ✓
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-green-900 dark:text-green-100">
+                    Klicka "Skapa projekt" - klart!
+                  </p>
+                  <p className="text-xs text-green-800 dark:text-green-200">
+                    Budget beräknas automatiskt
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-300 dark:border-purple-700">
+            <h4 className="font-bold text-purple-900 dark:text-purple-100 mb-2 flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              Vad extraheras automatiskt?
+            </h4>
+            <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1">
+              <li>✅ Projektnamn (från offertens titel)</li>
+              <li>✅ Kundnamn (från mottagare/beställare)</li>
+              <li>✅ Offererade timmar (summerar olika poster)</li>
+              <li>✅ Timpris (från prislista)</li>
+              <li>✅ Externa kostnader (resor, material, licenser)</li>
+              <li>✅ Deadline (från leveransdatum)</li>
+              <li>✅ Beskrivning (sammanfattning av projektet)</li>
+            </ul>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 border border-amber-300 dark:border-amber-700">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              <strong>💡 Tips:</strong> Fungerar bäst med strukturerade offerter som har tydliga rubriker
+              och prisuppställning. Om något blir fel kan du enkelt justera manuellt!
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => setStep(3)} className="flex-1">
+              Tillbaka
+            </Button>
+            <Button onClick={() => setStep(5)} className="flex-1">
+              Nästa <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Steg 5: Kom igång */}
+      {step === 5 && (
         <div className="space-y-6">
           <div className="text-center mb-6">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
@@ -239,17 +368,17 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-sand-100 to-sand-200 dark:from-charcoal-850 dark:to-charcoal-850 rounded-lg border-2 border-sand-300 dark:border-charcoal-700">
-              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border-2 border-amber-300 dark:border-amber-700">
+              <div className="flex-shrink-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold">
                 1
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
-                  <FolderKanban className="h-4 w-4" />
-                  Manuellt formulär
+                  <FileText className="h-4 w-4" />
+                  PDF-upload (rekommenderat! ⚡)
                 </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Klicka på <strong>"Nytt projekt"</strong> och fyll i formuläret
+                  Dra in en offert-PDF så extraherar Claude all info på 15 sekunder
                 </p>
               </div>
             </div>
@@ -261,7 +390,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
               <div>
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
-                  AI-chat (rekommenderat!)
+                  AI-chat
                 </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Öppna chatten (högst ner till höger) och skriv:<br />
@@ -272,17 +401,17 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-lg border-2 border-green-300 dark:border-green-700">
-              <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-sand-100 to-sand-200 dark:from-charcoal-850 dark:to-charcoal-850 rounded-lg border-2 border-sand-300 dark:border-charcoal-700">
+              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
                 3
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  PDF-upload (kommer snart)
+                  <FolderKanban className="h-4 w-4" />
+                  Manuellt formulär
                 </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Dra in en offert-PDF så extraherar Claude all info automatiskt
+                  Klicka på <strong>"Nytt projekt"</strong> och fyll i formuläret
                 </p>
               </div>
             </div>
@@ -295,7 +424,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
           </div>
 
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => setStep(3)} className="flex-1">
+            <Button variant="ghost" onClick={() => setStep(4)} className="flex-1">
               Tillbaka
             </Button>
             <Button onClick={handleComplete} className="flex-1 bg-green-600 hover:bg-green-700">

@@ -27,3 +27,37 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+@layer components {
+  /* Kompakt button design */
+  button, .button {
+    @apply text-sm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Kompakta headings */
+  h1 {
+    @apply text-2xl font-bold;
+  }
+
+  h2 {
+    @apply text-xl font-semibold;
+  }
+
+  h3 {
+    @apply text-lg font-semibold;
+  }
+
+  /* Kompakta cards och containers */
+  .card {
+    @apply text-sm;
+  }
+
+  /* Förhindra line-breaks i knappar med ikoner */
+  button > svg,
+  .button > svg {
+    flex-shrink: 0;
+  }
+}
