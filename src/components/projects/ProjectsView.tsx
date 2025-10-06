@@ -59,7 +59,11 @@ export function ProjectsView() {
   if (showForm) {
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Skapa nytt projekt</h1>
+        <h1 className="text-3xl font-bold mb-2">Skapa nytt projekt</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
+          Ladda upp en offert-PDF för att automatiskt extrahera projektinformation,
+          eller fyll i manuellt nedan.
+        </p>
         <ProjectForm
           onSuccess={() => {
             setShowForm(false);

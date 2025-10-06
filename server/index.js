@@ -29,7 +29,7 @@ const anthropic = new Anthropic({
 });
 
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '100mb' })); // Öka för stora PDFs
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'prio-backend' }));
 
-// Endpoint för Claude chat
+// Endpoint för Claude chat (stödjer PDF-analys med document content)
 app.post('/api/claude-chat', async (req, res) => {
   try {
     // Check if API key is available
@@ -64,17 +64,35 @@ app.post('/api/claude-chat', async (req, res) => {
       });
     }
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens,
-      system: system || '',
-      messages,
-      tools: tools || [],
-    });
+    // Lägg till timeout för stora PDFs (60s)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000);
 
-    res.json(response);
+    try {
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens,
+        system: system || '',
+        messages,
+        tools: tools || [],
+      }, { signal: controller.signal });
+
+      clearTimeout(timeout);
+      res.json(response);
+    } catch (apiError) {
+      clearTimeout(timeout);
+      throw apiError;
+    }
   } catch (error) {
     console.error('Claude API error:', error);
+
+    // Special handling for timeout
+    if (error.name === 'AbortError') {
+      return res.status(504).json({
+        error: 'Request timeout - PDF might be too large or complex'
+      });
+    }
+
     res.status(500).json({
       error: error.message || 'Failed to communicate with Claude'
     });
