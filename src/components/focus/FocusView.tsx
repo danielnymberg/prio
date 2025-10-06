@@ -8,6 +8,7 @@ import { formatDuration, formatRelativeTime } from '@/lib/utils';
 import { Play, ChevronRight, AlertTriangle, CheckCircle, SkipForward, Clock, Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { DailyCheckInModal } from './DailyCheckInModal';
+import { MorningBriefing } from './MorningBriefing';
 
 export function FocusView() {
   const navigate = useNavigate();
@@ -19,6 +20,29 @@ export function FocusView() {
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [checkInData, setCheckInData] = useState<DailyCheckIn | null>(null);
   const [skippedTaskIds, setSkippedTaskIds] = useState<string[]>([]);
+  const [showMorningBriefing, setShowMorningBriefing] = useState(false);
+
+  // Helper functions for morning briefing
+  const isMorningTime = () => {
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 10;
+  };
+
+  const hasSeenBriefingToday = () => {
+    const lastBriefing = localStorage.getItem('last_briefing_date');
+    if (!lastBriefing) return false;
+    const today = new Date().toDateString();
+    return lastBriefing === today;
+  };
+
+  // Check if morning briefing should be shown
+  useEffect(() => {
+    if (!context) return; // Wait for check-in first
+
+    if (isMorningTime() && !hasSeenBriefingToday() && !checkInData) {
+      setShowMorningBriefing(true);
+    }
+  }, [context, checkInData]);
 
   // Hämta dagens check-in
   useEffect(() => {
@@ -288,6 +312,18 @@ export function FocusView() {
 
       {/* Main Focus Card */}
       <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Morning Briefing */}
+        {showMorningBriefing && (
+          <MorningBriefing
+            tasks={tasks}
+            onStartDay={() => setIsCheckInOpen(true)}
+            onDismiss={() => {
+              localStorage.setItem('last_briefing_date', new Date().toDateString());
+              setShowMorningBriefing(false);
+            }}
+          />
+        )}
+
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 border-4 border-blue-500 dark:border-blue-600">
           {/* Deadline Warnings */}
           {nextTask.deadline && (() => {

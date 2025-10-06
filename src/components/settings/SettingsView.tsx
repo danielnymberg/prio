@@ -1,16 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Calendar, LogOut, LogIn, Info } from 'lucide-react';
+import { Calendar, LogOut, LogIn, Info, Bell, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import {
   loginToMicrosoft,
   logoutFromMicrosoft,
   isMicrosoftLoggedIn,
 } from '@/services/microsoft-graph';
+import {
+  getNotificationConfig,
+  saveNotificationConfig,
+  requestNotificationPermission,
+  NotificationConfig,
+} from '@/services/notifications';
 import { toast } from 'react-hot-toast';
 
 export function SettingsView() {
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [notificationConfig, setNotificationConfig] = useState<NotificationConfig>(getNotificationConfig());
+  const [notificationPermission, setNotificationPermission] = useState(
+    typeof Notification !== 'undefined' ? Notification.permission : 'denied'
+  );
 
   useEffect(() => {
     checkMicrosoftConnection();
@@ -51,6 +61,35 @@ export function SettingsView() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRequestNotificationPermission = async () => {
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      setNotificationPermission('granted');
+      toast.success('Notifieringar aktiverade! 🔔');
+    } else {
+      toast.error('Notifieringar nekades');
+    }
+  };
+
+  const handleToggleNotifications = (enabled: boolean) => {
+    const newConfig = { ...notificationConfig, enabled };
+    setNotificationConfig(newConfig);
+    saveNotificationConfig(newConfig);
+    toast.success(enabled ? 'Notifieringar påslagna' : 'Notifieringar avstängda');
+  };
+
+  const handleToggleNotificationType = (type: keyof NotificationConfig['types']) => {
+    const newConfig = {
+      ...notificationConfig,
+      types: {
+        ...notificationConfig.types,
+        [type]: !notificationConfig.types[type],
+      },
+    };
+    setNotificationConfig(newConfig);
+    saveNotificationConfig(newConfig);
   };
 
   return (
@@ -127,6 +166,108 @@ export function SettingsView() {
               <p className="text-sm text-amber-600 dark:text-amber-400 mt-3">
                 ⚠️ Azure Client ID saknas i miljövariabler. Kontakta administratör.
               </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Push Notifications */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+            <Bell className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+          </div>
+
+          <div className="flex-1">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Notifieringar
+            </h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
+              Få påminnelser om deadlines och försenade uppgifter.
+            </p>
+
+            {notificationPermission === 'granted' ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 dark:text-gray-300">Aktivera notifieringar</span>
+                  <button
+                    onClick={() => handleToggleNotifications(!notificationConfig.enabled)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      notificationConfig.enabled
+                        ? 'bg-blue-600'
+                        : 'bg-gray-200 dark:bg-gray-700'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        notificationConfig.enabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {notificationConfig.enabled && (
+                  <div className="space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
+                    <label className="flex items-center justify-between py-2">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">24h före deadline</span>
+                      <input
+                        type="checkbox"
+                        checked={notificationConfig.types['24h_before']}
+                        onChange={() => handleToggleNotificationType('24h_before')}
+                        className="rounded text-blue-600"
+                      />
+                    </label>
+                    <label className="flex items-center justify-between py-2">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">2h före deadline</span>
+                      <input
+                        type="checkbox"
+                        checked={notificationConfig.types['2h_before']}
+                        onChange={() => handleToggleNotificationType('2h_before')}
+                        className="rounded text-blue-600"
+                      />
+                    </label>
+                    <label className="flex items-center justify-between py-2">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Försenad uppgift</span>
+                      <input
+                        type="checkbox"
+                        checked={notificationConfig.types.overdue}
+                        onChange={() => handleToggleNotificationType('overdue')}
+                        className="rounded text-blue-600"
+                      />
+                    </label>
+                  </div>
+                )}
+
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <span className="text-sm font-medium">Notifieringar aktiverade</span>
+                  </div>
+                </div>
+              </div>
+            ) : notificationPermission === 'denied' ? (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <div className="flex gap-2">
+                  <BellOff className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-red-800 dark:text-red-200 font-medium mb-1">
+                      Notifieringar blockerade
+                    </p>
+                    <p className="text-sm text-red-700 dark:text-red-300">
+                      Du har blockerat notifieringar. Aktivera dem i webbläsarens inställningar.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleRequestNotificationPermission}
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                Aktivera notifieringar
+              </Button>
             )}
           </div>
         </div>

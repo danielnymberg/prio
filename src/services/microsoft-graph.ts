@@ -153,23 +153,32 @@ export async function getCalendarEvents(
   }
 }
 
-// Find free time slots in calendar
+// Find free time slots in calendar with priority for preferred hours
 export async function findFreeTimeSlots(
   startDate: Date,
   endDate: Date,
   minSlotDurationMinutes: number = 60,
-  workHoursOnly: boolean = true
+  workHoursOnly: boolean = true,
+  preferredStartHour: number = 8,
+  preferredEndHour: number = 16
 ): Promise<FreeTimeSlot[]> {
   const events = await getCalendarEvents(startDate, endDate);
   const freeSlots: FreeTimeSlot[] = [];
 
-  // Define work hours (8:00 - 18:00)
-  const workStartHour = 8;
+  // Define work hours (6:00 - 18:00)
+  const workStartHour = 6;
   const workEndHour = 18;
 
   let currentDate = new Date(startDate);
 
   while (currentDate < endDate) {
+    // Skip weekends
+    const dayOfWeek = currentDate.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      currentDate.setDate(currentDate.getDate() + 1);
+      continue;
+    }
+
     // Set work hours for current day
     const dayStart = new Date(currentDate);
     dayStart.setHours(workHoursOnly ? workStartHour : 0, 0, 0, 0);
@@ -225,7 +234,22 @@ export async function findFreeTimeSlots(
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  return freeSlots;
+  // Sort slots: preferred hours first, then by earliest time
+  const sortedSlots = freeSlots.sort((a, b) => {
+    const aHour = a.start.getHours();
+    const bHour = b.start.getHours();
+    const aInPreferred = aHour >= preferredStartHour && aHour < preferredEndHour;
+    const bInPreferred = bHour >= preferredStartHour && bHour < preferredEndHour;
+
+    // Preferred times come first
+    if (aInPreferred && !bInPreferred) return -1;
+    if (!aInPreferred && bInPreferred) return 1;
+
+    // Within same category, sort by earliest time
+    return a.start.getTime() - b.start.getTime();
+  });
+
+  return sortedSlots;
 }
 
 // Calculate realistic deadline based on required hours and calendar

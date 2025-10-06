@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { getTaskQuadrant, DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
+import { AutoBookModal } from './AutoBookModal';
+import { findFreeTimeSlots, isMicrosoftLoggedIn, FreeTimeSlot } from '@/services/microsoft-graph';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -30,6 +32,10 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'done'>('not_started');
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Auto-booking state
+  const [showAutoBook, setShowAutoBook] = useState(false);
+  const [freeSlots, setFreeSlots] = useState<FreeTimeSlot[]>([]);
 
   // Konvertera ISO datetime till datetime-local format (YYYY-MM-DDTHH:MM)
   const formatDatetimeLocal = (isoString: string | null): string => {
@@ -101,6 +107,36 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
       if (estimatedDuration) input.estimated_duration = estimatedDuration;
 
       await onSubmit(input);
+
+      // Check if auto-booking should be triggered
+      const shouldAutoBook =
+        !task && // Only for new tasks
+        estimatedDuration &&
+        estimatedDuration >= 60 && // At least 1 hour
+        deadline &&
+        (await isMicrosoftLoggedIn());
+
+      if (shouldAutoBook) {
+        // Check if deadline is within 7 days
+        const deadlineDate = new Date(input.deadline);
+        const now = new Date();
+        const daysUntilDeadline = (deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
+        if (daysUntilDeadline > 0 && daysUntilDeadline <= 7) {
+          // Find free slots
+          const endDate = new Date(deadlineDate);
+          const slots = await findFreeTimeSlots(now, endDate, estimatedDuration);
+
+          if (slots.length > 0) {
+            setFreeSlots(slots);
+            setShowAutoBook(true);
+            // Don't close main modal yet
+            toast.success('Task skapad! Vill du boka tid?');
+            return;
+          }
+        }
+      }
+
       onClose();
       toast.success(task ? 'Task uppdaterad!' : 'Task skapad!');
     } catch (error) {
@@ -377,6 +413,20 @@ export function TaskForm({ isOpen, onClose, onSubmit, task }: TaskFormProps) {
           </Button>
         </div>
       </form>
+
+      {/* Auto-Booking Modal */}
+      {showAutoBook && (
+        <AutoBookModal
+          isOpen={showAutoBook}
+          onClose={() => {
+            setShowAutoBook(false);
+            onClose(); // Close main modal too
+          }}
+          taskTitle={title}
+          durationMinutes={estimatedDuration || 60}
+          freeSlots={freeSlots}
+        />
+      )}
     </Modal>
   );
 }

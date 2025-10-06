@@ -12,6 +12,9 @@ import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
 import { toast } from 'react-hot-toast';
+import { useTasks } from './hooks/useTasks';
+import { checkAndSendNotifications } from './services/notifications';
+import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
 
 // Lazy load routes för bättre initial load performance
 const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -70,6 +73,8 @@ function LoginPage() {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showWeeklyReview, setShowWeeklyReview] = useState(false);
+  const { tasks } = useTasks();
 
   useEffect(() => {
     // Kolla om användaren har slutfört onboarding
@@ -79,6 +84,52 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         setShowWelcome(true);
       }
     }
+  }, [user, loading]);
+
+  // Initialize notifications and check every 5 minutes
+  useEffect(() => {
+    if (!user || loading) return;
+
+    // Initial check
+    checkAndSendNotifications(tasks);
+
+    // Set up interval (5 minutes)
+    const intervalId = setInterval(() => {
+      checkAndSendNotifications(tasks);
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [user, loading, tasks]);
+
+  // Weekly review trigger (Monday 06:00)
+  useEffect(() => {
+    if (!user || loading) return;
+
+    const checkWeeklyReview = () => {
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday
+      const hour = now.getHours();
+
+      // Check if it's Monday 06:00
+      if (dayOfWeek === 1 && hour === 6) {
+        const lastReview = localStorage.getItem('prio-last-weekly-review');
+        const today = now.toISOString().split('T')[0];
+
+        // Only show if not already shown today
+        if (lastReview !== today) {
+          setShowWeeklyReview(true);
+          localStorage.setItem('prio-last-weekly-review', today);
+        }
+      }
+    };
+
+    // Initial check
+    checkWeeklyReview();
+
+    // Check every hour
+    const intervalId = setInterval(checkWeeklyReview, 60 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
   }, [user, loading]);
 
   if (loading) {
@@ -104,6 +155,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       <WelcomeModal
         isOpen={showWelcome}
         onComplete={() => setShowWelcome(false)}
+      />
+      {/* Weekly review modal */}
+      <WeeklyReviewModal
+        isOpen={showWeeklyReview}
+        onClose={() => setShowWeeklyReview(false)}
+        tasks={tasks}
       />
       {/* PWA install prompt */}
       <InstallPrompt />
