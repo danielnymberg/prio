@@ -9,6 +9,8 @@ import { Play, ChevronRight, AlertTriangle, CheckCircle, SkipForward, Clock, Plu
 import { toast } from 'react-hot-toast';
 import { DailyCheckInModal } from './DailyCheckInModal';
 import { MorningBriefing } from './MorningBriefing';
+import { DependencyAlert } from '@/components/alerts/DependencyAlert';
+import { findCriticalDependencyChains } from '@/lib/dependencyAnalyzer';
 
 export function FocusView() {
   const navigate = useNavigate();
@@ -21,6 +23,7 @@ export function FocusView() {
   const [checkInData, setCheckInData] = useState<DailyCheckIn | null>(null);
   const [skippedTaskIds, setSkippedTaskIds] = useState<string[]>([]);
   const [showMorningBriefing, setShowMorningBriefing] = useState(false);
+  const [criticalChains, setCriticalChains] = useState<ReturnType<typeof findCriticalDependencyChains>>([]);
 
   // Helper functions for morning briefing
   const isMorningTime = () => {
@@ -88,6 +91,10 @@ export function FocusView() {
     setNextTask(next);
     setQueue(upcoming.slice(1)); // Skippa första (det är nextTask)
     setIsEmergency(emergency);
+
+    // Find critical dependency chains
+    const chains = findCriticalDependencyChains(tasks, 40);
+    setCriticalChains(chains);
   }, [context, tasks, skippedTaskIds]);
 
   const handleStartSession = () => {
@@ -283,6 +290,20 @@ export function FocusView() {
         <div className="bg-red-500 text-white px-6 py-3 text-center font-semibold">
           <AlertTriangle className="inline h-5 w-5 mr-2" />
           Du har uppgifter med deadline inom 24 timmar!
+        </div>
+      )}
+
+      {/* Dependency Alerts */}
+      {criticalChains.length > 0 && (
+        <div className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              ⚠️ Kritiska blockeringskedjor ({criticalChains.length})
+            </h2>
+            {criticalChains.map((chain, index) => (
+              <DependencyAlert key={index} chain={chain} />
+            ))}
+          </div>
         </div>
       )}
 
