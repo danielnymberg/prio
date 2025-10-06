@@ -75,7 +75,7 @@ export function ResultImpactModal() {
           </div>
         </div>
 
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-200">
+        <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4 text-sm text-stone-600 dark:text-sand-200">
           💡 Detta hjälper appen lära sig vilka uppgifter som faktiskt ger resultat (Pareto-analys)
         </div>
 

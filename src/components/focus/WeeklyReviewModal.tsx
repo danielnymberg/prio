@@ -124,22 +124,22 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
             </div>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+          <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4 border border-sand-300 dark:border-charcoal-700">
             <div className="flex items-center gap-2 mb-1">
-              <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-sm text-blue-800 dark:text-blue-200">Total tid</span>
+              <Clock className="h-4 w-4 text-copper-600 dark:text-copper-400" />
+              <span className="text-sm text-stone-600 dark:text-sand-200">Total tid</span>
             </div>
-            <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">
+            <div className="text-3xl font-bold text-stone-600 dark:text-sand-100">
               {stats.totalHoursSpent}h
             </div>
-            <div className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+            <div className="text-xs text-stone-600 dark:text-sand-300 mt-1">
               produktiv tid
             </div>
           </div>
         </div>
 
         {/* Productivity Score */}
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+        <div className="bg-gradient-to-r from-purple-50 to-copper-100 dark:from-purple-900/20 dark:to-charcoal-850 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
@@ -232,7 +232,7 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
                       {task.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                      <span className="text-xs px-2 py-0.5 rounded bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200">
                         Värde: {task.value_score}/10
                       </span>
                       {task.estimated_duration && (

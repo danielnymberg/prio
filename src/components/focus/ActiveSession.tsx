@@ -88,7 +88,7 @@ export function ActiveSession() {
   const progress = ((SESSION_DURATION - timeRemaining) / SESSION_DURATION) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-sand-100 to-sand-200 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 max-w-3xl w-full">
         {/* Timer */}
         <div className="text-center mb-12">
@@ -103,7 +103,7 @@ export function ActiveSession() {
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-12">
           <div
-            className="bg-blue-500 h-4 rounded-full transition-all duration-1000"
+            className="bg-copper-500 h-4 rounded-full transition-all duration-1000"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -148,7 +148,7 @@ export function ActiveSession() {
           </Button>
         </div>
 
-        <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-200">
+        <div className="mt-8 bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4 text-sm text-stone-600 dark:text-sand-200">
           💡 <strong>Tips:</strong> Stäng av notifikationer och mejl under denna session för bästa fokus.
         </div>
       </div>

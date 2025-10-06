@@ -362,7 +362,7 @@ export function FocusView() {
 
       {/* Main Focus Card */}
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 border-4 border-blue-500 dark:border-blue-600">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 border-4 border-copper-500 dark:border-copper-600">
           {/* Deadline Warnings */}
           {nextTask.deadline && (() => {
             const deadline = new Date(nextTask.deadline);
@@ -476,19 +476,19 @@ export function FocusView() {
           {nextTask.estimated_duration &&
            context &&
            nextTask.estimated_duration > context.availableTime && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-600 rounded-xl p-4 mb-6">
+            <div className="bg-sand-100 dark:bg-charcoal-850 border-2 border-copper-400 dark:border-copper-600 rounded-xl p-4 mb-6">
               <div className="flex items-start gap-3">
-                <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-1" />
+                <Clock className="h-6 w-6 text-copper-600 dark:text-copper-400 flex-shrink-0 mt-1" />
                 <div className="flex-1">
-                  <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-1">
+                  <h3 className="font-bold text-stone-600 dark:text-sand-100 mb-1">
                     ⏱️ Uppgiften tar längre än tillgänglig tid
                   </h3>
-                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                  <p className="text-sm text-stone-600 dark:text-sand-200 mb-2">
                     Uppgiften tar {formatDuration(nextTask.estimated_duration)},
                     du har {formatDuration(context.availableTime)} kvar idag.
                   </p>
-                  <div className="bg-blue-100 dark:bg-blue-800 rounded-lg p-3 mt-2">
-                    <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                  <div className="bg-sand-200 dark:bg-charcoal-700 rounded-lg p-3 mt-2">
+                    <p className="text-sm font-semibold text-stone-600 dark:text-sand-100">
                       💡 Förslag: {calculatePartialWork(
                         nextTask.estimated_duration,
                         context.availableTime

@@ -90,7 +90,7 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
           {/* Expand/Collapse Button */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+            className="flex items-center gap-1 text-sm font-medium text-copper-600 dark:text-copper-400 hover:text-copper-600 dark:hover:text-sand-200 transition-colors"
           >
             {isExpanded ? (
               <>
@@ -127,7 +127,7 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         {task.estimated_duration && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                          <span className="text-xs px-2 py-0.5 rounded bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200">
                             {formatDuration(task.estimated_duration)}
                           </span>
                         )}

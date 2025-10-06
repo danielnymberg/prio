@@ -49,7 +49,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
           <div
             key={s}
             className={`h-2 flex-1 rounded transition-all ${
-              s <= step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+              s <= step ? 'bg-copper-600' : 'bg-gray-200 dark:bg-gray-700'
             }`}
           />
         ))}
@@ -73,7 +73,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-5xl font-bold text-blue-600 mb-2">
+              <div className="text-5xl font-bold text-copper-600 mb-2">
                 {formatTime(availableTime)}
               </div>
               <div className="text-sm text-gray-500">
@@ -128,7 +128,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setEnergyLevel('low')}
               className={`p-6 rounded-xl border-2 transition-all ${
                 energyLevel === 'low'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-105'
+                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg scale-105'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
             >
@@ -142,7 +142,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setEnergyLevel('medium')}
               className={`p-6 rounded-xl border-2 transition-all ${
                 energyLevel === 'medium'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-105'
+                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg scale-105'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
             >
@@ -156,7 +156,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setEnergyLevel('high')}
               className={`p-6 rounded-xl border-2 transition-all ${
                 energyLevel === 'high'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-105'
+                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg scale-105'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
             >
@@ -202,7 +202,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setStrategy('quick_wins')}
               className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
                 strategy === 'quick_wins'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg'
+                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
             >
@@ -224,7 +224,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setStrategy('deep_work')}
               className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
                 strategy === 'deep_work'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg'
+                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
             >
@@ -246,13 +246,13 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setStrategy('balanced')}
               className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
                 strategy === 'balanced'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg'
+                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
               }`}
               title="Blandning av korta och långa uppgifter baserat på CPM-algoritmen"
             >
               <div className="flex items-start gap-4">
-                <BarChart className="h-8 w-8 text-blue-500 flex-shrink-0" />
+                <BarChart className="h-8 w-8 text-copper-500 flex-shrink-0" />
                 <div>
                   <div className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
                     ⚖️ Balanced

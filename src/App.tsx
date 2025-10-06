@@ -4,7 +4,6 @@ import { useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
-import { VoiceInterface } from './components/voice/VoiceInterface';
 import { QuickCaptureBar } from './components/ui/QuickCaptureBar';
 import { QuickNoteInput } from './components/tasks/QuickNoteInput';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
@@ -147,9 +146,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return (
     <AppLayout>
       {children}
-      {/* Voice interface alltid tillgänglig när inloggad */}
-      <VoiceInterface />
-      {/* Quick note input - ersätter röst tillsvidare */}
+      {/* Quick note input */}
       <QuickNoteInput />
       {/* Quick capture bar för mobil */}
       <QuickCaptureBar />
@@ -179,13 +176,7 @@ function HomePage() {
     const params = new URLSearchParams(window.location.search);
     const action = params.get('action');
 
-    if (action === 'voice') {
-      // Trigger voice interface
-      navigate('/focus');
-      setTimeout(() => {
-        window.dispatchEvent(new Event('trigger-voice'));
-      }, 500);
-    } else if (action === 'quick') {
+    if (action === 'quick') {
       // Trigger quick task form
       navigate('/focus');
       setTimeout(() => {

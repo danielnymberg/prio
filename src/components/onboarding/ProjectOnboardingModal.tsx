@@ -29,7 +29,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
           <div
             key={s}
             className={`h-2 flex-1 rounded transition-all ${
-              s <= step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+              s <= step ? 'bg-copper-600' : 'bg-gray-200 dark:bg-gray-700'
             }`}
           />
         ))}
@@ -52,12 +52,12 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </p>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl p-6">
-            <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+          <div className="bg-sand-100 dark:bg-charcoal-850 border-2 border-sand-300 dark:border-charcoal-700 rounded-xl p-6">
+            <h3 className="font-bold text-stone-600 dark:text-sand-100 mb-3 flex items-center gap-2">
               <FolderKanban className="h-6 w-6" />
               Vad kan du göra?
             </h3>
-            <div className="space-y-3 text-blue-800 dark:text-blue-200">
+            <div className="space-y-3 text-stone-600 dark:text-sand-200">
               <div className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <p>Skapa projekt med <strong>offererade timmar</strong> och <strong>timpris</strong></p>
@@ -101,7 +101,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </p>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-xl p-6">
+          <div className="bg-gradient-to-r from-purple-50 to-copper-100 dark:from-purple-900/20 dark:to-charcoal-850 border-2 border-purple-300 dark:border-purple-700 rounded-xl p-6">
             <h3 className="font-bold text-purple-900 dark:text-purple-100 mb-4 flex items-center gap-2">
               <Sparkles className="h-6 w-6" />
               Så här fungerar det:
@@ -110,7 +110,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             <div className="space-y-4">
               <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Du säger:</p>
-                <div className="bg-blue-50 dark:bg-blue-900/30 rounded p-3 font-medium text-blue-900 dark:text-blue-100">
+                <div className="bg-sand-100 dark:bg-charcoal-850 rounded p-3 font-medium text-stone-600 dark:text-sand-100">
                   "Nytt projekt Wallenstam slutrapport, 40 timmar, 1950 per timme, 2000 i resor, deadline 1 december"
                 </div>
               </div>
@@ -182,15 +182,15 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
               </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <h4 className="font-bold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+            <div className="bg-sand-100 dark:bg-charcoal-850 border border-sand-300 dark:border-charcoal-700 rounded-lg p-4">
+              <h4 className="font-bold text-stone-600 dark:text-sand-100 mb-2 flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
                 Completion % (kommer i Fas 2)
               </h4>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-stone-600 dark:text-sand-200">
                 Du kommer kunna sätta completion % med reglage och få:
               </p>
-              <ul className="text-xs text-blue-700 dark:text-blue-300 mt-2 space-y-1 list-disc list-inside">
+              <ul className="text-xs text-stone-600 dark:text-sand-300 mt-2 space-y-1 list-disc list-inside">
                 <li>Återstående timmar att fakturera</li>
                 <li>Förbrukad budget hittills</li>
                 <li>Varningar om du går över budget</li>
@@ -239,8 +239,8 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border-2 border-blue-300 dark:border-blue-700">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-sand-100 to-sand-200 dark:from-charcoal-850 dark:to-charcoal-850 rounded-lg border-2 border-sand-300 dark:border-charcoal-700">
+              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
                 1
               </div>
               <div>
@@ -288,8 +288,8 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-            <p className="text-sm text-center text-blue-900 dark:text-blue-100">
+          <div className="bg-gradient-to-r from-sand-100 to-sand-200 dark:from-charcoal-850 dark:to-charcoal-850 rounded-lg p-4 border border-sand-300 dark:border-charcoal-700">
+            <p className="text-sm text-center text-stone-600 dark:text-sand-100">
               <strong>🎯 Nu kör vi!</strong> Skapa ditt första projekt och testa funktionerna.
             </p>
           </div>

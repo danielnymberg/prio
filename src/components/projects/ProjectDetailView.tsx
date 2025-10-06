@@ -48,7 +48,7 @@ export function ProjectDetailView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-600" />
       </div>
     );
   }
@@ -138,7 +138,7 @@ export function ProjectDetailView() {
                         task.status === 'done'
                           ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
                           : task.status === 'in_progress'
-                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                          ? 'bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
                           : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
                         {task.status === 'done' ? 'Klar' :
@@ -163,7 +163,7 @@ export function ProjectDetailView() {
           </p>
           <button
             onClick={() => navigate('/focus')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-copper-600 text-white rounded-lg hover:bg-copper-600"
           >
             Skapa task och koppla till projekt
           </button>

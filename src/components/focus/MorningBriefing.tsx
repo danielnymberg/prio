@@ -80,7 +80,7 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
   }
 
   return (
-    <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl p-6 mb-6 shadow-xl">
+    <div className="bg-gradient-to-r from-copper-600 to-copper-600 text-white rounded-2xl p-6 mb-6 shadow-xl">
       <h2 className="text-2xl font-bold mb-4">{greeting}</h2>
 
       {/* Statistik-grid */}
@@ -138,7 +138,7 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
       <div className="flex gap-3">
         <Button
           onClick={onStartDay}
-          className="flex-1 bg-white text-blue-600 hover:bg-blue-50 font-semibold"
+          className="flex-1 bg-white text-copper-600 hover:bg-sand-100 font-semibold"
         >
           Starta dagen
         </Button>

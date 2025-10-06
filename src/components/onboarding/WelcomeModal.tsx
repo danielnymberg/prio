@@ -29,7 +29,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
           <div
             key={s}
             className={`h-2 flex-1 rounded transition-all ${
-              s <= step ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+              s <= step ? 'bg-copper-600' : 'bg-gray-200 dark:bg-gray-700'
             }`}
           />
         ))}
@@ -52,12 +52,12 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </p>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl p-6">
-            <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+          <div className="bg-sand-100 dark:bg-charcoal-850 border-2 border-sand-300 dark:border-charcoal-700 rounded-xl p-6">
+            <h3 className="font-bold text-stone-600 dark:text-sand-100 mb-3 flex items-center gap-2">
               <Target className="h-6 w-6" />
               Vad är CPM-modellen?
             </h3>
-            <p className="text-blue-800 dark:text-blue-200 mb-4">
+            <p className="text-stone-600 dark:text-sand-200 mb-4">
               <strong>Consequence-Priority Model</strong> är en forskningsbaserad metod som
               beräknar verklig prioritet baserat på faktiska konsekvenser - inte vad som känns brådskande.
             </p>
@@ -108,11 +108,11 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
               </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <h4 className="font-bold text-blue-900 dark:text-blue-100 mb-2">
+            <div className="bg-sand-100 dark:bg-charcoal-850 border border-sand-300 dark:border-charcoal-700 rounded-lg p-4">
+              <h4 className="font-bold text-stone-600 dark:text-sand-100 mb-2">
                 ✅ Tillit (Confidence)
               </h4>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-stone-600 dark:text-sand-200">
                 Hur <strong>säker är du</strong> på att detta ger resultat?
               </p>
             </div>
@@ -170,8 +170,8 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </div>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
+          <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4">
+            <p className="text-sm text-stone-600 dark:text-sand-200">
               <strong>💡 Tips:</strong> Om konsekvenserna är minimala efter 1 månad,
               är uppgiften förmodligen inte lika brådskande som den känns just nu.
             </p>
@@ -203,7 +203,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
 
           <div className="space-y-4">
             <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
                 1
               </div>
               <div>
@@ -217,7 +217,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </div>
 
             <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
                 2
               </div>
               <div>
@@ -231,7 +231,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </div>
 
             <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
                 3
               </div>
               <div>
@@ -245,8 +245,8 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-            <p className="text-sm text-center text-blue-900 dark:text-blue-100">
+          <div className="bg-gradient-to-r from-sand-100 to-sand-200 dark:from-charcoal-850 dark:to-charcoal-850 rounded-lg p-4 border border-sand-300 dark:border-charcoal-700">
+            <p className="text-sm text-center text-stone-600 dark:text-sand-100">
               <Zap className="inline h-4 w-4 mr-1" />
               <strong>Pro-tips:</strong> Använd "Wizard"-läget för att skapa uppgifter med guidning!
             </p>

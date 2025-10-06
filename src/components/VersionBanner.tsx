@@ -28,14 +28,14 @@ export function VersionBanner() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-blue-600 text-white shadow-lg">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-copper-600 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <RefreshCw className="w-5 h-5 flex-shrink-0" />
             <div>
               <p className="font-medium">Ny version tillgänglig!</p>
-              <p className="text-sm text-blue-100">
+              <p className="text-sm text-sand-100">
                 Uppdatera appen för att få de senaste funktionerna och förbättringarna
                 {oldVersion && ` (från v${oldVersion})`}
               </p>
@@ -44,13 +44,13 @@ export function VersionBanner() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleUpdate}
-              className="px-4 py-2 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors"
+              className="px-4 py-2 bg-white text-copper-600 font-medium rounded-lg hover:bg-sand-100 transition-colors"
             >
               Uppdatera nu
             </button>
             <button
               onClick={handleDismiss}
-              className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-copper-600 rounded-lg transition-colors"
               aria-label="Stäng"
             >
               <X className="w-5 h-5" />

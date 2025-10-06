@@ -128,19 +128,19 @@ export function AutoBookModal({
     >
       <div className="space-y-4">
         {/* Task info header */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+        <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4 border border-sand-300 dark:border-charcoal-700">
           <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <Calendar className="h-5 w-5 text-copper-600 dark:text-copper-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+              <h3 className="font-semibold text-stone-600 dark:text-sand-100 mb-1">
                 {taskTitle}
               </h3>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-stone-600 dark:text-sand-200">
                 <Clock className="inline h-4 w-4 mr-1" />
                 {Math.floor(durationMinutes / 60)}h {durationMinutes % 60}min totalt
               </p>
               {useMultipleSessions && (
-                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                <p className="text-xs text-stone-600 dark:text-sand-300 mt-1">
                   <Layers className="inline h-3 w-3 mr-1" />
                   Delas upp i flera sessioner (max {maxSessionHours}h/session)
                 </p>
@@ -157,7 +157,7 @@ export function AutoBookModal({
               id="multi-session"
               checked={useMultipleSessions}
               onChange={(e) => setUseMultipleSessions(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 rounded border-gray-300 text-copper-600 focus:ring-copper-400"
             />
             <label htmlFor="multi-session" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
               Dela upp i flera sessioner (rekommenderat för projekt över 8h)
@@ -179,7 +179,7 @@ export function AutoBookModal({
                   onClick={() => setMaxSessionHours(hours)}
                   className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     maxSessionHours === hours
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-copper-600 text-white'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
@@ -215,7 +215,7 @@ export function AutoBookModal({
                       className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                        <span className="text-xs font-medium text-copper-600 dark:text-copper-400">
                           Session {index + 1}/{sessionPlan.sessions.length}
                         </span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">
@@ -293,7 +293,7 @@ export function AutoBookModal({
                       onClick={() => setSelectedSlot(slot)}
                       className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
                         isSelected
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                          ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850'
                           : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                       }`}
                     >
@@ -318,7 +318,7 @@ export function AutoBookModal({
                         </div>
                         {isSelected && (
                           <div className="ml-3">
-                            <div className="h-6 w-6 rounded-full bg-blue-500 flex items-center justify-center">
+                            <div className="h-6 w-6 rounded-full bg-copper-500 flex items-center justify-center">
                               <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                   fillRule="evenodd"

@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
+        // Inactivate gamla service workers omedelbart
+        inlineWorkboxRuntime: true,
         // Runtime caching med strikta regler
         runtimeCaching: [
           // API-calls ska ALDRIG cachas - alltid nätverksförst
@@ -41,17 +43,17 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /^https:\/\/login\.microsoftonline\.com\/.*/i,
             handler: 'NetworkOnly',
           },
-          // Navigering ska alltid vara nätverksförst
+          // Navigering ska alltid vara nätverksförst med kort timeout
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
               cacheName: 'pages-cache',
               expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24, // 24 timmar
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60, // Endast 1 timme
               },
-              networkTimeoutSeconds: 3,
+              networkTimeoutSeconds: 2,
             },
           },
         ],
@@ -77,12 +79,6 @@ export default defineConfig(({ mode }) => ({
         ],
         categories: ['productivity', 'business'],
         shortcuts: [
-          {
-            name: 'Ny röst-task',
-            short_name: 'Röst',
-            description: 'Skapa task med röst',
-            url: '/?action=voice',
-          },
           {
             name: 'Ny task',
             short_name: 'Ny',

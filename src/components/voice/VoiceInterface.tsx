@@ -255,7 +255,7 @@ export function VoiceInterface() {
     return (
       <div className="fixed bottom-6 right-6 z-50">
         <div className="bg-white dark:bg-gray-800 rounded-full p-4 shadow-2xl">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-copper-600"></div>
         </div>
       </div>
     );
@@ -307,7 +307,7 @@ export function VoiceInterface() {
                   <div
                     className={`max-w-[80%] px-4 py-2 rounded-2xl ${
                       msg.role === 'user'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-copper-600 text-white'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                     }`}
                   >
@@ -360,7 +360,7 @@ export function VoiceInterface() {
             </>
           ) : status ? (
             <>
-              <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Status:</p>
+              <p className="text-sm text-copper-600 dark:text-copper-400 mb-1">Status:</p>
               <p className="text-gray-900 dark:text-white">{status}</p>
             </>
           ) : null}
@@ -398,7 +398,7 @@ export function VoiceInterface() {
 
         {/* Notification Badge */}
         {conversationLog.length > 0 && !isExpanded && (
-          <div className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+          <div className="absolute -top-2 -right-2 bg-copper-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
             {conversationLog.length}
           </div>
         )}

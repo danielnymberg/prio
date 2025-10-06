@@ -51,7 +51,7 @@ export function ProjectsView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-600" />
       </div>
     );
   }
@@ -77,7 +77,7 @@ export function ProjectsView() {
         <h1 className="text-3xl font-bold">Projekt</h1>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-copper-600 text-white rounded-lg hover:bg-copper-600"
         >
           <Plus className="h-5 w-5" />
           Nytt projekt
@@ -89,7 +89,7 @@ export function ProjectsView() {
           <p className="text-gray-500 mb-4">Inga projekt än</p>
           <button
             onClick={() => setShowForm(true)}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-3 bg-copper-600 text-white rounded-lg hover:bg-copper-600"
           >
             Skapa ditt första projekt
           </button>

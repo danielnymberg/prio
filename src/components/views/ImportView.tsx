@@ -119,7 +119,7 @@ export function ImportView() {
             onChange={(e) => setJsonInput(e.target.value)}
             placeholder={exampleJson}
             rows={15}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm resize-none"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm resize-none"
           />
         </div>
 
@@ -142,23 +142,23 @@ export function ImportView() {
         </div>
       </div>
 
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+      <div className="bg-sand-100 dark:bg-charcoal-850 border border-sand-300 dark:border-charcoal-700 rounded-xl p-6">
         <div className="flex items-start gap-3">
-          <FileJson className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+          <FileJson className="h-5 w-5 text-copper-600 dark:text-copper-400 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+            <h3 className="font-semibold text-stone-600 dark:text-sand-100 mb-2">
               JSON-format
             </h3>
-            <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+            <p className="text-sm text-stone-600 dark:text-sand-200 mb-2">
               JSON måste vara en array av tasks med följande fält:
             </p>
-            <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-disc list-inside">
-              <li><code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">title</code> (required) - Titel på tasken</li>
-              <li><code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">description</code> (optional) - Beskrivning</li>
-              <li><code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">importance</code> (optional, 1-10) - Viktighet (default: 5)</li>
-              <li><code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">urgency</code> (optional, 1-10) - Brådskande (default: 5)</li>
-              <li><code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">deadline</code> (optional, YYYY-MM-DD) - Deadline</li>
-              <li><code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">status</code> (optional) - not_started, in_progress, eller done</li>
+            <ul className="text-sm text-copper-600 dark:text-sand-200 space-y-1 list-disc list-inside">
+              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">title</code> (required) - Titel på tasken</li>
+              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">description</code> (optional) - Beskrivning</li>
+              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">importance</code> (optional, 1-10) - Viktighet (default: 5)</li>
+              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">urgency</code> (optional, 1-10) - Brådskande (default: 5)</li>
+              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">deadline</code> (optional, YYYY-MM-DD) - Deadline</li>
+              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">status</code> (optional) - not_started, in_progress, eller done</li>
             </ul>
           </div>
         </div>

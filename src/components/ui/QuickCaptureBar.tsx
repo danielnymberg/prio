@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, Plus, Camera } from 'lucide-react';
+import { Plus, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { useTasks } from '@/hooks/useTasks';
@@ -9,37 +9,21 @@ export function QuickCaptureBar() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { createTask } = useTasks();
 
-  const handleVoiceClick = () => {
-    // Dispatch custom event to trigger VoiceInterface
-    window.dispatchEvent(new Event('trigger-voice'));
-  };
-
   // Photo capture kommer i FAS 3
   const handlePhotoCapture = () => {
-    alert('📸 Foto-funktion kommer snart! Använd röst eller text för att skapa tasks.');
+    alert('📸 Foto-funktion kommer snart! Använd text för att skapa tasks.');
   };
 
   return (
     <>
       {/* Floating bottom bar - endast synlig på mobil */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-2xl">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-cream-100 dark:bg-charcoal-900 border-t border-sand-200 dark:border-charcoal-800 shadow-medium">
         <div className="flex items-center justify-around p-3 pb-safe">
-          <Button
-            variant="ghost"
-            size="lg"
-            onClick={handleVoiceClick}
-            className="flex flex-col items-center gap-1 min-w-[80px] min-h-[60px]"
-            title="Röstinmatning"
-          >
-            <Mic className="h-6 w-6" />
-            <span className="text-xs">Röst</span>
-          </Button>
-
           <Button
             variant="primary"
             size="lg"
             onClick={() => setIsFormOpen(true)}
-            className="flex flex-col items-center gap-1 min-w-[80px] min-h-[60px] shadow-lg"
+            className="flex flex-col items-center gap-1 min-w-[100px] min-h-[60px] shadow-soft flex-1 mx-2"
             title="Skapa task"
           >
             <Plus className="h-6 w-6" />

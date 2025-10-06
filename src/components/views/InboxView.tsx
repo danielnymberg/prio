@@ -95,8 +95,8 @@ export function InboxView() {
         />
       ) : (
         <div className="space-y-4">
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
+          <div className="bg-sand-100 dark:bg-charcoal-850 border border-sand-300 dark:border-charcoal-700 rounded-lg p-4">
+            <p className="text-sm text-stone-600 dark:text-sand-200">
               💡 <strong>Tips:</strong> Klicka på en task för att bedöma vikten, tidskänslighet och deadline.
               Tasks som skapats via röst eller delning hamnar här om AI:n inte kunde bedöma dem direkt.
             </p>
@@ -109,7 +109,7 @@ export function InboxView() {
                   type="checkbox"
                   checked={selectedTasks.has(task.id)}
                   onChange={() => handleToggleSelect(task.id)}
-                  className="mt-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="mt-3 h-4 w-4 rounded border-gray-300 text-copper-600 focus:ring-copper-400"
                 />
                 <div className="flex-1">
                   <TaskCard

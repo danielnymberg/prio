@@ -58,7 +58,7 @@ export function getStatusColor(status: Task['status']): string {
     case 'done':
       return 'text-green-600';
     case 'in_progress':
-      return 'text-blue-600';
+      return 'text-copper-600';
     case 'not_started':
       return 'text-gray-600';
   }
@@ -109,7 +109,7 @@ export function getDurationColor(minutes: number | null | undefined): string {
   if (!minutes) return 'text-gray-500';
 
   if (minutes <= 15) return 'text-green-600'; // Quick tasks
-  if (minutes <= 60) return 'text-blue-600';  // Short tasks
+  if (minutes <= 60) return 'text-copper-600';  // Short tasks
   if (minutes <= 240) return 'text-amber-600'; // Medium tasks
   return 'text-red-600'; // Long tasks
 }

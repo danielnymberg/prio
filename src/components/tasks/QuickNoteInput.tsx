@@ -172,7 +172,7 @@ export function QuickNoteInput() {
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-2xl transition-all active:scale-95 min-h-[56px] min-w-[56px] flex items-center justify-center"
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-copper-600 to-copper-600 hover:from-copper-600 hover:to-copper-600 text-white rounded-full p-4 shadow-2xl transition-all active:scale-95 min-h-[56px] min-w-[56px] flex items-center justify-center"
         title="Snabb anteckning eller AI-chat"
         aria-label="Öppna quick actions"
       >
@@ -182,7 +182,7 @@ export function QuickNoteInput() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-blue-500 dark:border-blue-600 w-96 max-w-[calc(100vw-3rem)] flex flex-col max-h-[600px]">
+    <div className="fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-copper-500 dark:border-copper-600 w-96 max-w-[calc(100vw-3rem)] flex flex-col max-h-[600px]">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export function QuickNoteInput() {
             onClick={() => setMode('note')}
             className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
               mode === 'note'
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                ? 'bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
             }`}
           >
@@ -232,7 +232,7 @@ export function QuickNoteInput() {
               <div
                 className={`max-w-[85%] px-4 py-2 rounded-2xl ${
                   msg.role === 'user'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-copper-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                 }`}
               >

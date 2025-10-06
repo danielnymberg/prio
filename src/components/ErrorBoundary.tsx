@@ -101,7 +101,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <button
               onClick={this.handleReloadApp}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-copper-600 hover:bg-copper-600 text-white font-medium rounded-lg transition-colors"
             >
               <RefreshCw className="w-5 h-5" />
               Ladda om appen

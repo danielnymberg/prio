@@ -9,11 +9,11 @@ interface AlertProps {
 const variantConfig = {
   info: {
     icon: Info,
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    border: 'border-blue-200 dark:border-blue-800',
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    titleColor: 'text-blue-900 dark:text-blue-100',
-    textColor: 'text-blue-800 dark:text-blue-200',
+    bg: 'bg-sand-100 dark:bg-charcoal-850',
+    border: 'border-sand-300 dark:border-charcoal-700',
+    iconColor: 'text-copper-600 dark:text-copper-400',
+    titleColor: 'text-stone-600 dark:text-sand-100',
+    textColor: 'text-stone-600 dark:text-sand-200',
   },
   warning: {
     icon: AlertTriangle,

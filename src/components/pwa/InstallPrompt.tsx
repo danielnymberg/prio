@@ -28,8 +28,8 @@ export function InstallPrompt() {
     return (
       <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-4 z-40 border border-gray-200 dark:border-gray-700">
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-            <Download className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <div className="flex-shrink-0 w-10 h-10 bg-sand-100 dark:bg-charcoal-850 rounded-lg flex items-center justify-center">
+            <Download className="w-5 h-5 text-copper-600 dark:text-copper-400" />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
@@ -57,8 +57,8 @@ export function InstallPrompt() {
     return (
       <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-4 z-40 border border-gray-200 dark:border-gray-700">
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-            <Download className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <div className="flex-shrink-0 w-10 h-10 bg-sand-100 dark:bg-charcoal-850 rounded-lg flex items-center justify-center">
+            <Download className="w-5 h-5 text-copper-600 dark:text-copper-400" />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">

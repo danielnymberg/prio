@@ -90,7 +90,7 @@ export function AllTasksView() {
             placeholder="Sök tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
           />
         </div>
 
@@ -103,7 +103,7 @@ export function AllTasksView() {
               onClick={() => setFilterPriority('all')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filterPriority === 'all'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  ? 'bg-sand-100 text-copper-600 dark:bg-charcoal-850 dark:text-copper-400'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               }`}
             >
@@ -147,7 +147,7 @@ export function AllTasksView() {
               onClick={() => setViewMode('timeline')}
               className={`p-2 rounded-lg transition-colors ${
                 viewMode === 'timeline'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  ? 'bg-sand-100 text-copper-600 dark:bg-charcoal-850 dark:text-copper-400'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               }`}
               title="Tidslinjevy"
@@ -158,7 +158,7 @@ export function AllTasksView() {
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-lg transition-colors ${
                 viewMode === 'grid'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                  ? 'bg-sand-100 text-copper-600 dark:bg-charcoal-850 dark:text-copper-400'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
               }`}
               title="Rutnätsvy"
@@ -251,7 +251,7 @@ export function AllTasksView() {
 
           {timelineGroups.thisWeek.length > 0 && (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+              <div className="flex items-center gap-2 text-copper-600 dark:text-copper-400">
                 <CalendarDays className="h-5 w-5" />
                 <h3 className="font-semibold text-lg">Denna vecka ({timelineGroups.thisWeek.length})</h3>
               </div>
@@ -271,7 +271,7 @@ export function AllTasksView() {
 
           {timelineGroups.thisMonth.length > 0 && (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+              <div className="flex items-center gap-2 text-stone-600 dark:text-sand-300">
                 <CalendarRange className="h-5 w-5" />
                 <h3 className="font-semibold text-lg">Denna månad ({timelineGroups.thisMonth.length})</h3>
               </div>

@@ -14,7 +14,7 @@ interface RangeSliderProps {
 }
 
 const colorClasses = {
-  blue: 'accent-blue-600',
+  blue: 'accent-copper-600',
   green: 'accent-green-600',
   amber: 'accent-amber-600',
   red: 'accent-red-600',

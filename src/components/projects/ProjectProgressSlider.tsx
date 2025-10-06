@@ -71,7 +71,7 @@ export function ProjectProgressSlider({
           <label className="text-sm font-medium">
             Uppskattat färdigt
           </label>
-          <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <span className="text-2xl font-bold text-copper-600 dark:text-copper-400">
             {completionPercentage}%
           </span>
         </div>
@@ -85,7 +85,7 @@ export function ProjectProgressSlider({
           disabled={updating}
           className="w-full h-3 rounded-lg appearance-none cursor-pointer bg-gray-200 dark:bg-gray-700"
           style={{
-            background: `linear-gradient(to right, #2563eb 0%, #2563eb ${completionPercentage}%, #e5e7eb ${completionPercentage}%, #e5e7eb 100%)`
+            background: `linear-gradient(to right, #B87333 0%, #B87333 ${completionPercentage}%, #e5e7eb ${completionPercentage}%, #e5e7eb 100%)`
           }}
         />
         <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -96,12 +96,12 @@ export function ProjectProgressSlider({
       </div>
 
       {/* Återstående insats */}
-      <div className="p-4 border-2 border-blue-500 dark:border-blue-400 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+      <div className="p-4 border-2 border-copper-500 dark:border-copper-400 rounded-lg bg-sand-100 dark:bg-charcoal-850">
         <div className="flex items-center gap-2 mb-2">
-          <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <TrendingUp className="h-5 w-5 text-copper-600 dark:text-copper-400" />
           <h3 className="font-bold text-lg">Beräknad återstående insats</h3>
         </div>
-        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+        <p className="text-3xl font-bold text-copper-600 dark:text-copper-400">
           {metrics.estimated_remaining_hours}h
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -161,7 +161,7 @@ export function ProjectProgressSlider({
           // TODO: Implementera kalenderbokning i Fas 3
           toast.success(`Kalenderbokning kommer i nästa fas! (${metrics.estimated_remaining_hours}h)`);
         }}
-        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+        className="w-full py-3 bg-copper-600 hover:bg-copper-600 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
       >
         <Calendar className="h-5 w-5" />
         Planera in {metrics.estimated_remaining_hours}h i kalendern

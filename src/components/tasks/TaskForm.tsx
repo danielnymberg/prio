@@ -219,7 +219,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Detaljer (valfritt)"
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
           />
         </div>
 
@@ -231,7 +231,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           <select
             value={projectId || ''}
             onChange={(e) => setProjectId(e.target.value || null)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           >
             <option value="">Inget projekt</option>
             {projects.map(project => (
@@ -346,11 +346,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           </div>
 
           {/* Priority Preview */}
-          <div className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-            <p className="text-sm font-medium text-indigo-900 dark:text-indigo-100">
+          <div className="mt-4 p-3 bg-sand-100 dark:bg-charcoal-850 rounded-lg">
+            <p className="text-sm font-medium text-stone-600 dark:text-sand-100">
               📊 Beräknad prioritet: <span className="text-lg font-bold">{priorityPreview.toFixed(1)}</span>
             </p>
-            <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-1">
+            <p className="text-xs text-stone-600 dark:text-sand-200 mt-1">
               Formel: (Värde × Tidskänslighet × Tillit) / Ansträngning
             </p>
           </div>
@@ -368,7 +368,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Tidsuppskattning
               {estimatedDuration && (
-                <span className="ml-2 text-blue-600 dark:text-blue-400">
+                <span className="ml-2 text-copper-500 dark:text-copper-400">
                   ({formatDuration(estimatedDuration)})
                 </span>
               )}
@@ -383,7 +383,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 onClick={() => setEstimatedDuration(preset.value)}
                 className={`p-2 rounded-lg border text-center transition-all hover:shadow-sm ${
                   estimatedDuration === preset.value
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                    ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
                     : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
                 title={preset.description}
@@ -455,7 +455,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               <select
                 value={deadlineHour}
                 onChange={(e) => setDeadlineHour(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 <option value="00">00:00</option>
                 <option value="06">06:00</option>

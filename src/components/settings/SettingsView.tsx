@@ -158,8 +158,8 @@ export function SettingsView() {
             </div>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
+          <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-3">
+            <p className="text-sm text-stone-600 dark:text-sand-200">
               💡 <strong>Flexibilitet:</strong> Du kan arbeta mellan {String(workingHours.flexStart).padStart(2, '0')}:00-{String(workingHours.flexEnd).padStart(2, '0')}:00
               {' '}när det behövs, men appen räknar med {String(workingHours.normalStart).padStart(2, '0')}:00-{String(workingHours.normalEnd).padStart(2, '0')}:00 som normal arbetstid.
             </p>
@@ -171,7 +171,7 @@ export function SettingsView() {
               id="includeWeekends"
               checked={workingHours.includeWeekends}
               onChange={(e) => setWorkingHours({ ...workingHours, includeWeekends: e.target.checked })}
-              className="w-4 h-4 text-blue-600 rounded"
+              className="w-4 h-4 text-copper-600 rounded"
             />
             <label htmlFor="includeWeekends" className="text-sm text-gray-700 dark:text-gray-300">
               Inkludera helger i arbetstidsberäkning
@@ -187,8 +187,8 @@ export function SettingsView() {
       {/* Microsoft Calendar Integration */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <div className="p-3 bg-sand-100 dark:bg-charcoal-850 rounded-lg">
+            <Calendar className="h-6 w-6 text-copper-600 dark:text-copper-400" />
           </div>
 
           <div className="flex-1">
@@ -199,10 +199,10 @@ export function SettingsView() {
               Anslut din Microsoft-kalender för smarta deadline-förslag baserat på din tillgängliga tid.
             </p>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+            <div className="bg-sand-100 dark:bg-charcoal-850 border border-sand-300 dark:border-charcoal-700 rounded-lg p-4 mb-4">
               <div className="flex gap-2">
-                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-blue-800 dark:text-blue-200">
+                <Info className="h-5 w-5 text-copper-600 dark:text-copper-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-stone-600 dark:text-sand-200">
                   <p className="font-medium mb-1">Vad kan AI:n göra med din kalender?</p>
                   <ul className="list-disc list-inside space-y-1 ml-1">
                     <li>Räkna ut realistiska deadlines: "Om ett uppdrag tar 32h, när kan jag leverera?"</li>
@@ -275,7 +275,7 @@ export function SettingsView() {
                     onClick={() => handleToggleNotifications(!notificationConfig.enabled)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                       notificationConfig.enabled
-                        ? 'bg-blue-600'
+                        ? 'bg-copper-600'
                         : 'bg-gray-200 dark:bg-gray-700'
                     }`}
                   >
@@ -295,7 +295,7 @@ export function SettingsView() {
                         type="checkbox"
                         checked={notificationConfig.types['24h_before']}
                         onChange={() => handleToggleNotificationType('24h_before')}
-                        className="rounded text-blue-600"
+                        className="rounded text-copper-600"
                       />
                     </label>
                     <label className="flex items-center justify-between py-2">
@@ -304,7 +304,7 @@ export function SettingsView() {
                         type="checkbox"
                         checked={notificationConfig.types['2h_before']}
                         onChange={() => handleToggleNotificationType('2h_before')}
-                        className="rounded text-blue-600"
+                        className="rounded text-copper-600"
                       />
                     </label>
                     <label className="flex items-center justify-between py-2">
@@ -313,7 +313,7 @@ export function SettingsView() {
                         type="checkbox"
                         checked={notificationConfig.types.overdue}
                         onChange={() => handleToggleNotificationType('overdue')}
-                        className="rounded text-blue-600"
+                        className="rounded text-copper-600"
                       />
                     </label>
                   </div>

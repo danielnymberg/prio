@@ -60,7 +60,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
           required
         />
       </div>
@@ -73,7 +73,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           type="text"
           value={formData.client_name || ''}
           onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
         />
       </div>
 
@@ -87,7 +87,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             step="0.5"
             value={formData.quoted_hours}
             onChange={(e) => setFormData({ ...formData, quoted_hours: parseFloat(e.target.value) || 0 })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
             required
           />
         </div>
@@ -101,7 +101,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             step="50"
             value={formData.hourly_rate}
             onChange={(e) => setFormData({ ...formData, hourly_rate: parseFloat(e.target.value) || 0 })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
             required
           />
         </div>
@@ -116,15 +116,15 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           step="100"
           value={formData.external_costs || 0}
           onChange={(e) => setFormData({ ...formData, external_costs: parseFloat(e.target.value) || 0 })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
         />
       </div>
 
-      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+      <div className="p-4 bg-sand-100 dark:bg-charcoal-850 rounded-lg">
         <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
           Beräknad total budget
         </div>
-        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+        <div className="text-2xl font-bold text-copper-600 dark:text-copper-400">
           {calculatedBudget.toLocaleString('sv-SE')} kr
         </div>
         <div className="text-xs text-gray-500 mt-1">
@@ -141,7 +141,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           type="date"
           value={formData.project_deadline || ''}
           onChange={(e) => setFormData({ ...formData, project_deadline: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
         />
       </div>
 
@@ -152,7 +152,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         <textarea
           value={formData.description || ''}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
           rows={3}
         />
       </div>
@@ -161,7 +161,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
+          className="flex-1 py-3 bg-copper-600 text-white rounded-lg font-semibold hover:bg-copper-600 disabled:opacity-50"
         >
           {loading ? 'Skapar...' : 'Skapa projekt'}
         </button>

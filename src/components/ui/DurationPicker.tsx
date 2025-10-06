@@ -29,7 +29,7 @@ export function DurationPicker({ value, onChange }: DurationPickerProps) {
             onClick={() => onChange(preset.minutes)}
             className={`px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
               value === preset.minutes
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
                 : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
             }`}
           >

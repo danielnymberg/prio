@@ -68,7 +68,7 @@ export function BreakView() {
           {phase === 'physical' ? (
             <Coffee className="h-20 w-20 text-amber-500 mx-auto mb-4" />
           ) : (
-            <Mail className="h-20 w-20 text-blue-500 mx-auto mb-4" />
+            <Mail className="h-20 w-20 text-copper-500 mx-auto mb-4" />
           )}
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             {phase === 'physical' ? '🧘 Pausdags!' : '📧 Mejl-batch'}
@@ -103,14 +103,14 @@ export function BreakView() {
             </ul>
           </div>
         ) : (
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border-2 border-blue-200 dark:border-blue-800">
-            <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-3">
+          <div className="bg-sand-100 dark:bg-charcoal-850 rounded-xl p-6 border-2 border-sand-300 dark:border-charcoal-700">
+            <h3 className="font-bold text-stone-600 dark:text-sand-100 mb-3">
               ⏱️ Timeboxad mejl-tid
             </h3>
-            <p className="text-blue-800 dark:text-blue-200 mb-4">
+            <p className="text-stone-600 dark:text-sand-200 mb-4">
               Max 10 minuter för mejl och samtal. När tiden är ute, stoppa omedelbart!
             </p>
-            <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
+            <ul className="space-y-2 text-sm text-stone-600 dark:text-sand-300">
               <li>• Svara på brådskande mejl</li>
               <li>• Ring nödvändiga samtal</li>
               <li>• Resten väntar till nästa batch</li>

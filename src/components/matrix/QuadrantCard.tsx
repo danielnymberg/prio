@@ -69,7 +69,7 @@ export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplic
     <div
       ref={setNodeRef}
       className={`rounded-xl border-2 ${config.borderColor} ${config.bgColor} p-4 flex flex-col h-full transition-all ${
-        isOver ? 'ring-2 ring-blue-500 scale-[1.02]' : ''
+        isOver ? 'ring-2 ring-copper-500 scale-[1.02]' : ''
       }`}
     >
       <div className="flex items-center justify-between mb-4">
