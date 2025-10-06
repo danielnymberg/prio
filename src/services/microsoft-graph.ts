@@ -79,6 +79,20 @@ export interface FreeTimeSlot {
   durationMinutes: number;
 }
 
+export interface WorkSession {
+  start: Date;
+  end: Date;
+  durationMinutes: number;
+  day: string; // "Idag", "Imorgon", etc.
+}
+
+export interface SessionPlan {
+  sessions: WorkSession[];
+  totalMinutes: number;
+  remainingMinutes: number;
+  isComplete: boolean;
+}
+
 export interface DeadlineAnalysis {
   estimatedDeadline: string;
   totalAvailableHours: number;
@@ -252,6 +266,67 @@ export async function findFreeTimeSlots(
   return sortedSlots;
 }
 
+// Plan work sessions for a project
+export async function planWorkSessions(
+  totalMinutes: number,
+  deadline: Date,
+  maxSessionMinutes: number = 240 // Default 4h max per session
+): Promise<SessionPlan> {
+  const now = new Date();
+  const freeSlots = await findFreeTimeSlots(now, deadline);
+
+  const sessions: WorkSession[] = [];
+  let remainingMinutes = totalMinutes;
+
+  const formatDay = (date: Date): string => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Idag';
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return 'Imorgon';
+    } else {
+      return date.toLocaleDateString('sv-SE', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+      });
+    }
+  };
+
+  for (const slot of freeSlots) {
+    if (remainingMinutes <= 0) break;
+
+    // How much can we fit in this slot?
+    const sessionMinutes = Math.min(
+      remainingMinutes,
+      slot.durationMinutes,
+      maxSessionMinutes
+    );
+
+    // Calculate end time for this session
+    const sessionEnd = new Date(slot.start.getTime() + sessionMinutes * 60 * 1000);
+
+    sessions.push({
+      start: slot.start,
+      end: sessionEnd,
+      durationMinutes: sessionMinutes,
+      day: formatDay(slot.start),
+    });
+
+    remainingMinutes -= sessionMinutes;
+  }
+
+  return {
+    sessions,
+    totalMinutes,
+    remainingMinutes,
+    isComplete: remainingMinutes <= 0,
+  };
+}
+
 // Calculate realistic deadline based on required hours and calendar
 export async function calculateRealisticDeadline(
   requiredHours: number,
@@ -336,5 +411,47 @@ export async function blockCalendarTime(
   } catch (error) {
     console.error('Failed to block calendar time:', error);
     return false;
+  }
+}
+
+// Block multiple sessions in calendar for a project
+export async function blockMultipleSessions(
+  sessions: WorkSession[],
+  taskTitle: string
+): Promise<{ success: boolean; bookedCount: number }> {
+  const client = await getGraphClient();
+  if (!client) return { success: false, bookedCount: 0 };
+
+  let bookedCount = 0;
+  const totalSessions = sessions.length;
+
+  try {
+    for (let i = 0; i < sessions.length; i++) {
+      const session = sessions[i];
+      const sessionLabel = totalSessions > 1 ? ` (Session ${i + 1}/${totalSessions})` : '';
+
+      await client.api('/me/calendar/events').post({
+        subject: `🎯 Fokus: ${taskTitle}${sessionLabel}`,
+        start: {
+          dateTime: session.start.toISOString(),
+          timeZone: 'Europe/Stockholm',
+        },
+        end: {
+          dateTime: session.end.toISOString(),
+          timeZone: 'Europe/Stockholm',
+        },
+        categories: ['Prio Focus'],
+        showAs: 'busy',
+        isReminderOn: true,
+        reminderMinutesBeforeStart: 15,
+      });
+
+      bookedCount++;
+    }
+
+    return { success: true, bookedCount };
+  } catch (error) {
+    console.error('Failed to block multiple sessions:', error);
+    return { success: bookedCount > 0, bookedCount };
   }
 }

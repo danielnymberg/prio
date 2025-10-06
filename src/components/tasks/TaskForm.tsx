@@ -2,7 +2,6 @@ import { useState, FormEvent, useEffect } from 'react';
 import { Task, CreateTaskInput, UpdateTaskInput } from '@/lib/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import { getTaskQuadrant, DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
@@ -38,6 +37,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
   // Auto-booking state
   const [showAutoBook, setShowAutoBook] = useState(false);
   const [freeSlots, setFreeSlots] = useState<FreeTimeSlot[]>([]);
+  const [autoBookDeadline, setAutoBookDeadline] = useState<Date | undefined>(undefined);
 
   // Konvertera ISO datetime till datum (YYYY-MM-DD) och timme
   const parseDeadline = (isoString: string | null): { date: string; hour: string } => {
@@ -127,6 +127,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
 
           if (slots.length > 0) {
             setFreeSlots(slots);
+            setAutoBookDeadline(endDate);
             setShowAutoBook(true);
             // Don't close main modal yet
             toast.success('Task skapad! Vill du boka tid?');
@@ -465,6 +466,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           taskTitle={title}
           durationMinutes={estimatedDuration || 60}
           freeSlots={freeSlots}
+          deadline={autoBookDeadline}
         />
       )}
     </Modal>
