@@ -37,13 +37,22 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'prio-backend
 app.post('/api/claude-chat', async (req, res) => {
   try {
     console.log('Claude chat request received');
-    console.log('Body:', JSON.stringify(req.body).substring(0, 200));
+    console.log('Body type:', typeof req.body);
+    console.log('Body keys:', Object.keys(req.body || {}));
+    console.log('Body:', JSON.stringify(req.body || {}).substring(0, 500));
 
-    const { messages, system, tools, max_tokens = 2000 } = req.body;
+    const { messages, system, tools, max_tokens = 2000 } = req.body || {};
 
     if (!messages || !Array.isArray(messages)) {
       console.error('Invalid request: messages not array');
-      return res.status(400).json({ error: 'Messages array required' });
+      console.error('messages value:', messages);
+      return res.status(400).json({
+        error: 'Messages array required',
+        debug: {
+          receivedBody: req.body,
+          messagesType: typeof messages
+        }
+      });
     }
 
     const response = await anthropic.messages.create({
