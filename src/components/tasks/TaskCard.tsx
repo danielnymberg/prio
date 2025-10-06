@@ -23,6 +23,9 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
+  // Detect touch devices to always show action buttons
+  const isTouchDevice = 'ontouchstart' in window;
+
   const {
     attributes,
     listeners,
@@ -149,7 +152,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, viewMode = 'com
       onMouseLeave={() => setShowActions(false)}
     >
       {/* Action buttons */}
-      <div className={`absolute top-2 right-2 flex gap-1 transition-opacity ${showActions ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`absolute top-2 right-2 flex gap-1 transition-opacity ${showActions || isTouchDevice ? 'opacity-100' : 'opacity-0'}`}>
         {onUpdate && !isEditingTitle && (
           <button
             onClick={handleTitleEdit}
