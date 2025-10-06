@@ -12,19 +12,15 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const AZURE_SPEECH_KEY = process.env.AZURE_SPEECH_KEY;
 const AZURE_SPEECH_REGION = process.env.AZURE_SPEECH_REGION || 'westeurope';
 
-if (!SPEECHMATICS_API_KEY) {
-  console.error('❌ SPEECHMATICS_API_KEY missing!');
-  process.exit(1);
-}
+// Validate environment variables but don't crash immediately
+const missingEnvVars = [];
+if (!SPEECHMATICS_API_KEY) missingEnvVars.push('SPEECHMATICS_API_KEY');
+if (!ANTHROPIC_API_KEY) missingEnvVars.push('ANTHROPIC_API_KEY');
+if (!AZURE_SPEECH_KEY) missingEnvVars.push('AZURE_SPEECH_KEY');
 
-if (!ANTHROPIC_API_KEY) {
-  console.error('❌ ANTHROPIC_API_KEY missing!');
-  process.exit(1);
-}
-
-if (!AZURE_SPEECH_KEY) {
-  console.error('❌ AZURE_SPEECH_KEY missing!');
-  process.exit(1);
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
+  console.error('⚠️  Server will start but some features will be unavailable');
 }
 
 // Initialize Claude client (server-side - SÄKERT!)
@@ -44,6 +40,11 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'prio-backend
 // Endpoint för Claude chat
 app.post('/api/claude-chat', async (req, res) => {
   try {
+    // Check if API key is available
+    if (!ANTHROPIC_API_KEY) {
+      return res.status(503).json({ error: 'Claude API not configured' });
+    }
+
     console.log('Claude chat request received');
     console.log('Body type:', typeof req.body);
     console.log('Body keys:', Object.keys(req.body || {}));
@@ -83,6 +84,11 @@ app.post('/api/claude-chat', async (req, res) => {
 // Endpoint för Azure TTS
 app.post('/api/azure-tts', async (req, res) => {
   try {
+    // Check if Azure API key is available
+    if (!AZURE_SPEECH_KEY) {
+      return res.status(503).json({ error: 'Azure Speech API not configured' });
+    }
+
     console.log('Azure TTS request received');
     const { text, voice = 'sv-SE-SofieNeural', format = 'audio-16khz-32kbitrate-mono-mp3' } = req.body || {};
 
@@ -253,3 +259,48 @@ wss.on('connection', (clientWs) => {
     }
   }
 });
+
+// WebSocket error handler for Speechmatics check
+wss.on('connection', (ws) => {
+  if (!SPEECHMATICS_API_KEY) {
+    console.error('⚠️  Speechmatics connection attempted but API key missing');
+    ws.close(1008, 'Speechmatics API not configured');
+  }
+});
+
+// Graceful shutdown handler
+const shutdown = (signal) => {
+  console.log(`\n${signal} received. Closing server gracefully...`);
+
+  server.close(() => {
+    console.log('✅ HTTP server closed');
+  });
+
+  wss.close(() => {
+    console.log('✅ WebSocket server closed');
+  });
+
+  // Force close after 10 seconds
+  setTimeout(() => {
+    console.error('⚠️  Forcing shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+// Handle uncaught errors to prevent crashes
+process.on('uncaughtException', (error) => {
+  console.error('❌ UNCAUGHT EXCEPTION:', error);
+  console.error('Stack:', error.stack);
+  // Don't exit - let the server continue running
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ UNHANDLED REJECTION at:', promise);
+  console.error('Reason:', reason);
+  // Don't exit - let the server continue running
+});
+
+console.log('✅ Server initialized with graceful shutdown handlers');
