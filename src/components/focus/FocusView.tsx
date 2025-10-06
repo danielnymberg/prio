@@ -38,14 +38,12 @@ export function FocusView() {
     return lastBriefing === today;
   };
 
-  // Check if morning briefing should be shown
+  // Check if morning briefing should be shown (run once on mount)
   useEffect(() => {
-    if (!context) return; // Wait for check-in first
-
-    if (isMorningTime() && !hasSeenBriefingToday() && !checkInData) {
+    if (isMorningTime() && !hasSeenBriefingToday()) {
       setShowMorningBriefing(true);
     }
-  }, [context, checkInData]);
+  }, []); // Run only once on mount
 
   // Hämta dagens check-in
   useEffect(() => {
@@ -146,6 +144,37 @@ export function FocusView() {
     setSkippedTaskIds(prev => [...prev, nextTask.id]);
     toast.success('Uppgift överhoppad - visar nästa');
   };
+
+  // Show morning briefing BEFORE check-in prompt
+  if (showMorningBriefing) {
+    return (
+      <>
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
+          <div className="max-w-2xl w-full">
+            <MorningBriefing
+              tasks={tasks}
+              onStartDay={() => {
+                localStorage.setItem('last_briefing_date', new Date().toDateString());
+                setShowMorningBriefing(false);
+                setIsCheckInOpen(true);
+              }}
+              onDismiss={() => {
+                localStorage.setItem('last_briefing_date', new Date().toDateString());
+                setShowMorningBriefing(false);
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Daily Check-In Modal */}
+        <DailyCheckInModal
+          isOpen={isCheckInOpen}
+          onClose={() => setIsCheckInOpen(false)}
+          onComplete={handleCheckInComplete}
+        />
+      </>
+    );
+  }
 
   if (!context) {
     return (
@@ -333,18 +362,6 @@ export function FocusView() {
 
       {/* Main Focus Card */}
       <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* Morning Briefing */}
-        {showMorningBriefing && (
-          <MorningBriefing
-            tasks={tasks}
-            onStartDay={() => setIsCheckInOpen(true)}
-            onDismiss={() => {
-              localStorage.setItem('last_briefing_date', new Date().toDateString());
-              setShowMorningBriefing(false);
-            }}
-          />
-        )}
-
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 border-4 border-blue-500 dark:border-blue-600">
           {/* Deadline Warnings */}
           {nextTask.deadline && (() => {
