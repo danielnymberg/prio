@@ -53,9 +53,23 @@ export function VoiceInterface() {
           console.error('Failed to fetch calendar events:', error);
         }
 
+        // Hämta projekt
+        let projects: any[] = [];
+        try {
+          const { supabase } = await import('@/lib/supabase');
+          const { data } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('user_id', user.id);
+          if (data) projects = data;
+        } catch (error) {
+          console.error('Failed to fetch projects:', error);
+        }
+
         claudeRef.current = new ClaudeConversation(
           {
             tasks,
+            projects,
             calendarEvents,
             recentFiles: [],
             userId: user.id,

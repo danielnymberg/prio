@@ -56,10 +56,24 @@ export function ShareHandler() {
         console.error('Failed to fetch calendar events:', error);
       }
 
+      // Hämta projekt
+      let projects: any[] = [];
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        const { data } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('user_id', user.id);
+        if (data) projects = data;
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      }
+
       // Create conversation with Claude
       const conversation = new ClaudeConversation(
         {
           tasks,
+          projects,
           calendarEvents,
           recentFiles: [],
           userId: user.id,

@@ -1,10 +1,11 @@
-import { Task, CreateTaskInput, UpdateTaskInput } from '@/lib/types';
+import { Task, CreateTaskInput, UpdateTaskInput, Project } from '@/lib/types';
 import { parseNaturalDateTime } from '@/lib/dateParser';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
 
 export interface ConversationContext {
   tasks: Task[];
+  projects: Project[];
   calendarEvents: any[];
   recentFiles: any[];
   conversationHistory: any[];
@@ -26,6 +27,7 @@ export class ClaudeConversation {
   ) {
     this.context = {
       tasks: initialContext.tasks || [],
+      projects: initialContext.projects || [],
       calendarEvents: initialContext.calendarEvents || [],
       recentFiles: initialContext.recentFiles || [],
       conversationHistory: initialContext.conversationHistory || [],
@@ -125,6 +127,8 @@ ${JSON.stringify({
   aktivaTasks: this.context.tasks.filter(t => t.status !== 'done').length,
   försenade: this.context.tasks.filter(t => t.deadline && new Date(t.deadline) < new Date()).length,
   inbox: this.context.tasks.filter(t => t.status === 'not_started' && !t.deadline && t.value_score === 5).length,
+  aktivaProjekt: this.context.projects.filter(p => p.status === 'active').length,
+  totalProjektBudget: this.context.projects.reduce((sum, p) => sum + (p.total_budget || 0), 0).toLocaleString('sv-SE') + ' kr',
   dagensKalender: this.context.calendarEvents.length + ' händelser',
 }, null, 2)}
 
@@ -510,6 +514,72 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
           required: ['name', 'quoted_hours', 'hourly_rate'],
         },
       },
+      {
+        name: 'list_projects',
+        description: 'Lista användarens projekt. Använd detta för att se befintliga projekt, söka efter projekt, eller svara på frågor om projekt.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            status: {
+              type: 'string',
+              enum: ['active', 'completed', 'archived', 'all'],
+              description: 'Filtrera på projektstatus (default: active)',
+            },
+            search: {
+              type: 'string',
+              description: 'Sök efter projektnamn eller klientnamn',
+            },
+          },
+        },
+      },
+      {
+        name: 'get_project',
+        description: 'Hämta detaljerad information om ett specifikt projekt.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            project_id: {
+              type: 'string',
+              description: 'ID på projektet att hämta',
+            },
+          },
+          required: ['project_id'],
+        },
+      },
+      {
+        name: 'update_project',
+        description: 'Uppdatera ett befintligt projekt (t.ex. ändra färdigställandegrad, status, deadline).',
+        input_schema: {
+          type: 'object',
+          properties: {
+            project_id: {
+              type: 'string',
+              description: 'ID på projektet att uppdatera',
+            },
+            changes: {
+              type: 'object',
+              properties: {
+                completion_percentage: {
+                  type: 'number',
+                  description: 'Färdigställandegrad 0-100%',
+                  minimum: 0,
+                  maximum: 100,
+                },
+                status: {
+                  type: 'string',
+                  enum: ['active', 'completed', 'archived'],
+                  description: 'Projektstatus',
+                },
+                project_deadline: {
+                  type: 'string',
+                  description: 'Ny deadline i ISO-format',
+                },
+              },
+            },
+          },
+          required: ['project_id', 'changes'],
+        },
+      },
     ];
   }
 
@@ -565,6 +635,21 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
               break;
             case 'create_project':
               result = await this.createProject(block.input as any);
+              break;
+            case 'list_projects':
+              result = await this.listProjects(
+                (block.input as any).status,
+                (block.input as any).search
+              );
+              break;
+            case 'get_project':
+              result = await this.getProject((block.input as any).project_id);
+              break;
+            case 'update_project':
+              result = await this.updateProject(
+                (block.input as any).project_id,
+                (block.input as any).changes
+              );
               break;
             default:
               result = { error: 'Unknown tool' };
@@ -907,6 +992,9 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
 
       if (error) throw error;
 
+      // Uppdatera local context
+      this.context.projects.push(data);
+
       return {
         success: true,
         project: data,
@@ -914,6 +1002,113 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte skapa projekt' };
+    }
+  }
+
+  private async listProjects(status?: string, search?: string) {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+
+      let query = supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', this.context.userId);
+
+      // Filter by status
+      if (status && status !== 'all') {
+        query = query.eq('status', status);
+      }
+
+      // Search in name or client_name
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,client_name.ilike.%${search}%`);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return {
+        success: true,
+        projects: data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          client_name: p.client_name,
+          status: p.status,
+          total_budget: p.total_budget.toLocaleString('sv-SE') + ' kr',
+          quoted_hours: p.quoted_hours + 'h',
+          completion_percentage: p.completion_percentage + '%',
+          deadline: p.project_deadline ? new Date(p.project_deadline).toLocaleDateString('sv-SE') : 'Ingen deadline',
+        })),
+        count: data.length,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte lista projekt' };
+    }
+  }
+
+  private async getProject(projectId: string) {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .eq('user_id', this.context.userId)
+        .single();
+
+      if (error) throw error;
+
+      return {
+        success: true,
+        project: {
+          id: data.id,
+          name: data.name,
+          client_name: data.client_name,
+          description: data.description,
+          status: data.status,
+          quoted_hours: data.quoted_hours,
+          hourly_rate: data.hourly_rate,
+          external_costs: data.external_costs,
+          total_budget: data.total_budget.toLocaleString('sv-SE') + ' kr',
+          completion_percentage: data.completion_percentage,
+          project_deadline: data.project_deadline ? new Date(data.project_deadline).toLocaleDateString('sv-SE') : null,
+          created_at: new Date(data.created_at).toLocaleDateString('sv-SE'),
+        },
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte hämta projekt' };
+    }
+  }
+
+  private async updateProject(projectId: string, changes: any) {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+
+      const { data, error } = await supabase
+        .from('projects')
+        .update(changes)
+        .eq('id', projectId)
+        .eq('user_id', this.context.userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Uppdatera local context
+      const index = this.context.projects.findIndex((p) => p.id === projectId);
+      if (index !== -1) {
+        this.context.projects[index] = data;
+      }
+
+      return {
+        success: true,
+        project: data,
+        message: `Projekt "${data.name}" uppdaterat!`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte uppdatera projekt' };
     }
   }
 }
