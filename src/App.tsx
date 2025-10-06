@@ -30,6 +30,7 @@ const BreakView = lazy(() => import('./components/focus/BreakView').then(m => ({
 const ResultImpactModal = lazy(() => import('./components/tasks/ResultImpactModal').then(m => ({ default: m.ResultImpactModal })));
 const ShareHandler = lazy(() => import('./components/share/ShareHandler').then(m => ({ default: m.ShareHandler })));
 const SettingsView = lazy(() => import('./components/settings/SettingsView').then(m => ({ default: m.SettingsView })));
+const ProjectsView = lazy(() => import('./components/projects/ProjectsView').then(m => ({ default: m.ProjectsView })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -364,6 +365,17 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <SettingsView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Projects */}
+        <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <ProjectsView />
               </Suspense>
             </ProtectedRoute>
           }

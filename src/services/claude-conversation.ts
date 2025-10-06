@@ -8,6 +8,7 @@ export interface ConversationContext {
   calendarEvents: any[];
   recentFiles: any[];
   conversationHistory: any[];
+  userId: string;
 }
 
 export class ClaudeConversation {
@@ -28,6 +29,7 @@ export class ClaudeConversation {
       calendarEvents: initialContext.calendarEvents || [],
       recentFiles: initialContext.recentFiles || [],
       conversationHistory: initialContext.conversationHistory || [],
+      userId: initialContext.userId || '',
     };
 
     this.onTaskCreate = callbacks?.onTaskCreate;
@@ -224,6 +226,16 @@ EXEMPEL PÅ SMART DEADLINE-FÖRSLAG:
 - User: "Jag har ett uppdrag som tar 32 timmar, när kan jag leverera?"
 - Du: [använder calculate_realistic_deadline med 32h]
 - Svar: "Baserat på din kalender har du 45h ledigt de kommande 14 dagarna. Med 20% buffert för oväntade tasks kan du realistiskt leverera senast [datum]. Vill du att jag bokar in fokustid?"
+
+PROJEKTHANTERING:
+När användaren vill skapa ett projekt:
+1. Extrahera: projektnamn, klient, timmar, timpris, övriga kostnader, deadline
+2. Använd create_project tool
+3. Bekräfta med: "Projekt skapat! Budget: [X] kr ([Y]h × [Z] kr/h + [Ö] kr övriga kostnader)"
+
+Exempel:
+- User: "Nytt projekt Wallenstam slutrapport, 40 timmar, 1950 per timme, 2000 i resor, deadline 1 december"
+- Du: [använder create_project] "Projekt skapat! Budget: 80 000 kr (40h × 1 950 kr/h + 2 000 kr övriga kostnader)"
 
 BEFINTLIGA TASKS:
 ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
@@ -460,6 +472,44 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
           },
         },
       },
+      {
+        name: 'create_project',
+        description: 'Skapar ett nytt projekt baserat på användarens beskrivning. Extraherar automatiskt: projektnamn, klient, offererade timmar, timpris, övriga kostnader, deadline.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              description: 'Projektets namn',
+            },
+            client_name: {
+              type: 'string',
+              description: 'Kundens/beställarens namn',
+            },
+            quoted_hours: {
+              type: 'number',
+              description: 'Offererade timmar för projektet',
+            },
+            hourly_rate: {
+              type: 'number',
+              description: 'Timpris i kronor',
+            },
+            external_costs: {
+              type: 'number',
+              description: 'Övriga kostnader (resor, externa tjänster) i kronor',
+            },
+            project_deadline: {
+              type: 'string',
+              description: 'Projektets deadline i ISO-format (YYYY-MM-DD)',
+            },
+            description: {
+              type: 'string',
+              description: 'Valfri projektbeskrivning',
+            },
+          },
+          required: ['name', 'quoted_hours', 'hourly_rate'],
+        },
+      },
     ];
   }
 
@@ -512,6 +562,9 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
               break;
             case 'get_daily_overview':
               result = await this.getDailyOverview((block.input as any).date);
+              break;
+            case 'create_project':
+              result = await this.createProject(block.input as any);
               break;
             default:
               result = { error: 'Unknown tool' };
@@ -835,6 +888,32 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte hämta dagsöversikt' };
+    }
+  }
+
+  private async createProject(input: any) {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+
+      const { data, error } = await supabase
+        .from('projects')
+        .insert({
+          ...input,
+          user_id: this.context.userId,
+          external_costs: input.external_costs || 0,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return {
+        success: true,
+        project: data,
+        message: `Projekt "${data.name}" skapat! Budget: ${data.total_budget.toLocaleString('sv-SE')} kr (${data.quoted_hours}h × ${data.hourly_rate} kr/h + ${data.external_costs} kr övriga kostnader)`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte skapa projekt' };
     }
   }
 }

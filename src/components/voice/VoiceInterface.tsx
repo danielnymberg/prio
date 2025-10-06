@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { useTasks } from '@/hooks/useTasks';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ConversationMessage {
   role: 'user' | 'assistant';
@@ -24,8 +25,11 @@ export function VoiceInterface() {
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { tasks, createTask, updateTask } = useTasks();
+  const { user } = useAuth();
 
   const initializeServices = async () => {
+    if (!user) return;
+
     try {
       // TTS borttagen - använder text-dialog istället för att undvika feedback loop
 
@@ -39,6 +43,7 @@ export function VoiceInterface() {
             tasks,
             calendarEvents: [],
             recentFiles: [],
+            userId: user.id,
           },
           {
             onTaskCreate: createTask,
@@ -152,7 +157,9 @@ export function VoiceInterface() {
   }, []);
 
   useEffect(() => {
-    initializeServices();
+    if (user) {
+      initializeServices();
+    }
 
     // Proper cleanup function
     return () => {
@@ -165,7 +172,7 @@ export function VoiceInterface() {
       sttRef.current = null;
       claudeRef.current = null;
     };
-  }, []);
+  }, [user, tasks]);
 
   // Listen for voice trigger events
   useEffect(() => {

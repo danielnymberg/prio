@@ -46,10 +46,33 @@ export interface Project {
   user_id: string;
   name: string;
   description: string | null;
+  client_name: string | null;
+
+  // Ekonomi
+  quoted_hours: number;
+  hourly_rate: number;
+  external_costs: number;
+  total_budget: number;
+
+  // Tidsspårning
+  project_deadline: string | null;
+  completion_percentage: number;
+
+  // Status
   color: string;
   status: ProjectStatus;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProjectMetrics {
+  quoted_hours: number;
+  logged_hours: number;
+  billable_hours_remaining: number;
+  estimated_remaining_hours: number;
+  is_over_budget: boolean;
+  budget_overage_hours: number;
+  total_overage_hours: number;
 }
 
 export interface CreateTaskInput {
@@ -86,6 +109,11 @@ export interface UpdateTaskInput {
 export interface CreateProjectInput {
   name: string;
   description?: string;
+  client_name?: string;
+  quoted_hours: number;
+  hourly_rate: number;
+  external_costs?: number;
+  project_deadline?: string;
   color?: string;
   status?: ProjectStatus;
 }
@@ -93,6 +121,12 @@ export interface CreateProjectInput {
 export interface UpdateProjectInput {
   name?: string;
   description?: string;
+  client_name?: string;
+  quoted_hours?: number;
+  hourly_rate?: number;
+  external_costs?: number;
+  project_deadline?: string;
+  completion_percentage?: number;
   color?: string;
   status?: ProjectStatus;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
+import { useAuth } from '@/contexts/AuthContext';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -9,15 +10,20 @@ export function ShareHandler() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { tasks, createTask } = useTasks();
+  const { user } = useAuth();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [message, setMessage] = useState('Analyserar delat innehåll...');
   const [createdTaskTitle, setCreatedTaskTitle] = useState('');
 
   useEffect(() => {
-    handleSharedContent();
-  }, []);
+    if (user) {
+      handleSharedContent();
+    }
+  }, [user]);
 
   const handleSharedContent = async () => {
+    if (!user) return;
+
     try {
       // Extract shared data from URL params or form data
       const title = searchParams.get('title') || '';
@@ -41,6 +47,7 @@ export function ShareHandler() {
           tasks,
           calendarEvents: [],
           recentFiles: [],
+          userId: user.id,
         },
         {
           onTaskCreate: createTask,

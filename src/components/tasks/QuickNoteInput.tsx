@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Plus, Zap, X, MessageSquare, Sparkles, Trash2 } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { ClaudeConversation } from '@/services/claude-conversation';
 
@@ -20,16 +21,18 @@ export function QuickNoteInput() {
   const [isProcessing, setIsProcessing] = useState(false);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const { tasks, createTask, updateTask } = useTasks();
+  const { user } = useAuth();
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize Claude
   useEffect(() => {
-    if (import.meta.env.VITE_ANTHROPIC_API_KEY && !claudeRef.current) {
+    if (import.meta.env.VITE_ANTHROPIC_API_KEY && !claudeRef.current && user) {
       claudeRef.current = new ClaudeConversation(
         {
           tasks,
           calendarEvents: [],
           recentFiles: [],
+          userId: user.id,
         },
         {
           onTaskCreate: createTask,
@@ -37,7 +40,7 @@ export function QuickNoteInput() {
         }
       );
     }
-  }, [tasks, createTask, updateTask]);
+  }, [tasks, createTask, updateTask, user]);
 
   // Auto-scroll chat
   useEffect(() => {
