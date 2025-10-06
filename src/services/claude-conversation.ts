@@ -202,6 +202,24 @@ När användaren frågar om deadlines baserat på tillgänglig tid:
 
 VIKTIGT: Om användaren INTE är inloggad på Microsoft, förklara att de behöver logga in i inställningar för att använda kalenderfunktioner.
 
+VIKTIGA KALENDERFUNKTIONER:
+- list_calendar_events: Visa vad som är bokat (ANVÄND ALLTID INNAN du bokar ny tid!)
+- get_daily_overview: Se dagens schema + tasks (för att svara på "vad har jag idag?")
+- analyze_calendar_capacity: Analysera lediga tider för längre projekt
+- block_calendar_time: Boka fokustid i kalendern
+- calculate_realistic_deadline: Beräkna realistisk deadline baserat på tillgänglig tid
+
+WORKFLOW FÖR KALENDERBOKNING (VIKTIGT!):
+1. ALLTID kolla befintliga bokningar med list_calendar_events INNAN du bokar ny tid
+2. Om det finns konflikt - informera användaren och föreslå alternativ tid
+3. Om det är klart - använd block_calendar_time
+4. Bekräfta med formaterad output inklusive datum, tid och tasknamn
+
+Exempel:
+- User: "Boka in presentationen kl 14 imorgon"
+- Du: [använder list_calendar_events för imorgon] → Ser möte 13-15
+- Svar: "⚠️ Du har redan ett möte 13:00-15:00 imorgon. Vill du boka efter mötet, kl 15:00 istället?"
+
 EXEMPEL PÅ SMART DEADLINE-FÖRSLAG:
 - User: "Jag har ett uppdrag som tar 32 timmar, när kan jag leverera?"
 - Du: [använder calculate_realistic_deadline med 32h]
@@ -409,6 +427,39 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
           required: ['natural_expression'],
         },
       },
+      {
+        name: 'list_calendar_events',
+        description: 'Visa användarens kalenderhändelser för ett datumintervall. ANVÄND DETTA INNAN du bokar ny tid för att undvika dubbelbokning!',
+        input_schema: {
+          type: 'object',
+          properties: {
+            start_date: {
+              type: 'string',
+              description: 'Startdatum (ISO format, t.ex. "2025-10-06")',
+            },
+            days_ahead: {
+              type: 'number',
+              description: 'Antal dagar framåt att visa (standard 1 för idag)',
+              minimum: 1,
+              maximum: 30,
+            },
+          },
+          required: ['start_date'],
+        },
+      },
+      {
+        name: 'get_daily_overview',
+        description: 'Ge en komplett översikt av dagens schema och tasks. Använd när användaren frågar "vad har jag idag?" eller "vad ska jag göra idag?"',
+        input_schema: {
+          type: 'object',
+          properties: {
+            date: {
+              type: 'string',
+              description: 'Datum (ISO format, default: idag)',
+            },
+          },
+        },
+      },
     ];
   }
 
@@ -452,6 +503,15 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
               break;
             case 'parse_natural_time':
               result = this.parseNaturalTime((block.input as any).natural_expression);
+              break;
+            case 'list_calendar_events':
+              result = await this.listCalendarEvents(
+                (block.input as any).start_date,
+                (block.input as any).days_ahead || 1
+              );
+              break;
+            case 'get_daily_overview':
+              result = await this.getDailyOverview((block.input as any).date);
               break;
             default:
               result = { error: 'Unknown tool' };
@@ -614,7 +674,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
 
   private async blockCalendarTime(startTime: string, durationMinutes: number, taskTitle: string) {
     try {
-      const { blockCalendarTime, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+      const { blockCalendarTime, getCalendarEvents, isMicrosoftLoggedIn } = await import('./microsoft-graph');
 
       const isLoggedIn = await isMicrosoftLoggedIn();
       if (!isLoggedIn) {
@@ -624,13 +684,40 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
         };
       }
 
-      const success = await blockCalendarTime(new Date(startTime), durationMinutes, taskTitle);
+      // ✨ NYTT: Kontrollera om tiden redan är bokad
+      const start = new Date(startTime);
+      const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+      const existingEvents = await getCalendarEvents(start, end);
+
+      if (existingEvents.length > 0) {
+        return {
+          warning: `⚠️ Det finns redan ${existingEvents.length} bokning(ar) under denna tid`,
+          conflicts: existingEvents.map((e) => ({
+            subject: e.subject,
+            start: new Date(e.start).toLocaleString('sv-SE'),
+            end: new Date(e.end).toLocaleString('sv-SE'),
+          })),
+          suggestion: 'Vill du ändå boka? (Då måste du bekräfta igen)',
+        };
+      }
+
+      const success = await blockCalendarTime(start, durationMinutes, taskTitle);
 
       if (success) {
+        const startFormatted = start.toLocaleDateString('sv-SE', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+        });
+        const timeFormatted = start.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+        const endTimeFormatted = end.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+        const hours = Math.floor(durationMinutes / 60);
+        const minutes = durationMinutes % 60;
+        const durationFormatted = hours > 0 ? `${hours}h${minutes > 0 ? ` ${minutes}min` : ''}` : `${minutes}min`;
+
         return {
           success: true,
-          message: `✅ Blockerat ${durationMinutes} min i kalendern för "${taskTitle}"`,
-          start: new Date(startTime).toLocaleString('sv-SE'),
+          message: `✅ Jag har bokat fokustid:\n📅 Datum: ${startFormatted}\n⏰ Tid: ${timeFormatted}-${endTimeFormatted} (${durationFormatted})\n📌 Task: ${taskTitle}\n\nKontrollera gärna din kalender för att se att tiden passar!`,
         };
       } else {
         return { error: 'Kunde inte blockera tid i kalendern' };
@@ -661,6 +748,93 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
         success: false,
         error: `Kunde inte tolka tidsuttrycket: "${naturalExpression}"`,
       };
+    }
+  }
+
+  private async listCalendarEvents(startDate: string, daysAhead: number = 1) {
+    try {
+      const { getCalendarEvents, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const start = new Date(startDate);
+      const end = new Date(start.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+
+      const events = await getCalendarEvents(start, end);
+
+      return {
+        events: events.map((e) => ({
+          subject: e.subject,
+          start: new Date(e.start).toLocaleString('sv-SE'),
+          end: new Date(e.end).toLocaleString('sv-SE'),
+          isAllDay: e.isAllDay,
+        })),
+        summary: `${events.length} händelser mellan ${start.toLocaleDateString('sv-SE')} och ${end.toLocaleDateString('sv-SE')}`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte hämta kalendern' };
+    }
+  }
+
+  private async getDailyOverview(date?: string) {
+    try {
+      const targetDate = date ? new Date(date) : new Date();
+      const startOfDay = new Date(targetDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(targetDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      // Get calendar events for the day
+      const { getCalendarEvents, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+      const isLoggedIn = await isMicrosoftLoggedIn();
+
+      let calendarEvents: any[] = [];
+      if (isLoggedIn) {
+        calendarEvents = await getCalendarEvents(startOfDay, endOfDay);
+      }
+
+      // Get tasks for the day (tasks with deadline today or high priority)
+      const tasksForToday = this.context.tasks.filter((t) => {
+        if (t.status === 'done') return false;
+
+        // Tasks with deadline today
+        if (t.deadline) {
+          const taskDeadline = new Date(t.deadline);
+          return taskDeadline >= startOfDay && taskDeadline <= endOfDay;
+        }
+
+        // High priority tasks without deadline
+        const priority = (t.value_score || 5) * (t.time_sensitivity || 5) * (t.confidence || 7) / (t.effort || 5);
+        return priority > 30; // Include high priority tasks
+      });
+
+      return {
+        date: targetDate.toLocaleDateString('sv-SE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+        calendar_events: calendarEvents.map((e) => ({
+          subject: e.subject,
+          start: new Date(e.start).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }),
+          end: new Date(e.end).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }),
+        })),
+        tasks_today: tasksForToday.map((t) => ({
+          title: t.title,
+          priority: Math.round((t.value_score || 5) * (t.time_sensitivity || 5) * (t.confidence || 7) / (t.effort || 5)),
+          deadline: t.deadline ? new Date(t.deadline).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) : null,
+          estimated_duration: t.estimated_duration ? `${Math.round(t.estimated_duration / 60)}h ${t.estimated_duration % 60}min` : null,
+        })),
+        summary: {
+          total_events: calendarEvents.length,
+          total_tasks: tasksForToday.length,
+          calendar_login: isLoggedIn,
+        },
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte hämta dagsöversikt' };
     }
   }
 }
