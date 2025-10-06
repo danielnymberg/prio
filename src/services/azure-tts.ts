@@ -1,73 +1,104 @@
-import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
 
 interface AzureTTSConfig {
-  subscriptionKey: string;
-  region: string; // 'westeurope' eller 'northeurope'
-  voice: string; // 'sv-SE-SofieNeural' (kvinna) eller 'sv-SE-MattiasNeural' (man)
+  voice?: string; // 'sv-SE-SofieNeural' (kvinna) eller 'sv-SE-MattiasNeural' (man)
+  format?: string; // 'audio-16khz-32kbitrate-mono-mp3', etc.
 }
 
 export class AzureTTS {
-  private synthesizer: sdk.SpeechSynthesizer;
-  private audioConfig: sdk.AudioConfig;
-  private speechConfig: sdk.SpeechConfig;
+  private voice: string;
+  private format: string;
+  private audioContext: AudioContext | null = null;
+  private currentSource: AudioBufferSourceNode | null = null;
 
-  constructor(config: AzureTTSConfig) {
-    this.speechConfig = sdk.SpeechConfig.fromSubscription(
-      config.subscriptionKey,
-      config.region
-    );
-
-    this.speechConfig.speechSynthesisVoiceName = config.voice;
-    this.speechConfig.speechSynthesisOutputFormat =
-      sdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3;
-
-    this.audioConfig = sdk.AudioConfig.fromDefaultSpeakerOutput();
-    this.synthesizer = new sdk.SpeechSynthesizer(this.speechConfig, this.audioConfig);
+  constructor(config: AzureTTSConfig = {}) {
+    this.voice = config.voice || 'sv-SE-SofieNeural';
+    this.format = config.format || 'audio-16khz-32kbitrate-mono-mp3';
   }
 
   async speak(text: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.synthesizer.speakTextAsync(
-        text,
-        result => {
-          if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-            resolve();
-          } else {
-            reject(new Error(`TTS failed: ${result.errorDetails}`));
-          }
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/azure-tts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        error => reject(error)
+        body: JSON.stringify({
+          text,
+          voice: this.voice,
+          format: this.format,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`TTS request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Decode base64 audio data
+      const audioData = Uint8Array.from(atob(data.audioData), c => c.charCodeAt(0));
+
+      // Play audio using Web Audio API
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+
+      const audioBuffer = await this.audioContext.decodeAudioData(audioData.buffer);
+
+      // Stop any currently playing audio
+      if (this.currentSource) {
+        this.currentSource.stop();
+      }
+
+      this.currentSource = this.audioContext.createBufferSource();
+      this.currentSource.buffer = audioBuffer;
+      this.currentSource.connect(this.audioContext.destination);
+
+      return new Promise<void>((resolve, reject) => {
+        if (!this.currentSource) {
+          reject(new Error('Audio source not initialized'));
+          return;
+        }
+
+        this.currentSource.onended = () => resolve();
+
+        // Add error handling
+        const handleError = () => reject(new Error('Audio playback failed'));
+        this.currentSource.addEventListener('error', handleError);
+
+        try {
+          this.currentSource.start();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    } catch (error) {
+      console.error('Azure TTS error:', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to synthesize speech'
       );
-    });
+    }
   }
 
   async speakSSML(ssml: string): Promise<void> {
-    // För mer naturlig prosodi
-    return new Promise((resolve, reject) => {
-      this.synthesizer.speakSsmlAsync(
-        ssml,
-        result => {
-          if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-            resolve();
-          } else {
-            reject(new Error(`TTS failed: ${result.errorDetails}`));
-          }
-        },
-        error => reject(error)
-      );
-    });
+    // For now, extract text from SSML and use speak()
+    // In the future, we can add SSML support to backend endpoint
+    const textContent = ssml.replace(/<[^>]*>/g, '');
+    return this.speak(textContent);
   }
 
   stop() {
-    // Properly cleanup all resources
-    if (this.synthesizer) {
-      this.synthesizer.close();
+    // Stop currently playing audio
+    if (this.currentSource) {
+      this.currentSource.stop();
+      this.currentSource = null;
     }
-    if (this.audioConfig) {
-      this.audioConfig.close();
-    }
-    if (this.speechConfig) {
-      this.speechConfig.close();
+
+    // Close audio context
+    if (this.audioContext) {
+      this.audioContext.close();
+      this.audioContext = null;
     }
   }
 }

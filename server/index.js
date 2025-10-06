@@ -2,12 +2,15 @@ import WebSocket, { WebSocketServer } from 'ws';
 import express from 'express';
 import cors from 'cors';
 import Anthropic from '@anthropic-ai/sdk';
+import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 const SPEECHMATICS_API_KEY = process.env.SPEECHMATICS_API_KEY;
 const SPEECHMATICS_WS_URL = 'wss://eu2.rt.speechmatics.com/v2';
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const AZURE_SPEECH_KEY = process.env.AZURE_SPEECH_KEY;
+const AZURE_SPEECH_REGION = process.env.AZURE_SPEECH_REGION || 'westeurope';
 
 if (!SPEECHMATICS_API_KEY) {
   console.error('❌ SPEECHMATICS_API_KEY missing!');
@@ -16,6 +19,11 @@ if (!SPEECHMATICS_API_KEY) {
 
 if (!ANTHROPIC_API_KEY) {
   console.error('❌ ANTHROPIC_API_KEY missing!');
+  process.exit(1);
+}
+
+if (!AZURE_SPEECH_KEY) {
+  console.error('❌ AZURE_SPEECH_KEY missing!');
   process.exit(1);
 }
 
@@ -68,6 +76,66 @@ app.post('/api/claude-chat', async (req, res) => {
     console.error('Claude API error:', error);
     res.status(500).json({
       error: error.message || 'Failed to communicate with Claude'
+    });
+  }
+});
+
+// Endpoint för Azure TTS
+app.post('/api/azure-tts', async (req, res) => {
+  try {
+    console.log('Azure TTS request received');
+    const { text, voice = 'sv-SE-SofieNeural', format = 'audio-16khz-32kbitrate-mono-mp3' } = req.body || {};
+
+    if (!text || typeof text !== 'string') {
+      return res.status(400).json({ error: 'Text string required' });
+    }
+
+    // Create speech config
+    const speechConfig = sdk.SpeechConfig.fromSubscription(AZURE_SPEECH_KEY, AZURE_SPEECH_REGION);
+    speechConfig.speechSynthesisVoiceName = voice;
+
+    // Map format string to SDK format
+    const formatMap = {
+      'audio-16khz-32kbitrate-mono-mp3': sdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3,
+      'audio-24khz-48kbitrate-mono-mp3': sdk.SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3,
+      'raw-16khz-16bit-mono-pcm': sdk.SpeechSynthesisOutputFormat.Raw16Khz16BitMonoPcm,
+    };
+    speechConfig.speechSynthesisOutputFormat = formatMap[format] || formatMap['audio-16khz-32kbitrate-mono-mp3'];
+
+    // Use pull stream to get audio data
+    const synthesizer = new sdk.SpeechSynthesizer(speechConfig, null);
+
+    const result = await new Promise((resolve, reject) => {
+      synthesizer.speakTextAsync(
+        text,
+        result => {
+          if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
+            resolve(result);
+          } else {
+            reject(new Error(`TTS failed: ${result.errorDetails}`));
+          }
+          synthesizer.close();
+        },
+        error => {
+          synthesizer.close();
+          reject(error);
+        }
+      );
+    });
+
+    // Send audio data as base64
+    const audioData = Buffer.from(result.audioData).toString('base64');
+
+    res.json({
+      success: true,
+      audioData,
+      format,
+      voice,
+    });
+  } catch (error) {
+    console.error('Azure TTS error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to synthesize speech'
     });
   }
 });
