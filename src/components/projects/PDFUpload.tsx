@@ -98,12 +98,34 @@ VIKTIGT:
         }),
       });
 
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
+        console.error('API error response:', responseText);
         throw new Error('Kunde inte analysera PDF');
       }
 
-      const data = await response.json();
+      if (!responseText) {
+        throw new Error('Tomt API-svar');
+      }
+
+      const data = JSON.parse(responseText);
+      console.log('API response:', data);
+
+      // Check if response has expected structure
+      if (!data.content || !Array.isArray(data.content) || data.content.length === 0) {
+        console.error('Invalid API response structure:', data);
+        throw new Error('Ogiltigt API-svar');
+      }
+
       const contentText = data.content[0].text;
+      if (!contentText) {
+        console.error('No text in response:', data.content[0]);
+        throw new Error('Inget textsvar från API');
+      }
 
       // Parse JSON från Claude's svar (ta bort eventuella markdown-backticks)
       let cleanedText = contentText.trim();
