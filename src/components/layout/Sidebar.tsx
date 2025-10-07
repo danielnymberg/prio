@@ -24,7 +24,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const inboxTasks = tasks.filter(t =>
     t.status === 'not_started' &&
     !t.deadline &&
-    (t.value_score === 5 && t.time_sensitivity === 5)
+    (t.value_score === 8 && t.time_sensitivity === 5)
   );
 
   const navItems = [

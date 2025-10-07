@@ -1,3 +1,31 @@
+/**
+ * FOCUS ALGORITHM V2.0 - CPM + Priority Flags
+ *
+ * Forskningsbaserat prioriteringssystem:
+ * - CPM (Consequence-Priority Model): (Value × Time × Confidence) / Effort
+ * - "Mere Urgency Effect" (Zhu et al. 2018): Undvik falsk brådska
+ * - "Smaller Tasks Trap": Gör viktiga uppgifter först
+ *
+ * Priority Flags-systemet:
+ * - ASAP: Viktigt, gör snart (+50% för tasks utan deadline)
+ * - Whenever: Normal prioritering (1.0x)
+ * - Someday: Backlog, låg prio (-30%)
+ *
+ * Deadline-hantering:
+ * - Extern deadline måste hålla (multiplier 2-6x baserat på arbetstid kvar)
+ * - Arbetstimmar används istället för klocktimmar
+ *
+ * Stress Mode (≥3 försenade tasks):
+ * - Stänger av luxury bonusar (energy-match, time-fit, strategy)
+ * - Fokuserar på att bli klar med försenat
+ *
+ * Effort Sequence Boost:
+ * - +30% för svåra tasks (effort≥7) utan deadline
+ * - Förhindrar prokrastinering av krävande uppgifter
+ *
+ * Version: 2.0 (Optimerad 2025-10-07)
+ */
+
 import { Task, UserContext } from './types';
 import { calculateWorkingHoursUntil, canFinishBeforeDeadline } from './workingHours';
 
@@ -62,6 +90,18 @@ export function calculateDynamicPriority(
   const E = task.effort;
   const basePriority = (V * T * C) / E;
 
+  // STRESS MODE: Stäng av luxury-bonusar när det är kris
+  const overdueTasks = allTasks.filter(t =>
+    t.status !== 'done' &&
+    t.deadline &&
+    new Date(t.deadline) < now
+  );
+  const isStressMode = overdueTasks.length >= 3;
+
+  if (isStressMode) {
+    console.log(`🚨 STRESS MODE aktiverat: ${overdueTasks.length} försenade tasks`);
+  }
+
   // 1. DEADLINE MULTIPLIER (baserat på ARBETSTIMMAR, inte klocktimmar)
   let deadlineMultiplier = 1.0;
   if (task.deadline) {
@@ -100,7 +140,31 @@ export function calculateDynamicPriority(
     }
   }
 
-  // 2. DEPENDENCY MULTIPLIER (blockerar denna task andra viktiga tasks?)
+  // 2. PRIORITY FLAG MULTIPLIER (för tasks utan deadline)
+  let flagMultiplier = 1.0;
+
+  if (!task.deadline) {
+    // Tasks utan deadline använder priority_flag
+    switch (task.priority_flag) {
+      case 'asap':
+        flagMultiplier = 1.5;  // +50% - viktigt, gör snart!
+        console.log(`🎯 ASAP boost för "${task.title}"`);
+        break;
+      case 'whenever':
+        flagMultiplier = 1.0;  // Normal prio
+        break;
+      case 'someday':
+        flagMultiplier = 0.7;  // -30% - backlog
+        break;
+      default:
+        flagMultiplier = 1.0;  // Om inte satt, normal prio
+    }
+  } else {
+    // Tasks med deadline använder redan deadline multiplier
+    flagMultiplier = 1.0;
+  }
+
+  // 3. DEPENDENCY MULTIPLIER (blockerar denna task andra viktiga tasks?)
   const blocksCount = task.blocks_task_ids?.length || 0;
   const blockedTasks = allTasks.filter(t =>
     task.blocks_task_ids?.includes(t.id) && t.status !== 'done'
@@ -110,30 +174,45 @@ export function calculateDynamicPriority(
   const dependencyMultiplier = 1 + (blocksCount * 0.2) + (blockedHighPriorityCount * 0.5);
   // +20% per blockerad task, +50% om den är high-priority
 
-  // 3. TIME-FIT BONUS (passar uppgiften i nästa block?)
-  const fitsInBlock = task.estimated_duration
-    ? task.estimated_duration <= context.nextBlockDuration
-    : true;
-  const timeFitBonus = fitsInBlock ? 1.2 : 0.8;  // +20% om passar, -20% om ej
-
-  // 4. STRATEGY BONUS (användaren valde "quick wins" eller "deep work")
-  let strategyBonus = 1.0;
-  if (context.strategy === 'quick_wins' && task.estimated_duration && task.estimated_duration < 45) {
-    strategyBonus = 1.15;  // +15% för korta uppgifter
-  } else if (context.strategy === 'deep_work' && task.estimated_duration && task.estimated_duration > 90) {
-    strategyBonus = 1.15;  // +15% för långa uppgifter
+  // 4. TIME-FIT BONUS (passar uppgiften i nästa block?) - INAKTIVERAS I STRESS MODE
+  let timeFitBonus = 1.0;
+  if (!isStressMode) {
+    const fitsInBlock = task.estimated_duration
+      ? task.estimated_duration <= context.nextBlockDuration
+      : true;
+    timeFitBonus = fitsInBlock ? 1.2 : 0.8;
   }
 
-  // 5. ENERGY-MATCH BONUS (matchar uppgiften energinivån?)
+  // 5. STRATEGY BONUS (quick wins/deep work) - INAKTIVERAS I STRESS MODE
+  let strategyBonus = 1.0;
+  if (!isStressMode) {
+    if (context.strategy === 'quick_wins' && task.estimated_duration && task.estimated_duration < 45) {
+      strategyBonus = 1.15;  // +15% för korta uppgifter
+    } else if (context.strategy === 'deep_work' && task.estimated_duration && task.estimated_duration > 90) {
+      strategyBonus = 1.15;  // +15% för långa uppgifter
+    }
+  }
+
+  // 6. ENERGY-MATCH BONUS - INAKTIVERAS I STRESS MODE
   let energyBonus = 1.0;
-  if (context.energyLevel === 'low' && task.effort <= 4) {
-    energyBonus = 1.1;  // +10% för lätta uppgifter när energi är låg
-  } else if (context.energyLevel === 'high' && task.effort >= 7) {
-    energyBonus = 1.1;  // +10% för tunga uppgifter när energi är hög
+  if (!isStressMode) {
+    if (context.energyLevel === 'low' && task.effort <= 4) {
+      energyBonus = 1.1;  // +10% för lätta uppgifter när energi är låg
+    } else if (context.energyLevel === 'high' && task.effort >= 7) {
+      energyBonus = 1.1;  // +10% för tunga uppgifter när energi är hög
+    }
+  }
+
+  // 7. EFFORT SEQUENCE BOOST (förhindra prokrastinering av svåra tasks)
+  // Forskning: "Start the hardest task first" - gör svåra uppgifter tidigt
+  let effortBoost = 1.0;
+  if (task.effort >= 7 && !task.deadline && !isStressMode) {
+    effortBoost = 1.3;  // +30% för krävande tasks utan deadline
+    console.log(`⚠️ Effort boost för "${task.title}" - Gör innan energin tar slut!`);
   }
 
   // FINAL SCORE
-  return basePriority * deadlineMultiplier * dependencyMultiplier * timeFitBonus * strategyBonus * energyBonus;
+  return basePriority * deadlineMultiplier * flagMultiplier * dependencyMultiplier * timeFitBonus * strategyBonus * energyBonus * effortBoost;
 }
 
 /**

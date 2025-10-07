@@ -7,6 +7,9 @@ export type ProjectStatus = 'active' | 'archived' | 'completed';
 export type EnergyLevel = 'low' | 'medium' | 'high';
 export type FocusStrategy = 'quick_wins' | 'deep_work' | 'balanced';
 
+// Priority Flag - för tasks utan deadline
+export type PriorityFlag = 'asap' | 'whenever' | 'someday';
+
 export interface Task {
   id: string;
   user_id: string;
@@ -19,6 +22,9 @@ export interface Task {
   confidence: number;            // 1-10: Sannolikhet för resultat
   effort: number;                // 1-10: Faktisk tid/resurser
   priority: number;              // Beräknat: (V × T × C) / E
+
+  // Priority Flag för tasks utan deadline
+  priority_flag: PriorityFlag | null;  // null = använd deadline eller default
 
   // Legacy fields (behåll för bakåtkompatibilitet)
   importance?: number;           // Deprecated
@@ -84,6 +90,7 @@ export interface CreateTaskInput {
   effort: number;
   blocks_task_ids?: string[];
   deadline?: string;
+  priority_flag?: PriorityFlag | null;
   status?: TaskStatus;
   project_id?: string;
   estimated_duration?: number;
@@ -100,6 +107,7 @@ export interface UpdateTaskInput {
   blocked_by_task_ids?: string[];
   result_impact?: number;
   deadline?: string;
+  priority_flag?: PriorityFlag | null;
   status?: TaskStatus;
   project_id?: string;
   estimated_duration?: number;

@@ -13,11 +13,11 @@ export function InboxView() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
 
-  // Inbox = tasks med status 'not_started' OCH låg bedömning (värde+tidskänslighet = default 5)
+  // Inbox = tasks med status 'not_started' OCH låg bedömning (värde+tidskänslighet = default)
   const inboxTasks = tasks.filter(t =>
     t.status === 'not_started' &&
     !t.deadline && // Ingen deadline = behöver bedömning
-    (t.value_score === 5 && t.time_sensitivity === 5) // Default-värden = ej bedömd
+    (t.value_score === 8 && t.time_sensitivity === 5) // Default-värden = ej bedömd
   );
 
   const handleTaskClick = (task: Task) => {

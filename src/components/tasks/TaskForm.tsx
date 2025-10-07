@@ -1,8 +1,8 @@
 import { useState, FormEvent, useEffect } from 'react';
-import { Task, CreateTaskInput, UpdateTaskInput, Project } from '@/lib/types';
+import { Task, CreateTaskInput, UpdateTaskInput, Project, PriorityFlag } from '@/lib/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
-import { getTaskQuadrant, DURATION_PRESETS, formatDuration } from '@/lib/utils';
+import { DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { AutoBookModal } from './AutoBookModal';
@@ -37,6 +37,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [priorityFlag, setPriorityFlag] = useState<PriorityFlag>('whenever');
 
   // Projects state
   const [projects, setProjects] = useState<Project[]>([]);
@@ -92,6 +93,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       setStatus(task.status);
       setEstimatedDuration(task.estimated_duration);
       setProjectId(task.project_id || null);
+      setPriorityFlag(task.priority_flag || 'whenever');
     } else {
       setTitle('');
       setDescription('');
@@ -105,6 +107,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       setStatus('not_started');
       setEstimatedDuration(null);
       setProjectId(null);
+      setPriorityFlag('whenever');
     }
   }, [task, isOpen]);
 
@@ -129,6 +132,10 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       // Bygg deadline från datum + timme
       if (deadlineDate) {
         input.deadline = `${deadlineDate}T${deadlineHour}:00:00`;
+        input.priority_flag = null; // Tasks med deadline får inte priority_flag
+      } else {
+        // Tasks utan deadline använder priority_flag
+        input.priority_flag = priorityFlag;
       }
 
       if (estimatedDuration) input.estimated_duration = estimatedDuration;
@@ -178,17 +185,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
 
   // Calculate priority preview
   const priorityPreview = (valueScore * timeSensitivity * confidence) / effort;
-  const mockTask = { importance: valueScore, urgency: timeSensitivity } as Task;
-  const quadrant = getTaskQuadrant(mockTask);
-
-  const quadrantInfo = {
-    Q1: { label: 'Q1: Viktigt + Brådskande', color: 'text-red-600 dark:text-red-400', emoji: '🔥' },
-    Q2: { label: 'Q2: Viktigt + Ej Brådskande', color: 'text-green-600 dark:text-green-400', emoji: '🎯' },
-    Q3: { label: 'Q3: Ej Viktigt + Brådskande', color: 'text-amber-600 dark:text-amber-400', emoji: '⚡' },
-    Q4: { label: 'Q4: Ej Viktigt + Ej Brådskande', color: 'text-gray-600 dark:text-gray-400', emoji: '📦' },
-  };
-
-  const info = quadrantInfo[quadrant];
 
   return (
     <Modal
@@ -356,11 +352,26 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           </div>
         </div>
 
-        <div className={`p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border-2 ${info.color.replace('text-', 'border-')}`}>
-          <p className={`text-sm font-medium ${info.color}`}>
-            {info.emoji} Denna task kommer hamna i {info.label}
-          </p>
-        </div>
+        {/* Priority Flag - visas ENDAST om ingen deadline är satt */}
+        {!deadlineDate && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Prioritetsnivå (för tasks utan deadline)
+            </label>
+            <select
+              value={priorityFlag}
+              onChange={(e) => setPriorityFlag(e.target.value as PriorityFlag)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            >
+              <option value="asap">🎯 ASAP - Gör så snart möjligt (+50% prio)</option>
+              <option value="whenever">📅 När det passar (normal prio)</option>
+              <option value="someday">💭 Någon gång i framtiden (-30% prio)</option>
+            </select>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+              💡 Styr hur viktiga tasks utan deadline prioriteras
+            </p>
+          </div>
+        )}
 
         <div className="space-y-4">
           <div className="flex items-center gap-2">

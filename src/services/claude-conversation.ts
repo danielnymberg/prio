@@ -174,10 +174,11 @@ När användaren ber dig skapa en task, använd följande logik:
    ❌ Komplex/lång task utan tydlig plan
 
    → Använd DEFAULT-VÄRDEN:
-   - value_score: 5
-   - time_sensitivity: 5
-   - confidence: 5
-   - effort: 5
+   - value_score: 8       // Ändrat från 5 - inbox-tasks är vanligtvis viktiga
+   - time_sensitivity: 5  // Behåll 5 - ingen deadline
+   - confidence: 8        // Ändrat från 5 - de flesta tasks ger verkligt värde
+   - effort: 5            // Behåll 5
+   - priority_flag: 'whenever'  // Default för tasks utan deadline
    - deadline: null
 
 4. AUTOMATISK KALENDERBOKNING (VIKTIGT!)
@@ -326,7 +327,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
             },
             value_score: {
               type: 'number',
-              description: '1-10: Objektiva konsekvenser om det INTE görs. Använd 5 som default för inbox.',
+              description: '1-10: Objektiva konsekvenser om det INTE görs. Använd 8 som default för inbox.',
               minimum: 1,
               maximum: 10,
             },
@@ -338,7 +339,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
             },
             confidence: {
               type: 'number',
-              description: '1-10: Säkerhet i bedömningen. Använd 5 som default för inbox.',
+              description: '1-10: Säkerhet i bedömningen. Använd 8 som default för inbox.',
               minimum: 1,
               maximum: 10,
             },
@@ -351,6 +352,11 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
             deadline: {
               type: 'string',
               description: 'ISO date (YYYY-MM-DD) eller datetime. Endast om användaren nämner specifik tid. Annars null.',
+            },
+            priority_flag: {
+              type: 'string',
+              enum: ['asap', 'whenever', 'someday'],
+              description: 'För tasks utan deadline: asap (gör snart! +50% prio), whenever (när det passar), someday (backlog -30%). Används INTE om deadline finns.',
             },
             estimated_duration: {
               type: 'number',
