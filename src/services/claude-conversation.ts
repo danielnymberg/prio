@@ -116,11 +116,15 @@ export class ClaudeConversation {
   }
 
   private buildSystemPrompt(): string {
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const swedenTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
+    const today = swedenTime.toISOString().split('T')[0];
+    const currentTime = swedenTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Stockholm' });
 
     return `Du är en svensk AI-assistent integrerad i Prio, en CPM-baserad prioriterings-app.
 
 DAGENS DATUM: ${today}
+AKTUELL TID (Sverige): ${currentTime}
 
 ANVÄNDARENS KONTEXT:
 ${JSON.stringify({
