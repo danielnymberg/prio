@@ -360,6 +360,50 @@ export function FocusView() {
         </div>
       </div>
 
+      {/* Quickies Section - Tasks <= 2 min */}
+      {(() => {
+        const quickies = tasks.filter(t =>
+          t.status !== 'done' &&
+          t.estimated_duration &&
+          t.estimated_duration <= 2
+        );
+
+        if (quickies.length === 0) return null;
+
+        return (
+          <div className="max-w-4xl mx-auto px-6 pt-6">
+            <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-500 dark:border-green-600 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">⚡</span>
+                <h3 className="text-lg font-bold text-green-900 dark:text-green-100">
+                  Quickies ({quickies.length}) - Gör direkt!
+                </h3>
+              </div>
+              <p className="text-sm text-green-800 dark:text-green-200 mb-3">
+                💡 Tasks som tar ≤ 2 min - knock them out first!
+              </p>
+              <div className="space-y-2">
+                {quickies.map(task => (
+                  <div
+                    key={task.id}
+                    className="bg-white dark:bg-gray-800 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => navigate(`/session/${task.id}`)}
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">{task.title}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {formatDuration(task.estimated_duration)}
+                      </p>
+                    </div>
+                    <Play className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Main Focus Card */}
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 border-4 border-copper-500 dark:border-copper-600">

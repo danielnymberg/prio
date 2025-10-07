@@ -108,7 +108,8 @@ export function formatDuration(minutes: number | null | undefined): string {
 export function getDurationColor(minutes: number | null | undefined): string {
   if (!minutes) return 'text-gray-500';
 
-  if (minutes <= 15) return 'text-green-600'; // Quick tasks
+  if (minutes <= 2) return 'text-green-600'; // Quickies
+  if (minutes <= 15) return 'text-blue-600'; // Quick tasks
   if (minutes <= 60) return 'text-copper-600';  // Short tasks
   if (minutes <= 240) return 'text-amber-600'; // Medium tasks
   return 'text-red-600'; // Long tasks
@@ -117,18 +118,19 @@ export function getDurationColor(minutes: number | null | undefined): string {
 export function getDurationIcon(minutes: number | null | undefined): string {
   if (!minutes) return '⏱️';
 
-  if (minutes <= 15) return '⚡'; // Quick
-  if (minutes <= 60) return '🔵'; // Short
+  if (minutes <= 2) return '⚡'; // Quickie
+  if (minutes <= 15) return '🔵'; // Quick
+  if (minutes <= 60) return '🟢'; // Short
   if (minutes <= 240) return '🟡'; // Medium
   return '🔴'; // Long
 }
 
 // Duration presets for quick selection
 export const DURATION_PRESETS = [
-  { label: '5 min', value: 5, icon: '⚡', description: 'Snabbt' },
-  { label: '15 min', value: 15, icon: '⚡', description: 'Kvick uppgift' },
-  { label: '30 min', value: 30, icon: '🔵', description: 'Kort session' },
-  { label: '1h', value: 60, icon: '🔵', description: 'En timme' },
+  { label: '2 min', value: 2, icon: '⚡', description: 'Quickie - gör direkt!' },
+  { label: '15 min', value: 15, icon: '🔵', description: 'Kvick uppgift' },
+  { label: '30 min', value: 30, icon: '🟢', description: 'Kort session' },
+  { label: '1h', value: 60, icon: '🟢', description: 'En timme' },
   { label: '2h', value: 120, icon: '🟡', description: 'Längre session' },
   { label: '4h', value: 240, icon: '🟡', description: 'Halv dag' },
   { label: '8h', value: 480, icon: '🔴', description: 'Hel dag' },
