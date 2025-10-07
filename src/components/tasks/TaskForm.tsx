@@ -109,7 +109,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       setProjectId(null);
       setPriorityFlag('whenever');
     }
-  }, [task, isOpen]);
+  }, [task]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
