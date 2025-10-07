@@ -135,6 +135,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         input.priority_flag = null; // Tasks med deadline får inte priority_flag
       } else {
         // Tasks utan deadline använder priority_flag
+        input.deadline = null; // Sätt explicit null för att ta bort deadline
         input.priority_flag = priorityFlag;
       }
 
