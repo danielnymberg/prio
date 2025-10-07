@@ -477,6 +477,17 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 <option value="18">18:00</option>
                 <option value="21">21:00</option>
               </select>
+
+              {/* Rensa deadline-knapp */}
+              {deadlineDate && (
+                <button
+                  type="button"
+                  onClick={() => setDeadlineDate('')}
+                  className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-1"
+                >
+                  ❌ Ta bort deadline
+                </button>
+              )}
             </div>
           </div>
         </div>
