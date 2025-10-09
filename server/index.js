@@ -49,6 +49,7 @@ if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
 const allowedOrigins = [
   'https://minprio.se',
   'https://www.minprio.se',
+  'https://prio-mr9r.onrender.com', // Render frontend
   'http://localhost:5173',
   'http://localhost:5174',
 ];
