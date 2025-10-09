@@ -160,7 +160,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {children}
       {/* Email task listener (realtime) */}
       <EmailTaskListener />
-      {/* Quick note input (has both text and voice) */}
+      {/* Voice AI assistant */}
+      <VoiceInterface />
+      {/* Quick note input */}
       <QuickNoteInput />
       {/* Quick capture bar för mobil */}
       <QuickCaptureBar />
