@@ -223,6 +223,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
       {showWelcomeModal && (
         <WelcomeModal
+          isOpen={showWelcomeModal}
+          onComplete={() => setShowWelcomeModal(false)}
           onClose={() => setShowWelcomeModal(false)}
           onConnectMicrosoft={handleConnectMicrosoft}
           onSkip={handleSkipMicrosoft}

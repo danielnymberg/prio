@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -13,7 +15,8 @@ export function CalendarWithTaskSidebar() {
   );
 
   return (
-    <div className="flex h-full gap-4 relative">
+    <DndProvider backend={HTML5Backend}>
+      <div className="flex h-full gap-4 relative">
       {/* Sidebar med tasks */}
       <div
         className={`transition-all duration-300 ${
@@ -93,5 +96,6 @@ export function CalendarWithTaskSidebar() {
         <WeekCalendarView />
       </div>
     </div>
+    </DndProvider>
   );
 }

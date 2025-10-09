@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar';
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { format, parse, startOfWeek, getDay, addHours } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { useTasks } from '@/hooks/useTasks';
 import {
   getCalendarEvents,
@@ -27,6 +29,9 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
+
+// Skapa DnD-aktiverad Calendar komponent
+const DnDCalendar = withDragAndDrop(Calendar);
 
 // Event types för färgkodning
 type EventType = 'meeting' | 'focus' | 'task' | 'free';
@@ -334,7 +339,7 @@ export function WeekCalendarView() {
 
       {/* Calendar */}
       <div className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container">
-        <Calendar
+        <DnDCalendar
           localizer={localizer}
           events={events}
           startAccessor="start"
