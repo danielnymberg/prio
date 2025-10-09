@@ -560,57 +560,6 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* Voice AI Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          Röst-assistent
-        </h2>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
-          AI-driven röstassistent med Speechmatics (STT) och Azure TTS.
-        </p>
-
-        <div className="space-y-3 text-sm">
-          <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-            <span className="text-gray-700 dark:text-gray-300">Claude AI</span>
-            <span className={`px-2 py-1 rounded text-xs font-medium ${
-              import.meta.env.VITE_ANTHROPIC_API_KEY
-                ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-            }`}>
-              {import.meta.env.VITE_ANTHROPIC_API_KEY ? '✓ Konfigurerad' : '✗ Saknas'}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-            <span className="text-gray-700 dark:text-gray-300">Speechmatics (Röst → Text)</span>
-            <span className={`px-2 py-1 rounded text-xs font-medium ${
-              import.meta.env.VITE_SPEECHMATICS_KEY
-                ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-            }`}>
-              {import.meta.env.VITE_SPEECHMATICS_KEY ? '✓ Konfigurerad' : '✗ Saknas'}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between py-2">
-            <span className="text-gray-700 dark:text-gray-300">Azure TTS (Text → Röst)</span>
-            <span className={`px-2 py-1 rounded text-xs font-medium ${
-              import.meta.env.VITE_AZURE_SPEECH_KEY
-                ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                : 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-            }`}>
-              {import.meta.env.VITE_AZURE_SPEECH_KEY ? '✓ Konfigurerad' : '✗ Saknas'}
-            </span>
-          </div>
-        </div>
-
-        {(!import.meta.env.VITE_ANTHROPIC_API_KEY || !import.meta.env.VITE_SPEECHMATICS_KEY) && (
-          <p className="text-xs text-amber-600 dark:text-amber-400 mt-3">
-            ⚠️ Röstassistenten kräver API-nycklar. Kontakta admin eller lägg till i .env.local
-          </p>
-        )}
-      </div>
-
 
       {/* App Information */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
