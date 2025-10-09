@@ -86,11 +86,12 @@ export function WeekCalendarView() {
         .filter((task) => task.deadline && task.status !== 'done')
         .map((task) => {
           const deadline = new Date(task.deadline!);
+          const durationMinutes = task.estimated_duration || 30; // Använd task's duration, fallback 30 min
           return {
             id: `task-${task.id}`,
             title: `📌 ${task.title}`,
             start: deadline,
-            end: new Date(deadline.getTime() + 30 * 60 * 1000), // 30 min default
+            end: new Date(deadline.getTime() + durationMinutes * 60 * 1000),
             backgroundColor: '#dc2626',
             borderColor: '#991b1b',
             editable: true,
