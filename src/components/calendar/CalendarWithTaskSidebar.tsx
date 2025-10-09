@@ -43,7 +43,17 @@ export function CalendarWithTaskSidebar() {
                 {unscheduledTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700"
+                    draggable
+                    data-taskid={task.id}
+                    data-tasktitle={task.title}
+                    data-taskduration={task.estimated_duration || 60}
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('taskId', task.id);
+                      e.dataTransfer.setData('taskTitle', task.title);
+                      e.dataTransfer.setData('taskDuration', String(task.estimated_duration || 60));
+                      e.dataTransfer.effectAllowed = 'move';
+                    }}
+                    className="bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700 cursor-move hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">

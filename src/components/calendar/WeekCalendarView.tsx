@@ -114,6 +114,27 @@ export function WeekCalendarView() {
     loadCalendarData();
   }, [loadCalendarData]);
 
+  // Custom event content renderer (titel först, sedan tid)
+  const renderEventContent = (eventInfo: any) => {
+    const timeText = eventInfo.timeText;
+    const title = eventInfo.event.title;
+
+    return (
+      <div className="fc-event-main-frame px-1 overflow-hidden">
+        <div className="fc-event-title-container">
+          <div className="fc-event-title fc-sticky font-medium truncate">
+            {title}
+          </div>
+        </div>
+        {timeText && (
+          <div className="fc-event-time text-xs opacity-75 truncate">
+            {timeText}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Hantera när event flyttas
   const handleEventDrop = async (info: EventDropArg) => {
     const { event } = info;
@@ -128,6 +149,7 @@ export function WeekCalendarView() {
 
     const startDate = event.start!;
     const endDate = event.end!;
+    const currentDate = calendarRef.current?.getApi().getDate();
 
     // Prio focus-session
     if (extendedProps?.eventId && extendedProps?.isPrioEvent) {
@@ -139,7 +161,12 @@ export function WeekCalendarView() {
 
         if (success) {
           toast.success('Fokustid flyttad!');
-          loadCalendarData();
+          await loadCalendarData();
+
+          // Behåll nuvarande vy
+          if (calendarRef.current && currentDate) {
+            calendarRef.current.getApi().gotoDate(currentDate);
+          }
         } else {
           info.revert();
           toast.error('Kunde inte flytta fokustiden');
@@ -156,7 +183,12 @@ export function WeekCalendarView() {
       try {
         await updateTask(extendedProps.taskId, { deadline: startDate.toISOString() });
         toast.success('Task deadline uppdaterad!');
-        loadCalendarData();
+        await loadCalendarData();
+
+        // Behåll nuvarande vy
+        if (calendarRef.current && currentDate) {
+          calendarRef.current.getApi().gotoDate(currentDate);
+        }
       } catch (error) {
         console.error('Failed to update task:', error);
         info.revert();
@@ -169,6 +201,7 @@ export function WeekCalendarView() {
   const handleEventResize = async (info: EventResizeDoneArg) => {
     const { event } = info;
     const extendedProps = event.extendedProps as CalendarEventData['extendedProps'];
+    const currentDate = calendarRef.current?.getApi().getDate();
 
     // Blockera externa events
     if (extendedProps?.eventId && !extendedProps?.isPrioEvent) {
@@ -189,7 +222,12 @@ export function WeekCalendarView() {
 
         if (success) {
           toast.success('Fokustid ändrad!');
-          loadCalendarData();
+          await loadCalendarData();
+
+          // Behåll nuvarande vy
+          if (calendarRef.current && currentDate) {
+            calendarRef.current.getApi().gotoDate(currentDate);
+          }
         } else {
           info.revert();
         }
@@ -218,10 +256,47 @@ export function WeekCalendarView() {
     try {
       await blockCalendarTime(startDate, durationMinutes, `🎯 Fokus: ${title}`);
       toast.success('Fokustid inbokad!');
-      loadCalendarData();
+      await loadCalendarData();
+
+      // Behåll nuvarande vy (förhindra hopp till nuvarande vecka)
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        calendarApi.gotoDate(startDate);
+      }
     } catch (error) {
       console.error('Failed to block time:', error);
       toast.error('Kunde inte boka tid');
+    }
+  };
+
+  // Hantera drop från extern källa (sidebar)
+  const handleExternalDrop = async (info: any) => {
+    if (!isMsftConnected) {
+      toast.error('Anslut till Microsoft för att schemalägga');
+      return;
+    }
+
+    const taskId = info.draggedEl?.dataset?.taskid;
+    const taskTitle = info.draggedEl?.dataset?.tasktitle;
+
+    if (!taskId || !taskTitle) return;
+
+    const startDate = info.date;
+
+    try {
+      // Uppdatera task med deadline
+      await updateTask(taskId, { deadline: startDate.toISOString() });
+      toast.success('Task schemalagd!');
+      await loadCalendarData();
+
+      // Behåll nuvarande vy
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        calendarApi.gotoDate(startDate);
+      }
+    } catch (error) {
+      console.error('Failed to schedule task:', error);
+      toast.error('Kunde inte schemalägga task');
     }
   };
 
@@ -247,6 +322,7 @@ export function WeekCalendarView() {
     if (!selectedEvent) return;
 
     const extendedProps = selectedEvent.extendedProps;
+    const currentDate = calendarRef.current?.getApi().getDate();
 
     // Blockera borttagning av externa events
     if (extendedProps?.eventId && !extendedProps?.isPrioEvent) {
@@ -260,7 +336,12 @@ export function WeekCalendarView() {
         await deleteCalendarEvent(extendedProps.eventId);
         toast.success('Fokustid borttagen!');
         setSelectedEvent(null);
-        loadCalendarData();
+        await loadCalendarData();
+
+        // Behåll nuvarande vy
+        if (calendarRef.current && currentDate) {
+          calendarRef.current.getApi().gotoDate(currentDate);
+        }
       } catch (error) {
         console.error('Failed to delete event:', error);
         toast.error('Kunde inte ta bort fokustiden');
@@ -272,7 +353,12 @@ export function WeekCalendarView() {
         await updateTask(extendedProps.taskId, { deadline: undefined });
         toast.success('Task deadline borttagen!');
         setSelectedEvent(null);
-        loadCalendarData();
+        await loadCalendarData();
+
+        // Behåll nuvarande vy
+        if (calendarRef.current && currentDate) {
+          calendarRef.current.getApi().gotoDate(currentDate);
+        }
       } catch (error) {
         console.error('Failed to remove task deadline:', error);
         toast.error('Kunde inte ta bort deadline');
@@ -360,6 +446,9 @@ export function WeekCalendarView() {
           eventResize={handleEventResize}
           select={handleDateSelect}
           eventClick={handleEventClick}
+          drop={handleExternalDrop}
+          droppable={true}
+          eventContent={renderEventContent}
           nowIndicator={true}
           slotLabelFormat={{
             hour: '2-digit',
