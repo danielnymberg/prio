@@ -287,8 +287,8 @@ export function WeekCalendarView() {
 
     // Hitta vilket datum/tid baserat på position
     // React Big Calendar har en fast layout vi kan använda
-    const minTime = 6; // 06:00
-    const maxTime = 24; // 00:00 (midnatt = 24)
+    const minTime = 0; // 00:00 (midnatt)
+    const maxTime = 24; // 24:00 (nästa midnatt)
     const totalHours = maxTime - minTime;
 
     // Hitta header-höjd (ungefär 100px för week view)
@@ -469,8 +469,8 @@ export function WeekCalendarView() {
           resizable
           step={30}
           timeslots={2}
-          min={new Date(2025, 0, 1, 6, 0)} // 06:00
-          max={new Date(2025, 0, 2, 0, 0)} // 00:00 (midnatt)
+          min={new Date(2025, 0, 1, 0, 0)} // 00:00 (midnatt)
+          max={new Date(2025, 0, 2, 0, 0)} // 24:00 (nästa midnatt)
           messages={{
             today: 'Idag',
             previous: 'Föregående',
