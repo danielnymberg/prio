@@ -242,9 +242,33 @@ export function WeekCalendarView() {
       return;
     }
 
-    // För nu, använd nuvarande tid + 1 timme som default
-    const dropTime = new Date();
-    dropTime.setHours(dropTime.getHours() + 1, 0, 0, 0);
+    // Beräkna exakt drop-tid baserat på var musen släpper
+    const calendarEl = e.currentTarget;
+    const rect = calendarEl.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const x = e.clientX - rect.left;
+
+    // Hitta vilket datum/tid baserat på position
+    // React Big Calendar har en fast layout vi kan använda
+    const minTime = 7; // 07:00
+    const maxTime = 20; // 20:00
+    const totalHours = maxTime - minTime;
+
+    // Hitta header-höjd (ungefär 100px för week view)
+    const headerHeight = 100;
+    const usableHeight = rect.height - headerHeight;
+
+    // Beräkna timme baserat på Y-position
+    const relativeY = Math.max(0, y - headerHeight);
+    const hourFraction = relativeY / usableHeight;
+    const hour = minTime + (hourFraction * totalHours);
+    const roundedHour = Math.floor(hour);
+    const minutes = Math.round((hour - roundedHour) * 60 / 30) * 30; // Snäpp till närmaste 30min
+
+    // Dagens datum (använd svensk tidszon)
+    const now = new Date();
+    const dropTime = new Date(now);
+    dropTime.setHours(roundedHour, minutes, 0, 0);
 
     try {
       // Boka tid i kalendern
@@ -253,7 +277,7 @@ export function WeekCalendarView() {
       if (success) {
         // Uppdatera task med deadline
         await updateTask(taskId, { deadline: dropTime.toISOString() });
-        toast.success('Task schemalagd!');
+        toast.success(`Task schemalagd ${dropTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}!`);
         loadCalendarData();
       }
     } catch (error) {
@@ -386,7 +410,7 @@ export function WeekCalendarView() {
 
       {/* Calendar */}
       <div
-        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container"
+        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container h-full overflow-y-auto"
         onDragOver={handleDragOver}
         onDrop={handleCalendarDrop}
       >
@@ -395,7 +419,7 @@ export function WeekCalendarView() {
           events={events}
           startAccessor="start"
           endAccessor="end"
-          style={{ height: 700 }}
+          style={{ height: '100%', minHeight: 700 }}
           views={[Views.WEEK, Views.DAY]}
           defaultView={Views.WEEK}
           eventPropGetter={eventStyleGetter}
