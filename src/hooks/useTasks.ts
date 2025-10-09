@@ -138,9 +138,8 @@ export function useTasks() {
       // Konvertera undefined till null för Supabase (null rensar fält)
       const cleanInput: Record<string, any> = {};
       Object.entries(input).forEach(([key, value]) => {
-        if (value !== undefined) {
-          cleanInput[key] = value;
-        }
+        // undefined konverteras till null för att rensa fält i Supabase
+        cleanInput[key] = value === undefined ? null : value;
       });
 
       const { data, error } = await supabase
