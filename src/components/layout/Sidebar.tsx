@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, Grid, X, Inbox, Settings, FolderKanban, BarChart3, CalendarRange } from 'lucide-react';
+import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, X, Inbox, Settings, FolderKanban, BarChart3, CalendarRange } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';

@@ -145,7 +145,7 @@ ${JSON.stringify({
   inbox: this.context.tasks.filter(t => t.status === 'not_started' && !t.deadline && t.value_score === 8).length,
   oplanerade: this.context.tasks.filter(t => t.status !== 'done' && !t.deadline).length,
   aktivaProjekt: this.context.projects.filter(p => p.status === 'active').length,
-  totalProjektBudget: this.context.projects.reduce((sum, p => sum + (p.total_budget || 0), 0).toLocaleString('sv-SE') + ' kr',
+  totalProjektBudget: this.context.projects.reduce((sum, p) => sum + (p.total_budget || 0), 0).toLocaleString('sv-SE') + ' kr',
   dagensKalender: this.context.calendarEvents.length + ' händelser',
 }, null, 2)}
 
