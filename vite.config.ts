@@ -10,6 +10,8 @@ export default defineConfig(({ mode }) => ({
     ...(mode === 'production' ? [VitePWA({
       // Auto-update för snabba, pålitliga uppdateringar
       registerType: 'autoUpdate',
+      // Force new service worker version
+      injectRegister: 'auto',
       // Aggressiv cache cleanup för att undvika gamla versioner
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],

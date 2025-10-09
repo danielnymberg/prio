@@ -53,7 +53,7 @@ export function EmailTaskListener() {
       console.log('📧 Email task listener stopped');
       unsubscribe();
     };
-  }, [user, createTask]);
+  }, [user]); // Removed createTask from dependencies to prevent loop
 
   // Denna komponent renderar ingenting
   return null;
