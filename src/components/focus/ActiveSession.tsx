@@ -6,14 +6,13 @@ import { Task } from '@/lib/types';
 import { CheckCircle, Pause, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-const SESSION_DURATION = 90 * 60; // 90 minuter i sekunder
-
 export function ActiveSession() {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const { tasks, updateTask } = useTasks();
   const [task, setTask] = useState<Task | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState(SESSION_DURATION);
+  const [sessionDuration, setSessionDuration] = useState(90 * 60); // Default 90 min
+  const [timeRemaining, setTimeRemaining] = useState(90 * 60);
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
@@ -26,9 +25,12 @@ export function ActiveSession() {
       return;
     }
 
-    // Om task hittades, sätt den
+    // Om task hittades, sätt den och uppdatera timer-varaktighet
     if (foundTask) {
       setTask(foundTask);
+      const durationInSeconds = (foundTask.estimated_duration || 90) * 60;
+      setSessionDuration(durationInSeconds);
+      setTimeRemaining(durationInSeconds);
     }
     // Annars vänta (tasks laddar fortfarande, visa "Laddar..." från rad 76)
   }, [taskId, tasks, navigate]);
@@ -52,7 +54,8 @@ export function ActiveSession() {
   }, [isPaused, timeRemaining]);
 
   const handleSessionComplete = () => {
-    toast.success('🌟 90 minuter klart! Dags för paus.');
+    const minutes = Math.floor(sessionDuration / 60);
+    toast.success(`🌟 ${minutes} minuter klart! Dags för paus.`);
     navigate('/break');
   };
 
@@ -85,7 +88,7 @@ export function ActiveSession() {
 
   const minutes = Math.floor(timeRemaining / 60);
   const seconds = timeRemaining % 60;
-  const progress = ((SESSION_DURATION - timeRemaining) / SESSION_DURATION) * 100;
+  const progress = ((sessionDuration - timeRemaining) / sessionDuration) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sand-100 to-sand-200 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
