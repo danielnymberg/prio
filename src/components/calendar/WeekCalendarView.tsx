@@ -31,7 +31,7 @@ const localizer = dateFnsLocalizer({
 });
 
 // Skapa DnD-aktiverad Calendar komponent
-const DnDCalendar = withDragAndDrop(Calendar);
+const DnDCalendar = withDragAndDrop<CalendarEventData>(Calendar);
 
 // Event types för färgkodning
 type EventType = 'meeting' | 'focus' | 'task' | 'free';
