@@ -342,25 +342,38 @@ export function VoiceInterface() {
 
       {/* Status/Transcript Box (when not expanded) */}
       {!isExpanded && (status || transcript || error) && (
-        <div className={`mb-4 rounded-2xl shadow-xl p-4 w-80 ${
+        <div className={`mb-4 rounded-2xl shadow-xl p-4 w-80 relative ${
           error
             ? 'bg-red-50 dark:bg-red-900/20 border-2 border-red-500'
             : 'bg-white dark:bg-gray-800'
         }`}>
+          {/* Close button */}
+          <button
+            onClick={() => {
+              setTranscript('');
+              setStatus('');
+              setError(null);
+            }}
+            className="absolute top-2 right-2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+            aria-label="Stäng"
+          >
+            <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          </button>
+
           {error ? (
             <>
               <p className="text-sm text-red-600 dark:text-red-400 mb-1 font-semibold">Fel:</p>
-              <p className="text-red-800 dark:text-red-200">{error}</p>
+              <p className="text-red-800 dark:text-red-200 pr-6">{error}</p>
             </>
           ) : transcript ? (
             <>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Du säger:</p>
-              <p className="text-gray-900 dark:text-white">{transcript}</p>
+              <p className="text-gray-900 dark:text-white pr-6">{transcript}</p>
             </>
           ) : status ? (
             <>
               <p className="text-sm text-copper-600 dark:text-copper-400 mb-1">Status:</p>
-              <p className="text-gray-900 dark:text-white">{status}</p>
+              <p className="text-gray-900 dark:text-white pr-6">{status}</p>
             </>
           ) : null}
         </div>

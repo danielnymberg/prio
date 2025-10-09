@@ -183,40 +183,35 @@ export function WeekCalendarView() {
     const startDate = typeof start === 'string' ? new Date(start) : start;
     const endDate = typeof end === 'string' ? new Date(end) : end;
 
-    // Optimistisk uppdatering - uppdatera UI direkt
-    setEvents(prevEvents =>
-      prevEvents.map(e =>
-        e.id === event.id
-          ? { ...e, start: startDate, end: endDate }
-          : e
-      )
-    );
-
-    // Om det är en Prio focus-session, synka i bakgrunden
+    // Om det är en Prio focus-session, tillåt flytt
     if (event.resource?.eventId && event.resource?.isPrioEvent) {
-      // Synka till Microsoft i bakgrunden (utan att vänta)
-      updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate })
-        .then(success => {
-          if (!success) {
-            toast.error('Kunde inte synka till Outlook');
-            loadCalendarData(); // Återställ vid fel
-          }
-        })
-        .catch(error => {
-          console.error('Failed to move event:', error);
-          toast.error('Kunde inte synka till Outlook');
-          loadCalendarData(); // Återställ vid fel
-        });
+      try {
+        const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
+
+        if (success) {
+          toast.success('Fokustid flyttad!');
+          loadCalendarData();
+        } else {
+          toast.error('Kunde inte flytta fokustiden');
+          loadCalendarData(); // Återställ
+        }
+      } catch (error) {
+        console.error('Failed to move event:', error);
+        toast.error('Kunde inte flytta fokustiden');
+        loadCalendarData(); // Återställ
+      }
     }
 
-    // Om det är en task, uppdatera i bakgrunden
+    // Om det är en task, uppdatera deadline
     if (event.resource?.taskId) {
-      updateTask(event.resource.taskId, { deadline: startDate.toISOString() })
-        .catch(error => {
-          console.error('Failed to update task:', error);
-          toast.error('Kunde inte uppdatera task');
-          loadCalendarData(); // Återställ vid fel
-        });
+      try {
+        await updateTask(event.resource.taskId, { deadline: startDate.toISOString() });
+        toast.success('Task deadline uppdaterad!');
+        loadCalendarData();
+      } catch (error) {
+        console.error('Failed to update task:', error);
+        toast.error('Kunde inte uppdatera task');
+      }
     }
   };
 
@@ -235,29 +230,21 @@ export function WeekCalendarView() {
     const startDate = typeof start === 'string' ? new Date(start) : start;
     const endDate = typeof end === 'string' ? new Date(end) : end;
 
-    // Optimistisk uppdatering
-    setEvents(prevEvents =>
-      prevEvents.map(e =>
-        e.id === event.id
-          ? { ...e, start: startDate, end: endDate }
-          : e
-      )
-    );
-
     if (event.resource?.eventId && event.resource?.isPrioEvent) {
-      // Synka i bakgrunden
-      updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate })
-        .then(success => {
-          if (!success) {
-            toast.error('Kunde inte synka till Outlook');
-            loadCalendarData();
-          }
-        })
-        .catch(error => {
-          console.error('Failed to resize event:', error);
-          toast.error('Kunde inte synka till Outlook');
+      try {
+        const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
+
+        if (success) {
+          toast.success('Fokustid ändrad!');
           loadCalendarData();
-        });
+        } else {
+          loadCalendarData(); // Återställ
+        }
+      } catch (error) {
+        console.error('Failed to resize event:', error);
+        toast.error('Kunde inte ändra fokustiden');
+        loadCalendarData(); // Återställ
+      }
     }
   };
 
@@ -284,11 +271,12 @@ export function WeekCalendarView() {
     const calendarEl = e.currentTarget;
     const rect = calendarEl.getBoundingClientRect();
     const y = e.clientY - rect.top;
+    const x = e.clientX - rect.left;
 
     // Hitta vilket datum/tid baserat på position
     // React Big Calendar har en fast layout vi kan använda
-    const minTime = 0; // 00:00 (midnatt)
-    const maxTime = 24; // 24:00 (nästa midnatt)
+    const minTime = 7; // 07:00
+    const maxTime = 20; // 20:00
     const totalHours = maxTime - minTime;
 
     // Hitta header-höjd (ungefär 100px för week view)
@@ -447,17 +435,16 @@ export function WeekCalendarView() {
 
       {/* Calendar */}
       <div
-        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container flex-1 flex flex-col"
+        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container h-full overflow-y-auto"
         onDragOver={handleDragOver}
         onDrop={handleCalendarDrop}
       >
-        <div className="flex-1 overflow-y-scroll" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-          <DnDCalendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: '1400px', minHeight: '1400px' }}
+        <DnDCalendar
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: '100%', minHeight: 700 }}
           views={[Views.WEEK, Views.DAY]}
           defaultView={Views.WEEK}
           eventPropGetter={eventStyleGetter}
@@ -469,8 +456,8 @@ export function WeekCalendarView() {
           resizable
           step={30}
           timeslots={2}
-          min={new Date(2025, 0, 1, 0, 0)} // 00:00 (midnatt)
-          max={new Date(2025, 0, 2, 0, 0)} // 24:00 (nästa midnatt)
+          min={new Date(2025, 0, 1, 7, 0)} // 07:00
+          max={new Date(2025, 0, 1, 20, 0)} // 20:00
           messages={{
             today: 'Idag',
             previous: 'Föregående',
@@ -487,7 +474,6 @@ export function WeekCalendarView() {
           }}
           culture="sv"
         />
-        </div>
       </div>
 
       {/* Event Details Modal */}

@@ -27,7 +27,7 @@ export function QuickNoteInput() {
   // Initialize Claude
   useEffect(() => {
     const initializeClaude = async () => {
-      if (import.meta.env.VITE_ANTHROPIC_API_KEY && !claudeRef.current && user) {
+      if (!claudeRef.current && user) {
         // Hämta kalenderhändelser om användaren är inloggad på Microsoft
         let calendarEvents: any[] = [];
         try {
@@ -179,7 +179,7 @@ export function QuickNoteInput() {
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-copper-600 to-copper-600 hover:from-copper-600 hover:to-copper-600 text-white rounded-full p-4 shadow-2xl transition-all active:scale-95 min-h-[56px] min-w-[56px] flex items-center justify-center"
+        className="fixed bottom-6 right-24 z-50 bg-gradient-to-r from-copper-600 to-copper-600 hover:from-copper-600 hover:to-copper-600 text-white rounded-full p-4 shadow-2xl transition-all active:scale-95 min-h-[56px] min-w-[56px] flex items-center justify-center"
         title="Snabb anteckning eller AI-chat"
         aria-label="Öppna quick actions"
       >
@@ -189,7 +189,7 @@ export function QuickNoteInput() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-copper-500 dark:border-copper-600 w-96 max-w-[calc(100vw-3rem)] flex flex-col max-h-[600px]">
+    <div className="fixed bottom-6 right-24 z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-copper-500 dark:border-copper-600 w-96 max-w-[calc(100vw-3rem)] flex flex-col max-h-[600px]">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
