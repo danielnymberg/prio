@@ -49,7 +49,17 @@ export function filterTasksByQuadrant(tasks: Task[], quadrant: Quadrant): Task[]
 }
 
 export function sortTasksByPriority(tasks: Task[]): Task[] {
-  return [...tasks].sort((a, b) => b.priority - a.priority);
+  return [...tasks].sort((a, b) => {
+    // Quickies (≤2 min) alltid först
+    const aIsQuickie = (a.estimated_duration || 0) <= 2;
+    const bIsQuickie = (b.estimated_duration || 0) <= 2;
+
+    if (aIsQuickie && !bIsQuickie) return -1;
+    if (!aIsQuickie && bIsQuickie) return 1;
+
+    // Sedan sortera på priority
+    return b.priority - a.priority;
+  });
 }
 
 // Task status helpers

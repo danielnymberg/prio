@@ -142,11 +142,18 @@ ANVÄNDARENS KONTEXT:
 ${JSON.stringify({
   aktivaTasks: this.context.tasks.filter(t => t.status !== 'done').length,
   försenade: this.context.tasks.filter(t => t.deadline && new Date(t.deadline) < new Date()).length,
-  inbox: this.context.tasks.filter(t => t.status === 'not_started' && !t.deadline && t.value_score === 5).length,
+  inbox: this.context.tasks.filter(t => t.status === 'not_started' && !t.deadline && t.value_score === 8).length,
+  oplanerade: this.context.tasks.filter(t => t.status !== 'done' && !t.deadline).length,
   aktivaProjekt: this.context.projects.filter(p => p.status === 'active').length,
-  totalProjektBudget: this.context.projects.reduce((sum, p) => sum + (p.total_budget || 0), 0).toLocaleString('sv-SE') + ' kr',
+  totalProjektBudget: this.context.projects.reduce((sum, p => sum + (p.total_budget || 0), 0).toLocaleString('sv-SE') + ' kr',
   dagensKalender: this.context.calendarEvents.length + ' händelser',
 }, null, 2)}
+
+VIKTIGA BEGREPP:
+📥 INBOX: Tasks som användaren lägger in för att sedan bedöma/planera (value_score: 8, time_sensitivity: 5, ingen deadline)
+📋 OPLANERADE TASKS: Alla tasks utan deadline (visas i kalendervyns sidopanel som "Oplanerade tasks")
+⚡ QUICKIE: Task som tar MAX 2 minuter (estimated_duration <= 2). Visas alltid överst i listor!
+🎯 SCHEMALAGDA: Tasks med deadline eller tid bokad i kalendern
 
 TILLGÄNGLIGA FUNKTIONER:
 ✅ Tasks: Skapa, uppdatera, radera tasks med CPM-värden
@@ -256,9 +263,10 @@ När användaren vill processa olästa mejl:
 
 5. KALENDERBOKNING FÖR MEJL-TASKS (VIKTIGT!):
    → EFTER att tasks har skapats från mejl, FRÅGA användaren om de vill boka kalendertid
-   → Fråga: "Vill du boka tid i kalendern för några av dessa tasks? (Quickie = 15-30 min, 1 timme, eller mer?)"
+   → Fråga: "Vill du boka tid i kalendern för några av dessa tasks? (5 min, 15 min, 30 min, 1 timme, eller mer?)"
    → Om ja: Använd block_calendar_time med användarens önskade duration
    → GÖR INTE automatisk kalenderbokning utan att fråga först!
+   → OBS: Quickies (2 min tasks) behöver oftast INTE bokas i kalendern - de görs direkt när tid finns!
 
 WORKFLOW FÖR MEJL-QUICKIES:
 1. Användare: "Skapa tasks från mina mejl"
@@ -266,9 +274,9 @@ WORKFLOW FÖR MEJL-QUICKIES:
 3. Svar: "Du har 23 olästa mejl. Vill du skapa en task per mejl, eller gruppera per avsändare?"
 4. Användare: "Gruppera per avsändare"
 5. Du: [använder process_unread_emails med group_by: 'sender']
-6. Svar: "✅ Skapade 8 Quickies från 23 mejl, grupperade per avsändare! Vill du boka tid i kalendern för någon av dessa? (Quickie = 15-30 min, 1 timme, eller mer?)"
-7. Användare: "Ja, boka 1 timme imorgon kl 10"
-8. Du: [använder block_calendar_time med duration_minutes: 60]
+6. Svar: "✅ Skapade 8 tasks från 23 mejl, grupperade per avsändare! Alla är markerade som Quickies (2 min/mejl). Vill du boka tid för att gå igenom dem? (T.ex. 30 min eller 1 timme?)"
+7. Användare: "Ja, boka 30 min imorgon kl 10"
+8. Du: [använder block_calendar_time med duration_minutes: 30]
 
 VIKTIGA KALENDER- OCH MEJLFUNKTIONER:
 - list_calendar_events: Visa vad som är bokat (ANVÄND ALLTID INNAN du bokar ny tid!)
@@ -1407,8 +1415,8 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
               value_score: 6,
               time_sensitivity: 5,
               confidence: 7,
-              effort: 3,
-              estimated_duration: 15, // 15 min default för mejl
+              effort: 2,
+              estimated_duration: 2, // 2 min = Quickie
               priority_flag: 'whenever',
             });
 
@@ -1444,8 +1452,8 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
               value_score: 6,
               time_sensitivity: 5,
               confidence: 7,
-              effort: Math.min(senderEmails.length * 2, 10), // 2 poäng per mejl, max 10
-              estimated_duration: senderEmails.length * 10, // 10 min per mejl
+              effort: Math.min(senderEmails.length, 10), // 1 poäng per mejl, max 10
+              estimated_duration: Math.min(senderEmails.length * 2, 120), // 2 min per mejl, max 2h
               priority_flag: 'whenever',
             });
 

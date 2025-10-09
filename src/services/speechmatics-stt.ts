@@ -157,13 +157,16 @@ export class SpeechmaticsSTT {
     return int16;
   }
 
-  stopListening() {
-    // Skicka eventuell ackumulerad transcript innan stängning
-    if (this.accumulatedTranscript.trim()) {
+  stopListening(sendAccumulated: boolean = true) {
+    // Skicka eventuell ackumulerad transcript endast om användaren vill det
+    if (sendAccumulated && this.accumulatedTranscript.trim()) {
       console.log('🏁 stopListening - sending accumulated:', this.accumulatedTranscript);
       this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-      this.accumulatedTranscript = '';
+    } else if (!sendAccumulated) {
+      console.log('🚫 stopListening - DISCARDING accumulated:', this.accumulatedTranscript);
     }
+
+    this.accumulatedTranscript = '';
 
     // Stop and clean up WebSocket
     if (this.ws) {

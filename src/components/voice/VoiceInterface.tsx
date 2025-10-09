@@ -194,8 +194,11 @@ export function VoiceInterface() {
 
   const handleStopListening = useCallback(() => {
     setIsListening(false);
-    setStatus('');
-    sttRef.current?.stopListening();
+    setStatus('Avbruten');
+    // Pass false to discard accumulated transcript instead of sending it
+    sttRef.current?.stopListening(false);
+    setTranscript('');
+    setTimeout(() => setStatus(''), 2000); // Clear status after 2s
   }, []);
 
   useEffect(() => {

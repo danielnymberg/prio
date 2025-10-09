@@ -40,7 +40,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const advancedItems = [
     { to: '/projects', icon: FolderKanban, label: 'Projekt', count: null, section: 'advanced' },
-    { to: '/matrix', icon: Grid, label: 'Matrix (beta)', count: null, section: 'advanced' },
     { to: '/import', icon: Upload, label: 'Importera', count: null, section: 'advanced' },
     { to: '/settings', icon: Settings, label: 'Inställningar', count: null, section: 'advanced' },
   ];
