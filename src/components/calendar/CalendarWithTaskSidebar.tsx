@@ -52,7 +52,7 @@ export function CalendarWithTaskSidebar() {
         <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col overflow-hidden">
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-lg font-semibold text-stone-900 dark:text-cream-50 mb-2">
-              Oplanerade uppgifter
+              Ej schemalagt
             </h3>
             <p className="text-xs text-stone-600 dark:text-stone-400">
               Uppgifter utan schemalagd tid (dra till kalendern för att planera)
