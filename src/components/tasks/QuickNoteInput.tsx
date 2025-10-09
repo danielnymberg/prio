@@ -44,6 +44,13 @@ export function QuickNoteInput() {
   useEffect(() => {
     try {
       localStorage.setItem('prio_chat_history', JSON.stringify(chatHistory));
+
+      // Also save in Claude's format for conversation continuity
+      const claudeFormat = chatHistory.map(msg => ({
+        role: msg.role,
+        content: msg.text,
+      }));
+      localStorage.setItem('prio_claude_conversation', JSON.stringify(claudeFormat));
     } catch (error) {
       console.error('Failed to save chat history:', error);
     }
@@ -81,12 +88,24 @@ export function QuickNoteInput() {
           console.error('Failed to fetch projects:', error);
         }
 
+        // Load previous conversation history for Claude
+        let conversationHistory: any[] = [];
+        try {
+          const saved = localStorage.getItem('prio_claude_conversation');
+          if (saved) {
+            conversationHistory = JSON.parse(saved);
+          }
+        } catch (error) {
+          console.error('Failed to load Claude conversation:', error);
+        }
+
         claudeRef.current = new ClaudeConversation(
           {
             tasks,
             projects,
             calendarEvents,
             recentFiles: [],
+            conversationHistory, // Restore previous conversation
             userId: user.id,
           },
           {
@@ -191,6 +210,7 @@ export function QuickNoteInput() {
     setChatHistory([]);
     claudeRef.current?.clearHistory();
     localStorage.removeItem('prio_chat_history');
+    localStorage.removeItem('prio_claude_conversation');
   };
 
   const handleSubmit = () => {
