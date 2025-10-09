@@ -186,10 +186,10 @@ export function FocusView() {
               Börja din dag!
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Gör din dagliga check-in för att få din första uppgift.
+              Gör din dagliga avstämning för att få din första uppgift.
             </p>
             <Button onClick={() => setIsCheckInOpen(true)} size="lg">
-              Starta check-in
+              Starta avstämning
             </Button>
           </div>
         </div>
@@ -290,7 +290,7 @@ export function FocusView() {
                   </p>
                   <div className="flex gap-3 justify-center">
                     <Button onClick={() => setIsCheckInOpen(true)} variant="primary">
-                      Uppdatera check-in
+                      Uppdatera avstämning
                     </Button>
                     <Button onClick={() => navigate('/all')} variant="secondary">
                       Visa alla uppgifter
@@ -355,20 +355,20 @@ export function FocusView() {
             size="sm"
             onClick={() => setIsCheckInOpen(true)}
           >
-            Ny check-in
+            Ny avstämning
           </Button>
         </div>
       </div>
 
-      {/* Quickies Section - Tasks <= 2 min */}
+      {/* Snabbis-sektion - Uppgifter <= 2 min */}
       {(() => {
-        const quickies = tasks.filter(t =>
+        const snabbis = tasks.filter(t =>
           t.status !== 'done' &&
           t.estimated_duration &&
           t.estimated_duration <= 2
         );
 
-        if (quickies.length === 0) return null;
+        if (snabbis.length === 0) return null;
 
         return (
           <div className="max-w-4xl mx-auto px-6 pt-6">
@@ -376,14 +376,14 @@ export function FocusView() {
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-2xl">⚡</span>
                 <h3 className="text-lg font-bold text-green-900 dark:text-green-100">
-                  Quickies ({quickies.length}) - Gör direkt!
+                  Snabbis ({snabbis.length}) - Gör direkt!
                 </h3>
               </div>
               <p className="text-sm text-green-800 dark:text-green-200 mb-3">
-                💡 Tasks som tar ≤ 2 min - knock them out first!
+                💡 Uppgifter som tar ≤ 2 min - klara av dem först!
               </p>
               <div className="space-y-2">
-                {quickies.map(task => (
+                {snabbis.map(task => (
                   <div
                     key={task.id}
                     className="bg-white dark:bg-gray-800 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"

@@ -50,12 +50,12 @@ export function filterTasksByQuadrant(tasks: Task[], quadrant: Quadrant): Task[]
 
 export function sortTasksByPriority(tasks: Task[]): Task[] {
   return [...tasks].sort((a, b) => {
-    // Quickies (≤2 min) alltid först
-    const aIsQuickie = (a.estimated_duration || 0) <= 2;
-    const bIsQuickie = (b.estimated_duration || 0) <= 2;
+    // Snabbis (≤2 min) alltid först
+    const aIsSnabbis = (a.estimated_duration || 0) <= 2;
+    const bIsSnabbis = (b.estimated_duration || 0) <= 2;
 
-    if (aIsQuickie && !bIsQuickie) return -1;
-    if (!aIsQuickie && bIsQuickie) return 1;
+    if (aIsSnabbis && !bIsSnabbis) return -1;
+    if (!aIsSnabbis && bIsSnabbis) return 1;
 
     // Sedan sortera på priority
     return b.priority - a.priority;
@@ -118,31 +118,33 @@ export function formatDuration(minutes: number | null | undefined): string {
 export function getDurationColor(minutes: number | null | undefined): string {
   if (!minutes) return 'text-gray-500';
 
-  if (minutes <= 2) return 'text-green-600'; // Quickies
-  if (minutes <= 15) return 'text-blue-600'; // Quick tasks
-  if (minutes <= 60) return 'text-copper-600';  // Short tasks
-  if (minutes <= 240) return 'text-amber-600'; // Medium tasks
-  return 'text-red-600'; // Long tasks
+  if (minutes <= 2) return 'text-green-600'; // Snabbis
+  if (minutes <= 15) return 'text-blue-600'; // Snabba uppgifter
+  if (minutes <= 60) return 'text-copper-600';  // Korta uppgifter
+  if (minutes <= 240) return 'text-amber-600'; // Medeluppgifter
+  return 'text-red-600'; // Långa uppgifter
 }
 
 export function getDurationIcon(minutes: number | null | undefined): string {
   if (!minutes) return '⏱️';
 
-  if (minutes <= 2) return '⚡'; // Quickie
-  if (minutes <= 15) return '🔵'; // Quick
-  if (minutes <= 60) return '🟢'; // Short
-  if (minutes <= 240) return '🟡'; // Medium
-  return '🔴'; // Long
+  if (minutes <= 2) return '⚡'; // Snabbis
+  if (minutes <= 5) return '🔵'; // Mycket snabb
+  if (minutes <= 15) return '🔵'; // Snabb
+  if (minutes <= 60) return '🟢'; // Kort
+  if (minutes <= 240) return '🟡'; // Medel
+  return '🔴'; // Lång
 }
 
-// Duration presets for quick selection
+// Tidsuppskattningar för snabbt val
 export const DURATION_PRESETS = [
-  { label: '2 min', value: 2, icon: '⚡', description: 'Quickie - gör direkt!' },
-  { label: '15 min', value: 15, icon: '🔵', description: 'Kvick uppgift' },
+  { label: '2 min', value: 2, icon: '⚡', description: 'Snabbis - gör direkt!' },
+  { label: '5 min', value: 5, icon: '🔵', description: 'Mycket snabb' },
+  { label: '15 min', value: 15, icon: '🔵', description: 'Snabb uppgift' },
   { label: '30 min', value: 30, icon: '🟢', description: 'Kort session' },
   { label: '1h', value: 60, icon: '🟢', description: 'En timme' },
   { label: '2h', value: 120, icon: '🟡', description: 'Längre session' },
   { label: '4h', value: 240, icon: '🟡', description: 'Halv dag' },
   { label: '8h', value: 480, icon: '🔴', description: 'Hel dag' },
-  { label: 'Flera dagar', value: 1440, icon: '🔴', description: 'Stort projekt' },
+  { label: 'Mer', value: 1440, icon: '🔴', description: 'Stort projekt' },
 ] as const;

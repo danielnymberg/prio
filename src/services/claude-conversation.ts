@@ -150,15 +150,15 @@ ${JSON.stringify({
 }, null, 2)}
 
 VIKTIGA BEGREPP:
-📥 INBOX: Tasks som användaren lägger in för att sedan bedöma/planera (value_score: 8, time_sensitivity: 5, ingen deadline)
-📋 OPLANERADE TASKS: Alla tasks utan deadline (visas i kalendervyns sidopanel som "Oplanerade tasks")
-⚡ QUICKIE: Task som tar MAX 2 minuter (estimated_duration <= 2). Visas alltid överst i listor!
-🎯 SCHEMALAGDA: Tasks med deadline eller tid bokad i kalendern
+📥 INKORG: Uppgifter som användaren lägger in för att sedan bedöma/planera (value_score: 8, time_sensitivity: 5, inget slutdatum)
+📋 OPLANERADE UPPGIFTER: Alla uppgifter utan slutdatum (visas i kalendervyns sidopanel som "Oplanerade uppgifter")
+⚡ SNABBIS: Uppgift som tar MAX 2 minuter (estimated_duration <= 2). Visas alltid överst i listor och är separerad från CPM-logik!
+🎯 SCHEMALAGDA: Uppgifter med slutdatum eller tid bokad i kalendern
 
 TILLGÄNGLIGA FUNKTIONER:
-✅ Tasks: Skapa, uppdatera, radera tasks med CPM-värden
+✅ Uppgifter: Skapa, uppdatera, radera uppgifter med CPM-värden
 ✅ Kalender: Visa, analysera, boka fokustid i Microsoft Calendar
-✅ Mejl: Visa olästa mejl, skapa tasks från mejl (list_unread_emails, process_unread_emails)
+✅ Mejl: Visa olästa mejl, skapa uppgifter från mejl (list_unread_emails, process_unread_emails)
 ✅ Projekt: Visa, analysera projekt och budgetar
 ✅ Tid: Tolka naturliga tidsuttryck ("kl 14", "imorgon", "på fredag")
 
@@ -176,8 +176,8 @@ PRIORITERINGSLOGIK (CPM - Consequence Priority Method):
 - Confidence (1-10): Säkerhet i bedömningen
 - Effort (1-10): Uppskattad ansträngning
 
-SMART TASK-SKAPANDE:
-När användaren ber dig skapa en task, använd följande logik:
+SMART UPPGIFT-SKAPANDE:
+När användaren ber dig skapa en uppgift, använd följande logik:
 
 1. TOLKA NATURLIGA TIDER MED parse_natural_time
    När användaren säger "kl 14", "imorgon", "på fredag", etc:
@@ -194,21 +194,21 @@ När användaren ber dig skapa en task, använd följande logik:
    ✅ Tydlig prioritet ("viktigt", "akut", "snabbt") → Bedöm value_score
    ✅ Klar handling ("ringa X", "maila Y") → Bedöm effort + confidence
 
-3. FÖR OTYDLIGT? (Skapa som INBOX)
-   ❌ Ingen deadline angiven OCH vag beskrivning
+3. FÖR OTYDLIGT? (Skapa som INKORG)
+   ❌ Inget slutdatum angiven OCH vag beskrivning
    ❌ Kräver research/beslut ("kolla", "undersök", "fundera på")
-   ❌ Komplex/lång task utan tydlig plan
+   ❌ Komplex/lång uppgift utan tydlig plan
 
    → Använd DEFAULT-VÄRDEN:
-   - value_score: 8       // Ändrat från 5 - inbox-tasks är vanligtvis viktiga
-   - time_sensitivity: 5  // Behåll 5 - ingen deadline
-   - confidence: 8        // Ändrat från 5 - de flesta tasks ger verkligt värde
+   - value_score: 8       // Ändrat från 5 - inkorg-uppgifter är vanligtvis viktiga
+   - time_sensitivity: 5  // Behåll 5 - inget slutdatum
+   - confidence: 8        // Ändrat från 5 - de flesta uppgifter ger verkligt värde
    - effort: 5            // Behåll 5
-   - priority_flag: 'whenever'  // Default för tasks utan deadline
+   - priority_flag: 'whenever'  // Default för uppgifter utan slutdatum
    - deadline: null
 
 4. AUTOMATISK KALENDERBOKNING (VIKTIGT!)
-   När en task skapas med estimated_duration >= 60 minuter:
+   När en uppgift skapas med estimated_duration >= 60 minuter:
 
    a) Kolla tillgänglig tid: analyze_calendar_capacity
    b) Föreslå bokning: "Du har X timmar ledigt imorgon kl 09-15. Vill du att jag bokar [duration] fokustid?"
@@ -221,12 +221,12 @@ När användaren ber dig skapa en task, använd följande logik:
    - Du: [block_calendar_time] "✅ Jag har bokat 4h i din kalender imorgon 09:00!"
 
 SVARA ANVÄNDAREN:
-- Direkt skapad: "Okej! Jag har lagt in '[task]' [med deadline X]"
-- Inbox: "Jag har lagt det i din inbox för senare bedömning 📥"
-- Med kalenderbokning: "✅ Task skapad + [X timmar] bokad i kalendern!"
+- Direkt skapad: "Okej! Jag har lagt in '[uppgift]' [med slutdatum X]"
+- Inkorg: "Jag har lagt det i din inkorg för senare bedömning 📥"
+- Med kalenderbokning: "✅ Uppgift skapad + [X timmar] bokad i kalendern!"
 
 KALENDER-INTEGRATION (MICROSOFT GRAPH):
-När användaren frågar om deadlines baserat på tillgänglig tid:
+När användaren frågar om slutdatum baserat på tillgänglig tid:
 
 1. "Når kan jag leverera X som tar Y timmar?"
    → Använd calculate_realistic_deadline med required_hours
@@ -239,12 +239,12 @@ När användaren frågar om deadlines baserat på tillgänglig tid:
 
 VIKTIGT: Om användaren INTE är inloggad på Microsoft, förklara att de behöver logga in i inställningar för att använda kalender- och mejlfunktioner.
 
-MEJL-INTEGRATION (QUICKIES FRÅN MEJL):
+MEJL-INTEGRATION (SNABBIS FRÅN MEJL):
 ✅ DU HAR TILLGÅNG TILL MEJL-FUNKTIONER! Använd list_unread_emails och process_unread_emails verktygen.
 
 När användaren vill processa olästa mejl:
 
-1. "Skapa tasks från mina olästa mejl"
+1. "Skapa uppgifter från mina olästa mejl"
    → Använd först list_unread_emails för att visa överblick
    → Fråga användaren hur de vill gruppera (per mejl, per avsändare, eller efter ämne)
    → Använd sedan process_unread_emails med vald gruppering
@@ -253,7 +253,7 @@ När användaren vill processa olästa mejl:
    → Använd list_unread_emails
 
 3. Exempel på grupperingar:
-   - group_by: 'none' → En task per mejl (bra för få mejl)
+   - group_by: 'none' → En uppgift per mejl (bra för få mejl)
    - group_by: 'sender' → Gruppera per avsändare (bra för många mejl från samma person)
    - group_by: 'subject_keyword' → Gruppera liknande ämnen (ej implementerat än)
 
@@ -261,31 +261,31 @@ När användaren vill processa olästa mejl:
    - Fråga ALLTID användaren innan auto_mark_read: true
    - Default: false (låt mejlen vara olästa)
 
-5. KALENDERBOKNING FÖR MEJL-TASKS (VIKTIGT!):
-   → EFTER att tasks har skapats från mejl, FRÅGA användaren om de vill boka kalendertid
-   → Fråga: "Vill du boka tid i kalendern för några av dessa tasks? (5 min, 15 min, 30 min, 1 timme, eller mer?)"
+5. KALENDERBOKNING FÖR MEJL-UPPGIFTER (VIKTIGT!):
+   → EFTER att uppgifter har skapats från mejl, FRÅGA användaren om de vill boka kalendertid
+   → Fråga: "Vill du boka tid i kalendern för några av dessa uppgifter? (5 min, 15 min, 30 min, 1 timme, eller mer?)"
    → Om ja: Använd block_calendar_time med användarens önskade duration
    → GÖR INTE automatisk kalenderbokning utan att fråga först!
-   → OBS: Quickies (2 min tasks) behöver oftast INTE bokas i kalendern - de görs direkt när tid finns!
+   → OBS: Snabbis (2 min uppgifter) behöver oftast INTE bokas i kalendern - de görs direkt när tid finns!
 
-WORKFLOW FÖR MEJL-QUICKIES:
-1. Användare: "Skapa tasks från mina mejl"
+WORKFLOW FÖR MEJL-SNABBIS:
+1. Användare: "Skapa uppgifter från mina mejl"
 2. Du: [använder list_unread_emails]
-3. Svar: "Du har 23 olästa mejl. Vill du skapa en task per mejl, eller gruppera per avsändare?"
+3. Svar: "Du har 23 olästa mejl. Vill du skapa en uppgift per mejl, eller gruppera per avsändare?"
 4. Användare: "Gruppera per avsändare"
 5. Du: [använder process_unread_emails med group_by: 'sender']
-6. Svar: "✅ Skapade 8 tasks från 23 mejl, grupperade per avsändare! Alla är markerade som Quickies (2 min/mejl). Vill du boka tid för att gå igenom dem? (T.ex. 30 min eller 1 timme?)"
+6. Svar: "✅ Skapade 8 uppgifter från 23 mejl, grupperade per avsändare! Alla är markerade som Snabbis (2 min/mejl). Vill du boka tid för att gå igenom dem? (T.ex. 30 min eller 1 timme?)"
 7. Användare: "Ja, boka 30 min imorgon kl 10"
 8. Du: [använder block_calendar_time med duration_minutes: 30]
 
 VIKTIGA KALENDER- OCH MEJLFUNKTIONER:
 - list_calendar_events: Visa vad som är bokat (ANVÄND ALLTID INNAN du bokar ny tid!)
-- get_daily_overview: Se dagens schema + tasks (för att svara på "vad har jag idag?")
+- get_daily_overview: Se dagens schema + uppgifter (för att svara på "vad har jag idag?")
 - analyze_calendar_capacity: Analysera lediga tider för längre projekt
 - block_calendar_time: Boka fokustid i kalendern
-- calculate_realistic_deadline: Beräkna realistisk deadline baserat på tillgänglig tid
+- calculate_realistic_deadline: Beräkna realistiskt slutdatum baserat på tillgänglig tid
 - list_unread_emails: Visa olästa mejl
-- process_unread_emails: Skapa Quickies (tasks) från olästa mejl
+- process_unread_emails: Skapa Snabbis (uppgifter) från olästa mejl
 
 WORKFLOW FÖR KALENDERBOKNING (VIKTIGT!):
 1. ALLTID kolla befintliga bokningar med list_calendar_events INNAN du bokar ny tid
@@ -370,9 +370,9 @@ Assistant: [Använder list_projects + CPM-analys] "Baserat på CPM-värden och d
   2. Projekt Y (kan bli försenat, påverkar framtida affärer)
 Vill du att jag bokar in fokustid för dessa?"
 
-BEFINTLIGA TASKS:
+BEFINTLIGA UPPGIFTER:
 ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
-  `- [ID: ${t.id}] ${t.title} (value: ${t.value_score || 5}, time: ${t.time_sensitivity || 5}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`
+  `- [ID: ${t.id}] ${t.title} (value: ${t.value_score || 5}, time: ${t.time_sensitivity || 5}) ${t.deadline ? `slutdatum: ${t.deadline}` : ''}`
 ).join('\n')}`;
   }
 
@@ -380,13 +380,13 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
     return [
       {
         name: 'create_task',
-        description: 'Skapa en ny task i Prio. Använd när användaren beskriver något de behöver göra.',
+        description: 'Skapa en ny uppgift i Prio. Använd när användaren beskriver något de behöver göra.',
         input_schema: {
           type: 'object',
           properties: {
             title: {
               type: 'string',
-              description: 'Kort titel på tasken'
+              description: 'Kort titel på uppgiften'
             },
             description: {
               type: 'string',
@@ -394,25 +394,25 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
             },
             value_score: {
               type: 'number',
-              description: '1-10: Objektiva konsekvenser om det INTE görs. Använd 8 som default för inbox.',
+              description: '1-10: Objektiva konsekvenser om det INTE görs. Använd 8 som default för inkorg.',
               minimum: 1,
               maximum: 10,
             },
             time_sensitivity: {
               type: 'number',
-              description: '1-10: Kostnad av att vänta 1h/1d (inte deadline!). Använd 5 som default för inbox.',
+              description: '1-10: Kostnad av att vänta 1h/1d (inte slutdatum!). Använd 5 som default för inkorg.',
               minimum: 1,
               maximum: 10,
             },
             confidence: {
               type: 'number',
-              description: '1-10: Säkerhet i bedömningen. Använd 8 som default för inbox.',
+              description: '1-10: Säkerhet i bedömningen. Använd 8 som default för inkorg.',
               minimum: 1,
               maximum: 10,
             },
             effort: {
               type: 'number',
-              description: '1-10: Uppskattad ansträngning. Använd 5 som default för inbox.',
+              description: '1-10: Uppskattad ansträngning. Använd 5 som default för inkorg.',
               minimum: 1,
               maximum: 10,
             },
@@ -423,7 +423,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
             priority_flag: {
               type: 'string',
               enum: ['asap', 'whenever', 'someday'],
-              description: 'För tasks utan deadline: asap (gör snart! +50% prio), whenever (när det passar), someday (backlog -30%). Används INTE om deadline finns.',
+              description: 'För uppgifter utan slutdatum: asap (gör snart! +50% prio), whenever (när det passar), someday (uppsamling -30%). Används INTE om slutdatum finns.',
             },
             estimated_duration: {
               type: 'number',
@@ -435,13 +435,13 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       },
       {
         name: 'update_task',
-        description: 'Uppdatera en befintlig task. VIKTIGT: Använd task-ID från listan BEFINTLIGA TASKS, inte task-titeln!',
+        description: 'Uppdatera en befintlig uppgift. VIKTIGT: Använd uppgifts-ID från listan BEFINTLIGA UPPGIFTER, inte uppgiftstiteln!',
         input_schema: {
           type: 'object',
           properties: {
             task_id: {
               type: 'string',
-              description: 'UUID för tasken (finns i [ID: ...] i BEFINTLIGA TASKS-listan)'
+              description: 'UUID för uppgiften (finns i [ID: ...] i BEFINTLIGA UPPGIFTER-listan)'
             },
             changes: {
               type: 'object',
@@ -486,13 +486,13 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       },
       {
         name: 'delete_task',
-        description: 'Ta bort en task permanent. VIKTIGT: Använd task-ID från listan BEFINTLIGA TASKS, inte task-titeln!',
+        description: 'Ta bort en uppgift permanent. VIKTIGT: Använd uppgifts-ID från listan BEFINTLIGA UPPGIFTER, inte uppgiftstiteln!',
         input_schema: {
           type: 'object',
           properties: {
             task_id: {
               type: 'string',
-              description: 'UUID för tasken att radera (finns i [ID: ...] i BEFINTLIGA TASKS-listan)'
+              description: 'UUID för uppgiften att radera (finns i [ID: ...] i BEFINTLIGA UPPGIFTER-listan)'
             },
           },
           required: ['task_id'],
@@ -534,22 +534,22 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       },
       {
         name: 'calculate_realistic_deadline',
-        description: 'Beräkna när en task verkligen kan bli klar baserat på tillgänglig tid i kalendern. ANVÄND DETTA när användaren frågar "när kan jag leverera X?" eller "när hinner jag klart?"',
+        description: 'Beräkna när en uppgift verkligen kan bli klar baserat på tillgänglig tid i kalendern. ANVÄND DETTA när användaren frågar "när kan jag leverera X?" eller "när hinner jag klart?"',
         input_schema: {
           type: 'object',
           properties: {
             required_hours: {
               type: 'number',
-              description: 'Antal timmar som krävs för att slutföra tasken',
+              description: 'Antal timmar som krävs för att slutföra uppgiften',
               minimum: 0.5,
             },
             preferred_deadline: {
               type: 'string',
-              description: 'Önskad deadline (ISO format). Valfritt - om null analyseras 30 dagar framåt',
+              description: 'Önskat slutdatum (ISO format). Valfritt - om null analyseras 30 dagar framåt',
             },
             buffer_percentage: {
               type: 'number',
-              description: 'Buffert i procent för oväntade tasks (standard 20%)',
+              description: 'Buffert i procent för oväntade uppgifter (standard 20%)',
               minimum: 0,
               maximum: 50,
             },
@@ -559,7 +559,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       },
       {
         name: 'block_calendar_time',
-        description: 'Blockera tid i användarens kalender för fokusarbete på en task',
+        description: 'Blockera tid i användarens kalender för fokusarbete på en uppgift',
         input_schema: {
           type: 'object',
           properties: {
@@ -574,7 +574,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
             },
             task_title: {
               type: 'string',
-              description: 'Titel på tasken att fokusera på',
+              description: 'Titel på uppgiften att fokusera på',
             },
           },
           required: ['start_time', 'duration_minutes', 'task_title'],
@@ -616,7 +616,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       },
       {
         name: 'get_daily_overview',
-        description: 'Ge en komplett översikt av dagens schema och tasks. Använd när användaren frågar "vad har jag idag?" eller "vad ska jag göra idag?"',
+        description: 'Ge en komplett översikt av dagens schema och uppgifter. Använd när användaren frågar "vad har jag idag?" eller "vad ska jag göra idag?"',
         input_schema: {
           type: 'object',
           properties: {
@@ -733,7 +733,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       },
       {
         name: 'process_unread_emails',
-        description: 'Hämta olästa mejl och skapa tasks (Quickies) automatiskt. Grupperar mejl efter avsändare/ämne och skapar en task per mejl eller grupp.',
+        description: 'Hämta olästa mejl och skapa uppgifter (Snabbis) automatiskt. Grupperar mejl efter avsändare/ämne och skapar en uppgift per mejl eller grupp.',
         input_schema: {
           type: 'object',
           properties: {
@@ -746,18 +746,18 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
             group_by: {
               type: 'string',
               enum: ['none', 'sender', 'subject_keyword'],
-              description: 'Gruppering: none (en task per mejl), sender (gruppera per avsändare), subject_keyword (gruppera liknande ämnen)',
+              description: 'Gruppering: none (en uppgift per mejl), sender (gruppera per avsändare), subject_keyword (gruppera liknande ämnen)',
             },
             auto_mark_read: {
               type: 'boolean',
-              description: 'Markera mejl som lästa efter att task skapats (standard false)',
+              description: 'Markera mejl som lästa efter att uppgift skapats (standard false)',
             },
           },
         },
       },
       {
         name: 'list_unread_emails',
-        description: 'Visa olästa mejl utan att skapa tasks. Använd detta för att ge användaren en överblick innan de beslutar vad som ska göras.',
+        description: 'Visa olästa mejl utan att skapa uppgifter. Använd detta för att ge användaren en överblick innan de beslutar vad som ska göras.',
         input_schema: {
           type: 'object',
           properties: {
@@ -924,7 +924,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
 
         return {
           success: true,
-          message: `✅ Task "${task.title}" har raderats!`,
+          message: `✅ Uppgift "${task.title}" har raderats!`,
         };
       } else {
         return { error: 'Kunde inte radera tasken' };
@@ -950,9 +950,9 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
         overdue: overdueTasks.length,
       },
       recommendations: [
-        q1Tasks.length > 0 ? 'Fokusera på Q1-tasks först' : null,
-        overdueTasks.length > 0 ? `${overdueTasks.length} försenade tasks behöver uppmärksamhet` : null,
-        q2Tasks.length > 5 ? 'Många Q2-tasks - överväg att schemalägga specifika tider' : null,
+        q1Tasks.length > 0 ? 'Fokusera på Q1-uppgifter först' : null,
+        overdueTasks.length > 0 ? `${overdueTasks.length} försenade uppgifter behöver uppmärksamhet` : null,
+        q2Tasks.length > 5 ? 'Många Q2-uppgifter - överväg att schemalägga specifika tider' : null,
       ].filter(Boolean),
       focus_area: focusArea,
     };
@@ -1474,7 +1474,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
         tasks_created: tasksCreated.length,
         emails_processed: emails.length,
         marked_as_read: autoMarkRead,
-        message: `✅ Skapade ${tasksCreated.length} Quickies från ${emails.length} mejl!`,
+        message: `✅ Skapade ${tasksCreated.length} Snabbis från ${emails.length} mejl!`,
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte processa mejl' };

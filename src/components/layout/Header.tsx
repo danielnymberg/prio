@@ -89,22 +89,22 @@ export function Header({ onMenuClick }: HeaderProps) {
             variant="secondary"
             size="sm"
             onClick={() => setIsCheckInOpen(true)}
-            title="Gör ny check-in"
+            title="Gör ny avstämning"
             className="min-h-[44px]"
           >
             <RefreshCw className="h-4 w-4 sm:mr-1" />
-            <span className="hidden lg:inline">Check-in</span>
+            <span className="hidden lg:inline">Avstämning</span>
           </Button>
 
           <Button
             variant="primary"
             size="sm"
             onClick={() => setIsQuickAddOpen(true)}
-            title="Snabblägg task (Cmd+K)"
+            title="Snabblägg uppgift (Cmd+K)"
             className="min-h-[44px]"
           >
             <Plus className="h-4 w-4 sm:mr-1" />
-            <span className="hidden sm:inline">Ny task</span>
+            <span className="hidden sm:inline">Ny uppgift</span>
           </Button>
 
           <ThemeToggle />

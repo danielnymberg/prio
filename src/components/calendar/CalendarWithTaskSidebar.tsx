@@ -7,9 +7,10 @@ export function CalendarWithTaskSidebar() {
   const { tasks } = useTasks();
   const [showSidebar, setShowSidebar] = useState(true);
 
-  // Oplanerade tasks (tasks utan deadline som kan dras till kalendern)
+  // Oplanerade uppgifter (uppgifter utan slutdatum som kan dras till kalendern)
+  // Exkludera Snabbis (≤2 min) från kalenderplanering
   const unscheduledTasks = tasks.filter(
-    (t) => t.status !== 'done' && !t.deadline
+    (t) => t.status !== 'done' && !t.deadline && (t.estimated_duration || 999) > 2
   );
 
   return (
@@ -23,10 +24,10 @@ export function CalendarWithTaskSidebar() {
         <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col overflow-hidden">
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-lg font-semibold text-stone-900 dark:text-cream-50 mb-2">
-              Oplanerade tasks
+              Oplanerade uppgifter
             </h3>
             <p className="text-xs text-stone-600 dark:text-stone-400">
-              Tasks utan schemalagd tid (dra till kalendern för att planera)
+              Uppgifter utan schemalagd tid (dra till kalendern för att planera)
             </p>
           </div>
 
@@ -34,7 +35,7 @@ export function CalendarWithTaskSidebar() {
             {unscheduledTasks.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-sm text-stone-500 dark:text-stone-400">
-                  Alla tasks är schemalagda! 🎉
+                  Alla uppgifter är schemalagda! 🎉
                 </p>
               </div>
             ) : (

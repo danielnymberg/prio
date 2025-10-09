@@ -40,7 +40,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Dagens check-in"
+      title="Dagens avstämning"
       size="lg"
     >
       {/* Progress Indicator */}

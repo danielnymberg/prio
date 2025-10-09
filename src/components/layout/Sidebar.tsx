@@ -70,14 +70,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           variant="primary"
           size="md"
           onClick={() => {
-            setSelectedTask(undefined); // Reset för ny task
+            setSelectedTask(undefined); // Reset för ny uppgift
             setIsFormOpen(true);
             onClose(); // Stäng sidebar på mobil efter klick
           }}
           className="w-full mb-6 min-h-[44px]"
         >
           <Plus className="h-5 w-5 mr-2" />
-          Ny task
+          Ny uppgift
         </Button>
 
         <nav className="space-y-1 flex-1">

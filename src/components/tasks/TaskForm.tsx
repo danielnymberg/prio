@@ -168,17 +168,17 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             setAutoBookDeadline(endDate);
             setShowAutoBook(true);
             // Don't close main modal yet
-            toast.success('Task skapad! Vill du boka tid?');
+            toast.success('Uppgift skapad! Vill du boka tid?');
             return;
           }
         }
       }
 
       onClose();
-      toast.success(task ? 'Task uppdaterad!' : 'Task skapad!');
+      toast.success(task ? 'Uppgift uppdaterad!' : 'Uppgift skapad!');
     } catch (error) {
       console.error('Task form error:', error);
-      toast.error('Kunde inte spara task');
+      toast.error('Kunde inte spara uppgift');
     } finally {
       setLoading(false);
     }
@@ -191,7 +191,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={task ? 'Redigera task' : 'Ny task'}
+      title={task ? 'Redigera uppgift' : 'Ny uppgift'}
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -357,7 +357,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         {!deadlineDate && (
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Prioritetsnivå (för tasks utan deadline)
+              Prioritetsnivå (för uppgifter utan slutdatum)
             </label>
             <select
               value={priorityFlag}
@@ -369,7 +369,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               <option value="someday">💭 Någon gång i framtiden (-30% prio)</option>
             </select>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
-              💡 Styr hur viktiga tasks utan deadline prioriteras
+              💡 Styr hur viktiga uppgifter utan slutdatum prioriteras
             </p>
           </div>
         )}
@@ -452,10 +452,10 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             </div>
           </div>
 
-          {/* Deadline - höger spalt */}
+          {/* Slutdatum - höger spalt */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Deadline
+              Slutdatum
             </label>
             <div className="space-y-2">
               <Input
@@ -479,14 +479,14 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 <option value="21">21:00</option>
               </select>
 
-              {/* Rensa deadline-knapp */}
+              {/* Rensa slutdatum-knapp */}
               {deadlineDate && (
                 <button
                   type="button"
                   onClick={() => setDeadlineDate('')}
                   className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-1"
                 >
-                  ❌ Ta bort deadline
+                  ❌ Ta bort slutdatum
                 </button>
               )}
             </div>
@@ -502,7 +502,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 if (confirm(`Är du säker på att du vill radera "${task.title}"?`)) {
                   await onDelete(task.id);
                   onClose();
-                  toast.success('Task raderad');
+                  toast.success('Uppgift raderad');
                 }
               }}
               className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
