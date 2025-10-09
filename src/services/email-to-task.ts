@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
 import { CreateTaskInput } from '@/lib/types';
-import { parseNaturalDateTime } from '@/lib/dateParser';
 
 export interface EmailTask {
   id: string;

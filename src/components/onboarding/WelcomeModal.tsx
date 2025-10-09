@@ -6,6 +6,9 @@ import { Target, Zap, Brain, AlertTriangle, ArrowRight, CheckCircle } from 'luci
 interface WelcomeModalProps {
   isOpen: boolean;
   onComplete: () => void;
+  onClose?: () => void;
+  onConnectMicrosoft?: () => Promise<void>;
+  onSkip?: () => Promise<void>;
 }
 
 export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {

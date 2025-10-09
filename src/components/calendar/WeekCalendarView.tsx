@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay, addHours, startOfDay, endOfDay } from 'date-fns';
+import { format, parse, startOfWeek, getDay, addHours } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useTasks } from '@/hooks/useTasks';
-import { Task } from '@/lib/types';
 import {
   getCalendarEvents,
   blockCalendarTime,
@@ -366,7 +365,7 @@ export function WeekCalendarView() {
             time: 'Tid',
             event: 'Händelse',
             noEventsInRange: 'Inga händelser denna period',
-            showMore: (total) => `+ ${total} fler`,
+            showMore: (total: number) => `+ ${total} fler`,
           }}
           culture="sv"
         />

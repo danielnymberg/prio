@@ -8,7 +8,7 @@ export function TaskDragOverlay() {
   const { active } = useDndContext();
   const { tasks } = useTasks();
 
-  if (!active || !active.data.current?.type === 'task') {
+  if (!active || active.data.current?.type !== 'task') {
     return null;
   }
 

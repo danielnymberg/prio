@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { WeekCalendarView } from './WeekCalendarView';
-import { TaskList } from '@/components/tasks/TaskList';
 import { useTasks } from '@/hooks/useTasks';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 
 export function CalendarWithTaskSidebar() {
-  const { tasks, updateTask, deleteTask } = useTasks();
+  const { tasks } = useTasks();
   const [showSidebar, setShowSidebar] = useState(true);
 
   // Inbox tasks (kan dras till kalendern)

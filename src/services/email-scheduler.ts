@@ -49,7 +49,6 @@ function shouldCheckNow(config: EmailScheduleConfig): boolean {
   // Kör bara på vardagar (måndag-fredag)
   if (dayOfWeek === 0 || dayOfWeek === 6) return false;
 
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
   const lastCheck = localStorage.getItem(LAST_CHECK_KEY);
   const lastCheckDate = lastCheck ? new Date(lastCheck) : null;
 

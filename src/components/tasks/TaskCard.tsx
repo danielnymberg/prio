@@ -100,10 +100,10 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
     }
   };
 
-  const handleTitleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsEditingTitle(true);
-  };
+  // const handleTitleEdit = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   setIsEditingTitle(true);
+  // };
 
   const handleTitleSave = () => {
     if (editedTitle.trim() !== task.title && onUpdate) {
