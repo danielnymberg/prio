@@ -6,8 +6,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
-    // PWA endast i production - mycket lättare utveckling!
-    ...(mode === 'production' ? [VitePWA({
+    // PWA DISABLED - service worker orsakar caching-problem under utveckling
+    // Kan aktiveras igen när appen är i stabil produktion
+    /* ...(mode === 'production' ? [VitePWA({
       // Auto-update för snabba, pålitliga uppdateringar
       registerType: 'autoUpdate',
       // Force new service worker version
@@ -111,7 +112,7 @@ export default defineConfig(({ mode }) => ({
           },
         },
       },
-    })] : []),
+    })] : []), */
   ],
   resolve: {
     alias: {
