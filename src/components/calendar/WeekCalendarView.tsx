@@ -160,16 +160,20 @@ export function WeekCalendarView() {
   };
 
   // Hantera när användaren drar ett event
-  const handleEventDrop = async ({ event, start, end }: { event: CalendarEventData; start: Date; end: Date }) => {
+  const handleEventDrop = async ({ event, start, end }: { event: CalendarEventData; start: Date | string; end: Date | string }) => {
     if (!isMsftConnected) {
       toast.error('Anslut till Microsoft för att flytta händelser');
       return;
     }
 
+    // Konvertera till Date om det är string
+    const startDate = typeof start === 'string' ? new Date(start) : start;
+    const endDate = typeof end === 'string' ? new Date(end) : end;
+
     // Om det är en Prio focus-session eller Microsoft-event, uppdatera i Graph
     if (event.resource?.eventId) {
       try {
-        const success = await updateCalendarEvent(event.resource.eventId, { start, end });
+        const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
 
         if (success) {
           toast.success('Händelse flyttad!');
@@ -186,7 +190,7 @@ export function WeekCalendarView() {
     // Om det är en task, uppdatera deadline
     if (event.resource?.taskId) {
       try {
-        await updateTask(event.resource.taskId, { deadline: start.toISOString() });
+        await updateTask(event.resource.taskId, { deadline: startDate.toISOString() });
         toast.success('Task deadline uppdaterad!');
         loadCalendarData();
       } catch (error) {
@@ -197,12 +201,16 @@ export function WeekCalendarView() {
   };
 
   // Hantera resize (ändra längd på event)
-  const handleEventResize = async ({ event, start, end }: { event: CalendarEventData; start: Date; end: Date }) => {
+  const handleEventResize = async ({ event, start, end }: { event: CalendarEventData; start: Date | string; end: Date | string }) => {
     if (!isMsftConnected) return;
+
+    // Konvertera till Date om det är string
+    const startDate = typeof start === 'string' ? new Date(start) : start;
+    const endDate = typeof end === 'string' ? new Date(end) : end;
 
     if (event.resource?.eventId) {
       try {
-        const success = await updateCalendarEvent(event.resource.eventId, { start, end });
+        const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
 
         if (success) {
           toast.success('Händelse ändrad!');
