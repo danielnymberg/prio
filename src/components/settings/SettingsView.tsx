@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, LogOut, LogIn, Info, Bell, BellOff, Clock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { ApiKeySettings } from './ApiKeySettings';
 import {
   loginToMicrosoft,
   logoutFromMicrosoft,
@@ -609,6 +610,19 @@ export function SettingsView() {
             ⚠️ Röstassistenten kräver API-nycklar. Kontakta admin eller lägg till i .env.local
           </p>
         )}
+      </div>
+
+      {/* API Key Management */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Röst-assistent & AI
+          </h2>
+        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Lägg till dina egna API-nycklar för att aktivera AI-funktioner. Dina nycklar sparas endast i din webbläsare.
+        </p>
+        <ApiKeySettings />
       </div>
 
       {/* App Information */}
