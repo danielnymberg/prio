@@ -254,13 +254,21 @@ När användaren vill processa olästa mejl:
    - Fråga ALLTID användaren innan auto_mark_read: true
    - Default: false (låt mejlen vara olästa)
 
+5. KALENDERBOKNING FÖR MEJL-TASKS (VIKTIGT!):
+   → EFTER att tasks har skapats från mejl, FRÅGA användaren om de vill boka kalendertid
+   → Fråga: "Vill du boka tid i kalendern för några av dessa tasks? (Quickie = 15-30 min, 1 timme, eller mer?)"
+   → Om ja: Använd block_calendar_time med användarens önskade duration
+   → GÖR INTE automatisk kalenderbokning utan att fråga först!
+
 WORKFLOW FÖR MEJL-QUICKIES:
 1. Användare: "Skapa tasks från mina mejl"
 2. Du: [använder list_unread_emails]
 3. Svar: "Du har 23 olästa mejl. Vill du skapa en task per mejl, eller gruppera per avsändare?"
 4. Användare: "Gruppera per avsändare"
 5. Du: [använder process_unread_emails med group_by: 'sender']
-6. Svar: "✅ Skapade 8 Quickies från 23 mejl, grupperade per avsändare!"
+6. Svar: "✅ Skapade 8 Quickies från 23 mejl, grupperade per avsändare! Vill du boka tid i kalendern för någon av dessa? (Quickie = 15-30 min, 1 timme, eller mer?)"
+7. Användare: "Ja, boka 1 timme imorgon kl 10"
+8. Du: [använder block_calendar_time med duration_minutes: 60]
 
 VIKTIGA KALENDER- OCH MEJLFUNKTIONER:
 - list_calendar_events: Visa vad som är bokat (ANVÄND ALLTID INNAN du bokar ny tid!)
