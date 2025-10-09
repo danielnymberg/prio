@@ -269,34 +269,35 @@ export function WeekCalendarView() {
     }
   };
 
-  // Hantera drop från extern källa (sidebar)
-  const handleExternalDrop = async (info: any) => {
-    if (!isMsftConnected) {
-      toast.error('Anslut till Microsoft för att schemalägga');
+  // Hantera när extern event (från sidebar) tas emot
+  const handleEventReceive = async (info: any) => {
+    const taskId = info.event.extendedProps?.taskId;
+    const startDate = info.event.start;
+
+    if (!taskId || !startDate) {
+      info.revert();
       return;
     }
 
-    const taskId = info.draggedEl?.dataset?.taskid;
-    const taskTitle = info.draggedEl?.dataset?.tasktitle;
-
-    if (!taskId || !taskTitle) return;
-
-    const startDate = info.date;
+    const currentDate = calendarRef.current?.getApi().getDate();
 
     try {
       // Uppdatera task med deadline
       await updateTask(taskId, { deadline: startDate.toISOString() });
       toast.success('Task schemalagd!');
+
+      // Ta bort det tillfälliga eventet (vi laddar om från backend)
+      info.event.remove();
       await loadCalendarData();
 
       // Behåll nuvarande vy
-      if (calendarRef.current) {
-        const calendarApi = calendarRef.current.getApi();
-        calendarApi.gotoDate(startDate);
+      if (calendarRef.current && currentDate) {
+        calendarRef.current.getApi().gotoDate(currentDate);
       }
     } catch (error) {
       console.error('Failed to schedule task:', error);
       toast.error('Kunde inte schemalägga task');
+      info.revert();
     }
   };
 
@@ -446,7 +447,7 @@ export function WeekCalendarView() {
           eventResize={handleEventResize}
           select={handleDateSelect}
           eventClick={handleEventClick}
-          drop={handleExternalDrop}
+          eventReceive={handleEventReceive}
           droppable={true}
           eventContent={renderEventContent}
           nowIndicator={true}
