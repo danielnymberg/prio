@@ -19,7 +19,8 @@ export function AllTasksView() {
   const [filterStatus] = useState<'all' | 'not_started' | 'in_progress' | 'done'>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('timeline');
 
-  const activeTasks = tasks.filter(t => t.status !== 'done');
+  // Filtrera bort Snabbis (≤2 min) - de visas endast i FocusView
+  const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
 
   let filteredTasks = activeTasks;
 
@@ -75,10 +76,10 @@ export function AllTasksView() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Alla tasks
+          Alla uppgifter
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          {activeTasks.length} aktiva tasks
+          {activeTasks.length} aktiva uppgifter (exkl. Snabbis)
         </p>
       </div>
 
@@ -87,7 +88,7 @@ export function AllTasksView() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Sök tasks..."
+            placeholder="Sök uppgifter..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"

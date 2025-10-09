@@ -30,7 +30,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navItems = [
     { to: '/focus', icon: Target, label: 'Just Nu', count: null, highlight: true, section: 'main' },
     { to: '/calendar', icon: CalendarRange, label: 'Kalender', count: null, section: 'main' },
-    { to: '/inbox', icon: Inbox, label: 'Inbox', count: inboxTasks.length, alert: inboxTasks.length > 0, section: 'main' },
+    { to: '/inbox', icon: Inbox, label: 'Inkorg', count: inboxTasks.length, alert: inboxTasks.length > 0, section: 'main' },
     { to: '/all', icon: List, label: 'Alla uppgifter', count: activeTasks.length, section: 'main' },
     { to: '/week', icon: CalendarDays, label: 'Denna vecka', count: weekTasks.length, section: 'main' },
     { to: '/today', icon: Calendar, label: 'Idag', count: todayTasks.length, alert: overdueTasks.length > 0, section: 'main' },
