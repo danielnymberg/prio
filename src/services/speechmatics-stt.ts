@@ -6,6 +6,7 @@ export class SpeechmaticsSTT {
   private source: MediaStreamAudioSourceNode | null = null;
   private stream: MediaStream | null = null;
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
+  private accumulatedTranscript: string = ''; // Accumulate final transcript parts
 
   constructor() {}
 
@@ -50,24 +51,48 @@ export class SpeechmaticsSTT {
             console.log('📝 Partial transcript:', data.metadata.transcript);
             this.onTranscriptCallback?.(data.metadata.transcript, false);
           } else if (data.message === 'AddTranscript') {
-            // Final transcription - Speechmatics skickar full text i results array
-            let fullText = '';
+            // Final transcription - Speechmatics skickar ett AddTranscript för varje ord/fras
+            // Vi måste ackumulera alla AddTranscript meddelanden
+            console.log('🔍 DEBUG AddTranscript full data:', JSON.stringify(data, null, 2));
 
-            // Metod 1: Bygg från results array (KORREKT metod enligt Speechmatics docs)
+            // Extrahera text från results array
             if (data.results && data.results.length > 0) {
-              fullText = data.results.map((r: any) => r.alternatives?.[0]?.content || '').join('').trim();
-              console.log('✅ Final transcript from results:', fullText);
+              console.log('🔍 DEBUG results array:', JSON.stringify(data.results, null, 2));
+              const newText = data.results.map((r: any) => {
+                const content = r.alternatives?.[0]?.content || '';
+                console.log('🔍 DEBUG einzelne result content:', content);
+                return content;
+              }).join('');
+
+              // Lägg till mellanslag mellan ord om vi har tidigare text
+              if (this.accumulatedTranscript && newText) {
+                this.accumulatedTranscript += ' ' + newText;
+              } else if (newText) {
+                this.accumulatedTranscript = newText;
+              }
+
+              console.log('✅ Accumulated transcript so far:', this.accumulatedTranscript);
             }
-            // Metod 2: Fallback till metadata.transcript (ofta inkomplett!)
+            // Fallback till metadata.transcript
             else if (data.metadata?.transcript) {
-              fullText = data.metadata.transcript;
-              console.log('⚠️ Final transcript from metadata (fallback):', fullText);
+              const newText = data.metadata.transcript;
+              console.log('⚠️ Using metadata.transcript (fallback):', newText);
+
+              if (this.accumulatedTranscript && newText) {
+                this.accumulatedTranscript += ' ' + newText;
+              } else if (newText) {
+                this.accumulatedTranscript = newText;
+              }
             }
 
-            if (fullText.trim()) {
-              this.onTranscriptCallback?.(fullText, true);
-            } else {
-              console.warn('⚠️ Empty final transcript!', data);
+            // Skicka INTE final transcript ännu - vänta på EndOfTranscript
+            // (Final transcripts skickas när användaren stoppar eller efter EndOfStream)
+          } else if (data.message === 'EndOfTranscript') {
+            // När hela transcripten är klar, skicka den ackumulerade texten
+            console.log('🏁 EndOfTranscript - sending accumulated:', this.accumulatedTranscript);
+            if (this.accumulatedTranscript.trim()) {
+              this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+              this.accumulatedTranscript = ''; // Reset för nästa transcript
             }
           } else if (data.message === 'Error') {
             console.error('Speechmatics error:', data);
@@ -88,6 +113,13 @@ export class SpeechmaticsSTT {
       };
 
       this.ws.onclose = (event) => {
+        // När WebSocket stängs, skicka eventuellt ackumulerad transcript
+        if (this.accumulatedTranscript.trim()) {
+          console.log('🏁 WebSocket closing - sending accumulated:', this.accumulatedTranscript);
+          this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+          this.accumulatedTranscript = '';
+        }
+
         if (!event.wasClean) {
           console.error('WebSocket closed unexpectedly:', event);
         }
@@ -126,6 +158,13 @@ export class SpeechmaticsSTT {
   }
 
   stopListening() {
+    // Skicka eventuell ackumulerad transcript innan stängning
+    if (this.accumulatedTranscript.trim()) {
+      console.log('🏁 stopListening - sending accumulated:', this.accumulatedTranscript);
+      this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+      this.accumulatedTranscript = '';
+    }
+
     // Stop and clean up WebSocket
     if (this.ws) {
       // Backend skickar EndOfStream när client disconnectar
