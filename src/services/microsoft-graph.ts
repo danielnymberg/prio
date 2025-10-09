@@ -500,14 +500,14 @@ export async function blockMultipleSessions(
   }
 }
 
-// Get unread emails
+// Get unread emails (ONLY from inbox, not all folders)
 export async function getUnreadEmails(maxCount: number = 50): Promise<EmailMessage[]> {
   const client = await getGraphClient();
   if (!client) return [];
 
   try {
     const response = await client
-      .api('/me/messages')
+      .api('/me/mailFolders/inbox/messages')  // Only inbox, not all folders
       .filter('isRead eq false')
       .select('id,subject,from,receivedDateTime,bodyPreview,isRead')
       .orderby('receivedDateTime desc')
