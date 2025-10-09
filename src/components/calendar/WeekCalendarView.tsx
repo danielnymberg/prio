@@ -447,17 +447,17 @@ export function WeekCalendarView() {
 
       {/* Calendar */}
       <div
-        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container flex-1 overflow-hidden flex flex-col"
+        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container flex-1 flex flex-col"
         onDragOver={handleDragOver}
         onDrop={handleCalendarDrop}
       >
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-scroll" style={{ maxHeight: 'calc(100vh - 200px)' }}>
           <DnDCalendar
             localizer={localizer}
             events={events}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: 700 }}
+            style={{ height: '800px', minHeight: '800px' }}
           views={[Views.WEEK, Views.DAY]}
           defaultView={Views.WEEK}
           eventPropGetter={eventStyleGetter}

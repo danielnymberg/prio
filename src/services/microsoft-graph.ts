@@ -200,8 +200,9 @@ export async function getCalendarEvents(
     return response.value.map((event: any) => ({
       id: event.id,
       subject: event.subject,
-      start: event.start.dateTime,
-      end: event.end.dateTime,
+      // Microsoft Graph returnerar UTC-tid utan 'Z', lägg till för korrekt parsning
+      start: event.start.dateTime + 'Z',
+      end: event.end.dateTime + 'Z',
       isAllDay: event.isAllDay,
     }));
   } catch (error) {
