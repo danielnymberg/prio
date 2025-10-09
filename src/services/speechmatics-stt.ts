@@ -50,18 +50,18 @@ export class SpeechmaticsSTT {
             console.log('📝 Partial transcript:', data.metadata.transcript);
             this.onTranscriptCallback?.(data.metadata.transcript, false);
           } else if (data.message === 'AddTranscript') {
-            // Final transcription - prova flera metoder för att få hela texten
+            // Final transcription - Speechmatics skickar full text i results array
             let fullText = '';
 
-            // Metod 1: Använd metadata.transcript direkt (mest pålitlig)
-            if (data.metadata?.transcript) {
-              fullText = data.metadata.transcript;
-              console.log('✅ Final transcript from metadata:', fullText);
+            // Metod 1: Bygg från results array (KORREKT metod enligt Speechmatics docs)
+            if (data.results && data.results.length > 0) {
+              fullText = data.results.map((r: any) => r.alternatives?.[0]?.content || '').join('').trim();
+              console.log('✅ Final transcript from results:', fullText);
             }
-            // Metod 2: Bygg från results array (fallback)
-            else if (data.results && data.results.length > 0) {
-              fullText = data.results.map((r: any) => r.alternatives?.[0]?.content || '').join(' ').trim();
-              console.log('✅ Final transcript from results array:', fullText, '(results:', data.results, ')');
+            // Metod 2: Fallback till metadata.transcript (ofta inkomplett!)
+            else if (data.metadata?.transcript) {
+              fullText = data.metadata.transcript;
+              console.log('⚠️ Final transcript from metadata (fallback):', fullText);
             }
 
             if (fullText.trim()) {
