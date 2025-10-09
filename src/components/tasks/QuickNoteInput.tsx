@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
 import { Plus, Zap, X, MessageSquare, Sparkles, Trash2 } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
@@ -287,7 +287,7 @@ export function QuickNoteInput() {
         )}
 
         <div className="space-y-3">
-          <Input
+          <Textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder={
@@ -306,7 +306,8 @@ export function QuickNoteInput() {
               }
             }}
             autoFocus
-            className="w-full"
+            className="w-full max-h-32"
+            rows={3}
             disabled={isProcessing}
           />
 
@@ -349,9 +350,9 @@ export function QuickNoteInput() {
 
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
           {mode === 'note' ? (
-            <>💡 Enter = lägg till, Esc = avbryt. Hamnar i inbox.</>
+            <>💡 Enter = lägg till, Shift+Enter = ny rad, Esc = avbryt</>
           ) : (
-            <>✨ AI kan skapa uppgifter, svara på frågor och hjälpa dig prioritera!</>
+            <>✨ Enter = skicka, Shift+Enter = ny rad. AI kan skapa uppgifter & hjälpa dig!</>
           )}
         </p>
       </div>
