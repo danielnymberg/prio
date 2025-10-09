@@ -17,6 +17,7 @@ import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
 import { initEmailScheduler } from './services/email-scheduler';
 import { EmailTaskListener } from './components/email/EmailTaskListener';
 import { VoiceInterface } from './components/voice/VoiceInterface';
+import { GlobalSearch } from './components/search/GlobalSearch';
 
 // Lazy load routes för bättre initial load performance
 const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -215,6 +216,8 @@ function HomePage() {
 }
 
 function App() {
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
+
   // Track app version for update notifications
   useEffect(() => {
     const currentVersion = import.meta.env.VITE_APP_VERSION || '1.0.0';
@@ -230,10 +233,24 @@ function App() {
     localStorage.setItem('prio_app_version', currentVersion);
   }, []);
 
+  // Global Search keyboard shortcut (Cmd/Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsGlobalSearchOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <BrowserRouter>
       <VersionBanner />
       <OfflineBanner />
+      <GlobalSearch isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route

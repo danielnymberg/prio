@@ -1,16 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Task, CreateTaskInput } from '@/lib/types';
+import { Task, CreateTaskInput, Project } from '@/lib/types';
 import { List, Search, Filter, Calendar, Clock, CalendarDays, CalendarRange } from 'lucide-react';
 import { isToday, isTomorrow, isThisWeek, isThisMonth, isPast } from 'date-fns';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 type PriorityLevel = 'all' | 'high' | 'medium' | 'low';
 type ViewMode = 'grid' | 'timeline';
 
 export function AllTasksView() {
+  const { user } = useAuth();
   const { tasks, updateTask, createTask, deleteTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -18,6 +21,23 @@ export function AllTasksView() {
   const [filterPriority, setFilterPriority] = useState<PriorityLevel>('all');
   const [filterStatus] = useState<'all' | 'not_started' | 'in_progress' | 'done'>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('timeline');
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  // Hämta projekt för sökning
+  useEffect(() => {
+    if (user) {
+      fetchProjects();
+    }
+  }, [user]);
+
+  const fetchProjects = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('user_id', user.id);
+    setProjects(data || []);
+  };
 
   // Filtrera bort Snabbis (≤2 min) - de visas endast i FocusView
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
@@ -25,10 +45,23 @@ export function AllTasksView() {
   let filteredTasks = activeTasks;
 
   if (searchQuery) {
-    filteredTasks = filteredTasks.filter(t =>
-      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const query = searchQuery.toLowerCase();
+    filteredTasks = filteredTasks.filter(t => {
+      // Sök i titel och beskrivning
+      if (t.title.toLowerCase().includes(query)) return true;
+      if (t.description?.toLowerCase().includes(query)) return true;
+
+      // Sök i projekt-namn och kund
+      if (t.project_id) {
+        const project = projects.find(p => p.id === t.project_id);
+        if (project) {
+          if (project.name.toLowerCase().includes(query)) return true;
+          if (project.client_name?.toLowerCase().includes(query)) return true;
+        }
+      }
+
+      return false;
+    });
   }
 
   if (filterPriority !== 'all') {
@@ -88,7 +121,7 @@ export function AllTasksView() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Sök uppgifter..."
+            placeholder="Sök uppgifter, projekt, kunder..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
