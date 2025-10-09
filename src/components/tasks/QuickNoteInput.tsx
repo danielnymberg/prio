@@ -17,12 +17,37 @@ export function QuickNoteInput() {
   const [note, setNote] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [mode, setMode] = useState<'note' | 'ai'>('ai');
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
+    // Load chat history from localStorage on mount
+    try {
+      const saved = localStorage.getItem('prio_chat_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Convert timestamp strings back to Date objects
+        return parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to load chat history:', error);
+    }
+    return [];
+  });
   const [isProcessing, setIsProcessing] = useState(false);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Save chat history to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('prio_chat_history', JSON.stringify(chatHistory));
+    } catch (error) {
+      console.error('Failed to save chat history:', error);
+    }
+  }, [chatHistory]);
 
   // Initialize Claude
   useEffect(() => {
@@ -165,6 +190,7 @@ export function QuickNoteInput() {
   const clearChat = () => {
     setChatHistory([]);
     claudeRef.current?.clearHistory();
+    localStorage.removeItem('prio_chat_history');
   };
 
   const handleSubmit = () => {
