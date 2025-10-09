@@ -271,7 +271,6 @@ export function WeekCalendarView() {
     const calendarEl = e.currentTarget;
     const rect = calendarEl.getBoundingClientRect();
     const y = e.clientY - rect.top;
-    const x = e.clientX - rect.left;
 
     // Hitta vilket datum/tid baserat på position
     // React Big Calendar har en fast layout vi kan använda
