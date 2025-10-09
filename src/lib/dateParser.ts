@@ -13,6 +13,19 @@ const WEEKDAYS_SV: Record<string, number> = {
   'söndag': 0,
 };
 
+// Helper function to convert local time to ISO string correctly
+function toLocalISOString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  // Return in ISO format but WITHOUT converting to UTC
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
 export function parseNaturalDateTime(text: string, referenceDate: Date = new Date()): string | null {
   const normalized = text.toLowerCase().trim();
   const today = new Date(referenceDate);
@@ -31,21 +44,21 @@ export function parseNaturalDateTime(text: string, referenceDate: Date = new Dat
   // "idag" or just time -> today
   if (normalized.includes('idag') || (timeMatch && !normalized.match(/imorgon|vecka|fredag|måndag|tisdag|onsdag|torsdag|lördag|söndag/))) {
     today.setHours(hours, minutes, 0, 0);
-    return today.toISOString();
+    return toLocalISOString(today);
   }
 
   // "imorgon" -> tomorrow
   if (normalized.includes('imorgon')) {
     today.setDate(today.getDate() + 1);
     today.setHours(hours, minutes, 0, 0);
-    return today.toISOString();
+    return toLocalISOString(today);
   }
 
   // "i övermorgon" -> day after tomorrow
   if (normalized.includes('övermorgon')) {
     today.setDate(today.getDate() + 2);
     today.setHours(hours, minutes, 0, 0);
-    return today.toISOString();
+    return toLocalISOString(today);
   }
 
   // Weekday references (e.g., "på fredag", "fredag kl 10", "nästa måndag")
@@ -61,7 +74,7 @@ export function parseNaturalDateTime(text: string, referenceDate: Date = new Dat
 
       today.setDate(today.getDate() + daysUntil);
       today.setHours(hours, minutes, 0, 0);
-      return today.toISOString();
+      return toLocalISOString(today);
     }
   }
 
@@ -71,7 +84,7 @@ export function parseNaturalDateTime(text: string, referenceDate: Date = new Dat
     if (hoursMatch) {
       const hoursToAdd = parseInt(hoursMatch[1]);
       today.setHours(today.getHours() + hoursToAdd);
-      return today.toISOString();
+      return toLocalISOString(today);
     }
   }
 
@@ -81,7 +94,7 @@ export function parseNaturalDateTime(text: string, referenceDate: Date = new Dat
       const daysToAdd = parseInt(daysMatch[1]);
       today.setDate(today.getDate() + daysToAdd);
       today.setHours(hours, minutes, 0, 0);
-      return today.toISOString();
+      return toLocalISOString(today);
     }
   }
 
@@ -89,7 +102,7 @@ export function parseNaturalDateTime(text: string, referenceDate: Date = new Dat
   if (normalized.includes('nästa vecka')) {
     today.setDate(today.getDate() + 7);
     today.setHours(hours, minutes, 0, 0);
-    return today.toISOString();
+    return toLocalISOString(today);
   }
 
   return null;

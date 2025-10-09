@@ -16,7 +16,14 @@ const msalConfig = {
 };
 
 const loginRequest = {
-  scopes: ['User.Read', 'Calendars.Read', 'Calendars.ReadWrite'],
+  scopes: [
+    'User.Read',
+    'Calendars.Read',
+    'Calendars.ReadWrite',
+    'Mail.Read',
+    'Mail.ReadWrite',    // Draft emails
+    'Contacts.Read',     // Read contacts
+  ],
 };
 
 // Initialize MSAL
@@ -110,19 +117,32 @@ export interface DeadlineAnalysis {
   freeSlots: FreeTimeSlot[];
 }
 
+export interface EmailMessage {
+  id: string;
+  subject: string;
+  from: string;
+  receivedDateTime: string;
+  bodyPreview: string;
+  isRead: boolean;
+}
+
 // Login to Microsoft account
-export async function loginToMicrosoft(): Promise<boolean> {
+export async function loginToMicrosoft(forceConsent: boolean = false): Promise<boolean> {
   const msal = await getMsalInstance();
   if (!msal) {
     throw new Error('Azure Client ID not configured');
   }
 
   try {
+    const loginParams = {
+      ...loginRequest,
+      ...(forceConsent ? { prompt: 'consent' } : {}),
+    };
     // Använd popup med explicit konfiguration för PWA
     await msal.loginPopup({
-      ...loginRequest,
+      ...loginParams,
       redirectUri: window.location.origin,
-      prompt: 'select_account',
+      prompt: forceConsent ? 'consent' : 'select_account',
     });
     return true;
   } catch (error) {
@@ -476,5 +496,112 @@ export async function blockMultipleSessions(
   } catch (error) {
     console.error('Failed to block multiple sessions:', error);
     return { success: bookedCount > 0, bookedCount };
+  }
+}
+
+// Get unread emails
+export async function getUnreadEmails(maxCount: number = 50): Promise<EmailMessage[]> {
+  const client = await getGraphClient();
+  if (!client) return [];
+
+  try {
+    const response = await client
+      .api('/me/messages')
+      .filter('isRead eq false')
+      .select('id,subject,from,receivedDateTime,bodyPreview,isRead')
+      .orderby('receivedDateTime desc')
+      .top(maxCount)
+      .get();
+
+    return response.value.map((email: any) => ({
+      id: email.id,
+      subject: email.subject || '(Inget ämne)',
+      from: email.from?.emailAddress?.name || email.from?.emailAddress?.address || 'Okänd',
+      receivedDateTime: email.receivedDateTime,
+      bodyPreview: email.bodyPreview || '',
+      isRead: email.isRead,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch unread emails:', error);
+    return [];
+  }
+}
+
+// Mark email as read
+export async function markEmailAsRead(emailId: string): Promise<boolean> {
+  const client = await getGraphClient();
+  if (!client) return false;
+
+  try {
+    await client.api(`/me/messages/${emailId}`).patch({
+      isRead: true,
+    });
+    return true;
+  } catch (error) {
+    console.error('Failed to mark email as read:', error);
+    return false;
+  }
+}
+
+// Update calendar event (för att flytta/ändra möten)
+export async function updateCalendarEvent(
+  eventId: string,
+  updates: {
+    subject?: string;
+    start?: Date;
+    end?: Date;
+    body?: string;
+  }
+): Promise<boolean> {
+  const client = await getGraphClient();
+  if (!client) return false;
+
+  try {
+    const updateData: any = {};
+
+    if (updates.subject) {
+      updateData.subject = updates.subject;
+    }
+
+    if (updates.start) {
+      updateData.start = {
+        dateTime: updates.start.toISOString(),
+        timeZone: 'Europe/Stockholm',
+      };
+    }
+
+    if (updates.end) {
+      updateData.end = {
+        dateTime: updates.end.toISOString(),
+        timeZone: 'Europe/Stockholm',
+      };
+    }
+
+    if (updates.body) {
+      updateData.body = {
+        contentType: 'text',
+        content: updates.body,
+      };
+    }
+
+    await client.api(`/me/calendar/events/${eventId}`).patch(updateData);
+    return true;
+  } catch (error) {
+    console.error('Failed to update calendar event:', error);
+    return false;
+  }
+}
+
+// Delete calendar event
+export async function deleteCalendarEvent(eventId: string): Promise<boolean> {
+  const client = await getGraphClient();
+  if (!client) return false;
+
+  try {
+    await client.api(`/me/calendar/events/${eventId}`).delete();
+    return true;
+  } catch (error) {
+    console.error('Failed to delete calendar event:', error);
+    return false;
   }
 }

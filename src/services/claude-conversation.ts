@@ -17,12 +17,14 @@ export class ClaudeConversation {
   private conversationHistory: any[] = [];
   private onTaskCreate?: (input: CreateTaskInput) => Promise<Task>;
   private onTaskUpdate?: (id: string, input: UpdateTaskInput) => Promise<Task>;
+  private onTaskDelete?: (id: string) => Promise<boolean>;
 
   constructor(
     initialContext: Partial<ConversationContext>,
     callbacks?: {
       onTaskCreate?: (input: CreateTaskInput) => Promise<Task>;
       onTaskUpdate?: (id: string, input: UpdateTaskInput) => Promise<Task>;
+      onTaskDelete?: (id: string) => Promise<boolean>;
     }
   ) {
     this.context = {
@@ -36,6 +38,7 @@ export class ClaudeConversation {
 
     this.onTaskCreate = callbacks?.onTaskCreate;
     this.onTaskUpdate = callbacks?.onTaskUpdate;
+    this.onTaskDelete = callbacks?.onTaskDelete;
   }
 
   async chat(userMessage: string): Promise<string> {
@@ -57,11 +60,20 @@ export class ClaudeConversation {
 
   private async getContinuationResponse(): Promise<string> {
     try {
-      // Anropa backend istället för direkt API-call
+      // Hämta Supabase session token
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      // Anropa backend med auth token
       const response = await fetch(`${BACKEND_URL}/api/claude-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           messages: this.conversationHistory,
@@ -135,6 +147,13 @@ ${JSON.stringify({
   totalProjektBudget: this.context.projects.reduce((sum, p) => sum + (p.total_budget || 0), 0).toLocaleString('sv-SE') + ' kr',
   dagensKalender: this.context.calendarEvents.length + ' händelser',
 }, null, 2)}
+
+TILLGÄNGLIGA FUNKTIONER:
+✅ Tasks: Skapa, uppdatera, radera tasks med CPM-värden
+✅ Kalender: Visa, analysera, boka fokustid i Microsoft Calendar
+✅ Mejl: Visa olästa mejl, skapa tasks från mejl (list_unread_emails, process_unread_emails)
+✅ Projekt: Visa, analysera projekt och budgetar
+✅ Tid: Tolka naturliga tidsuttryck ("kl 14", "imorgon", "på fredag")
 
 KONVERSATIONSSTIL:
 - Prata naturlig svenska
@@ -211,14 +230,46 @@ När användaren frågar om deadlines baserat på tillgänglig tid:
 3. "Boka in tid för X"
    → Använd block_calendar_time
 
-VIKTIGT: Om användaren INTE är inloggad på Microsoft, förklara att de behöver logga in i inställningar för att använda kalenderfunktioner.
+VIKTIGT: Om användaren INTE är inloggad på Microsoft, förklara att de behöver logga in i inställningar för att använda kalender- och mejlfunktioner.
 
-VIKTIGA KALENDERFUNKTIONER:
+MEJL-INTEGRATION (QUICKIES FRÅN MEJL):
+✅ DU HAR TILLGÅNG TILL MEJL-FUNKTIONER! Använd list_unread_emails och process_unread_emails verktygen.
+
+När användaren vill processa olästa mejl:
+
+1. "Skapa tasks från mina olästa mejl"
+   → Använd först list_unread_emails för att visa överblick
+   → Fråga användaren hur de vill gruppera (per mejl, per avsändare, eller efter ämne)
+   → Använd sedan process_unread_emails med vald gruppering
+
+2. "Visa mina olästa mejl"
+   → Använd list_unread_emails
+
+3. Exempel på grupperingar:
+   - group_by: 'none' → En task per mejl (bra för få mejl)
+   - group_by: 'sender' → Gruppera per avsändare (bra för många mejl från samma person)
+   - group_by: 'subject_keyword' → Gruppera liknande ämnen (ej implementerat än)
+
+4. Auto-markera som läst:
+   - Fråga ALLTID användaren innan auto_mark_read: true
+   - Default: false (låt mejlen vara olästa)
+
+WORKFLOW FÖR MEJL-QUICKIES:
+1. Användare: "Skapa tasks från mina mejl"
+2. Du: [använder list_unread_emails]
+3. Svar: "Du har 23 olästa mejl. Vill du skapa en task per mejl, eller gruppera per avsändare?"
+4. Användare: "Gruppera per avsändare"
+5. Du: [använder process_unread_emails med group_by: 'sender']
+6. Svar: "✅ Skapade 8 Quickies från 23 mejl, grupperade per avsändare!"
+
+VIKTIGA KALENDER- OCH MEJLFUNKTIONER:
 - list_calendar_events: Visa vad som är bokat (ANVÄND ALLTID INNAN du bokar ny tid!)
 - get_daily_overview: Se dagens schema + tasks (för att svara på "vad har jag idag?")
 - analyze_calendar_capacity: Analysera lediga tider för längre projekt
 - block_calendar_time: Boka fokustid i kalendern
 - calculate_realistic_deadline: Beräkna realistisk deadline baserat på tillgänglig tid
+- list_unread_emails: Visa olästa mejl
+- process_unread_emails: Skapa Quickies (tasks) från olästa mejl
 
 WORKFLOW FÖR KALENDERBOKNING (VIKTIGT!):
 1. ALLTID kolla befintliga bokningar med list_calendar_events INNAN du bokar ny tid
@@ -305,7 +356,7 @@ Vill du att jag bokar in fokustid för dessa?"
 
 BEFINTLIGA TASKS:
 ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
-  `- ${t.title} (value: ${t.value_score || 5}, time: ${t.time_sensitivity || 5}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`
+  `- [ID: ${t.id}] ${t.title} (value: ${t.value_score || 5}, time: ${t.time_sensitivity || 5}) ${t.deadline ? `deadline: ${t.deadline}` : ''}`
 ).join('\n')}`;
   }
 
@@ -368,11 +419,14 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       },
       {
         name: 'update_task',
-        description: 'Uppdatera en befintlig task',
+        description: 'Uppdatera en befintlig task. VIKTIGT: Använd task-ID från listan BEFINTLIGA TASKS, inte task-titeln!',
         input_schema: {
           type: 'object',
           properties: {
-            task_id: { type: 'string' },
+            task_id: {
+              type: 'string',
+              description: 'UUID för tasken (finns i [ID: ...] i BEFINTLIGA TASKS-listan)'
+            },
             changes: {
               type: 'object',
               properties: {
@@ -412,6 +466,20 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
             },
           },
           required: ['task_id', 'changes'],
+        },
+      },
+      {
+        name: 'delete_task',
+        description: 'Ta bort en task permanent. VIKTIGT: Använd task-ID från listan BEFINTLIGA TASKS, inte task-titeln!',
+        input_schema: {
+          type: 'object',
+          properties: {
+            task_id: {
+              type: 'string',
+              description: 'UUID för tasken att radera (finns i [ID: ...] i BEFINTLIGA TASKS-listan)'
+            },
+          },
+          required: ['task_id'],
         },
       },
       {
@@ -647,6 +715,45 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
           required: ['project_id', 'changes'],
         },
       },
+      {
+        name: 'process_unread_emails',
+        description: 'Hämta olästa mejl och skapa tasks (Quickies) automatiskt. Grupperar mejl efter avsändare/ämne och skapar en task per mejl eller grupp.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            max_emails: {
+              type: 'number',
+              description: 'Max antal mejl att hämta (standard 50)',
+              minimum: 1,
+              maximum: 100,
+            },
+            group_by: {
+              type: 'string',
+              enum: ['none', 'sender', 'subject_keyword'],
+              description: 'Gruppering: none (en task per mejl), sender (gruppera per avsändare), subject_keyword (gruppera liknande ämnen)',
+            },
+            auto_mark_read: {
+              type: 'boolean',
+              description: 'Markera mejl som lästa efter att task skapats (standard false)',
+            },
+          },
+        },
+      },
+      {
+        name: 'list_unread_emails',
+        description: 'Visa olästa mejl utan att skapa tasks. Använd detta för att ge användaren en överblick innan de beslutar vad som ska göras.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            max_count: {
+              type: 'number',
+              description: 'Max antal mejl att visa (standard 20)',
+              minimum: 1,
+              maximum: 100,
+            },
+          },
+        },
+      },
     ];
   }
 
@@ -664,6 +771,9 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
               break;
             case 'update_task':
               result = await this.updateTask((block.input as any).task_id, (block.input as any).changes);
+              break;
+            case 'delete_task':
+              result = await this.deleteTask((block.input as any).task_id);
               break;
             case 'analyze_priorities':
               result = await this.analyzePriorities((block.input as any).focus_area);
@@ -718,6 +828,16 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
                 (block.input as any).changes
               );
               break;
+            case 'process_unread_emails':
+              result = await this.processUnreadEmails(
+                (block.input as any).max_emails,
+                (block.input as any).group_by,
+                (block.input as any).auto_mark_read
+              );
+              break;
+            case 'list_unread_emails':
+              result = await this.listUnreadEmails((block.input as any).max_count);
+              break;
             default:
               result = { error: 'Unknown tool' };
           }
@@ -766,6 +886,35 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       return { success: true, task };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Failed to update task' };
+    }
+  }
+
+  private async deleteTask(taskId: string) {
+    try {
+      if (!this.onTaskDelete) {
+        return { error: 'Task delete inte tillgängligt' };
+      }
+
+      const task = this.context.tasks.find(t => t.id === taskId);
+      if (!task) {
+        return { error: `Hittade ingen task med ID ${taskId}` };
+      }
+
+      const success = await this.onTaskDelete(taskId);
+
+      if (success) {
+        // Ta bort från context
+        this.context.tasks = this.context.tasks.filter(t => t.id !== taskId);
+
+        return {
+          success: true,
+          message: `✅ Task "${task.title}" har raderats!`,
+        };
+      } else {
+        return { error: 'Kunde inte radera tasken' };
+      }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte radera task' };
     }
   }
 
@@ -1176,6 +1325,143 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte uppdatera projekt' };
+    }
+  }
+
+  private async listUnreadEmails(maxCount: number = 20) {
+    try {
+      const { getUnreadEmails, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const emails = await getUnreadEmails(maxCount);
+
+      return {
+        success: true,
+        count: emails.length,
+        emails: emails.map((e) => ({
+          subject: e.subject,
+          from: e.from,
+          received: new Date(e.receivedDateTime).toLocaleString('sv-SE'),
+          preview: e.bodyPreview.substring(0, 100) + (e.bodyPreview.length > 100 ? '...' : ''),
+        })),
+        summary: `${emails.length} olästa mejl`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte hämta mejl' };
+    }
+  }
+
+  private async processUnreadEmails(
+    maxEmails: number = 50,
+    groupBy: 'none' | 'sender' | 'subject_keyword' = 'none',
+    autoMarkRead: boolean = false
+  ) {
+    try {
+      const { getUnreadEmails, markEmailAsRead, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const emails = await getUnreadEmails(maxEmails);
+
+      if (emails.length === 0) {
+        return {
+          success: true,
+          message: '✅ Inga olästa mejl att processa!',
+          tasks_created: 0,
+        };
+      }
+
+      const tasksCreated: any[] = [];
+
+      if (groupBy === 'none') {
+        // Skapa en task per mejl
+        for (const email of emails) {
+          const taskTitle = `📧 ${email.subject}`;
+          const taskDescription = `Från: ${email.from}\nMottaget: ${new Date(email.receivedDateTime).toLocaleString('sv-SE')}\n\n${email.bodyPreview}`;
+
+          if (this.onTaskCreate) {
+            const task = await this.onTaskCreate({
+              title: taskTitle,
+              description: taskDescription,
+              value_score: 6,
+              time_sensitivity: 5,
+              confidence: 7,
+              effort: 3,
+              estimated_duration: 15, // 15 min default för mejl
+              priority_flag: 'whenever',
+            });
+
+            if (task) {
+              tasksCreated.push(task);
+              if (autoMarkRead) {
+                await markEmailAsRead(email.id);
+              }
+            }
+          }
+        }
+      } else if (groupBy === 'sender') {
+        // Gruppera per avsändare
+        const grouped = new Map<string, typeof emails>();
+        for (const email of emails) {
+          const sender = email.from;
+          if (!grouped.has(sender)) {
+            grouped.set(sender, []);
+          }
+          grouped.get(sender)!.push(email);
+        }
+
+        for (const [sender, senderEmails] of grouped) {
+          const taskTitle = `📧 ${senderEmails.length} mejl från ${sender}`;
+          const taskDescription = senderEmails
+            .map((e, i) => `${i + 1}. ${e.subject}\n   ${new Date(e.receivedDateTime).toLocaleString('sv-SE')}`)
+            .join('\n\n');
+
+          if (this.onTaskCreate) {
+            const task = await this.onTaskCreate({
+              title: taskTitle,
+              description: taskDescription,
+              value_score: 6,
+              time_sensitivity: 5,
+              confidence: 7,
+              effort: Math.min(senderEmails.length * 2, 10), // 2 poäng per mejl, max 10
+              estimated_duration: senderEmails.length * 10, // 10 min per mejl
+              priority_flag: 'whenever',
+            });
+
+            if (task) {
+              tasksCreated.push(task);
+              if (autoMarkRead) {
+                for (const email of senderEmails) {
+                  await markEmailAsRead(email.id);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return {
+        success: true,
+        tasks_created: tasksCreated.length,
+        emails_processed: emails.length,
+        marked_as_read: autoMarkRead,
+        message: `✅ Skapade ${tasksCreated.length} Quickies från ${emails.length} mejl!`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte processa mejl' };
     }
   }
 }

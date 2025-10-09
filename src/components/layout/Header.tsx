@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -8,6 +8,7 @@ import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
 import { useTasks } from '@/hooks/useTasks';
 import { CreateTaskInput, DailyCheckIn } from '@/lib/types';
 import { LogOut, User, Plus, Menu, RefreshCw, Settings } from 'lucide-react';
+import { isMicrosoftLoggedIn } from '@/services/microsoft-graph';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -19,6 +20,20 @@ export function Header({ onMenuClick }: HeaderProps) {
   const navigate = useNavigate();
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+  const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
+
+  // Check Microsoft connection status
+  useEffect(() => {
+    const checkMicrosoftStatus = async () => {
+      const connected = await isMicrosoftLoggedIn();
+      setIsMicrosoftConnected(connected);
+    };
+    checkMicrosoftStatus();
+
+    // Re-check every 30 seconds
+    const interval = setInterval(checkMicrosoftStatus, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleCheckInComplete = (checkIn: DailyCheckIn) => {
     localStorage.setItem('prio-daily-checkin', JSON.stringify(checkIn));
@@ -48,6 +63,18 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Microsoft status indicator */}
+          <div
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-sand-100 dark:bg-charcoal-850 cursor-pointer hover:bg-sand-200 dark:hover:bg-charcoal-800 transition-colors"
+            onClick={() => navigate('/settings')}
+            title={isMicrosoftConnected ? 'Microsoft Calendar ansluten' : 'Microsoft Calendar ej ansluten - klicka för att ansluta'}
+          >
+            <div className={`w-2 h-2 rounded-full ${isMicrosoftConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+            <span className="text-xs text-stone-600 dark:text-stone-400 hidden sm:inline">
+              MSFT
+            </span>
+          </div>
+
           <Button
             variant="ghost"
             size="sm"

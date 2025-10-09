@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { isPast, isToday, isTomorrow } from 'date-fns';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Copy, Edit2, Check, X, Clock, Trash2 } from 'lucide-react';
+import { Copy, Check, X, Clock, Trash2 } from 'lucide-react';
 import { formatDuration, getDurationColor, getDurationIcon } from '@/lib/utils';
 import { isEmergencyTask, isOverdueTask, formatTimeUntilDeadline } from '@/lib/priorityCalculation';
 
@@ -45,7 +45,9 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
   useEffect(() => {
     if (isEditingTitle && titleInputRef.current) {
       titleInputRef.current.focus();
-      titleInputRef.current.select();
+      // Move cursor to end instead of selecting all text
+      const length = titleInputRef.current.value.length;
+      titleInputRef.current.setSelectionRange(length, length);
     }
   }, [isEditingTitle]);
 
@@ -159,46 +161,17 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      {/* Action buttons */}
-      <div className={`absolute top-3 right-3 flex gap-1 transition-opacity ${showActions || isTouchDevice ? 'opacity-100' : 'opacity-0'}`}>
-        {onUpdate && !isEditingTitle && (
-          <button
-            onClick={handleTitleEdit}
-            className="p-1.5 rounded-lg bg-sand-200 dark:bg-charcoal-800 hover:bg-sand-300 dark:hover:bg-charcoal-700"
-            title="Redigera titel"
-          >
-            <Edit2 className="h-3 w-3 text-stone-600 dark:text-stone-300" />
-          </button>
-        )}
-        {onDuplicate && (
-          <button
-            onClick={handleDuplicate}
-            className="p-1.5 rounded-lg bg-sand-200 dark:bg-charcoal-800 hover:bg-sand-300 dark:hover:bg-charcoal-700"
-            title="Skapa liknande task"
-          >
-            <Copy className="h-3 w-3 text-stone-600 dark:text-stone-300" />
-          </button>
-        )}
-        {onDelete && (
-          <button
-            onClick={handleDelete}
-            className="p-1.5 rounded-lg bg-error-100 dark:bg-error-950 hover:bg-error-200 dark:hover:bg-error-900"
-            title="Radera task"
-          >
-            <Trash2 className="h-3 w-3 text-error-600 dark:text-error-400" />
-          </button>
-        )}
-      </div>
-
+      {/* Header med titel och priority */}
       <div className="flex items-start justify-between gap-2 mb-2">
         {isEditingTitle ? (
-          <div className="flex items-center gap-2 flex-1 pr-6">
+          <div className="flex items-center gap-2 flex-1">
             <input
               ref={titleInputRef}
               value={editedTitle}
               onChange={(e) => setEditedTitle(e.target.value)}
               onKeyDown={handleTitleKeyDown}
               onBlur={handleTitleSave}
+              onClick={(e) => e.stopPropagation()}
               className="flex-1 text-sm font-semibold bg-transparent border-b border-copper-500 focus:outline-none text-stone-900 dark:text-cream-50"
             />
             <button
@@ -217,21 +190,47 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
             </button>
           </div>
         ) : (
-          <h3 className="font-semibold text-sm text-stone-900 dark:text-cream-50 truncate flex-1 pr-6">
-            {task.title}
-          </h3>
+          <>
+            <h3 className="font-semibold text-sm text-stone-900 dark:text-cream-50 truncate flex-1">
+              {task.title}
+            </h3>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {task.estimated_duration && (
+                <span className="text-xs" title={`Uppskattad tid: ${formatDuration(task.estimated_duration)}`}>
+                  {getDurationIcon(task.estimated_duration)}
+                </span>
+              )}
+              <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">
+                {task.priority.toFixed(1)}
+              </span>
+            </div>
+          </>
         )}
-        <div className="flex items-center gap-2">
-          {task.estimated_duration && (
-            <span className="text-xs" title={`Uppskattad tid: ${formatDuration(task.estimated_duration)}`}>
-              {getDurationIcon(task.estimated_duration)}
-            </span>
-          )}
-          <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">
-            {task.priority.toFixed(1)}
-          </span>
-        </div>
       </div>
+
+      {/* Action buttons - flyttade till botten */}
+      {!isEditingTitle && (
+        <div className={`absolute bottom-3 right-3 flex gap-1 transition-opacity ${showActions || isTouchDevice ? 'opacity-100' : 'opacity-0'}`}>
+          {onDuplicate && (
+            <button
+              onClick={handleDuplicate}
+              className="p-1.5 rounded-lg bg-sand-200 dark:bg-charcoal-800 hover:bg-sand-300 dark:hover:bg-charcoal-700"
+              title="Skapa liknande task"
+            >
+              <Copy className="h-3 w-3 text-stone-600 dark:text-stone-300" />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              className="p-1.5 rounded-lg bg-error-100 dark:bg-error-950 hover:bg-error-200 dark:hover:bg-error-900"
+              title="Radera task"
+            >
+              <Trash2 className="h-3 w-3 text-error-600 dark:text-error-400" />
+            </button>
+          )}
+        </div>
+      )}
 
       {task.description && (
         <p className={`text-xs text-stone-600 dark:text-stone-400 line-clamp-2 mb-2 transition-opacity ${

@@ -243,7 +243,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         <div className="space-y-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border">
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">CPM Prioritering</h3>
 
-          <div>
+          <div className="select-none">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Värde - Objektiva konsekvenser: {valueScore}/10
             </label>
@@ -256,7 +256,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               max="10"
               value={valueScore}
               onChange={(e) => setValueScore(Number(e.target.value))}
-              className="w-full"
+              className="w-full cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
               <span>Minimal påverkan</span>
@@ -264,7 +264,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             </div>
           </div>
 
-          <div>
+          <div className="select-none">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tidskänslighet - Kostnad av fördröjning: {timeSensitivity}/10
             </label>
@@ -277,7 +277,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               max="10"
               value={timeSensitivity}
               onChange={(e) => setTimeSensitivity(Number(e.target.value))}
-              className="w-full"
+              className="w-full cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
               <span>Kan vänta (låg kostnad)</span>
@@ -306,7 +306,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             )}
           </div>
 
-          <div>
+          <div className="select-none">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tillit/Säkerhet - Sannolikhet för resultat: {confidence}/10
             </label>
@@ -316,7 +316,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               max="10"
               value={confidence}
               onChange={(e) => setConfidence(Number(e.target.value))}
-              className="w-full"
+              className="w-full cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
               <span>Osäker</span>
@@ -324,7 +324,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             </div>
           </div>
 
-          <div>
+          <div className="select-none">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Ansträngning - Faktisk tid/resurser: {effort}/10
             </label>
@@ -334,7 +334,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               max="10"
               value={effort}
               onChange={(e) => setEffort(Number(e.target.value))}
-              className="w-full"
+              className="w-full cursor-pointer"
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
               <span>Lätt</span>

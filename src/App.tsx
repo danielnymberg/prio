@@ -14,6 +14,8 @@ import { toast } from 'react-hot-toast';
 import { useTasks } from './hooks/useTasks';
 import { checkAndSendNotifications } from './services/notifications';
 import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
+import { initEmailScheduler } from './services/email-scheduler';
+import { EmailTaskListener } from './components/email/EmailTaskListener';
 
 // Lazy load routes för bättre initial load performance
 const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -32,6 +34,7 @@ const SettingsView = lazy(() => import('./components/settings/SettingsView').the
 const ProjectsView = lazy(() => import('./components/projects/ProjectsView').then(m => ({ default: m.ProjectsView })));
 const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetailView').then(m => ({ default: m.ProjectDetailView })));
 const OverviewView = lazy(() => import('./components/overview/OverviewView').then(m => ({ default: m.OverviewView })));
+const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSidebar').then(m => ({ default: m.CalendarWithTaskSidebar })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -103,6 +106,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return () => clearInterval(intervalId);
   }, [user, loading, tasks]);
 
+  // Initialize email scheduler
+  useEffect(() => {
+    if (!user || loading) return;
+
+    initEmailScheduler();
+  }, [user, loading]);
+
   // Weekly review trigger (Monday 06:00)
   useEffect(() => {
     if (!user || loading) return;
@@ -147,6 +157,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return (
     <AppLayout>
       {children}
+      {/* Email task listener (realtime) */}
+      <EmailTaskListener />
       {/* Quick note input */}
       <QuickNoteInput />
       {/* Quick capture bar för mobil */}
@@ -390,6 +402,17 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <ProjectDetailView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Calendar */}
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <CalendarView />
               </Suspense>
             </ProtectedRoute>
           }

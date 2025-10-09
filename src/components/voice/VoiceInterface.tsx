@@ -24,7 +24,7 @@ export function VoiceInterface() {
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const { tasks, createTask, updateTask } = useTasks();
+  const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
 
   const initializeServices = async () => {
@@ -77,6 +77,7 @@ export function VoiceInterface() {
           {
             onTaskCreate: createTask,
             onTaskUpdate: updateTask,
+            onTaskDelete: deleteTask,
           }
         );
       }

@@ -16,11 +16,11 @@ interface ChatMessage {
 export function QuickNoteInput() {
   const [note, setNote] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
-  const [mode, setMode] = useState<'note' | 'ai'>('note');
+  const [mode, setMode] = useState<'note' | 'ai'>('ai');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const claudeRef = useRef<ClaudeConversation | null>(null);
-  const { tasks, createTask, updateTask } = useTasks();
+  const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -67,17 +67,24 @@ export function QuickNoteInput() {
           {
             onTaskCreate: createTask,
             onTaskUpdate: updateTask,
+            onTaskDelete: deleteTask,
           }
         );
       }
     };
 
     initializeClaude();
-  }, [tasks, createTask, updateTask, user]);
+  }, [tasks, createTask, updateTask, deleteTask, user]);
 
-  // Auto-scroll chat
+  // Auto-scroll chat only for user messages, not for assistant responses
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatHistory.length > 0) {
+      const lastMessage = chatHistory[chatHistory.length - 1];
+      // Only auto-scroll if the last message is from the user
+      if (lastMessage.role === 'user') {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   }, [chatHistory]);
 
   const handleQuickAdd = async () => {
@@ -187,17 +194,6 @@ export function QuickNoteInput() {
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setMode('note')}
-            className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-              mode === 'note'
-                ? 'bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            <Plus className="h-4 w-4" />
-            Anteckning
-          </button>
-          <button
             onClick={() => setMode('ai')}
             className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
               mode === 'ai'
@@ -207,6 +203,17 @@ export function QuickNoteInput() {
           >
             <Sparkles className="h-4 w-4" />
             AI
+          </button>
+          <button
+            onClick={() => setMode('note')}
+            className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+              mode === 'note'
+                ? 'bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            <Plus className="h-4 w-4" />
+            Anteckning
           </button>
         </div>
         <button
