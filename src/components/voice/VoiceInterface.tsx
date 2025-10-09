@@ -5,6 +5,7 @@ import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
+import { hasApiKey } from '@/services/api-keys';
 
 interface ConversationMessage {
   role: 'user' | 'assistant';
@@ -36,8 +37,8 @@ export function VoiceInterface() {
       // Initialize STT (backend hanterar auth och config)
       sttRef.current = new SpeechmaticsSTT();
 
-      // Initialize Claude
-      if (import.meta.env.VITE_ANTHROPIC_API_KEY) {
+      // Initialize Claude (check localStorage for user's API key)
+      if (hasApiKey('anthropic')) {
         // Hämta kalenderhändelser om användaren är inloggad på Microsoft
         let calendarEvents: any[] = [];
         try {

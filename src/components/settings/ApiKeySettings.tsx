@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/Button';
 import {
   getApiKeys,
   saveApiKeys,
-  deleteApiKeys,
   hasApiKey,
   getUsageStats,
   calculateMonthlyCost,
@@ -64,11 +63,6 @@ export function ApiKeySettings() {
     resetUsageStats();
     setMonthlyCost(calculateMonthlyCost(getUsageStats()));
     toast.success('Användningsstatistik nollställd');
-  };
-
-  const maskKey = (key: string) => {
-    if (!key || key.length < 8) return '••••••••';
-    return `${key.slice(0, 4)}••••${key.slice(-4)}`;
   };
 
   return (
