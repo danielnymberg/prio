@@ -17,14 +17,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
 
-  const activeTasks = tasks.filter(t => t.status !== 'done');
+  // Exkludera Snabbis (≤2 min) från räknare - de visas endast i FocusView
+  const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
   const todayTasks = activeTasks.filter(t => t.deadline && isToday(new Date(t.deadline)));
   const weekTasks = activeTasks.filter(t => t.deadline && isThisWeek(new Date(t.deadline)));
   const overdueTasks = activeTasks.filter(t => t.deadline && isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline)));
   const inboxTasks = tasks.filter(t =>
     t.status === 'not_started' &&
     !t.deadline &&
-    (t.value_score === 8 && t.time_sensitivity === 5)
+    (t.value_score === 8 && t.time_sensitivity === 5) &&
+    (t.estimated_duration || 999) > 2  // Exkludera Snabbis från Inkorg-räknare
   );
 
   const navItems = [
