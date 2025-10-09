@@ -457,7 +457,7 @@ export function WeekCalendarView() {
             events={events}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: '800px', minHeight: '800px' }}
+            style={{ height: '1400px', minHeight: '1400px' }}
           views={[Views.WEEK, Views.DAY]}
           defaultView={Views.WEEK}
           eventPropGetter={eventStyleGetter}

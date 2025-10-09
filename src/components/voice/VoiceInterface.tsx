@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic, MicOff, MessageSquare, X, Send } from 'lucide-react';
+import { Mic, MicOff, MessageSquare, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
@@ -20,7 +20,6 @@ export function VoiceInterface() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>(''); // Ny: visa aktuell status
-  const [textInput, setTextInput] = useState('');
 
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
@@ -331,36 +330,6 @@ export function VoiceInterface() {
               <p className="text-sm text-gray-900 dark:text-white">{transcript}</p>
             </div>
           )}
-
-          {/* Text Input */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (textInput.trim()) {
-                  handleUserMessage(textInput);
-                  setTextInput('');
-                }
-              }}
-              className="flex gap-2"
-            >
-              <input
-                type="text"
-                value={textInput}
-                onChange={(e) => setTextInput(e.target.value)}
-                placeholder="Skriv här eller använd mikrofonen..."
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-copper-500"
-              />
-              <Button
-                type="submit"
-                size="sm"
-                disabled={!textInput.trim()}
-                className="px-3"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </div>
 
           {/* Error Display */}
           {error && (
