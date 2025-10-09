@@ -223,6 +223,45 @@ export function WeekCalendarView() {
     }
   };
 
+  // Hantera drop av task från sidebar
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleCalendarDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+
+    const taskId = e.dataTransfer.getData('taskId');
+    const taskTitle = e.dataTransfer.getData('taskTitle');
+    const taskDuration = parseInt(e.dataTransfer.getData('taskDuration') || '60');
+
+    if (!taskId) return;
+    if (!isMsftConnected) {
+      toast.error('Anslut till Microsoft för att schemalägga');
+      return;
+    }
+
+    // För nu, använd nuvarande tid + 1 timme som default
+    const dropTime = new Date();
+    dropTime.setHours(dropTime.getHours() + 1, 0, 0, 0);
+
+    try {
+      // Boka tid i kalendern
+      const success = await blockCalendarTime(dropTime, taskDuration, taskTitle);
+
+      if (success) {
+        // Uppdatera task med deadline
+        await updateTask(taskId, { deadline: dropTime.toISOString() });
+        toast.success('Task schemalagd!');
+        loadCalendarData();
+      }
+    } catch (error) {
+      console.error('Failed to schedule task:', error);
+      toast.error('Kunde inte schemalägga task');
+    }
+  };
+
   // Hantera klick på tomt slot (boka fokustid)
   const handleSelectSlot = async (slotInfo: SlotInfo) => {
     if (!isMsftConnected) {
@@ -346,7 +385,11 @@ export function WeekCalendarView() {
       </div>
 
       {/* Calendar */}
-      <div className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container">
+      <div
+        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container"
+        onDragOver={handleDragOver}
+        onDrop={handleCalendarDrop}
+      >
         <DnDCalendar
           localizer={localizer}
           events={events}

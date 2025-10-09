@@ -37,50 +37,48 @@ export function VoiceInterface() {
       sttRef.current = new SpeechmaticsSTT();
 
       // Initialize Claude (backend har API-nyckeln)
-      {
-        // Hämta kalenderhändelser om användaren är inloggad på Microsoft
-        let calendarEvents: any[] = [];
-        try {
-          const { getCalendarEvents, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
-          const isLoggedIn = await isMicrosoftLoggedIn();
+      // Hämta kalenderhändelser om användaren är inloggad på Microsoft
+      let calendarEvents: any[] = [];
+      try {
+        const { getCalendarEvents, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
+        const isLoggedIn = await isMicrosoftLoggedIn();
 
-          if (isLoggedIn) {
-            const now = new Date();
-            const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dagar framåt
-            calendarEvents = await getCalendarEvents(now, endDate);
-          }
-        } catch (error) {
-          console.error('Failed to fetch calendar events:', error);
+        if (isLoggedIn) {
+          const now = new Date();
+          const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 dagar framåt
+          calendarEvents = await getCalendarEvents(now, endDate);
         }
-
-        // Hämta projekt
-        let projects: any[] = [];
-        try {
-          const { supabase } = await import('@/lib/supabase');
-          const { data } = await supabase
-            .from('projects')
-            .select('*')
-            .eq('user_id', user.id);
-          if (data) projects = data;
-        } catch (error) {
-          console.error('Failed to fetch projects:', error);
-        }
-
-        claudeRef.current = new ClaudeConversation(
-          {
-            tasks,
-            projects,
-            calendarEvents,
-            recentFiles: [],
-            userId: user.id,
-          },
-          {
-            onTaskCreate: createTask,
-            onTaskUpdate: updateTask,
-            onTaskDelete: deleteTask,
-          }
-        );
+      } catch (error) {
+        console.error('Failed to fetch calendar events:', error);
       }
+
+      // Hämta projekt
+      let projects: any[] = [];
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        const { data } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('user_id', user.id);
+        if (data) projects = data;
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      }
+
+      claudeRef.current = new ClaudeConversation(
+        {
+          tasks,
+          projects,
+          calendarEvents,
+          recentFiles: [],
+          userId: user.id,
+        },
+        {
+          onTaskCreate: createTask,
+          onTaskUpdate: updateTask,
+          onTaskDelete: deleteTask,
+        }
+      );
 
       setIsInitialized(true);
     } catch (error) {

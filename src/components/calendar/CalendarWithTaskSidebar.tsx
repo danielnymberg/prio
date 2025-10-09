@@ -16,15 +16,15 @@ export function CalendarWithTaskSidebar() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex h-full gap-4 relative">
+      <div className="flex h-full gap-4 relative overflow-hidden">
       {/* Sidebar med tasks */}
       <div
         className={`transition-all duration-300 ${
           showSidebar ? 'w-80' : 'w-0'
-        } flex-shrink-0 overflow-hidden`}
+        } flex-shrink-0 overflow-hidden flex flex-col`}
       >
-        <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 overflow-y-auto">
-          <div className="mb-4">
+        <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col overflow-hidden">
+          <div className="mb-4 flex-shrink-0">
             <h3 className="text-lg font-semibold text-stone-900 dark:text-cream-50 mb-2">
               Inbox
             </h3>
@@ -33,6 +33,7 @@ export function CalendarWithTaskSidebar() {
             </p>
           </div>
 
+          <div className="flex-1 overflow-y-auto">
           {inboxTasks.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-sm text-stone-500 dark:text-stone-400">
@@ -40,7 +41,7 @@ export function CalendarWithTaskSidebar() {
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2 pr-2">
               {inboxTasks.map((task) => (
                 <div
                   key={task.id}
@@ -75,6 +76,7 @@ export function CalendarWithTaskSidebar() {
               ))}
             </div>
           )}
+          </div>
         </div>
       </div>
 
@@ -92,7 +94,7 @@ export function CalendarWithTaskSidebar() {
       </button>
 
       {/* Kalendervy */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 overflow-hidden">
         <WeekCalendarView />
       </div>
     </div>
