@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Calendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar';
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
-import { format, parse, startOfWeek, getDay, addHours } from 'date-fns';
-import { sv } from 'date-fns/locale';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import listPlugin from '@fullcalendar/list';
+import { EventInput, EventDropArg, DateSelectArg, EventClickArg } from '@fullcalendar/core';
+import type { EventResizeDoneArg } from '@fullcalendar/interaction';
+import svLocale from '@fullcalendar/core/locales/sv';
 import { useTasks } from '@/hooks/useTasks';
 import {
   getCalendarEvents,
@@ -15,47 +17,31 @@ import {
 } from '@/services/microsoft-graph';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
-import { AlertCircle, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
-
-// Setup localizer för svenska
-const locales = {
-  'sv': sv,
-};
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }), // Måndag
-  getDay,
-  locales,
-});
-
-// Skapa DnD-aktiverad Calendar komponent
-const DnDCalendar = withDragAndDrop<CalendarEventData>(Calendar);
-
-// Event types för färgkodning
-type EventType = 'meeting' | 'focus' | 'task' | 'free';
+import { AlertCircle, Trash2 } from 'lucide-react';
 
 interface CalendarEventData {
   id: string;
   title: string;
-  start: Date;
-  end: Date;
-  type: EventType;
-  resource?: {
+  start: Date | string;
+  end: Date | string;
+  backgroundColor?: string;
+  borderColor?: string;
+  editable?: boolean;
+  extendedProps?: {
     taskId?: string;
     eventId?: string;
     isPrioEvent?: boolean;
-    color?: string;
+    type: 'meeting' | 'focus' | 'task';
   };
 }
 
 export function WeekCalendarView() {
   const { tasks, updateTask } = useTasks();
-  const [events, setEvents] = useState<CalendarEventData[]>([]);
+  const [events, setEvents] = useState<EventInput[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMsftConnected, setIsMsftConnected] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEventData | null>(null);
+  const calendarRef = useRef<FullCalendar>(null);
 
   // Ladda kalenderdata
   const loadCalendarData = useCallback(async () => {
@@ -76,22 +62,27 @@ export function WeekCalendarView() {
       const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
       const calendarEvents = await getCalendarEvents(now, twoWeeksFromNow);
 
-      // Konvertera till vårt event-format
-      const msftEvents: CalendarEventData[] = calendarEvents.map((event) => ({
-        id: event.id,
-        title: event.subject,
-        start: new Date(event.start),
-        end: new Date(event.end),
-        type: event.subject.includes('🎯 Fokus') ? 'focus' : 'meeting',
-        resource: {
-          eventId: event.id,
-          isPrioEvent: event.subject.includes('🎯 Fokus'),
-          color: event.subject.includes('🎯 Fokus') ? 'orange' : 'blue',
-        },
-      }));
+      // Konvertera till FullCalendar format
+      const msftEvents: EventInput[] = calendarEvents.map((event) => {
+        const isPrioEvent = event.subject.includes('🎯 Fokus');
+        return {
+          id: event.id,
+          title: event.subject,
+          start: event.start,
+          end: event.end,
+          backgroundColor: isPrioEvent ? '#ea580c' : '#3b82f6',
+          borderColor: isPrioEvent ? '#c2410c' : '#2563eb',
+          editable: isPrioEvent, // Endast Prio-events kan flyttas
+          extendedProps: {
+            eventId: event.id,
+            isPrioEvent: isPrioEvent,
+            type: isPrioEvent ? 'focus' : 'meeting',
+          },
+        };
+      });
 
       // Lägg till tasks med deadlines
-      const taskEvents: CalendarEventData[] = tasks
+      const taskEvents: EventInput[] = tasks
         .filter((task) => task.deadline && task.status !== 'done')
         .map((task) => {
           const deadline = new Date(task.deadline!);
@@ -99,20 +90,22 @@ export function WeekCalendarView() {
             id: `task-${task.id}`,
             title: `📌 ${task.title}`,
             start: deadline,
-            end: addHours(deadline, task.estimated_duration ? task.estimated_duration / 60 : 1),
-            type: 'task' as EventType,
-            resource: {
+            end: new Date(deadline.getTime() + 30 * 60 * 1000), // 30 min default
+            backgroundColor: '#dc2626',
+            borderColor: '#991b1b',
+            editable: true,
+            extendedProps: {
               taskId: task.id,
-              color: 'red',
+              type: 'task',
             },
           };
         });
 
       setEvents([...msftEvents, ...taskEvents]);
+      setLoading(false);
     } catch (error) {
       console.error('Failed to load calendar data:', error);
-      toast.error('Kunde inte ladda kalenderdata');
-    } finally {
+      toast.error('Kunde inte ladda kalender');
       setLoading(false);
     }
   }, [tasks]);
@@ -121,310 +114,216 @@ export function WeekCalendarView() {
     loadCalendarData();
   }, [loadCalendarData]);
 
-  // Event styling baserat på typ
-  const eventStyleGetter = (event: CalendarEventData) => {
-    let backgroundColor = '#3b82f6'; // blue
-    let borderColor = '#2563eb';
+  // Hantera när event flyttas
+  const handleEventDrop = async (info: EventDropArg) => {
+    const { event } = info;
+    const extendedProps = event.extendedProps as CalendarEventData['extendedProps'];
 
-    switch (event.type) {
-      case 'meeting':
-        backgroundColor = '#3b82f6'; // blue
-        borderColor = '#2563eb';
-        break;
-      case 'focus':
-        backgroundColor = '#f59e0b'; // orange
-        borderColor = '#d97706';
-        break;
-      case 'task':
-        backgroundColor = '#ef4444'; // red
-        borderColor = '#dc2626';
-        break;
-      case 'free':
-        backgroundColor = '#10b981'; // green
-        borderColor = '#059669';
-        break;
-    }
-
-    // Om det är ett externt möte (inte Prio-event), gör det olåsbart visuellt
-    const isExternal = event.resource?.eventId && !event.resource?.isPrioEvent;
-
-    return {
-      style: {
-        backgroundColor,
-        borderColor,
-        borderWidth: '2px',
-        borderStyle: isExternal ? 'dashed' : 'solid', // Streckad kant för externa möten
-        borderRadius: '6px',
-        color: 'white',
-        fontSize: '13px',
-        padding: '4px 8px',
-        cursor: isExternal ? 'not-allowed' : 'move', // Visa att externa inte kan flyttas
-        opacity: isExternal ? 0.7 : 1, // Lite genomskinligare för externa
-      },
-    };
-  };
-
-  // Hantera när användaren drar ett event
-  const handleEventDrop = async ({ event, start, end }: { event: CalendarEventData; start: Date | string; end: Date | string }) => {
-    if (!isMsftConnected) {
-      toast.error('Anslut till Microsoft för att flytta händelser');
-      return;
-    }
-
-    // VIKTIGT: Tillåt ENDAST Prio-skapade events att flyttas
-    // Tillåt INTE externa möten att flyttas!
-    if (event.resource?.eventId && !event.resource?.isPrioEvent) {
+    // Blockera externa events
+    if (extendedProps?.eventId && !extendedProps?.isPrioEvent) {
+      info.revert();
       toast.error('Kan inte flytta externa möten! Endast Prio fokustid kan flyttas.');
-      loadCalendarData(); // Återställ till korrekt position
       return;
     }
 
-    // Konvertera till Date om det är string
-    const startDate = typeof start === 'string' ? new Date(start) : start;
-    const endDate = typeof end === 'string' ? new Date(end) : end;
+    const startDate = event.start!;
+    const endDate = event.end!;
 
-    // Om det är en Prio focus-session, tillåt flytt
-    if (event.resource?.eventId && event.resource?.isPrioEvent) {
+    // Prio focus-session
+    if (extendedProps?.eventId && extendedProps?.isPrioEvent) {
       try {
-        const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
+        const success = await updateCalendarEvent(extendedProps.eventId, {
+          start: startDate,
+          end: endDate,
+        });
 
         if (success) {
           toast.success('Fokustid flyttad!');
           loadCalendarData();
         } else {
+          info.revert();
           toast.error('Kunde inte flytta fokustiden');
-          loadCalendarData(); // Återställ
         }
       } catch (error) {
         console.error('Failed to move event:', error);
+        info.revert();
         toast.error('Kunde inte flytta fokustiden');
-        loadCalendarData(); // Återställ
       }
     }
 
-    // Om det är en task, uppdatera deadline
-    if (event.resource?.taskId) {
+    // Task deadline
+    if (extendedProps?.taskId) {
       try {
-        await updateTask(event.resource.taskId, { deadline: startDate.toISOString() });
+        await updateTask(extendedProps.taskId, { deadline: startDate.toISOString() });
         toast.success('Task deadline uppdaterad!');
         loadCalendarData();
       } catch (error) {
         console.error('Failed to update task:', error);
+        info.revert();
         toast.error('Kunde inte uppdatera task');
       }
     }
   };
 
-  // Hantera resize (ändra längd på event)
-  const handleEventResize = async ({ event, start, end }: { event: CalendarEventData; start: Date | string; end: Date | string }) => {
-    if (!isMsftConnected) return;
+  // Hantera resize (ändra längd)
+  const handleEventResize = async (info: EventResizeDoneArg) => {
+    const { event } = info;
+    const extendedProps = event.extendedProps as CalendarEventData['extendedProps'];
 
-    // VIKTIGT: Tillåt ENDAST Prio-skapade events att ändras
-    if (event.resource?.eventId && !event.resource?.isPrioEvent) {
+    // Blockera externa events
+    if (extendedProps?.eventId && !extendedProps?.isPrioEvent) {
+      info.revert();
       toast.error('Kan inte ändra externa möten!');
-      loadCalendarData(); // Återställ
       return;
     }
 
-    // Konvertera till Date om det är string
-    const startDate = typeof start === 'string' ? new Date(start) : start;
-    const endDate = typeof end === 'string' ? new Date(end) : end;
+    const startDate = event.start!;
+    const endDate = event.end!;
 
-    if (event.resource?.eventId && event.resource?.isPrioEvent) {
+    if (extendedProps?.eventId && extendedProps?.isPrioEvent) {
       try {
-        const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
+        const success = await updateCalendarEvent(extendedProps.eventId, {
+          start: startDate,
+          end: endDate,
+        });
 
         if (success) {
           toast.success('Fokustid ändrad!');
           loadCalendarData();
         } else {
-          loadCalendarData(); // Återställ
+          info.revert();
         }
       } catch (error) {
         console.error('Failed to resize event:', error);
+        info.revert();
         toast.error('Kunde inte ändra fokustiden');
-        loadCalendarData(); // Återställ
       }
     }
   };
 
-  // Hantera drop av task från sidebar
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleCalendarDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-
-    const taskId = e.dataTransfer.getData('taskId');
-    const taskTitle = e.dataTransfer.getData('taskTitle');
-    const taskDuration = parseInt(e.dataTransfer.getData('taskDuration') || '60');
-
-    if (!taskId) return;
+  // Hantera när användaren väljer en tid (skapa ny event)
+  const handleDateSelect = async (selectInfo: DateSelectArg) => {
     if (!isMsftConnected) {
       toast.error('Anslut till Microsoft för att schemalägga');
-      return;
-    }
-
-    // Beräkna exakt drop-tid baserat på var musen släpper
-    const calendarEl = e.currentTarget;
-    const rect = calendarEl.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-
-    // Hitta vilket datum/tid baserat på position
-    // React Big Calendar har en fast layout vi kan använda
-    const minTime = 7; // 07:00
-    const maxTime = 20; // 20:00
-    const totalHours = maxTime - minTime;
-
-    // Hitta header-höjd (ungefär 100px för week view)
-    const headerHeight = 100;
-    const usableHeight = rect.height - headerHeight;
-
-    // Beräkna timme baserat på Y-position
-    const relativeY = Math.max(0, y - headerHeight);
-    const hourFraction = relativeY / usableHeight;
-    const hour = minTime + (hourFraction * totalHours);
-    const roundedHour = Math.floor(hour);
-    const minutes = Math.round((hour - roundedHour) * 60 / 30) * 30; // Snäpp till närmaste 30min
-
-    // Dagens datum (använd svensk tidszon)
-    const now = new Date();
-    const dropTime = new Date(now);
-    dropTime.setHours(roundedHour, minutes, 0, 0);
-
-    try {
-      // Boka tid i kalendern
-      const success = await blockCalendarTime(dropTime, taskDuration, taskTitle);
-
-      if (success) {
-        // Uppdatera task med deadline
-        await updateTask(taskId, { deadline: dropTime.toISOString() });
-        toast.success(`Task schemalagd ${dropTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}!`);
-        loadCalendarData();
-      }
-    } catch (error) {
-      console.error('Failed to schedule task:', error);
-      toast.error('Kunde inte schemalägga task');
-    }
-  };
-
-  // Hantera klick på tomt slot (boka fokustid)
-  const handleSelectSlot = async (slotInfo: SlotInfo) => {
-    if (!isMsftConnected) {
-      toast.error('Anslut till Microsoft för att boka fokustid');
       return;
     }
 
     const title = prompt('Vad vill du fokusera på?');
     if (!title) return;
 
-    const durationMinutes = Math.round((slotInfo.end.getTime() - slotInfo.start.getTime()) / (1000 * 60));
+    const startDate = selectInfo.start;
+    const endDate = selectInfo.end;
+    const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000);
 
     try {
-      const success = await blockCalendarTime(slotInfo.start, durationMinutes, title);
-
-      if (success) {
-        toast.success('Fokustid bokad!');
-        loadCalendarData();
-      } else {
-        toast.error('Kunde inte boka fokustid');
-      }
+      await blockCalendarTime(startDate, durationMinutes, `🎯 Fokus: ${title}`);
+      toast.success('Fokustid inbokad!');
+      loadCalendarData();
     } catch (error) {
       console.error('Failed to block time:', error);
-      toast.error('Kunde inte boka fokustid');
+      toast.error('Kunde inte boka tid');
     }
   };
 
   // Hantera klick på event
-  const handleSelectEvent = (event: CalendarEventData) => {
-    setSelectedEvent(event);
+  const handleEventClick = (info: EventClickArg) => {
+    const { event } = info;
+    const extendedProps = event.extendedProps as CalendarEventData['extendedProps'];
+
+    setSelectedEvent({
+      id: event.id,
+      title: event.title,
+      start: event.start!,
+      end: event.end!,
+      backgroundColor: event.backgroundColor,
+      borderColor: event.borderColor,
+      editable: event.startEditable,
+      extendedProps,
+    });
   };
 
-  // Radera event
+  // Ta bort event
   const handleDeleteEvent = async () => {
-    if (!selectedEvent || !selectedEvent.resource?.eventId) return;
+    if (!selectedEvent) return;
 
-    if (!confirm(`Radera "${selectedEvent.title}"?`)) return;
+    const extendedProps = selectedEvent.extendedProps;
 
-    try {
-      const success = await deleteCalendarEvent(selectedEvent.resource.eventId);
+    // Blockera borttagning av externa events
+    if (extendedProps?.eventId && !extendedProps?.isPrioEvent) {
+      toast.error('Kan inte ta bort externa möten!');
+      setSelectedEvent(null);
+      return;
+    }
 
-      if (success) {
-        toast.success('Händelse raderad!');
+    if (extendedProps?.eventId && extendedProps?.isPrioEvent) {
+      try {
+        await deleteCalendarEvent(extendedProps.eventId);
+        toast.success('Fokustid borttagen!');
         setSelectedEvent(null);
         loadCalendarData();
-      } else {
-        toast.error('Kunde inte radera händelsen');
+      } catch (error) {
+        console.error('Failed to delete event:', error);
+        toast.error('Kunde inte ta bort fokustiden');
       }
-    } catch (error) {
-      console.error('Failed to delete event:', error);
-      toast.error('Kunde inte radera händelsen');
+    }
+
+    if (extendedProps?.taskId) {
+      try {
+        await updateTask(extendedProps.taskId, { deadline: undefined });
+        toast.success('Task deadline borttagen!');
+        setSelectedEvent(null);
+        loadCalendarData();
+      } catch (error) {
+        console.error('Failed to remove task deadline:', error);
+        toast.error('Kunde inte ta bort deadline');
+      }
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-copper-600" />
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500 mx-auto mb-4"></div>
+          <p className="text-stone-600 dark:text-stone-400">Laddar kalender...</p>
+        </div>
       </div>
     );
   }
 
   if (!isMsftConnected) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4">
-        <div className="bg-warning-50 dark:bg-warning-950 border border-warning-200 dark:border-warning-800 rounded-xl p-6 max-w-md">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-6 w-6 text-warning-600 dark:text-warning-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-warning-900 dark:text-warning-200 mb-2">
-                Microsoft-konto krävs
-              </h3>
-              <p className="text-sm text-warning-700 dark:text-warning-300 mb-4">
-                För att använda kalendervyn behöver du koppla ditt Microsoft-konto.
-              </p>
-              <Button
-                onClick={() => window.location.href = '/settings'}
-                className="bg-copper-600 hover:bg-copper-700 text-white"
-              >
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                Gå till Inställningar
-              </Button>
-            </div>
-          </div>
+      <div className="flex items-center justify-center h-full">
+        <div className="bg-white dark:bg-charcoal-850 rounded-xl p-8 max-w-md text-center border border-sand-200 dark:border-charcoal-800">
+          <AlertCircle className="h-12 w-12 text-copper-600 dark:text-copper-400 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-stone-900 dark:text-cream-50 mb-2">
+            Microsoft Kalender Ej Ansluten
+          </h3>
+          <p className="text-stone-600 dark:text-stone-400 mb-6">
+            Anslut ditt Microsoft-konto för att synka kalender och schemalägga fokustid.
+          </p>
+          <Button
+            onClick={() => window.location.href = '/settings'}
+            variant="primary"
+          >
+            Gå till Inställningar
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-stone-900 dark:text-cream-50">
-            Kalender
-          </h2>
-          <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
-            Dra tasks för att schemalägga, klicka på lediga tider för att boka fokustid
-          </p>
-        </div>
-        <Button onClick={loadCalendarData} variant="ghost" size="sm">
-          Uppdatera
-        </Button>
-      </div>
-
-      {/* Legend */}
-      <div className="flex gap-4 text-xs text-stone-600 dark:text-stone-400">
+    <div className="h-full flex flex-col gap-4">
+      {/* Info box */}
+      <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded bg-blue-500" />
-          <span>Möten</span>
+          <span>Externa möten</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-orange-500" />
-          <span>Fokustid (Prio)</span>
+          <div className="w-3 h-3 rounded bg-orange-600" />
+          <span>Prio fokustid (kan flyttas)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded bg-red-500" />
@@ -433,45 +332,45 @@ export function WeekCalendarView() {
       </div>
 
       {/* Calendar */}
-      <div
-        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container h-full overflow-y-auto"
-        onDragOver={handleDragOver}
-        onDrop={handleCalendarDrop}
-      >
-        <DnDCalendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: '100%', minHeight: 700 }}
-          views={[Views.WEEK, Views.DAY]}
-          defaultView={Views.WEEK}
-          eventPropGetter={eventStyleGetter}
-          onEventDrop={handleEventDrop}
-          onEventResize={handleEventResize}
-          onSelectSlot={handleSelectSlot}
-          onSelectEvent={handleSelectEvent}
-          selectable
-          resizable
-          step={30}
-          timeslots={2}
-          min={new Date(2025, 0, 1, 7, 0)} // 07:00
-          max={new Date(2025, 0, 1, 20, 0)} // 20:00
-          messages={{
-            today: 'Idag',
-            previous: 'Föregående',
-            next: 'Nästa',
-            month: 'Månad',
-            week: 'Vecka',
-            day: 'Dag',
-            agenda: 'Agenda',
-            date: 'Datum',
-            time: 'Tid',
-            event: 'Händelse',
-            noEventsInRange: 'Inga händelser denna period',
-            showMore: (total: number) => `+ ${total} fler`,
+      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden">
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin, listPlugin]}
+          initialView="timeGridWeek"
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'timeGridWeek,timeGridDay,listWeek',
           }}
-          culture="sv"
+          locale={svLocale}
+          allDaySlot={false}
+          slotMinTime="06:00:00"
+          slotMaxTime="24:00:00"
+          slotDuration="00:30:00"
+          snapDuration="00:15:00"
+          height="100%"
+          editable={true}
+          selectable={true}
+          selectMirror={true}
+          dayMaxEvents={true}
+          weekends={true}
+          firstDay={1} // Måndag
+          events={events}
+          eventDrop={handleEventDrop}
+          eventResize={handleEventResize}
+          select={handleDateSelect}
+          eventClick={handleEventClick}
+          nowIndicator={true}
+          slotLabelFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          }}
+          eventTimeFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          }}
         />
       </div>
 
@@ -483,98 +382,77 @@ export function WeekCalendarView() {
               {selectedEvent.title}
             </h3>
 
-            <div className="space-y-3 text-sm">
+            <div className="space-y-3 mb-6">
               <div>
-                <span className="text-stone-600 dark:text-stone-400">Start:</span>
-                <span className="ml-2 text-stone-900 dark:text-cream-50">
-                  {selectedEvent.start.toLocaleString('sv-SE')}
-                </span>
+                <p className="text-sm text-stone-600 dark:text-stone-400">Start</p>
+                <p className="text-stone-900 dark:text-cream-50">
+                  {new Date(selectedEvent.start).toLocaleString('sv-SE', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </p>
               </div>
+
               <div>
-                <span className="text-stone-600 dark:text-stone-400">Slut:</span>
-                <span className="ml-2 text-stone-900 dark:text-cream-50">
-                  {selectedEvent.end.toLocaleString('sv-SE')}
-                </span>
+                <p className="text-sm text-stone-600 dark:text-stone-400">Slut</p>
+                <p className="text-stone-900 dark:text-cream-50">
+                  {new Date(selectedEvent.end).toLocaleString('sv-SE', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </p>
               </div>
-              <div>
-                <span className="text-stone-600 dark:text-stone-400">Längd:</span>
-                <span className="ml-2 text-stone-900 dark:text-cream-50">
-                  {Math.round((selectedEvent.end.getTime() - selectedEvent.start.getTime()) / (1000 * 60))} minuter
-                </span>
-              </div>
+
+              {selectedEvent.extendedProps?.type && (
+                <div>
+                  <p className="text-sm text-stone-600 dark:text-stone-400">Typ</p>
+                  <p className="text-stone-900 dark:text-cream-50 capitalize">
+                    {selectedEvent.extendedProps.type === 'meeting' && 'Externt möte'}
+                    {selectedEvent.extendedProps.type === 'focus' && 'Prio fokustid'}
+                    {selectedEvent.extendedProps.type === 'task' && 'Task deadline'}
+                  </p>
+                </div>
+              )}
+
+              {!selectedEvent.editable && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    ⚠️ Detta är ett externt möte som inte kan redigeras eller tas bort från Prio.
+                  </p>
+                </div>
+              )}
             </div>
 
-            <div className="flex gap-2 mt-6">
-              {selectedEvent.resource?.isPrioEvent && (
+            <div className="flex gap-2">
+              {selectedEvent.editable && (
                 <Button
+                  variant="secondary"
                   onClick={handleDeleteEvent}
-                  variant="ghost"
-                  className="text-error-600 hover:text-error-700"
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Radera
+                  Ta bort
                 </Button>
               )}
-              <Button onClick={() => setSelectedEvent(null)} className="ml-auto">
+              <Button
+                variant="ghost"
+                onClick={() => setSelectedEvent(null)}
+                className="flex-1"
+              >
                 Stäng
               </Button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Custom CSS for dark mode */}
-      <style>{`
-        .calendar-container .rbc-calendar {
-          font-family: inherit;
-        }
-
-        .dark .rbc-calendar {
-          color: #e7e5e4;
-        }
-
-        .dark .rbc-header {
-          background-color: #292524;
-          border-color: #44403c;
-          color: #e7e5e4;
-        }
-
-        .dark .rbc-time-view {
-          border-color: #44403c;
-        }
-
-        .dark .rbc-time-content {
-          border-color: #44403c;
-        }
-
-        .dark .rbc-time-slot {
-          border-color: #44403c;
-        }
-
-        .dark .rbc-day-slot {
-          border-color: #44403c;
-        }
-
-        .dark .rbc-timeslot-group {
-          border-color: #44403c;
-        }
-
-        .dark .rbc-today {
-          background-color: rgba(194, 120, 77, 0.1);
-        }
-
-        .dark .rbc-current-time-indicator {
-          background-color: #c2784d;
-        }
-
-        .rbc-event {
-          cursor: pointer;
-        }
-
-        .rbc-event:hover {
-          opacity: 0.9;
-        }
-      `}</style>
     </div>
   );
 }
