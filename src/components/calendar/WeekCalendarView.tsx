@@ -145,16 +145,21 @@ export function WeekCalendarView() {
         break;
     }
 
+    // Om det är ett externt möte (inte Prio-event), gör det olåsbart visuellt
+    const isExternal = event.resource?.eventId && !event.resource?.isPrioEvent;
+
     return {
       style: {
         backgroundColor,
         borderColor,
         borderWidth: '2px',
-        borderStyle: 'solid',
+        borderStyle: isExternal ? 'dashed' : 'solid', // Streckad kant för externa möten
         borderRadius: '6px',
         color: 'white',
         fontSize: '13px',
         padding: '4px 8px',
+        cursor: isExternal ? 'not-allowed' : 'move', // Visa att externa inte kan flyttas
+        opacity: isExternal ? 0.7 : 1, // Lite genomskinligare för externa
       },
     };
   };
@@ -166,24 +171,34 @@ export function WeekCalendarView() {
       return;
     }
 
+    // VIKTIGT: Tillåt ENDAST Prio-skapade events att flyttas
+    // Tillåt INTE externa möten att flyttas!
+    if (event.resource?.eventId && !event.resource?.isPrioEvent) {
+      toast.error('Kan inte flytta externa möten! Endast Prio fokustid kan flyttas.');
+      loadCalendarData(); // Återställ till korrekt position
+      return;
+    }
+
     // Konvertera till Date om det är string
     const startDate = typeof start === 'string' ? new Date(start) : start;
     const endDate = typeof end === 'string' ? new Date(end) : end;
 
-    // Om det är en Prio focus-session eller Microsoft-event, uppdatera i Graph
-    if (event.resource?.eventId) {
+    // Om det är en Prio focus-session, tillåt flytt
+    if (event.resource?.eventId && event.resource?.isPrioEvent) {
       try {
         const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
 
         if (success) {
-          toast.success('Händelse flyttad!');
-          loadCalendarData(); // Reload
+          toast.success('Fokustid flyttad!');
+          loadCalendarData();
         } else {
-          toast.error('Kunde inte flytta händelsen');
+          toast.error('Kunde inte flytta fokustiden');
+          loadCalendarData(); // Återställ
         }
       } catch (error) {
         console.error('Failed to move event:', error);
-        toast.error('Kunde inte flytta händelsen');
+        toast.error('Kunde inte flytta fokustiden');
+        loadCalendarData(); // Återställ
       }
     }
 
@@ -204,21 +219,31 @@ export function WeekCalendarView() {
   const handleEventResize = async ({ event, start, end }: { event: CalendarEventData; start: Date | string; end: Date | string }) => {
     if (!isMsftConnected) return;
 
+    // VIKTIGT: Tillåt ENDAST Prio-skapade events att ändras
+    if (event.resource?.eventId && !event.resource?.isPrioEvent) {
+      toast.error('Kan inte ändra externa möten!');
+      loadCalendarData(); // Återställ
+      return;
+    }
+
     // Konvertera till Date om det är string
     const startDate = typeof start === 'string' ? new Date(start) : start;
     const endDate = typeof end === 'string' ? new Date(end) : end;
 
-    if (event.resource?.eventId) {
+    if (event.resource?.eventId && event.resource?.isPrioEvent) {
       try {
         const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
 
         if (success) {
-          toast.success('Händelse ändrad!');
+          toast.success('Fokustid ändrad!');
           loadCalendarData();
+        } else {
+          loadCalendarData(); // Återställ
         }
       } catch (error) {
         console.error('Failed to resize event:', error);
-        toast.error('Kunde inte ändra händelsen');
+        toast.error('Kunde inte ändra fokustiden');
+        loadCalendarData(); // Återställ
       }
     }
   };
