@@ -54,8 +54,11 @@ export function CalendarWithTaskSidebar() {
             <h3 className="text-lg font-semibold text-stone-900 dark:text-cream-50 mb-2">
               Ej schemalagt
             </h3>
-            <p className="text-xs text-stone-600 dark:text-stone-400">
-              Uppgifter utan schemalagd tid (dra till kalendern för att planera)
+            <p className="text-xs text-stone-600 dark:text-stone-400 mb-2">
+              Dra uppgifter till kalendern för att schemalägga
+            </p>
+            <p className="text-xs text-stone-500 dark:text-stone-500 italic">
+              💡 För att ta bort deadline: Klicka på uppgift i kalendern → "Ta bort deadline"
             </p>
           </div>
 

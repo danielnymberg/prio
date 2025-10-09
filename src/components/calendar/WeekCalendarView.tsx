@@ -520,6 +520,14 @@ export function WeekCalendarView() {
                   </p>
                 </div>
               )}
+
+              {selectedEvent.editable && selectedEvent.extendedProps?.type === 'task' && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    💡 Du kan dra denna uppgift till en annan tid eller vecka. Använd prev/next-knapparna för att navigera.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -530,7 +538,7 @@ export function WeekCalendarView() {
                   className="flex-1 bg-red-500 hover:bg-red-600 text-white"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Ta bort
+                  {selectedEvent.extendedProps?.type === 'task' ? 'Ta bort deadline' : 'Ta bort'}
                 </Button>
               )}
               <Button
