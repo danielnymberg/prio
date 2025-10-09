@@ -16,6 +16,7 @@ import { checkAndSendNotifications } from './services/notifications';
 import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
 import { initEmailScheduler } from './services/email-scheduler';
 import { EmailTaskListener } from './components/email/EmailTaskListener';
+import { VoiceInterface } from './components/voice/VoiceInterface';
 
 // Lazy load routes för bättre initial load performance
 const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -159,6 +160,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {children}
       {/* Email task listener (realtime) */}
       <EmailTaskListener />
+      {/* Voice AI assistant */}
+      <VoiceInterface />
       {/* Quick note input */}
       <QuickNoteInput />
       {/* Quick capture bar för mobil */}
