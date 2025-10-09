@@ -79,8 +79,11 @@ export function FocusView() {
   useEffect(() => {
     if (!context || tasks.length === 0) return;
 
-    // Filtrera bort skippade tasks
-    const availableTasks = tasks.filter(t => !skippedTaskIds.includes(t.id));
+    // Filtrera bort skippade tasks OCH Snabbis (≤2 min) - de hanteras separat
+    const availableTasks = tasks.filter(t =>
+      !skippedTaskIds.includes(t.id) &&
+      (t.estimated_duration || 999) > 2
+    );
 
     const next = getNextTask(availableTasks, context);
     const upcoming = getTaskQueue(availableTasks, context, 5);
