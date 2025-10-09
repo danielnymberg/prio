@@ -183,35 +183,40 @@ export function WeekCalendarView() {
     const startDate = typeof start === 'string' ? new Date(start) : start;
     const endDate = typeof end === 'string' ? new Date(end) : end;
 
-    // Om det är en Prio focus-session, tillåt flytt
-    if (event.resource?.eventId && event.resource?.isPrioEvent) {
-      try {
-        const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
+    // Optimistisk uppdatering - uppdatera UI direkt
+    setEvents(prevEvents =>
+      prevEvents.map(e =>
+        e.id === event.id
+          ? { ...e, start: startDate, end: endDate }
+          : e
+      )
+    );
 
-        if (success) {
-          toast.success('Fokustid flyttad!');
-          loadCalendarData();
-        } else {
-          toast.error('Kunde inte flytta fokustiden');
-          loadCalendarData(); // Återställ
-        }
-      } catch (error) {
-        console.error('Failed to move event:', error);
-        toast.error('Kunde inte flytta fokustiden');
-        loadCalendarData(); // Återställ
-      }
+    // Om det är en Prio focus-session, synka i bakgrunden
+    if (event.resource?.eventId && event.resource?.isPrioEvent) {
+      // Synka till Microsoft i bakgrunden (utan att vänta)
+      updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate })
+        .then(success => {
+          if (!success) {
+            toast.error('Kunde inte synka till Outlook');
+            loadCalendarData(); // Återställ vid fel
+          }
+        })
+        .catch(error => {
+          console.error('Failed to move event:', error);
+          toast.error('Kunde inte synka till Outlook');
+          loadCalendarData(); // Återställ vid fel
+        });
     }
 
-    // Om det är en task, uppdatera deadline
+    // Om det är en task, uppdatera i bakgrunden
     if (event.resource?.taskId) {
-      try {
-        await updateTask(event.resource.taskId, { deadline: startDate.toISOString() });
-        toast.success('Task deadline uppdaterad!');
-        loadCalendarData();
-      } catch (error) {
-        console.error('Failed to update task:', error);
-        toast.error('Kunde inte uppdatera task');
-      }
+      updateTask(event.resource.taskId, { deadline: startDate.toISOString() })
+        .catch(error => {
+          console.error('Failed to update task:', error);
+          toast.error('Kunde inte uppdatera task');
+          loadCalendarData(); // Återställ vid fel
+        });
     }
   };
 
@@ -230,21 +235,29 @@ export function WeekCalendarView() {
     const startDate = typeof start === 'string' ? new Date(start) : start;
     const endDate = typeof end === 'string' ? new Date(end) : end;
 
-    if (event.resource?.eventId && event.resource?.isPrioEvent) {
-      try {
-        const success = await updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate });
+    // Optimistisk uppdatering
+    setEvents(prevEvents =>
+      prevEvents.map(e =>
+        e.id === event.id
+          ? { ...e, start: startDate, end: endDate }
+          : e
+      )
+    );
 
-        if (success) {
-          toast.success('Fokustid ändrad!');
+    if (event.resource?.eventId && event.resource?.isPrioEvent) {
+      // Synka i bakgrunden
+      updateCalendarEvent(event.resource.eventId, { start: startDate, end: endDate })
+        .then(success => {
+          if (!success) {
+            toast.error('Kunde inte synka till Outlook');
+            loadCalendarData();
+          }
+        })
+        .catch(error => {
+          console.error('Failed to resize event:', error);
+          toast.error('Kunde inte synka till Outlook');
           loadCalendarData();
-        } else {
-          loadCalendarData(); // Återställ
-        }
-      } catch (error) {
-        console.error('Failed to resize event:', error);
-        toast.error('Kunde inte ändra fokustiden');
-        loadCalendarData(); // Återställ
-      }
+        });
     }
   };
 
@@ -434,16 +447,17 @@ export function WeekCalendarView() {
 
       {/* Calendar */}
       <div
-        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container h-full overflow-y-auto"
+        className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 calendar-container flex-1 overflow-hidden flex flex-col"
         onDragOver={handleDragOver}
         onDrop={handleCalendarDrop}
       >
-        <DnDCalendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: '100%', minHeight: 700 }}
+        <div className="flex-1 overflow-y-auto">
+          <DnDCalendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 700 }}
           views={[Views.WEEK, Views.DAY]}
           defaultView={Views.WEEK}
           eventPropGetter={eventStyleGetter}
@@ -473,6 +487,7 @@ export function WeekCalendarView() {
           }}
           culture="sv"
         />
+        </div>
       </div>
 
       {/* Event Details Modal */}
