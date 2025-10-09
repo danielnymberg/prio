@@ -85,10 +85,7 @@ export function FocusView() {
       (t.estimated_duration || 999) > 2
     );
 
-    console.log('FocusView - Available tasks (exkl. Snabbis):', availableTasks.map(t => ({ title: t.title, duration: t.estimated_duration })));
-
     const next = getNextTask(availableTasks, context);
-    console.log('FocusView - Next task selected:', next ? { title: next.title, duration: next.estimated_duration } : null);
     const upcoming = getTaskQueue(availableTasks, context, 5);
     const emergency = hasEmergencyTasks(availableTasks);
 

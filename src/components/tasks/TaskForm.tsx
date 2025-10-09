@@ -35,6 +35,8 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
   const [deadlineHour, setDeadlineHour] = useState('17');
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'done'>('not_started');
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
+  const [customDurationText, setCustomDurationText] = useState('');
+  const [showCustomDuration, setShowCustomDuration] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [priorityFlag, setPriorityFlag] = useState<PriorityFlag>('whenever');
@@ -65,6 +67,33 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       .order('name');
 
     setProjects(data || []);
+  };
+
+  // Parse fritext-tid till minuter
+  const parseCustomDuration = (text: string): number | null => {
+    const lower = text.toLowerCase().trim();
+
+    // Veckor: "2 veckor", "3v", "1 vecka"
+    const weeksMatch = lower.match(/(\d+)\s*(v|vecka|veckor|week|weeks)/);
+    if (weeksMatch) return parseInt(weeksMatch[1]) * 7 * 24 * 60;
+
+    // Dagar: "5 dagar", "3d", "1 dag"
+    const daysMatch = lower.match(/(\d+)\s*(d|dag|dagar|day|days)/);
+    if (daysMatch) return parseInt(daysMatch[1]) * 24 * 60;
+
+    // Timmar: "40 timmar", "8h", "1 timme"
+    const hoursMatch = lower.match(/(\d+)\s*(h|timme|timmar|hour|hours)/);
+    if (hoursMatch) return parseInt(hoursMatch[1]) * 60;
+
+    // Minuter: "30 min", "45m"
+    const minutesMatch = lower.match(/(\d+)\s*(m|min|minut|minuter|minute|minutes)/);
+    if (minutesMatch) return parseInt(minutesMatch[1]);
+
+    // Bara siffra = timmar (standard)
+    const numberMatch = lower.match(/^(\d+)$/);
+    if (numberMatch) return parseInt(numberMatch[1]) * 60;
+
+    return null;
   };
 
   // Konvertera ISO datetime till datum (YYYY-MM-DD) och timme
@@ -239,7 +268,200 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           </select>
         </div>
 
-        {/* CPM Parameters */}
+        {/* Tidsuppskattning - FLYTTAD HIT */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Tidsuppskattning
+              {estimatedDuration && estimatedDuration > 0 && (
+                <span className="ml-2 text-copper-500 dark:text-copper-400">
+                  ({formatDuration(estimatedDuration)})
+                </span>
+              )}
+            </label>
+          </div>
+
+          {!showCustomDuration ? (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {DURATION_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => {
+                      if (preset.value === -1) {
+                        setShowCustomDuration(true);
+                      } else {
+                        setEstimatedDuration(preset.value);
+                      }
+                    }}
+                    className={`p-2 rounded-lg border text-center transition-all hover:shadow-sm ${
+                      estimatedDuration === preset.value
+                        ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                    }`}
+                    title={preset.description}
+                  >
+                    <div className="text-lg">{preset.icon}</div>
+                    <div className="text-xs font-medium">{preset.label}</div>
+                  </button>
+                ))}
+              </div>
+
+              {estimatedDuration && estimatedDuration > 0 && !DURATION_PRESETS.find(p => p.value === estimatedDuration) && (
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEstimatedDuration(null);
+                      setCustomDurationText('');
+                    }}
+                    className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    Anpassad tid: {formatDuration(estimatedDuration)} • Rensa
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={customDurationText}
+                onChange={(e) => {
+                  setCustomDurationText(e.target.value);
+                  const parsed = parseCustomDuration(e.target.value);
+                  if (parsed) {
+                    setEstimatedDuration(parsed);
+                  }
+                }}
+                placeholder="T.ex: 3 veckor, 5 dagar, 40 timmar"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                autoFocus
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Exempel: "3v", "5 dagar", "40h", "2 veckor", "10d"
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCustomDuration(false);
+                    if (!estimatedDuration || estimatedDuration <= 0) {
+                      setCustomDurationText('');
+                    }
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  ← Tillbaka till snabbval
+                </button>
+                {estimatedDuration && estimatedDuration > 0 && (
+                  <span className="text-sm text-green-600 dark:text-green-400">
+                    ✓ {formatDuration(estimatedDuration)}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Status och Slutdatum - FLYTTAT HIT */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Status - vänster spalt */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Status
+            </label>
+            <div className="space-y-2">
+              {[
+                { value: 'not_started', label: 'Ej påbörjad', color: 'gray' },
+                { value: 'in_progress', label: 'Pågår', color: 'amber' },
+                { value: 'done', label: 'Klar', color: 'green' },
+              ].map(({ value, label, color }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setStatus(value as any)}
+                  className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-colors text-left ${
+                    status === value
+                      ? color === 'green'
+                        ? 'bg-green-600 text-white'
+                        : color === 'amber'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-gray-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Slutdatum - höger spalt */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Slutdatum
+            </label>
+            <div className="space-y-2">
+              <Input
+                type="date"
+                value={deadlineDate}
+                onChange={(e) => setDeadlineDate(e.target.value)}
+                placeholder="Datum"
+              />
+              <select
+                value={deadlineHour}
+                onChange={(e) => setDeadlineHour(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              >
+                <option value="00">00:00</option>
+                <option value="06">06:00</option>
+                <option value="09">09:00</option>
+                <option value="12">12:00</option>
+                <option value="15">15:00</option>
+                <option value="17">17:00</option>
+                <option value="18">18:00</option>
+                <option value="21">21:00</option>
+              </select>
+
+              {/* Rensa slutdatum-knapp */}
+              {deadlineDate && (
+                <button
+                  type="button"
+                  onClick={() => setDeadlineDate('')}
+                  className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-1"
+                >
+                  ❌ Ta bort slutdatum
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Priority Flag - visas ENDAST om ingen deadline är satt */}
+        {!deadlineDate && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Prioritetsnivå (för uppgifter utan slutdatum)
+            </label>
+            <select
+              value={priorityFlag}
+              onChange={(e) => setPriorityFlag(e.target.value as PriorityFlag)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            >
+              <option value="asap">🎯 ASAP - Gör så snart möjligt (+50% prio)</option>
+              <option value="whenever">📅 När det passar (normal prio)</option>
+              <option value="someday">💭 Någon gång i framtiden (-30% prio)</option>
+            </select>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+              💡 Styr hur viktiga uppgifter utan slutdatum prioriteras
+            </p>
+          </div>
+        )}
+
+        {/* CPM Parameters - FLYTTAT HIT SIST */}
         <div className="space-y-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border">
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">CPM Prioritering</h3>
 
@@ -373,125 +595,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             </p>
           </div>
         )}
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Tidsuppskattning
-              {estimatedDuration && (
-                <span className="ml-2 text-copper-500 dark:text-copper-400">
-                  ({formatDuration(estimatedDuration)})
-                </span>
-              )}
-            </label>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {DURATION_PRESETS.map((preset) => (
-              <button
-                key={preset.value}
-                type="button"
-                onClick={() => setEstimatedDuration(preset.value)}
-                className={`p-2 rounded-lg border text-center transition-all hover:shadow-sm ${
-                  estimatedDuration === preset.value
-                    ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                }`}
-                title={preset.description}
-              >
-                <div className="text-lg">{preset.icon}</div>
-                <div className="text-xs font-medium">{preset.label}</div>
-              </button>
-            ))}
-          </div>
-
-          {estimatedDuration && !DURATION_PRESETS.find(p => p.value === estimatedDuration) && (
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={() => setEstimatedDuration(null)}
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                Anpassad tid: {formatDuration(estimatedDuration)} • Rensa
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Status och Deadline i två spalter */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Status - vänster spalt */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Status
-            </label>
-            <div className="space-y-2">
-              {[
-                { value: 'not_started', label: 'Ej påbörjad', color: 'gray' },
-                { value: 'in_progress', label: 'Pågår', color: 'amber' },
-                { value: 'done', label: 'Klar', color: 'green' },
-              ].map(({ value, label, color }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setStatus(value as any)}
-                  className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-colors text-left ${
-                    status === value
-                      ? color === 'green'
-                        ? 'bg-green-600 text-white'
-                        : color === 'amber'
-                        ? 'bg-amber-600 text-white'
-                        : 'bg-gray-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Slutdatum - höger spalt */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Slutdatum
-            </label>
-            <div className="space-y-2">
-              <Input
-                type="date"
-                value={deadlineDate}
-                onChange={(e) => setDeadlineDate(e.target.value)}
-                placeholder="Datum"
-              />
-              <select
-                value={deadlineHour}
-                onChange={(e) => setDeadlineHour(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              >
-                <option value="00">00:00</option>
-                <option value="06">06:00</option>
-                <option value="09">09:00</option>
-                <option value="12">12:00</option>
-                <option value="15">15:00</option>
-                <option value="17">17:00</option>
-                <option value="18">18:00</option>
-                <option value="21">21:00</option>
-              </select>
-
-              {/* Rensa slutdatum-knapp */}
-              {deadlineDate && (
-                <button
-                  type="button"
-                  onClick={() => setDeadlineDate('')}
-                  className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-1"
-                >
-                  ❌ Ta bort slutdatum
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
 
         {/* Action buttons */}
         <div className="flex gap-2 pt-4">

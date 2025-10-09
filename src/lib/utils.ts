@@ -146,5 +146,5 @@ export const DURATION_PRESETS = [
   { label: '2h', value: 120, icon: '🟡', description: 'Längre session' },
   { label: '4h', value: 240, icon: '🟡', description: 'Halv dag' },
   { label: '8h', value: 480, icon: '🔴', description: 'Hel dag' },
-  { label: 'Mer', value: 1440, icon: '🔴', description: 'Stort projekt' },
+  { label: 'Anpassad', value: -1, icon: '✏️', description: 'Ange egen tid' },
 ] as const;
