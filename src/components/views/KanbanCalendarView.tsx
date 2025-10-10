@@ -126,7 +126,7 @@ export function KanbanCalendarView() {
     }
   };
 
-  const showUndoToast = (taskTitle: string, taskId: string, previousStart: string | null) => {
+  const showUndoToast = (taskTitle: string, taskId: string, previousStart: string | null | undefined) => {
     if (toastRef.current) {
       toastRef.current.show({
         title: '✓ Task schemalagd',
@@ -136,7 +136,7 @@ export function KanbanCalendarView() {
         buttons: [{
           model: { content: 'Ångra' },
           click: async () => {
-            await updateTask(taskId, { scheduled_start: previousStart });
+            await updateTask(taskId, { scheduled_start: previousStart || undefined });
             toast.success('Schemaläggning ångrad');
           }
         }]

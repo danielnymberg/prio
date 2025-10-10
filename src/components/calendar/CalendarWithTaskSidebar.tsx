@@ -1,16 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
-import { ChevronLeft, ChevronRight, Calendar, Undo2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import { closest } from '@syncfusion/ej2-base';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { Button } from '@/components/ui/Button';
 import { Task } from '@/lib/types';
 import { DialogUtility } from '@syncfusion/ej2-popups';
-import { ToastComponent, ToastCloseArgs } from '@syncfusion/ej2-react-notifications';
+import { ToastComponent } from '@syncfusion/ej2-react-notifications';
 import { toast } from 'react-hot-toast';
-import { blockCalendarTime } from '@/services/microsoft-graph';
 
 export function CalendarWithTaskSidebar() {
   const { tasks, updateTask, deleteTask } = useTasks();
@@ -21,8 +20,6 @@ export function CalendarWithTaskSidebar() {
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [checkedTaskIds, setCheckedTaskIds] = useState<string[]>([]);
-  const [lastScheduledTasks, setLastScheduledTasks] = useState<Array<{taskId: string, previousStart: string | null}>>([]);
-  const [isScheduling, setIsScheduling] = useState(false);
 
   // Ej schemalagda uppgifter (uppgifter utan scheduled_start som kan dras till kalendern)
   // Exkludera Snabbis (≤2 min) från kalenderplanering
@@ -147,7 +144,7 @@ export function CalendarWithTaskSidebar() {
   };
 
   // Show toast with undo functionality
-  const showUndoToast = (taskTitle: string, taskId: string, previousStart: string | null) => {
+  const showUndoToast = (taskTitle: string, taskId: string, previousStart: string | null | undefined) => {
     if (toastRef.current) {
       toastRef.current.show({
         title: '✓ Task schemalagd',
@@ -158,7 +155,7 @@ export function CalendarWithTaskSidebar() {
           model: { content: 'Ångra' },
           click: async () => {
             // Ångra schemanläggning
-            await updateTask(taskId, { scheduled_start: previousStart });
+            await updateTask(taskId, { scheduled_start: previousStart || undefined });
             toast.success('Schemaläggning ångrad');
           }
         }]
@@ -226,11 +223,10 @@ export function CalendarWithTaskSidebar() {
                     });
                   }}
                   variant="primary"
-                  disabled={isScheduling}
                   className="w-full flex items-center justify-center gap-2"
                 >
                   <Calendar className="h-4 w-4" />
-                  {isScheduling ? 'Schemalägger...' : `Schemalägg ${checkedTaskIds.length} valda`}
+                  {`Schemalägg ${checkedTaskIds.length} valda`}
                 </Button>
                 <button
                   onClick={() => setCheckedTaskIds([])}

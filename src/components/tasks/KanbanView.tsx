@@ -3,9 +3,11 @@ import { KanbanComponent, ColumnsDirective, ColumnDirective } from '@syncfusion/
 import { useTasks } from '@/hooks/useTasks';
 import { Task, Project } from '@/lib/types';
 import { TaskForm } from '@/components/tasks/TaskForm';
-import { API_URL } from '@/lib/config';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function KanbanView() {
+  const { user } = useAuth();
   const { tasks, updateTask, deleteTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -14,21 +16,24 @@ export function KanbanView() {
   // Hämta projekt för swimlanes
   useEffect(() => {
     const fetchProjects = async () => {
+      if (!user) return;
+
       try {
-        const response = await fetch(`${API_URL}/projects`, {
-          credentials: 'include'
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setProjects(data);
-        }
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setProjects(data || []);
       } catch (error) {
         console.error('Failed to fetch projects:', error);
       }
     };
 
     fetchProjects();
-  }, []);
+  }, [user]);
 
   // Konvertera tasks till Kanban-format
   const kanbanData = tasks.map(task => {
