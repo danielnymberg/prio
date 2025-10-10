@@ -1,17 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import { closest } from '@syncfusion/ej2-base';
+import { TaskForm } from '@/components/tasks/TaskForm';
+import { Task } from '@/lib/types';
 
 export function CalendarWithTaskSidebar() {
-  const { tasks, updateTask } = useTasks();
-  const navigate = useNavigate();
+  const { tasks, updateTask, deleteTask } = useTasks();
   const [showSidebar, setShowSidebar] = useState(true);
   const scheduleRef = useRef<any>(null);
   const [treeData, setTreeData] = useState<any[]>([]);
+  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Ej schemalagda uppgifter (uppgifter utan scheduled_start som kan dras till kalendern)
   // Exkludera Snabbis (≤2 min) från kalenderplanering
@@ -109,24 +111,18 @@ export function CalendarWithTaskSidebar() {
     }
   };
 
-  // Hantera click på task i sidebar - öppna task-detaljer
+  // Hantera click på task i sidebar - öppna task-modal
   const onNodeClick = (args: any) => {
-    console.log('Node clicked, full args:', args);
-
-    // TreeView event har node.dataset.uid som är "Id" från treeData
     const clickedId = args.node?.dataset?.uid;
-    console.log('Clicked node UID:', clickedId);
 
     if (clickedId) {
-      // Hitta task i treeData baserat på Id
-      const task = treeData.find(t => t.Id === clickedId);
-      console.log('Found task:', task);
+      // Hitta task baserat på Id
+      const fullTask = tasks.find(t => t.id === clickedId);
 
-      if (task && task.TaskId) {
-        navigate(`/task/${task.TaskId}`);
+      if (fullTask) {
+        setSelectedTask(fullTask);
+        setIsFormOpen(true);
       }
-    } else {
-      console.error('Could not find node UID in click event');
     }
   };
 
@@ -219,6 +215,29 @@ export function CalendarWithTaskSidebar() {
           updateTask={updateTask}
         />
       </div>
+
+      {/* Task detail modal */}
+      <TaskForm
+        isOpen={isFormOpen}
+        task={selectedTask}
+        onClose={() => {
+          setIsFormOpen(false);
+          setSelectedTask(undefined);
+        }}
+        onSubmit={async (input) => {
+          if (selectedTask) {
+            await updateTask(selectedTask.id, input);
+          }
+          setIsFormOpen(false);
+          setSelectedTask(undefined);
+        }}
+        onDelete={async (id) => {
+          await deleteTask(id);
+          setIsFormOpen(false);
+          setSelectedTask(undefined);
+          return true;
+        }}
+      />
     </div>
   );
 }
