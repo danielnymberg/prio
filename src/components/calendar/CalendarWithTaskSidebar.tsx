@@ -52,6 +52,10 @@ export function CalendarWithTaskSidebar() {
         if (target.classList.contains('e-work-cells') && scheduleRef.current) {
           const cellData = scheduleRef.current.getCellDetails(target);
 
+          console.log('Cell data from getCellDetails:', cellData);
+          console.log('Target element:', target);
+          console.log('Schedule current view:', scheduleRef.current.currentView);
+
           if (cellData && args.draggedNodeData) {
             // Hämta task data
             const draggedData = args.draggedNodeData as any;
@@ -61,12 +65,17 @@ export function CalendarWithTaskSidebar() {
             const taskData = treeData.find(t => t.Id === draggedData.id || t.Id === draggedData.Id);
 
             if (taskData) {
-              // Justera deadline - om före 06:00, sätt till 06:00
+              console.log('RAW cellData.startTime:', cellData.startTime);
+              console.log('Current view:', scheduleRef.current.currentView);
+
+              // I månadsvy - använd klockan 08:00 som default
               let deadline = new Date(cellData.startTime);
-              if (deadline.getHours() < 6) {
-                deadline.setHours(6, 0, 0, 0);
+              if (scheduleRef.current.currentView === 'Month') {
+                deadline.setHours(8, 0, 0, 0);
+                console.log('Month view detected - setting time to 08:00');
               }
 
+              console.log('Final deadline:', deadline.toISOString());
               console.log('Updating task:', taskData.TaskId, 'with deadline:', deadline.toISOString());
 
               // Sätt deadline på tasken
