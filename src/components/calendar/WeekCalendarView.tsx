@@ -212,6 +212,16 @@ export function WeekCalendarView() {
     loadCalendarData();
   }, [loadCalendarData]);
 
+  // Konfigurera externa draggable elements för Syncfusion
+  useEffect(() => {
+    if (scheduleRef.current) {
+      const draggableElements = document.querySelectorAll('.e-draggable');
+      draggableElements.forEach((element) => {
+        (element as HTMLElement).setAttribute('data-name', 'external-event');
+      });
+    }
+  }, [tasks]);
+
   // Event settings för Syncfusion
   const eventSettings: EventSettingsModel = {
     dataSource: events,
@@ -349,29 +359,47 @@ export function WeekCalendarView() {
       for (const event of newEvents) {
         const calEvent = event as CalendarEvent;
 
-        if (!isMsftConnected) {
-          toast.error('Anslut till Microsoft för att schemalägga');
-          await loadCalendarData();
-          return;
-        }
-
-        const title = calEvent.Subject || 'Fokustid';
-        const startDate = calEvent.StartTime;
-        const endDate = calEvent.EndTime;
-        const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000);
-
         saveCurrentDate();
 
-        try {
-          await blockCalendarTime(startDate, durationMinutes, `🎯 Fokus: ${title}`);
-          toast.success('Fokustid inbokad!');
-          await loadCalendarData();
-          restoreView();
-        } catch (error) {
-          console.error('Failed to block time:', error);
-          toast.error('Kunde inte boka tid');
-          await loadCalendarData();
-          restoreView();
+        // Om TaskId finns = task från sidebar
+        if (calEvent.TaskId) {
+          try {
+            await updateTask(calEvent.TaskId, {
+              deadline: calEvent.StartTime.toISOString()
+            });
+            toast.success('Task deadline satt!');
+            await loadCalendarData();
+            restoreView();
+          } catch (error) {
+            console.error('Failed to set task deadline:', error);
+            toast.error('Kunde inte sätta deadline');
+            await loadCalendarData();
+            restoreView();
+          }
+        } else {
+          // Annars = ny fokustid
+          if (!isMsftConnected) {
+            toast.error('Anslut till Microsoft för att schemalägga');
+            await loadCalendarData();
+            return;
+          }
+
+          const title = calEvent.Subject || 'Fokustid';
+          const startDate = calEvent.StartTime;
+          const endDate = calEvent.EndTime;
+          const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000);
+
+          try {
+            await blockCalendarTime(startDate, durationMinutes, `🎯 Fokus: ${title}`);
+            toast.success('Fokustid inbokad!');
+            await loadCalendarData();
+            restoreView();
+          } catch (error) {
+            console.error('Failed to block time:', error);
+            toast.error('Kunde inte boka tid');
+            await loadCalendarData();
+            restoreView();
+          }
         }
       }
     }

@@ -50,12 +50,12 @@ export function CalendarWithTaskSidebar() {
                     className="e-draggable bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700 cursor-move hover:shadow-md transition-shadow"
                     data-id={`task-${task.id}`}
                     data-subject={`📌 ${task.title}`}
-                    data-starttime={new Date().toISOString()}
-                    data-endtime={new Date(Date.now() + (task.estimated_duration || 30) * 60 * 1000).toISOString()}
-                    data-taskid={task.id}
-                    data-eventtype="task"
-                    data-categorycolor="#dc2626"
-                    data-isreadonly="false"
+                    data-start-time={new Date().toISOString()}
+                    data-end-time={new Date(Date.now() + (task.estimated_duration || 30) * 60 * 1000).toISOString()}
+                    data-task-id={task.id}
+                    data-event-type="task"
+                    data-category-color="#dc2626"
+                    data-is-readonly="false"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
