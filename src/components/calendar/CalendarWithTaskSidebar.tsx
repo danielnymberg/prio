@@ -65,8 +65,8 @@ export function CalendarWithTaskSidebar() {
               updateTask(taskData.TaskId, {
                 deadline: cellData.startTime.toISOString()
               }).then(() => {
-                // Ta bort från TreeView
-                setTreeData(prev => prev.filter(t => t.Id !== taskData.Id));
+                // TreeView uppdateras automatiskt via tasks dependency
+                // INGEN MANUELL REMOVE! Det var buggen - tasken försvann innan Supabase hann uppdatera
               }).catch((error) => {
                 console.error('Failed to update task:', error);
               });
