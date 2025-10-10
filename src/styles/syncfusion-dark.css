@@ -21,19 +21,28 @@
    ============================================ */
 
 /* Cell heights - Syncfusion minimum är 36px för vertical views */
+/* VIKTIGT: Alla måste ha EXAKT samma höjd för alignment */
 .prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells-wrap table td,
-.prio-compact-schedule.e-schedule .e-vertical-view .e-work-cells {
-  height: 36px;
-  min-height: 36px;
+.prio-compact-schedule.e-schedule .e-vertical-view .e-work-cells,
+.prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+}
+
+/* Säkerställ att table-rows också har rätt höjd */
+.prio-compact-schedule.e-schedule .e-vertical-view .e-content-wrap table tr,
+.prio-compact-schedule.e-schedule .e-vertical-view .e-time-slots-wrap table tr {
+  height: 36px !important;
 }
 
 /* Time cell text alignment och styling */
 .prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells {
-  line-height: 36px;
-  vertical-align: middle;
-  font-size: 11px;
-  padding: 0 4px;
-  text-align: right;
+  line-height: 36px !important;
+  vertical-align: middle !important;
+  font-size: 11px !important;
+  padding: 0 4px !important;
+  text-align: right !important;
 }
 
 /* Header customization - mer kompakt */
