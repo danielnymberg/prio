@@ -169,6 +169,13 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           timeDelay: 80      // Delay mellan scroll-steg i ms (minskat från 100)
         };
       }
+
+      // Auto-scrolla till 07:00 när kalendern laddas
+      setTimeout(() => {
+        if (scheduleRef.current) {
+          scheduleRef.current.scrollTo('07:00');
+        }
+      }, 100); // Liten delay för att kalendern ska hinna rendera
     }
   }, [scheduleRef.current, onScheduleReady]);
 
@@ -622,7 +629,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           height="100%"
           locale="sv"
           firstDayOfWeek={1}
-          startHour="07:00"
+          startHour="00:00"
           endHour="24:00"
           timeScale={{ enable: true, interval: 30, slotCount: 2 }}
           showQuickInfo={false}

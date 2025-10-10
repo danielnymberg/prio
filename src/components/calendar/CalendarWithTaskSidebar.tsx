@@ -38,6 +38,8 @@ export function CalendarWithTaskSidebar() {
     text: 'Name',
   };
 
+  console.log('TreeView data sample:', treeData[0]);
+
   // Handle drag stop - när task släpps på kalendern
   const onTreeDragStop = (args: DragAndDropEventArgs): void => {
     const treeElement = closest(args.target as Element, '.e-treeview');
@@ -109,20 +111,22 @@ export function CalendarWithTaskSidebar() {
 
   // Hantera click på task i sidebar - öppna task-detaljer
   const onNodeClick = (args: any) => {
-    console.log('Node clicked, args:', args);
+    console.log('Node clicked, full args:', args);
 
-    // Prova olika sätt att hitta task ID
-    const nodeData = args.nodeData || args.node;
-    console.log('nodeData:', nodeData);
+    // TreeView event har node.dataset.uid som är "Id" från treeData
+    const clickedId = args.node?.dataset?.uid;
+    console.log('Clicked node UID:', clickedId);
 
-    // TreeView använder 'id' som lowercase i treeData
-    const taskId = nodeData?.id || nodeData?.Id || nodeData?.TaskId;
-    console.log('taskId found:', taskId);
+    if (clickedId) {
+      // Hitta task i treeData baserat på Id
+      const task = treeData.find(t => t.Id === clickedId);
+      console.log('Found task:', task);
 
-    if (taskId) {
-      navigate(`/task/${taskId}`);
+      if (task && task.TaskId) {
+        navigate(`/task/${task.TaskId}`);
+      }
     } else {
-      console.error('Could not find taskId in click event');
+      console.error('Could not find node UID in click event');
     }
   };
 
