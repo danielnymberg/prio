@@ -152,10 +152,23 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
   const currentViewRef = useRef<string>('Week');
   const currentDateRef = useRef<Date>(new Date());
 
-  // Exponera schedule ref till parent
+  // Exponera schedule ref till parent och konfigurera scroll-hastighet
   useEffect(() => {
-    if (scheduleRef.current && onScheduleReady) {
-      onScheduleReady(scheduleRef.current);
+    if (scheduleRef.current) {
+      if (onScheduleReady) {
+        onScheduleReady(scheduleRef.current);
+      }
+
+      // Sätt långsammare auto-scroll vid drag
+      // @ts-ignore - scrollOptions finns i runtime men inte i types
+      const schedule: any = scheduleRef.current;
+      if (schedule.scrollOptions !== undefined) {
+        schedule.scrollOptions = {
+          enable: true,
+          scrollBy: 10,      // Långsammare scrollning (default är mycket snabbare)
+          timeDelay: 100     // Delay mellan scroll-steg i ms
+        };
+      }
     }
   }, [scheduleRef.current, onScheduleReady]);
 

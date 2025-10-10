@@ -10,6 +10,11 @@
   overflow: visible !important;
 }
 
+/* Slower auto-scroll during drag operations */
+.e-schedule .e-content-wrap {
+  scroll-behavior: smooth !important;
+}
+
 .dark .e-schedule,
 .dark .e-schedule .e-schedule-toolbar,
 .dark .e-schedule .e-toolbar,
