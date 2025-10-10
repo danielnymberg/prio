@@ -38,7 +38,8 @@ export interface Task {
   result_impact: number | null;  // 1-10: Faktisk påverkan efter completion
 
   // Befintliga fält (behåll)
-  deadline: string | null;
+  deadline: string | null;             // När det måste vara KLART
+  scheduled_start: string | null;      // När du planerar att BÖRJA arbeta på det
   status: TaskStatus;
   project_id: string | null;
   estimated_duration: number | null;  // Minuter
@@ -90,6 +91,7 @@ export interface CreateTaskInput {
   effort: number;
   blocks_task_ids?: string[];
   deadline?: string;
+  scheduled_start?: string;
   priority_flag?: PriorityFlag | null;
   status?: TaskStatus;
   project_id?: string;
@@ -107,6 +109,7 @@ export interface UpdateTaskInput {
   blocked_by_task_ids?: string[];
   result_impact?: number;
   deadline?: string;
+  scheduled_start?: string;
   priority_flag?: PriorityFlag | null;
   status?: TaskStatus;
   project_id?: string;

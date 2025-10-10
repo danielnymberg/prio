@@ -11,10 +11,10 @@ export function CalendarWithTaskSidebar() {
   const scheduleRef = useRef<any>(null);
   const [treeData, setTreeData] = useState<any[]>([]);
 
-  // Ej schemalagda uppgifter (uppgifter utan slutdatum som kan dras till kalendern)
+  // Ej schemalagda uppgifter (uppgifter utan scheduled_start som kan dras till kalendern)
   // Exkludera Snabbis (≤2 min) från kalenderplanering
   const unscheduledTasks = tasks.filter(
-    (t) => t.status !== 'done' && !t.deadline && (t.estimated_duration || 999) > 2
+    (t) => t.status !== 'done' && !t.scheduled_start && (t.estimated_duration || 999) > 2
   );
 
   // Uppdatera TreeView data när tasks ändras
@@ -75,17 +75,18 @@ export function CalendarWithTaskSidebar() {
                 console.log('Month view detected - setting time to 08:00');
               }
 
-              console.log('Final deadline:', deadline.toISOString());
-              console.log('Updating task:', taskData.TaskId, 'with deadline:', deadline.toISOString());
+              console.log('Final scheduled_start:', deadline.toISOString());
+              console.log('Updating task:', taskData.TaskId, 'with scheduled_start:', deadline.toISOString());
 
-              // Sätt deadline på tasken
+              // Sätt scheduled_start på tasken (INTE deadline - deadline är när det ska vara KLART)
               updateTask(taskData.TaskId, {
-                deadline: deadline.toISOString()
+                scheduled_start: deadline.toISOString()
               }).then((result) => {
                 console.log('Task updated successfully:', result);
                 console.log('Updated task details:', {
                   id: result.id,
                   title: result.title,
+                  scheduled_start: result.scheduled_start,
                   deadline: result.deadline,
                   status: result.status
                 });
@@ -122,10 +123,10 @@ export function CalendarWithTaskSidebar() {
               Ej schemalagt
             </h3>
             <p className="text-xs text-stone-600 dark:text-stone-400 mb-2">
-              Dra uppgifter till kalendern för att schemalägga
+              Dra uppgifter till kalendern för att planera när du ska jobba på dem
             </p>
             <p className="text-xs text-stone-500 dark:text-stone-500 italic">
-              💡 För att ta bort deadline: Klicka på uppgift i kalendern → "Ta bort deadline"
+              💡 För att ta bort från schema: Klicka på uppgift i kalendern → "Ta bort från schema"
             </p>
           </div>
 

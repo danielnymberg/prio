@@ -218,15 +218,15 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     console.log('Tasks changed, updating calendar. Total tasks:', tasks.length);
 
     const taskEvents: CalendarEvent[] = tasks
-      .filter((task) => task.deadline && task.status !== 'done')
+      .filter((task) => task.scheduled_start && task.status !== 'done')
       .map((task) => {
-        const deadline = new Date(task.deadline!);
+        const scheduledStart = new Date(task.scheduled_start!);
         const durationMinutes = task.estimated_duration || 30;
         return {
           Id: `task-${task.id}`,
           Subject: `📌 ${task.title}`,
-          StartTime: deadline,
-          EndTime: new Date(deadline.getTime() + durationMinutes * 60 * 1000),
+          StartTime: scheduledStart,
+          EndTime: new Date(scheduledStart.getTime() + durationMinutes * 60 * 1000),
           IsReadonly: false,
           CategoryColor: '#dc2626',
           EventType: 'task',
@@ -241,12 +241,13 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
       start: e.StartTime.toISOString()
     })));
 
-    // Debug: Visa tasks MED deadline
-    const tasksWithDeadline = tasks.filter(t => t.deadline && t.status !== 'done');
-    console.log('Tasks with deadline (filtered):', tasksWithDeadline.length);
-    console.log('Tasks with deadline details:', tasksWithDeadline.map(t => ({
+    // Debug: Visa tasks MED scheduled_start
+    const scheduledTasks = tasks.filter(t => t.scheduled_start && t.status !== 'done');
+    console.log('Tasks with scheduled_start (filtered):', scheduledTasks.length);
+    console.log('Scheduled tasks details:', scheduledTasks.map(t => ({
       id: t.id,
       title: t.title,
+      scheduled_start: t.scheduled_start,
       deadline: t.deadline,
       status: t.status
     })));
@@ -330,13 +331,13 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           }
         }
 
-        // Task deadline
+        // Task scheduled_start (när man drar task till ny tid i kalendern)
         if (calEvent.TaskId) {
           try {
             await updateTask(calEvent.TaskId, {
-              deadline: calEvent.StartTime.toISOString()
+              scheduled_start: calEvent.StartTime.toISOString()
             });
-            toast.success('Task deadline uppdaterad!');
+            toast.success('Schemalagd tid uppdaterad!');
             // Supabase realtime uppdaterar automatiskt
           } catch (error) {
             console.error('Failed to update task:', error);
@@ -366,12 +367,12 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
         if (calEvent.TaskId) {
           try {
-            await updateTask(calEvent.TaskId, { deadline: undefined });
-            toast.success('Task deadline borttagen!');
+            await updateTask(calEvent.TaskId, { scheduled_start: undefined });
+            toast.success('Task borttagen från schema!');
             // Supabase realtime uppdaterar automatiskt
           } catch (error) {
-            console.error('Failed to remove task deadline:', error);
-            toast.error('Kunde inte ta bort deadline');
+            console.error('Failed to remove task from schedule:', error);
+            toast.error('Kunde inte ta bort från schema');
           }
         }
       }
@@ -388,13 +389,13 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         if (calEvent.TaskId) {
           try {
             await updateTask(calEvent.TaskId, {
-              deadline: calEvent.StartTime.toISOString()
+              scheduled_start: calEvent.StartTime.toISOString()
             });
-            toast.success('Task deadline satt!');
+            toast.success('Task schemalagd!');
             // Supabase realtime uppdaterar automatiskt
           } catch (error) {
-            console.error('Failed to set task deadline:', error);
-            toast.error('Kunde inte sätta deadline');
+            console.error('Failed to schedule task:', error);
+            toast.error('Kunde inte schemalägga task');
           }
         } else {
           // Annars = ny fokustid
@@ -509,13 +510,13 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
     if (extendedProps?.taskId) {
       try {
-        await updateTask(extendedProps.taskId, { deadline: undefined });
-        toast.success('Task deadline borttagen!');
+        await updateTask(extendedProps.taskId, { scheduled_start: undefined });
+        toast.success('Task borttagen från schema!');
         setSelectedEvent(null);
         // Supabase realtime uppdaterar automatiskt
       } catch (error) {
-        console.error('Failed to remove task deadline:', error);
-        toast.error('Kunde inte ta bort deadline');
+        console.error('Failed to remove task from schedule:', error);
+        toast.error('Kunde inte ta bort från schema');
       }
     }
   };
@@ -662,7 +663,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
               {selectedEvent.editable && selectedEvent.extendedProps?.type === 'task' && (
                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                   <p className="text-sm text-blue-800 dark:text-blue-200">
-                    💡 Du kan dra denna uppgift till en annan tid eller vecka. Använd prev/next-knapparna för att navigera.
+                    💡 Detta är när du planerar att JOBBA på uppgiften. Deadline (om satt) är när den ska vara KLAR.
                   </p>
                 </div>
               )}
@@ -676,7 +677,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
                   className="flex-1 bg-red-500 hover:bg-red-600 text-white"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  {selectedEvent.extendedProps?.type === 'task' ? 'Ta bort deadline' : 'Ta bort'}
+                  {selectedEvent.extendedProps?.type === 'task' ? 'Ta bort från schema' : 'Ta bort'}
                 </Button>
               )}
               <Button
