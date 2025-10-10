@@ -15,7 +15,7 @@ import {
   Resize,
   DragAndDrop,
 } from '@syncfusion/ej2-react-schedule';
-import { L10n } from '@syncfusion/ej2-base';
+import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
 import { useTasks } from '@/hooks/useTasks';
 import {
   getCalendarEvents,
@@ -27,6 +27,18 @@ import {
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 import { AlertCircle, Trash2 } from 'lucide-react';
+
+// Import CLDR data för svensk kultur
+import * as numberingSystems from 'cldr-data/supplemental/numberingSystems.json';
+import * as gregorian from 'cldr-data/main/sv/ca-gregorian.json';
+import * as numbers from 'cldr-data/main/sv/numbers.json';
+import * as timeZoneNames from 'cldr-data/main/sv/timeZoneNames.json';
+
+// Ladda CLDR-data
+loadCldr(numberingSystems, gregorian, numbers, timeZoneNames);
+
+// Sätt svensk kultur
+setCulture('sv');
 
 // Konfigurera svensk lokalisering
 L10n.load({
