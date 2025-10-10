@@ -488,11 +488,11 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     const weekNum = getWeekNumber(date);
 
     return (
-      <div className="flex flex-col items-center justify-center" style={{ lineHeight: '1.2' }}>
-        <div style={{ fontSize: '13px', fontWeight: 'normal' }}>
+      <div className="flex flex-col items-center justify-center" style={{ lineHeight: '1.1', padding: '2px 0' }}>
+        <div style={{ fontSize: '12px', fontWeight: '500' }}>
           {dayName} {day}/{month}
         </div>
-        <div style={{ fontSize: '10px', color: '#888', marginTop: '2px' }}>
+        <div style={{ fontSize: '9px', color: '#888', marginTop: '1px' }}>
           v.{weekNum}
         </div>
       </div>
@@ -632,7 +632,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           firstDayOfWeek={1}
           startHour="00:00"
           endHour="24:00"
-          timeScale={{ enable: true, interval: 60, slotCount: 2 }}
+          timeScale={{ enable: true, interval: 60, slotCount: 1 }}
           showQuickInfo={false}
           eventSettings={eventSettings}
           actionComplete={onActionComplete}
