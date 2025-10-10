@@ -63,15 +63,29 @@
 
   /* Syncfusion Kanban fixes */
   .e-kanban {
-    @apply h-full;
+    @apply h-full flex flex-col;
+  }
+
+  .e-kanban .e-kanban-header {
+    @apply flex-shrink-0;
   }
 
   .e-kanban .e-kanban-content {
-    @apply h-full overflow-auto;
+    @apply flex-1 overflow-auto;
+    min-height: 0;
+  }
+
+  .e-kanban .e-content-row {
+    @apply h-auto;
   }
 
   .e-kanban .e-card-wrapper {
     @apply min-h-0;
+    max-height: none !important;
+  }
+
+  .e-kanban .e-column-expand {
+    @apply overflow-y-auto;
   }
 
   /* Make swimlanes more visible */

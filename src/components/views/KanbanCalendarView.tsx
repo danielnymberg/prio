@@ -152,11 +152,11 @@ export function KanbanCalendarView() {
     <div className="flex h-full gap-4 relative" id="kanban-calendar-container">
       {/* Kanban board */}
       <div className="w-1/3 flex-shrink-0 overflow-hidden">
-        <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col">
-          <h2 className="text-lg font-semibold mb-4 text-stone-900 dark:text-cream-50">
+        <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col overflow-hidden">
+          <h2 className="text-lg font-semibold mb-4 text-stone-900 dark:text-cream-50 flex-shrink-0">
             Uppgifter
           </h2>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 min-h-0">
             <KanbanComponent
               id="kanban-board"
               dataSource={kanbanData}
@@ -172,6 +172,7 @@ export function KanbanCalendarView() {
               allowDragAndDrop={true}
               externalDropId={['#kanban-calendar-container']}
               height="100%"
+              enableVirtualization={false}
             >
             <ColumnsDirective>
               <ColumnDirective
