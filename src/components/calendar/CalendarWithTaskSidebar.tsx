@@ -1,19 +1,28 @@
 import { useState, useRef, useEffect } from 'react';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Undo2 } from 'lucide-react';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import { closest } from '@syncfusion/ej2-base';
 import { TaskForm } from '@/components/tasks/TaskForm';
+import { Button } from '@/components/ui/Button';
 import { Task } from '@/lib/types';
+import { DialogUtility } from '@syncfusion/ej2-popups';
+import { ToastComponent, ToastCloseArgs } from '@syncfusion/ej2-react-notifications';
+import { toast } from 'react-hot-toast';
+import { blockCalendarTime } from '@/services/microsoft-graph';
 
 export function CalendarWithTaskSidebar() {
   const { tasks, updateTask, deleteTask } = useTasks();
   const [showSidebar, setShowSidebar] = useState(true);
   const scheduleRef = useRef<any>(null);
+  const toastRef = useRef<ToastComponent>(null);
   const [treeData, setTreeData] = useState<any[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [checkedTaskIds, setCheckedTaskIds] = useState<string[]>([]);
+  const [lastScheduledTasks, setLastScheduledTasks] = useState<Array<{taskId: string, previousStart: string | null}>>([]);
+  const [isScheduling, setIsScheduling] = useState(false);
 
   // Ej schemalagda uppgifter (uppgifter utan scheduled_start som kan dras till kalendern)
   // Exkludera Snabbis (≤2 min) från kalenderplanering
@@ -85,6 +94,10 @@ export function CalendarWithTaskSidebar() {
               console.log('Final scheduled_start:', deadline.toISOString());
               console.log('Updating task:', taskData.TaskId, 'with scheduled_start:', deadline.toISOString());
 
+              // Hitta original task för att få previous state
+              const originalTask = tasks.find(t => t.id === taskData.TaskId);
+              const previousStart = originalTask?.scheduled_start || null;
+
               // Sätt scheduled_start på tasken (INTE deadline - deadline är när det ska vara KLART)
               updateTask(taskData.TaskId, {
                 scheduled_start: deadline.toISOString()
@@ -97,6 +110,8 @@ export function CalendarWithTaskSidebar() {
                   deadline: result.deadline,
                   status: result.status
                 });
+                // Show undo toast
+                showUndoToast(result.title, result.id, previousStart);
                 // TreeView uppdateras automatiskt via tasks dependency
               }).catch((error) => {
                 console.error('CRITICAL: Failed to update task:', error);
@@ -131,6 +146,26 @@ export function CalendarWithTaskSidebar() {
     scheduleRef.current = ref;
   };
 
+  // Show toast with undo functionality
+  const showUndoToast = (taskTitle: string, taskId: string, previousStart: string | null) => {
+    if (toastRef.current) {
+      toastRef.current.show({
+        title: '✓ Task schemalagd',
+        content: `"${taskTitle}" har lagts till i kalendern`,
+        cssClass: 'e-toast-success',
+        timeOut: 5000,
+        buttons: [{
+          model: { content: 'Ångra' },
+          click: async () => {
+            // Ångra schemanläggning
+            await updateTask(taskId, { scheduled_start: previousStart });
+            toast.success('Schemaläggning ångrad');
+          }
+        }]
+      });
+    }
+  };
+
   return (
     <div className="flex h-full gap-4 relative overflow-hidden">
       {/* Sidebar med tasks */}
@@ -153,6 +188,58 @@ export function CalendarWithTaskSidebar() {
             <p className="text-xs text-stone-500 dark:text-stone-500 italic">
               💡 För att ta bort från schema: Klicka på uppgift i kalendern → "Ta bort från schema"
             </p>
+
+            {/* Batch scheduling button */}
+            {checkedTaskIds.length > 0 && (
+              <div className="mt-3 space-y-2">
+                <Button
+                  onClick={() => {
+                    const selectedTasks = tasks.filter(t => checkedTaskIds.includes(t.id));
+                    const totalMinutes = selectedTasks.reduce((sum, t) => sum + (t.estimated_duration || 60), 0);
+                    const hours = Math.floor(totalMinutes / 60);
+                    const mins = totalMinutes % 60;
+
+                    DialogUtility.confirm({
+                      title: `Schemalägg ${checkedTaskIds.length} uppgifter?`,
+                      content: `<div class="space-y-2">
+                        <p><strong>Valda tasks:</strong></p>
+                        <ul class="text-sm list-disc pl-5">
+                          ${selectedTasks.slice(0, 3).map(t => `<li>${t.title} (~${Math.round((t.estimated_duration || 60)/60)}h)</li>`).join('')}
+                          ${selectedTasks.length > 3 ? `<li><em>...och ${selectedTasks.length - 3} till</em></li>` : ''}
+                        </ul>
+                        <p class="text-sm mt-2"><strong>Total tid:</strong> ${hours}h ${mins}min</p>
+                        <p class="text-sm text-stone-600">Tasks kommer placeras i nästa lediga tider, sorterade efter prioritet.</p>
+                      </div>`,
+                      okButton: {
+                        text: '✓ Schemalägg',
+                        click: () => {
+                          // Trigger auto-schedule
+                          if (scheduleRef.current?.handleAutoScheduleSelected) {
+                            scheduleRef.current.handleAutoScheduleSelected(checkedTaskIds);
+                          }
+                          setCheckedTaskIds([]);
+                        }
+                      },
+                      cancelButton: { text: '✗ Avbryt' },
+                      cssClass: 'e-dlg-center',
+                      width: '450px'
+                    });
+                  }}
+                  variant="primary"
+                  disabled={isScheduling}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <Calendar className="h-4 w-4" />
+                  {isScheduling ? 'Schemalägger...' : `Schemalägg ${checkedTaskIds.length} valda`}
+                </Button>
+                <button
+                  onClick={() => setCheckedTaskIds([])}
+                  className="w-full text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300"
+                >
+                  Rensa urval
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto" id="tree-container">
@@ -169,6 +256,14 @@ export function CalendarWithTaskSidebar() {
                 dragArea=".flex.h-full.gap-4"
                 nodeDragStop={onTreeDragStop}
                 nodeClicked={onNodeClick}
+                showCheckBox={true}
+                autoCheck={false}
+                checkedNodes={checkedTaskIds}
+                nodeChecked={(args: any) => {
+                  // args.data innehåller array av checkade nodes
+                  const checked = args.data?.map((node: any) => node.id || node.Id) || [];
+                  setCheckedTaskIds(checked);
+                }}
                 nodeTemplate={(data: any) => (
                   <div className="p-2 cursor-pointer hover:bg-sand-50 dark:hover:bg-charcoal-800 rounded transition-colors">
                     <div className="flex items-start gap-2">
@@ -237,6 +332,13 @@ export function CalendarWithTaskSidebar() {
           setSelectedTask(undefined);
           return true;
         }}
+      />
+
+      {/* Toast notifications with undo */}
+      <ToastComponent
+        ref={toastRef}
+        position={{ X: 'Right', Y: 'Bottom' }}
+        newestOnTop={true}
       />
     </div>
   );

@@ -7,6 +7,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { QuickCaptureBar } from './components/ui/QuickCaptureBar';
 import { QuickNoteInput } from './components/tasks/QuickNoteInput';
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
+import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding';
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
@@ -37,6 +38,8 @@ const ProjectsView = lazy(() => import('./components/projects/ProjectsView').the
 const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetailView').then(m => ({ default: m.ProjectDetailView })));
 const OverviewView = lazy(() => import('./components/overview/OverviewView').then(m => ({ default: m.OverviewView })));
 const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSidebar').then(m => ({ default: m.CalendarWithTaskSidebar })));
+const KanbanView = lazy(() => import('./components/tasks/KanbanView').then(m => ({ default: m.KanbanView })));
+const KanbanCalendarView = lazy(() => import('./components/views/KanbanCalendarView').then(m => ({ default: m.KanbanCalendarView })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -80,6 +83,7 @@ function LoginPage() {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showKanbanOnboarding, setShowKanbanOnboarding] = useState(false);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const { tasks } = useTasks();
 
@@ -87,8 +91,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     // Kolla om användaren har slutfört onboarding
     if (user && !loading) {
       const completed = localStorage.getItem('prio_onboarding_completed');
+      const kanbanCompleted = localStorage.getItem('prio_kanban_onboarding_completed');
+
       if (!completed) {
         setShowWelcome(true);
+      } else if (!kanbanCompleted) {
+        // Visa Kanban onboarding efter 2 sekunder om huvudonboarding är klar
+        setTimeout(() => {
+          setShowKanbanOnboarding(true);
+        }, 2000);
       }
     }
   }, [user, loading]);
@@ -171,6 +182,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       <WelcomeModal
         isOpen={showWelcome}
         onComplete={() => setShowWelcome(false)}
+      />
+      {/* Kanban onboarding för befintliga användare */}
+      <KanbanOnboarding
+        isOpen={showKanbanOnboarding}
+        onComplete={() => setShowKanbanOnboarding(false)}
       />
       {/* Weekly review modal */}
       <WeeklyReviewModal
@@ -433,6 +449,28 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <CalendarView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Kanban (standalone) */}
+        <Route
+          path="/kanban"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <KanbanView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Kanban + Calendar combined */}
+        <Route
+          path="/kanban-calendar"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <KanbanCalendarView />
               </Suspense>
             </ProtectedRoute>
           }
