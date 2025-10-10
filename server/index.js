@@ -1,11 +1,29 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import * as Sentry from '@sentry/node';
 import Anthropic from '@anthropic-ai/sdk';
 import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
 import { createClient } from '@supabase/supabase-js';
 
 const app = express();
+
+// Initialize Sentry for error tracking (optional)
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: 1.0,
+  });
+
+  // Sentry request handler must be first
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.tracingHandler());
+  console.log('✅ Sentry error tracking enabled');
+} else {
+  console.log('⚠️  Sentry not configured - error tracking disabled');
+}
 const PORT = process.env.PORT || 10000;
 const SPEECHMATICS_API_KEY = process.env.SPEECHMATICS_API_KEY;
 const SPEECHMATICS_WS_URL = 'wss://eu2.rt.speechmatics.com/v2';
@@ -53,6 +71,25 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
 ];
+
+// Helmet for security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: [
+        "'self'",
+        "https://egmrvvguimqwkosrtcau.supabase.co",
+        "https://api.anthropic.com",
+        "wss://eu2.rt.speechmatics.com"
+      ],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+}));
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -434,6 +471,19 @@ app.post('/api/azure-tts', authenticateUser, rateLimiter, async (req, res) => {
       error: error.message || 'Failed to synthesize speech'
     });
   }
+});
+
+// Sentry error handler must be before other error handlers and after all routes
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.Handlers.errorHandler());
+}
+
+// General error handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal server error'
+  });
 });
 
 const server = app.listen(PORT, () => {
