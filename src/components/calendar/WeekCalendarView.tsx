@@ -159,14 +159,14 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         onScheduleReady(scheduleRef.current);
       }
 
-      // Sätt långsammare auto-scroll vid drag
+      // Sätt lagom auto-scroll-hastighet vid drag
       // @ts-ignore - scrollOptions finns i runtime men inte i types
       const schedule: any = scheduleRef.current;
       if (schedule.scrollOptions !== undefined) {
         schedule.scrollOptions = {
           enable: true,
-          scrollBy: 10,      // Långsammare scrollning (default är mycket snabbare)
-          timeDelay: 100     // Delay mellan scroll-steg i ms
+          scrollBy: 20,      // Lagom scrollning (ökat från 10)
+          timeDelay: 80      // Delay mellan scroll-steg i ms (minskat från 100)
         };
       }
     }
@@ -462,6 +462,36 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     }
   };
 
+  // Funktion för att få veckonummer
+  const getWeekNumber = (date: Date): number => {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  };
+
+  // Custom date header template - visa "Mån 6/10 v.41"
+  const dateHeaderTemplate = (props: any) => {
+    const date = new Date(props.date);
+    const dayNames = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
+    const dayName = dayNames[date.getDay()];
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const weekNum = getWeekNumber(date);
+
+    return (
+      <div className="flex flex-col items-center justify-center" style={{ lineHeight: '1.2' }}>
+        <div style={{ fontSize: '13px', fontWeight: 'normal' }}>
+          {dayName} {day}/{month}
+        </div>
+        <div style={{ fontSize: '10px', color: '#888', marginTop: '2px' }}>
+          v.{weekNum}
+        </div>
+      </div>
+    );
+  };
+
   // Custom rendering av events
   const onEventRendered = (args: EventRenderedArgs) => {
     const eventData = args.data as CalendarEvent;
@@ -592,7 +622,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           height="100%"
           locale="sv"
           firstDayOfWeek={1}
-          startHour="00:00"
+          startHour="07:00"
           endHour="24:00"
           timeScale={{ enable: true, interval: 30, slotCount: 2 }}
           showQuickInfo={false}
@@ -606,6 +636,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           allowDragAndDrop={true}
           allowResizing={true}
           showHeaderBar={true}
+          dateHeaderTemplate={dateHeaderTemplate}
         >
           <ViewsDirective>
             <ViewDirective option="Week" />

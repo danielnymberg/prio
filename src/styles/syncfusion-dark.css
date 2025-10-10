@@ -15,6 +15,48 @@
   scroll-behavior: smooth !important;
 }
 
+/* Kompakt kalenderdesign */
+/* Minska höjd på timslots (30-40% mindre) */
+.e-schedule .e-time-cells,
+.e-schedule .e-work-cells {
+  height: 30px !important; /* Ner från ~50px till 30px (40% mindre) */
+  min-height: 30px !important;
+}
+
+/* Minska höjd på header-celler */
+.e-schedule .e-header-cells {
+  height: 40px !important; /* Mindre header */
+  padding: 4px !important;
+}
+
+/* Komprimera datum i header - visa "Mån 6/10" på en rad */
+.e-schedule .e-header-cells .e-header-day {
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+
+.e-schedule .e-header-cells .e-header-date {
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+  font-weight: 600 !important;
+}
+
+/* Kompakt datum-formatering */
+.e-schedule .e-date-header-wrap {
+  min-height: 40px !important;
+}
+
+/* Mindre text i time-cells */
+.e-schedule .e-time-slots .e-time-cells {
+  font-size: 12px !important;
+}
+
+/* Minska padding i events */
+.e-schedule .e-appointment {
+  padding: 2px 4px !important;
+  font-size: 12px !important;
+}
+
 .dark .e-schedule,
 .dark .e-schedule .e-schedule-toolbar,
 .dark .e-schedule .e-toolbar,
