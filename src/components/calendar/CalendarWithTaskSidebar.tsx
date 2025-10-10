@@ -1,45 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Draggable } from '@fullcalendar/interaction';
 
 export function CalendarWithTaskSidebar() {
   const { tasks } = useTasks();
   const [showSidebar, setShowSidebar] = useState(true);
-  const tasksContainerRef = useRef<HTMLDivElement>(null);
 
-  // Oplanerade uppgifter (uppgifter utan slutdatum som kan dras till kalendern)
+  // Ej schemalagda uppgifter (uppgifter utan slutdatum som kan dras till kalendern)
   // Exkludera Snabbis (≤2 min) från kalenderplanering
   const unscheduledTasks = tasks.filter(
     (t) => t.status !== 'done' && !t.deadline && (t.estimated_duration || 999) > 2
   );
-
-  // Initiera FullCalendar Draggable för task-element
-  useEffect(() => {
-    if (!tasksContainerRef.current) return;
-
-    const draggable = new Draggable(tasksContainerRef.current, {
-      itemSelector: '.fc-event-draggable',
-      eventData: (eventEl) => {
-        const taskId = eventEl.getAttribute('data-taskid');
-        const taskTitle = eventEl.getAttribute('data-tasktitle');
-        const taskDuration = parseInt(eventEl.getAttribute('data-taskduration') || '60');
-
-        return {
-          title: taskTitle || 'Uppgift',
-          duration: { minutes: taskDuration },
-          extendedProps: {
-            taskId,
-          },
-        };
-      },
-    });
-
-    return () => {
-      draggable.destroy();
-    };
-  }, [unscheduledTasks]);
 
   return (
     <div className="flex h-full gap-4 relative overflow-hidden">
@@ -62,7 +34,7 @@ export function CalendarWithTaskSidebar() {
             </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto" ref={tasksContainerRef}>
+          <div className="flex-1 overflow-y-auto">
             {unscheduledTasks.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-sm text-stone-500 dark:text-stone-400">
@@ -74,10 +46,16 @@ export function CalendarWithTaskSidebar() {
                 {unscheduledTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="fc-event-draggable bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700 cursor-move hover:shadow-md transition-shadow"
+                    draggable
+                    className="e-draggable bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700 cursor-move hover:shadow-md transition-shadow"
+                    data-id={`task-${task.id}`}
+                    data-subject={`📌 ${task.title}`}
+                    data-starttime={new Date().toISOString()}
+                    data-endtime={new Date(Date.now() + (task.estimated_duration || 30) * 60 * 1000).toISOString()}
                     data-taskid={task.id}
-                    data-tasktitle={task.title}
-                    data-taskduration={task.estimated_duration || 60}
+                    data-eventtype="task"
+                    data-categorycolor="#dc2626"
+                    data-isreadonly="false"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">

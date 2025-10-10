@@ -1,12 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import listPlugin from '@fullcalendar/list';
-import { EventInput, EventDropArg, DateSelectArg, EventClickArg } from '@fullcalendar/core';
-import type { EventResizeDoneArg } from '@fullcalendar/interaction';
-import svLocale from '@fullcalendar/core/locales/sv';
+import {
+  ScheduleComponent,
+  Day,
+  Week,
+  Month,
+  Agenda,
+  Inject,
+  ViewsDirective,
+  ViewDirective,
+  EventSettingsModel,
+  ActionEventArgs,
+  PopupOpenEventArgs,
+  EventRenderedArgs,
+  Resize,
+  DragAndDrop,
+} from '@syncfusion/ej2-react-schedule';
+import { L10n } from '@syncfusion/ej2-base';
 import { useTasks } from '@/hooks/useTasks';
 import {
   getCalendarEvents,
@@ -19,13 +28,94 @@ import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 import { AlertCircle, Trash2 } from 'lucide-react';
 
-interface CalendarEventData {
+// Konfigurera svensk lokalisering
+L10n.load({
+  'sv': {
+    'schedule': {
+      'day': 'Dag',
+      'week': 'Vecka',
+      'month': 'Månad',
+      'agenda': 'Agenda',
+      'today': 'Idag',
+      'noEvents': 'Inga händelser',
+      'allDay': 'Heldag',
+      'start': 'Start',
+      'end': 'Slut',
+      'more': 'fler',
+      'close': 'Stäng',
+      'cancel': 'Avbryt',
+      'noTitle': '(Ingen titel)',
+      'delete': 'Ta bort',
+      'deleteEvent': 'Ta bort händelse',
+      'deleteMultipleEvent': 'Ta bort flera händelser',
+      'selectedItems': 'Valda objekt',
+      'deleteSeries': 'Ta bort serie',
+      'edit': 'Redigera',
+      'editSeries': 'Redigera serie',
+      'editEvent': 'Redigera händelse',
+      'createEvent': 'Skapa',
+      'subject': 'Ämne',
+      'addTitle': 'Lägg till titel',
+      'moreDetails': 'Fler detaljer',
+      'save': 'Spara',
+      'editContent': 'Hur vill du ändra mötet i serien?',
+      'deleteContent': 'Är du säker på att du vill ta bort händelsen?',
+      'deleteMultipleContent': 'Är du säker på att du vill ta bort valda händelser?',
+      'newEvent': 'Ny händelse',
+      'title': 'Titel',
+      'location': 'Plats',
+      'description': 'Beskrivning',
+      'timezone': 'Tidszon',
+      'startTimezone': 'Starttidszon',
+      'endTimezone': 'Sluttidszon',
+      'repeat': 'Upprepa',
+      'saveButton': 'Spara',
+      'cancelButton': 'Avbryt',
+      'deleteButton': 'Ta bort',
+      'recurrence': 'Återkommande',
+      'wrongPattern': 'Återkommande mönster är inte giltigt.',
+      'seriesChangeAlert': 'Vill du avbryta ändringarna på specifika instanser av denna serie och matcha den igen med hela serien?',
+      'createError': 'Varaktigheten för händelsen måste vara kortare än hur ofta den inträffar. Förkorta varaktigheten eller ändra återkommande mönster i redigeraren för återkommande händelser.',
+      'recurrenceDateValidation': 'Vissa månader har färre än det valda datumet. För dessa månader kommer händelsen att inträffa det sista datumet i månaden.',
+      'sameDayAlert': 'Två händelser av samma händelse kan inte ske på samma dag.',
+      'editRecurrence': 'Redigera återkommande',
+      'repeats': 'Upprepningar',
+      'alert': 'Varning',
+      'startEndError': 'Det valda slutdatumet inträffar före startdatumet.',
+      'invalidDateError': 'Det angivna datumvärdet är ogiltigt.',
+      'ok': 'Ok',
+      'occurrence': 'Förekomst',
+      'series': 'Serie',
+      'previous': 'Föregående',
+      'next': 'Nästa',
+      'timelineDay': 'Tidslinje Dag',
+      'timelineWeek': 'Tidslinje Vecka',
+      'timelineMonth': 'Tidslinje Månad',
+      'expandAllDaySection': 'Expandera',
+      'collapseAllDaySection': 'Kollapsa',
+    }
+  }
+});
+
+interface CalendarEvent {
+  Id: string | number;
+  Subject: string;
+  StartTime: Date;
+  EndTime: Date;
+  IsAllDay?: boolean;
+  IsReadonly?: boolean;
+  CategoryColor?: string;
+  EventType?: 'meeting' | 'focus' | 'task';
+  TaskId?: string;
+  EventId?: string;
+  IsPrioEvent?: boolean;
+}
+
+interface SelectedEventData {
   id: string;
   title: string;
-  start: Date | string;
-  end: Date | string;
-  backgroundColor?: string;
-  borderColor?: string;
+  start: Date;
+  end: Date;
   editable?: boolean;
   extendedProps?: {
     taskId?: string;
@@ -37,11 +127,12 @@ interface CalendarEventData {
 
 export function WeekCalendarView() {
   const { tasks, updateTask } = useTasks();
-  const [events, setEvents] = useState<EventInput[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMsftConnected, setIsMsftConnected] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEventData | null>(null);
-  const calendarRef = useRef<FullCalendar>(null);
+  const [selectedEvent, setSelectedEvent] = useState<SelectedEventData | null>(null);
+  const scheduleRef = useRef<ScheduleComponent>(null);
+  const currentDateRef = useRef<Date | null>(null);
 
   // Ladda kalenderdata
   const loadCalendarData = useCallback(async () => {
@@ -62,43 +153,37 @@ export function WeekCalendarView() {
       const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
       const calendarEvents = await getCalendarEvents(now, twoWeeksFromNow);
 
-      // Konvertera till FullCalendar format
-      const msftEvents: EventInput[] = calendarEvents.map((event) => {
+      // Konvertera till Syncfusion format
+      const msftEvents: CalendarEvent[] = calendarEvents.map((event) => {
         const isPrioEvent = event.subject.includes('🎯 Fokus');
         return {
-          id: event.id,
-          title: event.subject,
-          start: event.start,
-          end: event.end,
-          backgroundColor: isPrioEvent ? '#ea580c' : '#3b82f6',
-          borderColor: isPrioEvent ? '#c2410c' : '#2563eb',
-          editable: isPrioEvent, // Endast Prio-events kan flyttas
-          extendedProps: {
-            eventId: event.id,
-            isPrioEvent: isPrioEvent,
-            type: isPrioEvent ? 'focus' : 'meeting',
-          },
+          Id: event.id,
+          Subject: event.subject,
+          StartTime: new Date(event.start),
+          EndTime: new Date(event.end),
+          IsReadonly: !isPrioEvent, // Endast Prio-events kan redigeras
+          CategoryColor: isPrioEvent ? '#ea580c' : '#3b82f6',
+          EventType: isPrioEvent ? 'focus' : 'meeting',
+          EventId: event.id,
+          IsPrioEvent: isPrioEvent,
         };
       });
 
       // Lägg till tasks med deadlines
-      const taskEvents: EventInput[] = tasks
+      const taskEvents: CalendarEvent[] = tasks
         .filter((task) => task.deadline && task.status !== 'done')
         .map((task) => {
           const deadline = new Date(task.deadline!);
-          const durationMinutes = task.estimated_duration || 30; // Använd task's duration, fallback 30 min
+          const durationMinutes = task.estimated_duration || 30;
           return {
-            id: `task-${task.id}`,
-            title: `📌 ${task.title}`,
-            start: deadline,
-            end: new Date(deadline.getTime() + durationMinutes * 60 * 1000),
-            backgroundColor: '#dc2626',
-            borderColor: '#991b1b',
-            editable: true,
-            extendedProps: {
-              taskId: task.id,
-              type: 'task',
-            },
+            Id: `task-${task.id}`,
+            Subject: `📌 ${task.title}`,
+            StartTime: deadline,
+            EndTime: new Date(deadline.getTime() + durationMinutes * 60 * 1000),
+            IsReadonly: false,
+            CategoryColor: '#dc2626',
+            EventType: 'task',
+            TaskId: task.id,
           };
         });
 
@@ -115,216 +200,238 @@ export function WeekCalendarView() {
     loadCalendarData();
   }, [loadCalendarData]);
 
-  // Custom event content renderer (titel först, sedan tid)
-  const renderEventContent = (eventInfo: any) => {
-    const timeText = eventInfo.timeText;
-    const title = eventInfo.event.title;
-
-    return (
-      <div className="fc-event-main-frame px-1 overflow-hidden">
-        <div className="fc-event-title-container">
-          <div className="fc-event-title fc-sticky font-medium truncate">
-            {title}
-          </div>
-        </div>
-        {timeText && (
-          <div className="fc-event-time text-xs opacity-75 truncate">
-            {timeText}
-          </div>
-        )}
-      </div>
-    );
+  // Event settings för Syncfusion
+  const eventSettings: EventSettingsModel = {
+    dataSource: events,
+    fields: {
+      id: 'Id',
+      subject: { name: 'Subject' },
+      startTime: { name: 'StartTime' },
+      endTime: { name: 'EndTime' },
+      isAllDay: { name: 'IsAllDay' },
+      isReadonly: { name: 'IsReadonly' },
+    } as any, // Type workaround for Syncfusion fields
   };
 
-  // Hantera när event flyttas
-  const handleEventDrop = async (info: EventDropArg) => {
-    const { event } = info;
-    const extendedProps = event.extendedProps as CalendarEventData['extendedProps'];
-
-    // Blockera externa events
-    if (extendedProps?.eventId && !extendedProps?.isPrioEvent) {
-      info.revert();
-      toast.error('Kan inte flytta externa möten! Endast Prio fokustid kan flyttas.');
-      return;
+  // Spara nuvarande datum innan uppdatering
+  const saveCurrentDate = () => {
+    if (scheduleRef.current) {
+      currentDateRef.current = scheduleRef.current.selectedDate;
     }
+  };
 
-    const startDate = event.start!;
-    const endDate = event.end!;
-    const currentDate = calendarRef.current?.getApi().getDate();
+  // Återställ vy efter uppdatering
+  const restoreView = () => {
+    if (scheduleRef.current && currentDateRef.current) {
+      setTimeout(() => {
+        scheduleRef.current?.scrollTo(currentDateRef.current!.toISOString());
+      }, 100);
+    }
+  };
 
-    // Prio focus-session
-    if (extendedProps?.eventId && extendedProps?.isPrioEvent) {
-      try {
-        const success = await updateCalendarEvent(extendedProps.eventId, {
-          start: startDate,
-          end: endDate,
-        });
+  // Hantera när event ändras (drag, resize)
+  const onActionComplete = async (args: ActionEventArgs) => {
+    if (args.requestType === 'eventChanged' && args.data) {
+      const changedEvents = Array.isArray(args.data) ? args.data : [args.data];
 
-        if (success) {
-          toast.success('Fokustid flyttad!');
+      for (const event of changedEvents) {
+        const calEvent = event as CalendarEvent;
+
+        // Blockera externa möten
+        if (calEvent.EventId && !calEvent.IsPrioEvent) {
+          toast.error('Kan inte flytta externa möten!');
           await loadCalendarData();
+          restoreView();
+          return;
+        }
 
-          // Behåll nuvarande vy
-          if (calendarRef.current && currentDate) {
-            calendarRef.current.getApi().gotoDate(currentDate);
+        saveCurrentDate();
+
+        // Prio focus-session
+        if (calEvent.EventId && calEvent.IsPrioEvent) {
+          try {
+            const success = await updateCalendarEvent(calEvent.EventId, {
+              start: calEvent.StartTime,
+              end: calEvent.EndTime,
+            });
+
+            if (success) {
+              toast.success('Fokustid uppdaterad!');
+              await loadCalendarData();
+              restoreView();
+            } else {
+              toast.error('Kunde inte uppdatera fokustiden');
+              await loadCalendarData();
+              restoreView();
+            }
+          } catch (error) {
+            console.error('Failed to update event:', error);
+            toast.error('Kunde inte uppdatera fokustiden');
+            await loadCalendarData();
+            restoreView();
           }
-        } else {
-          info.revert();
-          toast.error('Kunde inte flytta fokustiden');
         }
-      } catch (error) {
-        console.error('Failed to move event:', error);
-        info.revert();
-        toast.error('Kunde inte flytta fokustiden');
+
+        // Task deadline
+        if (calEvent.TaskId) {
+          try {
+            await updateTask(calEvent.TaskId, {
+              deadline: calEvent.StartTime.toISOString()
+            });
+            toast.success('Task deadline uppdaterad!');
+            await loadCalendarData();
+            restoreView();
+          } catch (error) {
+            console.error('Failed to update task:', error);
+            toast.error('Kunde inte uppdatera task');
+            await loadCalendarData();
+            restoreView();
+          }
+        }
       }
     }
 
-    // Task deadline
-    if (extendedProps?.taskId) {
-      try {
-        await updateTask(extendedProps.taskId, { deadline: startDate.toISOString() });
-        toast.success('Task deadline uppdaterad!');
-        await loadCalendarData();
+    // Hantera när event tas bort
+    if (args.requestType === 'eventRemoved' && args.data) {
+      const removedEvents = Array.isArray(args.data) ? args.data : [args.data];
 
-        // Behåll nuvarande vy
-        if (calendarRef.current && currentDate) {
-          calendarRef.current.getApi().gotoDate(currentDate);
+      for (const event of removedEvents) {
+        const calEvent = event as CalendarEvent;
+
+        saveCurrentDate();
+
+        if (calEvent.EventId && calEvent.IsPrioEvent) {
+          try {
+            await deleteCalendarEvent(calEvent.EventId);
+            toast.success('Fokustid borttagen!');
+            await loadCalendarData();
+            restoreView();
+          } catch (error) {
+            console.error('Failed to delete event:', error);
+            toast.error('Kunde inte ta bort fokustiden');
+            await loadCalendarData();
+            restoreView();
+          }
         }
-      } catch (error) {
-        console.error('Failed to update task:', error);
-        info.revert();
-        toast.error('Kunde inte uppdatera task');
+
+        if (calEvent.TaskId) {
+          try {
+            await updateTask(calEvent.TaskId, { deadline: undefined });
+            toast.success('Task deadline borttagen!');
+            await loadCalendarData();
+            restoreView();
+          } catch (error) {
+            console.error('Failed to remove task deadline:', error);
+            toast.error('Kunde inte ta bort deadline');
+            await loadCalendarData();
+            restoreView();
+          }
+        }
       }
     }
-  };
 
-  // Hantera resize (ändra längd)
-  const handleEventResize = async (info: EventResizeDoneArg) => {
-    const { event } = info;
-    const extendedProps = event.extendedProps as CalendarEventData['extendedProps'];
-    const currentDate = calendarRef.current?.getApi().getDate();
+    // Hantera när ny event skapas
+    if (args.requestType === 'eventCreated' && args.data) {
+      const newEvents = Array.isArray(args.data) ? args.data : [args.data];
 
-    // Blockera externa events
-    if (extendedProps?.eventId && !extendedProps?.isPrioEvent) {
-      info.revert();
-      toast.error('Kan inte ändra externa möten!');
-      return;
-    }
+      for (const event of newEvents) {
+        const calEvent = event as CalendarEvent;
 
-    const startDate = event.start!;
-    const endDate = event.end!;
-
-    if (extendedProps?.eventId && extendedProps?.isPrioEvent) {
-      try {
-        const success = await updateCalendarEvent(extendedProps.eventId, {
-          start: startDate,
-          end: endDate,
-        });
-
-        if (success) {
-          toast.success('Fokustid ändrad!');
+        if (!isMsftConnected) {
+          toast.error('Anslut till Microsoft för att schemalägga');
           await loadCalendarData();
-
-          // Behåll nuvarande vy
-          if (calendarRef.current && currentDate) {
-            calendarRef.current.getApi().gotoDate(currentDate);
-          }
-        } else {
-          info.revert();
+          return;
         }
-      } catch (error) {
-        console.error('Failed to resize event:', error);
-        info.revert();
-        toast.error('Kunde inte ändra fokustiden');
+
+        const title = calEvent.Subject || 'Fokustid';
+        const startDate = calEvent.StartTime;
+        const endDate = calEvent.EndTime;
+        const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000);
+
+        saveCurrentDate();
+
+        try {
+          await blockCalendarTime(startDate, durationMinutes, `🎯 Fokus: ${title}`);
+          toast.success('Fokustid inbokad!');
+          await loadCalendarData();
+          restoreView();
+        } catch (error) {
+          console.error('Failed to block time:', error);
+          toast.error('Kunde inte boka tid');
+          await loadCalendarData();
+          restoreView();
+        }
       }
     }
   };
 
-  // Hantera när användaren väljer en tid (skapa ny event)
-  const handleDateSelect = async (selectInfo: DateSelectArg) => {
-    if (!isMsftConnected) {
-      toast.error('Anslut till Microsoft för att schemalägga');
-      return;
+  // Anpassa popup för att visa vår egen modal
+  const onPopupOpen = (args: PopupOpenEventArgs) => {
+    if (args.type === 'QuickInfo' && args.data) {
+      args.cancel = true; // Avbryt default popup
+
+      const eventData = args.data as CalendarEvent;
+
+      setSelectedEvent({
+        id: String(eventData.Id),
+        title: eventData.Subject,
+        start: eventData.StartTime,
+        end: eventData.EndTime,
+        editable: !eventData.IsReadonly,
+        extendedProps: {
+          taskId: eventData.TaskId,
+          eventId: eventData.EventId,
+          isPrioEvent: eventData.IsPrioEvent,
+          type: eventData.EventType!,
+        },
+      });
     }
 
-    const title = prompt('Vad vill du fokusera på?');
-    if (!title) return;
+    // Anpassa editor-popup
+    if (args.type === 'Editor') {
+      // Här kan vi anpassa formuläret om vi vill
+    }
+  };
 
-    const startDate = selectInfo.start;
-    const endDate = selectInfo.end;
-    const durationMinutes = Math.round((endDate.getTime() - startDate.getTime()) / 60000);
+  // Custom rendering av events
+  const onEventRendered = (args: EventRenderedArgs) => {
+    const eventData = args.data as CalendarEvent;
 
-    try {
-      await blockCalendarTime(startDate, durationMinutes, `🎯 Fokus: ${title}`);
-      toast.success('Fokustid inbokad!');
-      await loadCalendarData();
+    // Sätt bakgrundsfärg
+    if (args.element && eventData.CategoryColor) {
+      args.element.style.backgroundColor = eventData.CategoryColor;
+      args.element.style.borderColor = eventData.CategoryColor;
+    }
 
-      // Behåll nuvarande vy (förhindra hopp till nuvarande vecka)
-      if (calendarRef.current) {
-        const calendarApi = calendarRef.current.getApi();
-        calendarApi.gotoDate(startDate);
+    // Custom HTML för event
+    if (args.element) {
+      const timeText = args.element.querySelector('.e-time');
+      const subjectText = args.element.querySelector('.e-subject');
+
+      // Flytta tid under titel
+      if (timeText && subjectText && timeText.parentElement && subjectText.parentElement) {
+        const container = subjectText.parentElement;
+        container.innerHTML = '';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'font-medium truncate';
+        titleDiv.textContent = eventData.Subject;
+
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'text-xs opacity-75 truncate';
+        timeDiv.textContent = timeText.textContent || '';
+
+        container.appendChild(titleDiv);
+        container.appendChild(timeDiv);
       }
-    } catch (error) {
-      console.error('Failed to block time:', error);
-      toast.error('Kunde inte boka tid');
     }
   };
 
-  // Hantera när extern event (från sidebar) tas emot
-  const handleEventReceive = async (info: any) => {
-    const taskId = info.event.extendedProps?.taskId;
-    const startDate = info.event.start;
-
-    if (!taskId || !startDate) {
-      info.revert();
-      return;
-    }
-
-    const currentDate = calendarRef.current?.getApi().getDate();
-
-    try {
-      // Uppdatera task med deadline
-      await updateTask(taskId, { deadline: startDate.toISOString() });
-      toast.success('Task schemalagd!');
-
-      // Ta bort det tillfälliga eventet (vi laddar om från backend)
-      info.event.remove();
-      await loadCalendarData();
-
-      // Behåll nuvarande vy
-      if (calendarRef.current && currentDate) {
-        calendarRef.current.getApi().gotoDate(currentDate);
-      }
-    } catch (error) {
-      console.error('Failed to schedule task:', error);
-      toast.error('Kunde inte schemalägga task');
-      info.revert();
-    }
-  };
-
-  // Hantera klick på event
-  const handleEventClick = (info: EventClickArg) => {
-    const { event } = info;
-    const extendedProps = event.extendedProps as CalendarEventData['extendedProps'];
-
-    setSelectedEvent({
-      id: event.id,
-      title: event.title,
-      start: event.start!,
-      end: event.end!,
-      backgroundColor: event.backgroundColor,
-      borderColor: event.borderColor,
-      editable: event.startEditable,
-      extendedProps,
-    });
-  };
-
-  // Ta bort event
+  // Hantera ta bort event från modal
   const handleDeleteEvent = async () => {
-    if (!selectedEvent) return;
+    if (!selectedEvent || !scheduleRef.current) return;
 
     const extendedProps = selectedEvent.extendedProps;
-    const currentDate = calendarRef.current?.getApi().getDate();
 
     // Blockera borttagning av externa events
     if (extendedProps?.eventId && !extendedProps?.isPrioEvent) {
@@ -333,17 +440,15 @@ export function WeekCalendarView() {
       return;
     }
 
+    saveCurrentDate();
+
     if (extendedProps?.eventId && extendedProps?.isPrioEvent) {
       try {
         await deleteCalendarEvent(extendedProps.eventId);
         toast.success('Fokustid borttagen!');
         setSelectedEvent(null);
         await loadCalendarData();
-
-        // Behåll nuvarande vy
-        if (calendarRef.current && currentDate) {
-          calendarRef.current.getApi().gotoDate(currentDate);
-        }
+        restoreView();
       } catch (error) {
         console.error('Failed to delete event:', error);
         toast.error('Kunde inte ta bort fokustiden');
@@ -356,11 +461,7 @@ export function WeekCalendarView() {
         toast.success('Task deadline borttagen!');
         setSelectedEvent(null);
         await loadCalendarData();
-
-        // Behåll nuvarande vy
-        if (calendarRef.current && currentDate) {
-          calendarRef.current.getApi().gotoDate(currentDate);
-        }
+        restoreView();
       } catch (error) {
         console.error('Failed to remove task deadline:', error);
         toast.error('Kunde inte ta bort deadline');
@@ -419,50 +520,34 @@ export function WeekCalendarView() {
         </div>
       </div>
 
-      {/* Calendar */}
+      {/* Syncfusion Scheduler */}
       <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden">
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin, listPlugin]}
-          initialView="timeGridWeek"
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'timeGridWeek,timeGridDay,listWeek',
-          }}
-          locale={svLocale}
-          allDaySlot={false}
-          slotMinTime="06:00:00"
-          slotMaxTime="24:00:00"
-          slotDuration="00:30:00"
-          snapDuration="00:15:00"
+        <ScheduleComponent
+          ref={scheduleRef}
           height="100%"
-          editable={true}
-          selectable={true}
-          selectMirror={true}
-          dayMaxEvents={true}
-          weekends={true}
-          firstDay={1} // Måndag
-          events={events}
-          eventDrop={handleEventDrop}
-          eventResize={handleEventResize}
-          select={handleDateSelect}
-          eventClick={handleEventClick}
-          eventReceive={handleEventReceive}
-          droppable={true}
-          eventContent={renderEventContent}
-          nowIndicator={true}
-          slotLabelFormat={{
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          }}
-          eventTimeFormat={{
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          }}
-        />
+          locale="sv"
+          firstDayOfWeek={1}
+          startHour="06:00"
+          endHour="24:00"
+          timeScale={{ enable: true, interval: 30, slotCount: 2 }}
+          showQuickInfo={false}
+          eventSettings={eventSettings}
+          actionComplete={onActionComplete}
+          popupOpen={onPopupOpen}
+          eventRendered={onEventRendered}
+          editorTemplate={() => null}
+          allowDragAndDrop={true}
+          allowResizing={true}
+          showHeaderBar={true}
+        >
+          <ViewsDirective>
+            <ViewDirective option="Week" />
+            <ViewDirective option="Day" />
+            <ViewDirective option="Month" />
+            <ViewDirective option="Agenda" />
+          </ViewsDirective>
+          <Inject services={[Day, Week, Month, Agenda, DragAndDrop, Resize]} />
+        </ScheduleComponent>
       </div>
 
       {/* Event Details Modal */}
@@ -477,7 +562,7 @@ export function WeekCalendarView() {
               <div>
                 <p className="text-sm text-stone-600 dark:text-stone-400">Start</p>
                 <p className="text-stone-900 dark:text-cream-50">
-                  {new Date(selectedEvent.start).toLocaleString('sv-SE', {
+                  {selectedEvent.start.toLocaleString('sv-SE', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -491,7 +576,7 @@ export function WeekCalendarView() {
               <div>
                 <p className="text-sm text-stone-600 dark:text-stone-400">Slut</p>
                 <p className="text-stone-900 dark:text-cream-50">
-                  {new Date(selectedEvent.end).toLocaleString('sv-SE', {
+                  {selectedEvent.end.toLocaleString('sv-SE', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',

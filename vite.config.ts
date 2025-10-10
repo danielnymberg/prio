@@ -25,7 +25,7 @@ export default defineConfig(() => ({
         manualChunks: {
           // Separera stora vendor libraries
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'calendar': ['@fullcalendar/react', '@fullcalendar/core', '@fullcalendar/daygrid', '@fullcalendar/timegrid', '@fullcalendar/interaction'],
+          'calendar': ['@syncfusion/ej2-react-schedule', '@syncfusion/ej2-react-calendars'],
           'supabase': ['@supabase/supabase-js'],
           'microsoft': ['@azure/msal-browser', '@microsoft/microsoft-graph-client'],
         },
