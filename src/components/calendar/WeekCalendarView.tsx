@@ -137,13 +137,24 @@ interface SelectedEventData {
   };
 }
 
-export function WeekCalendarView() {
+interface WeekCalendarViewProps {
+  onScheduleReady?: (scheduleInstance: ScheduleComponent | null) => void;
+}
+
+export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}) {
   const { tasks, updateTask } = useTasks();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMsftConnected, setIsMsftConnected] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventData | null>(null);
   const scheduleRef = useRef<ScheduleComponent>(null);
+
+  // Exponera schedule ref till parent
+  useEffect(() => {
+    if (scheduleRef.current && onScheduleReady) {
+      onScheduleReady(scheduleRef.current);
+    }
+  }, [scheduleRef.current, onScheduleReady]);
 
   // Ladda kalenderdata
   const loadCalendarData = useCallback(async () => {
