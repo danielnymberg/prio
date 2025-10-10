@@ -61,11 +61,17 @@ export function CalendarWithTaskSidebar() {
             const taskData = treeData.find(t => t.Id === draggedData.id || t.Id === draggedData.Id);
 
             if (taskData) {
-              console.log('Updating task:', taskData.TaskId, 'with deadline:', cellData.startTime.toISOString());
+              // Justera deadline - om före 06:00, sätt till 06:00
+              let deadline = new Date(cellData.startTime);
+              if (deadline.getHours() < 6) {
+                deadline.setHours(6, 0, 0, 0);
+              }
+
+              console.log('Updating task:', taskData.TaskId, 'with deadline:', deadline.toISOString());
 
               // Sätt deadline på tasken
               updateTask(taskData.TaskId, {
-                deadline: cellData.startTime.toISOString()
+                deadline: deadline.toISOString()
               }).then((result) => {
                 console.log('Task updated successfully:', result);
                 // TreeView uppdateras automatiskt via tasks dependency
