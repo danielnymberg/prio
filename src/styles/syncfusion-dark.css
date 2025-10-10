@@ -20,29 +20,46 @@
    Följer Syncfusion best practices
    ============================================ */
 
-/* Cell heights - Syncfusion minimum är 36px för vertical views */
-/* VIKTIGT: Alla måste ha EXAKT samma höjd för alignment */
-.prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells-wrap table td,
-.prio-compact-schedule.e-schedule .e-vertical-view .e-work-cells,
-.prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells {
+/* Cell heights - KRITISKT för alignment */
+/* Syncfusion's DOM: e-time-slots-wrap innehåller tid-celler, e-content-wrap innehåller work-celler */
+
+/* ALLA table cells måste ha EXAKT samma höjd */
+.prio-compact-schedule.e-schedule .e-vertical-view .e-time-slots-wrap table tbody tr,
+.prio-compact-schedule.e-schedule .e-vertical-view .e-content-wrap table tbody tr {
+  height: 36px !important;
+}
+
+.prio-compact-schedule.e-schedule .e-vertical-view .e-time-slots-wrap table tbody tr td,
+.prio-compact-schedule.e-schedule .e-vertical-view .e-content-wrap table tbody tr td {
   height: 36px !important;
   min-height: 36px !important;
   max-height: 36px !important;
+  box-sizing: border-box !important;
 }
 
-/* Säkerställ att table-rows också har rätt höjd */
-.prio-compact-schedule.e-schedule .e-vertical-view .e-content-wrap table tr,
-.prio-compact-schedule.e-schedule .e-vertical-view .e-time-slots-wrap table tr {
+/* Specifika selectors för time cells och work cells */
+.prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells,
+.prio-compact-schedule.e-schedule .e-vertical-view .e-work-cells {
   height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  line-height: 36px !important;
+  box-sizing: border-box !important;
 }
 
-/* Time cell text alignment och styling */
+/* Time cell text styling */
 .prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells {
-  line-height: 36px !important;
   vertical-align: middle !important;
   font-size: 11px !important;
   padding: 0 4px !important;
   text-align: right !important;
+  border: none !important;
+}
+
+/* Work cells styling */
+.prio-compact-schedule.e-schedule .e-vertical-view .e-work-cells {
+  padding: 0 !important;
+  vertical-align: top !important;
 }
 
 /* Header customization - mer kompakt */
