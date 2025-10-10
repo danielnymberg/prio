@@ -15,60 +15,51 @@
   scroll-behavior: smooth !important;
 }
 
-/* Kompakt kalenderdesign */
-/* Minska höjd på timslots (50% mindre än default) */
-.e-schedule .e-time-cells,
-.e-schedule .e-work-cells {
-  height: 25px !important; /* Ner från ~50px till 25px (50% mindre) */
-  min-height: 25px !important;
-  line-height: 25px !important;
+/* ============================================
+   PRIO COMPACT SCHEDULE CUSTOMIZATION
+   Följer Syncfusion best practices
+   ============================================ */
+
+/* Cell heights - Syncfusion minimum är 36px för vertical views */
+.prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells-wrap table td,
+.prio-compact-schedule.e-schedule .e-vertical-view .e-work-cells {
+  height: 38px;
+  min-height: 38px;
 }
 
-/* Säkerställ att time cells och work cells har samma höjd */
-.e-schedule .e-time-slots-wrap .e-time-cells {
-  height: 25px !important;
-  min-height: 25px !important;
-  line-height: 25px !important;
+/* Time cell text alignment och styling */
+.prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells {
+  line-height: 38px;
+  vertical-align: middle;
+  font-size: 12px;
+  padding: 0 6px;
+  text-align: right;
 }
 
-/* Minska höjd på header-celler */
-.e-schedule .e-header-cells {
-  height: 40px !important; /* Mindre header */
-  padding: 4px !important;
+/* Header customization */
+.prio-compact-schedule.e-schedule .e-header-cells {
+  height: 50px;
+  padding: 6px;
 }
 
-/* Komprimera datum i header - visa "Mån 6/10" på en rad */
-.e-schedule .e-header-cells .e-header-day {
-  font-size: 13px !important;
-  line-height: 1.2 !important;
+.prio-compact-schedule.e-schedule .e-date-header-wrap {
+  min-height: 50px;
 }
 
-.e-schedule .e-header-cells .e-header-date {
-  font-size: 16px !important;
-  line-height: 1.2 !important;
-  font-weight: 600 !important;
+/* Kompakta time-labels kolumn */
+.prio-compact-schedule.e-schedule .e-time-cells-wrap {
+  width: 60px;
 }
 
-/* Kompakt datum-formatering */
-.e-schedule .e-date-header-wrap {
-  min-height: 40px !important;
+/* Event (appointment) styling */
+.prio-compact-schedule.e-schedule .e-appointment {
+  padding: 3px 6px;
+  font-size: 13px;
+  line-height: 1.3;
 }
 
-/* Mindre text i time-cells */
-.e-schedule .e-time-slots .e-time-cells {
-  font-size: 11px !important;
-  padding: 0 4px !important;
-}
-
-/* Kompakta time-labels */
-.e-schedule .e-time-cells-wrap {
-  width: 50px !important; /* Smalare tid-kolumn */
-}
-
-/* Minska padding i events */
-.e-schedule .e-appointment {
-  padding: 2px 4px !important;
-  font-size: 12px !important;
+.prio-compact-schedule.e-schedule .e-appointment .e-subject {
+  font-weight: 500;
 }
 
 .dark .e-schedule,

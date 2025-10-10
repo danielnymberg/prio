@@ -628,10 +628,11 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           ref={scheduleRef}
           height="100%"
           locale="sv"
+          cssClass="prio-compact-schedule"
           firstDayOfWeek={1}
           startHour="00:00"
           endHour="24:00"
-          timeScale={{ enable: true, interval: 30, slotCount: 2 }}
+          timeScale={{ enable: true, interval: 60, slotCount: 2 }}
           showQuickInfo={false}
           eventSettings={eventSettings}
           actionComplete={onActionComplete}
