@@ -55,7 +55,23 @@ export function ActiveSession() {
 
   const handleSessionComplete = () => {
     const minutes = Math.floor(sessionDuration / 60);
-    toast.success(`🌟 ${minutes} minuter klart! Dags för paus.`);
+
+    // Snabbis (≤5 min): ingen paus
+    if (minutes <= 5) {
+      toast.success(`✅ ${minutes} min klart!`);
+      navigate('/focus');
+      return;
+    }
+
+    // Kort session (6-30 min): kort paus
+    if (minutes <= 30) {
+      toast.success(`🌟 ${minutes} minuter klart! Ta en kort paus.`);
+      navigate('/break?duration=short');
+      return;
+    }
+
+    // Lång session (>30 min): full 20+10 paus
+    toast.success(`🌟 ${minutes} minuter klart! Dags för ordentlig paus.`);
     navigate('/break');
   };
 

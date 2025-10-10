@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Coffee, Mail, ArrowRight } from 'lucide-react';
 
-const BREAK_DURATION = 20 * 60; // 20 minuter
-
 export function BreakView() {
   const navigate = useNavigate();
-  const [timeRemaining, setTimeRemaining] = useState(BREAK_DURATION);
+  const [searchParams] = useSearchParams();
+  const isShortBreak = searchParams.get('duration') === 'short';
+
+  const PHYSICAL_DURATION = isShortBreak ? 5 * 60 : 20 * 60; // 5 eller 20 min
+  const EMAIL_DURATION = isShortBreak ? 0 : 10 * 60; // 0 eller 10 min
+
+  const [timeRemaining, setTimeRemaining] = useState(PHYSICAL_DURATION);
   const [phase, setPhase] = useState<'physical' | 'email' | 'done'>('physical');
 
   useEffect(() => {
@@ -16,9 +20,9 @@ export function BreakView() {
         if (prev <= 1) {
           clearInterval(interval);
 
-          if (phase === 'physical') {
+          if (phase === 'physical' && EMAIL_DURATION > 0) {
             setPhase('email');
-            setTimeRemaining(10 * 60); // 10 min för mejl
+            setTimeRemaining(EMAIL_DURATION);
           } else {
             setPhase('done');
           }
@@ -47,7 +51,7 @@ export function BreakView() {
             Pausen är klar!
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-            Dags för nästa 90-minuters session
+            {isShortBreak ? 'Nu är du redo igen!' : 'Dags för nästa session'}
           </p>
           <Button
             onClick={handleContinue}
@@ -77,7 +81,11 @@ export function BreakView() {
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </div>
           <p className="text-gray-600 dark:text-gray-400">
-            {phase === 'physical' ? 'Obligatorisk fysisk paus' : 'Max 10 min för mejl & samtal'}
+            {phase === 'physical'
+              ? isShortBreak
+                ? 'Kort paus - sträck på benen'
+                : 'Obligatorisk fysisk paus'
+              : 'Max 10 min för mejl & samtal'}
           </p>
         </div>
 
