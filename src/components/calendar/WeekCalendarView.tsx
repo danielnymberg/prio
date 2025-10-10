@@ -16,7 +16,7 @@ import {
   DragAndDrop,
 } from '@syncfusion/ej2-react-schedule';
 import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
-import { useTasks } from '@/hooks/useTasks';
+import type { Task, UpdateTaskInput } from '@/lib/types';
 import {
   getCalendarEvents,
   blockCalendarTime,
@@ -139,10 +139,11 @@ interface SelectedEventData {
 
 interface WeekCalendarViewProps {
   onScheduleReady?: (scheduleInstance: ScheduleComponent | null) => void;
+  tasks: Task[];
+  updateTask: (id: string, input: UpdateTaskInput) => Promise<Task | null>;
 }
 
-export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}) {
-  const { tasks, updateTask } = useTasks();
+export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCalendarViewProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMsftConnected, setIsMsftConnected] = useState(false);
