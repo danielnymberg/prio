@@ -425,6 +425,58 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     };
   };
 
+  // Helper: Validera om task kan slutföras innan deadline
+  const validateDeadline = (task: Task, scheduledStart: Date): { isValid: boolean; message?: string; suggestedTime?: Date } => {
+    if (!task.deadline) {
+      return { isValid: true };
+    }
+
+    const deadline = new Date(task.deadline);
+    const duration = task.estimated_duration || 60;
+    const scheduledEnd = new Date(scheduledStart.getTime() + duration * 60000);
+
+    // Kolla om tasken kommer slutföras EFTER deadline
+    if (scheduledEnd > deadline) {
+      // Hitta bättre tid (före deadline)
+      const now = new Date();
+      const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const freeSlots = findFreeTimeSlots(now, oneWeekFromNow);
+      const betterSlot = findBestSlotForTask(task, freeSlots);
+
+      const deadlineStr = deadline.toLocaleString('sv-SE', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const suggestedStr = betterSlot ? betterSlot.start.toLocaleString('sv-SE', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : null;
+
+      return {
+        isValid: false,
+        message: `⚠️ Task "${task.title}" kommer inte hinna slutföras innan deadline (${deadlineStr}).${suggestedStr ? ` Förslag: ${suggestedStr}` : ' Ingen ledig tid hittades.'}`,
+        suggestedTime: betterSlot?.start
+      };
+    }
+
+    // Varning om det är tajt (mindre än 2h marginal)
+    const marginHours = (deadline.getTime() - scheduledEnd.getTime()) / (1000 * 60 * 60);
+    if (marginHours < 2) {
+      return {
+        isValid: true,
+        message: `⏰ Tätt inpå deadline! Task slutförs ${Math.round(marginHours * 60)} minuter före deadline.`
+      };
+    }
+
+    return { isValid: true };
+  };
+
   // Auto-schedule alla oplanerade tasks
   const handleAutoScheduleAll = async () => {
     if (!isMsftConnected) {
@@ -596,6 +648,30 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         // Task scheduled_start (när man drar task till ny tid i kalendern)
         if (calEvent.TaskId) {
           try {
+            // Hitta task för deadline-validering
+            const task = tasks.find(t => t.id === calEvent.TaskId);
+
+            if (task) {
+              // Validera deadline
+              const validation = validateDeadline(task, calEvent.StartTime);
+
+              if (!validation.isValid) {
+                // Visa varning med förslag
+                toast.error(validation.message || 'Task kan inte slutföras innan deadline', {
+                  duration: 6000,
+                });
+
+                // Återställ till ursprunglig position (revert)
+                await loadMicrosoftEvents();
+                return;
+              }
+
+              // Visa varning om tajt (men tillåt)
+              if (validation.message) {
+                toast.warning(validation.message, { duration: 4000 });
+              }
+            }
+
             await updateTask(calEvent.TaskId, {
               scheduled_start: calEvent.StartTime.toISOString()
             });
@@ -650,6 +726,30 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         // Om TaskId finns = task från sidebar
         if (calEvent.TaskId) {
           try {
+            // Hitta task för deadline-validering
+            const task = tasks.find(t => t.id === calEvent.TaskId);
+
+            if (task) {
+              // Validera deadline
+              const validation = validateDeadline(task, calEvent.StartTime);
+
+              if (!validation.isValid) {
+                // Visa varning med förslag
+                toast.error(validation.message || 'Task kan inte slutföras innan deadline', {
+                  duration: 6000,
+                });
+
+                // Återställ (revert)
+                await loadMicrosoftEvents();
+                return;
+              }
+
+              // Visa varning om tajt (men tillåt)
+              if (validation.message) {
+                toast.warning(validation.message, { duration: 4000 });
+              }
+            }
+
             await updateTask(calEvent.TaskId, {
               scheduled_start: calEvent.StartTime.toISOString()
             });
@@ -749,6 +849,34 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     if (args.element && eventData.CategoryColor) {
       args.element.style.backgroundColor = eventData.CategoryColor;
       args.element.style.borderColor = eventData.CategoryColor;
+    }
+
+    // Deadline-validering för visuell feedback
+    if (args.element && eventData.TaskId) {
+      const task = tasks.find(t => t.id === eventData.TaskId);
+      if (task) {
+        const validation = validateDeadline(task, eventData.StartTime);
+
+        if (!validation.isValid) {
+          // Röd tjock kant för invalid placements
+          args.element.style.border = '3px solid #dc2626';
+          args.element.style.boxShadow = '0 0 0 2px rgba(220, 38, 38, 0.2)';
+
+          // Lägg till varningsikon
+          const warningIcon = document.createElement('span');
+          warningIcon.textContent = '⚠️';
+          warningIcon.style.position = 'absolute';
+          warningIcon.style.top = '2px';
+          warningIcon.style.right = '2px';
+          warningIcon.style.fontSize = '14px';
+          args.element.style.position = 'relative';
+          args.element.appendChild(warningIcon);
+        } else if (validation.message) {
+          // Orange kant för tight deadline (varning men OK)
+          args.element.style.border = '2px solid #f59e0b';
+          args.element.style.boxShadow = '0 0 0 1px rgba(245, 158, 11, 0.2)';
+        }
+      }
     }
 
     // Custom HTML för event
