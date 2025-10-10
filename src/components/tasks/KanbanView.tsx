@@ -115,11 +115,11 @@ export function KanbanView() {
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col overflow-hidden">
+      <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col">
         <h2 className="text-lg font-semibold mb-4 text-stone-900 dark:text-cream-50 flex-shrink-0">
           Kanban Board
         </h2>
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0" style={{ display: 'flex', flexDirection: 'column' }}>
           <KanbanComponent
             id="kanban"
             dataSource={kanbanData}
@@ -137,8 +137,7 @@ export function KanbanView() {
             dialogSettings={{ fields: [] }} // Disable default dialog
             cardClick={onCardClick}
             dragStop={onDragStop}
-            height="100%"
-            enableVirtualization={false}
+            style={{ height: '100%' }}
           >
           <ColumnsDirective>
             <ColumnDirective
