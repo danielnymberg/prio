@@ -53,15 +53,23 @@ export function CalendarWithTaskSidebar() {
 
           if (cellData && args.draggedNodeData) {
             // Hämta task data
-            const taskData = args.draggedNodeData as any;
+            const draggedData = args.draggedNodeData as any;
+            console.log('Dragged node data:', draggedData);
 
-            // Sätt deadline på tasken
-            updateTask(taskData.TaskId, {
-              deadline: cellData.startTime.toISOString()
-            }).then(() => {
-              // Ta bort från TreeView
-              setTreeData(prev => prev.filter(t => t.Id !== taskData.Id));
-            });
+            // Hitta rätt task från treeData (draggedNodeData innehåller bara id/text)
+            const taskData = treeData.find(t => t.Id === draggedData.id || t.Id === draggedData.Id);
+
+            if (taskData) {
+              // Sätt deadline på tasken
+              updateTask(taskData.TaskId, {
+                deadline: cellData.startTime.toISOString()
+              }).then(() => {
+                // Ta bort från TreeView
+                setTreeData(prev => prev.filter(t => t.Id !== taskData.Id));
+              }).catch((error) => {
+                console.error('Failed to update task:', error);
+              });
+            }
           }
         }
       }
