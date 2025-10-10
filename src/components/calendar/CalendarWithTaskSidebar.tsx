@@ -19,13 +19,14 @@ export function CalendarWithTaskSidebar() {
 
   // Uppdatera TreeView data när tasks ändras
   useEffect(() => {
-    setTreeData(unscheduledTasks.map((task) => ({
+    const updatedTreeData = unscheduledTasks.map((task) => ({
       Id: task.id,
       Name: task.title,
       Duration: task.estimated_duration || 30,
       TaskId: task.id,
-    })));
-  }, [unscheduledTasks]);
+    }));
+    setTreeData(updatedTreeData);
+  }, [tasks]);
 
   // TreeView fields config
   const fields = {

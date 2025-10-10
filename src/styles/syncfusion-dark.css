@@ -1,5 +1,15 @@
 /* Syncfusion Dark Mode Overrides */
 
+/* TreeView scroll fix */
+.e-treeview {
+  overflow-y: auto !important;
+  max-height: 100%;
+}
+
+.e-treeview .e-list-parent {
+  overflow: visible !important;
+}
+
 .dark .e-schedule,
 .dark .e-schedule .e-schedule-toolbar,
 .dark .e-schedule .e-toolbar,

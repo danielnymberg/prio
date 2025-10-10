@@ -148,6 +148,8 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
   const [isMsftConnected, setIsMsftConnected] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventData | null>(null);
   const scheduleRef = useRef<ScheduleComponent>(null);
+  const currentViewRef = useRef<string>('Week');
+  const currentDateRef = useRef<Date>(new Date());
 
   // Exponera schedule ref till parent
   useEffect(() => {
@@ -156,8 +158,10 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
     }
   }, [scheduleRef.current, onScheduleReady]);
 
-  // Ladda kalenderdata
-  const loadCalendarData = useCallback(async () => {
+  const [msftEvents, setMsftEvents] = useState<CalendarEvent[]>([]);
+
+  // Ladda Microsoft events (ENDAST vid mount och var 5:e minut)
+  const loadMicrosoftEvents = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -176,14 +180,14 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
       const calendarEvents = await getCalendarEvents(now, twoWeeksFromNow);
 
       // Konvertera till Syncfusion format
-      const msftEvents: CalendarEvent[] = calendarEvents.map((event) => {
+      const events: CalendarEvent[] = calendarEvents.map((event) => {
         const isPrioEvent = event.subject.includes('🎯 Fokus');
         return {
           Id: event.id,
           Subject: event.subject,
           StartTime: new Date(event.start),
           EndTime: new Date(event.end),
-          IsReadonly: !isPrioEvent, // Endast Prio-events kan redigeras
+          IsReadonly: !isPrioEvent,
           CategoryColor: isPrioEvent ? '#ea580c' : '#3b82f6',
           EventType: isPrioEvent ? 'focus' : 'meeting',
           EventId: event.id,
@@ -191,46 +195,71 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
         };
       });
 
-      // Lägg till tasks med deadlines
-      const taskEvents: CalendarEvent[] = tasks
-        .filter((task) => task.deadline && task.status !== 'done')
-        .map((task) => {
-          const deadline = new Date(task.deadline!);
-          const durationMinutes = task.estimated_duration || 30;
-          return {
-            Id: `task-${task.id}`,
-            Subject: `📌 ${task.title}`,
-            StartTime: deadline,
-            EndTime: new Date(deadline.getTime() + durationMinutes * 60 * 1000),
-            IsReadonly: false,
-            CategoryColor: '#dc2626',
-            EventType: 'task',
-            TaskId: task.id,
-          };
-        });
-
-      setEvents([...msftEvents, ...taskEvents]);
+      setMsftEvents(events);
       setLoading(false);
     } catch (error) {
-      console.error('Failed to load calendar data:', error);
+      console.error('Failed to load Microsoft events:', error);
       toast.error('Kunde inte ladda kalender');
       setLoading(false);
     }
-  }, [tasks]);
+  }, []);
 
-  useEffect(() => {
-    loadCalendarData();
-  }, [loadCalendarData]);
-
-  // Konfigurera externa draggable elements för Syncfusion
-  useEffect(() => {
+  // Spara current view och date när användaren ändrar
+  const onNavigating = (args: any) => {
     if (scheduleRef.current) {
-      const draggableElements = document.querySelectorAll('.e-draggable');
-      draggableElements.forEach((element) => {
-        (element as HTMLElement).setAttribute('data-name', 'external-event');
-      });
+      currentViewRef.current = args.currentView || scheduleRef.current.currentView;
+      currentDateRef.current = args.currentDate || scheduleRef.current.selectedDate;
     }
-  }, [tasks]);
+  };
+
+  // Uppdatera task events när tasks ändras (ingen reload av kalendern)
+  useEffect(() => {
+    const taskEvents: CalendarEvent[] = tasks
+      .filter((task) => task.deadline && task.status !== 'done')
+      .map((task) => {
+        const deadline = new Date(task.deadline!);
+        const durationMinutes = task.estimated_duration || 30;
+        return {
+          Id: `task-${task.id}`,
+          Subject: `📌 ${task.title}`,
+          StartTime: deadline,
+          EndTime: new Date(deadline.getTime() + durationMinutes * 60 * 1000),
+          IsReadonly: false,
+          CategoryColor: '#dc2626',
+          EventType: 'task',
+          TaskId: task.id,
+        };
+      });
+
+    // Spara nuvarande vy
+    if (scheduleRef.current) {
+      currentViewRef.current = scheduleRef.current.currentView;
+      currentDateRef.current = scheduleRef.current.selectedDate;
+    }
+
+    // Kombinera Microsoft events och task events
+    setEvents([...msftEvents, ...taskEvents]);
+
+    // Återställ vy efter data-uppdatering
+    setTimeout(() => {
+      if (scheduleRef.current) {
+        scheduleRef.current.currentView = currentViewRef.current as any;
+        scheduleRef.current.selectedDate = currentDateRef.current;
+      }
+    }, 0);
+  }, [tasks, msftEvents]);
+
+  // Ladda Microsoft events vid mount och sedan var 5:e minut
+  useEffect(() => {
+    loadMicrosoftEvents();
+
+    // Uppdatera Microsoft events var 5:e minut i bakgrunden
+    const interval = setInterval(() => {
+      loadMicrosoftEvents();
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [loadMicrosoftEvents]);
 
   // Event settings för Syncfusion
   const eventSettings: EventSettingsModel = {
@@ -536,6 +565,7 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
           popupOpen={onPopupOpen}
           eventClick={onEventClick}
           eventRendered={onEventRendered}
+          navigating={onNavigating}
           editorTemplate={() => null}
           allowDragAndDrop={true}
           allowResizing={true}
