@@ -85,13 +85,19 @@ export function KanbanCalendarView() {
       args.cancel = true;
 
       const target = args.event.target as HTMLElement;
+      console.log('🎯 [Kanban] Dropped on calendar, target:', target.className);
+
       if (target.classList.contains('e-work-cells')) {
         const cellData = scheduleRef.current.getCellDetails(target);
+        console.log('🎯 [Kanban] Cell data:', cellData);
 
         if (cellData && args.data && args.data.length > 0) {
           const card = args.data[0];
           const taskId = card.Id;
           const originalTask = tasks.find(t => t.id === taskId);
+
+          console.log('🎯 [Kanban] Card:', card);
+          console.log('🎯 [Kanban] Original task:', originalTask);
 
           if (originalTask) {
             let scheduledTime = new Date(cellData.startTime);
@@ -99,22 +105,54 @@ export function KanbanCalendarView() {
             // I månadsvy - använd 08:00 som default
             if (scheduleRef.current.currentView === 'Month') {
               scheduledTime.setHours(8, 0, 0, 0);
+              console.log('🎯 [Kanban] Month view - setting time to 08:00');
             }
 
             const previousStart = originalTask.scheduled_start || null;
 
+            console.log('⏰ [Kanban] Scheduling task:', taskId, 'to:', scheduledTime.toISOString());
+            console.log('⏰ [Kanban] Original task before update:', originalTask);
+
             try {
-              await updateTask(taskId, {
+              const result = await updateTask(taskId, {
                 scheduled_start: scheduledTime.toISOString()
               });
 
-              showUndoToast(originalTask.title, taskId, previousStart);
+              if (result) {
+                console.log('✅ [Kanban] Task scheduled successfully!', {
+                  id: result.id,
+                  title: result.title,
+                  scheduled_start: result.scheduled_start,
+                  status: result.status,
+                  estimated_duration: result.estimated_duration
+                });
+
+                showUndoToast(originalTask.title, taskId, previousStart);
+
+                // Force calendar refresh
+                if (scheduleRef.current) {
+                  console.log('🔄 [Kanban] Forcing calendar refresh...');
+                  setTimeout(() => {
+                    scheduleRef.current?.refresh();
+                    console.log('🔄 [Kanban] Calendar refresh() called');
+                  }, 100);
+                }
+              } else {
+                console.error('❌ [Kanban] updateTask returned null - operation failed');
+                toast.error('Kunde inte schemalägga task - serverfel');
+              }
             } catch (error) {
-              console.error('Failed to schedule task:', error);
+              console.error('❌ [Kanban] Failed to schedule task:', error);
               toast.error('Kunde inte schemalägga task');
             }
+          } else {
+            console.error('❌ [Kanban] Could not find original task for ID:', taskId);
           }
+        } else {
+          console.error('❌ [Kanban] No cell data or card data');
         }
+      } else {
+        console.error('❌ [Kanban] Target is not e-work-cells:', target.className);
       }
     } else if (args.data && args.data.length > 0) {
       // Släppt inom Kanban - uppdatera status
@@ -122,6 +160,7 @@ export function KanbanCalendarView() {
       const newStatus = card.Status;
       const taskId = card.Id;
 
+      console.log('🎯 [Kanban] Dropped within Kanban - updating status to:', newStatus);
       await updateTask(taskId, { status: newStatus });
     }
   };
