@@ -13,13 +13,20 @@ export function CalendarWithTaskSidebar() {
     (t) => t.status !== 'done' && !t.deadline && (t.estimated_duration || 999) > 2
   );
 
-  const onDragStart = (e: React.DragEvent, task: any) => {
-    const dragData = {
-      taskId: task.id,
-      title: task.title,
-      duration: task.estimated_duration || 30,
-    };
-    e.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+  // För nu - enkel onClick för att schemalägga tasks
+  // TODO: Implementera riktig drag-and-drop
+  const handleTaskClick = async (task: any) => {
+    const datetime = prompt(`Ange deadline för "${task.title}" (YYYY-MM-DD HH:MM):`);
+    if (!datetime) return;
+
+    try {
+      const { updateTask } = useTasks();
+      await updateTask(task.id, {
+        deadline: new Date(datetime).toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to schedule task:', error);
+    }
   };
 
   return (
@@ -55,9 +62,8 @@ export function CalendarWithTaskSidebar() {
                 {unscheduledTasks.map((task) => (
                   <div
                     key={task.id}
-                    draggable
-                    onDragStart={(e) => onDragStart(e, task)}
-                    className="bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700 cursor-move hover:shadow-md transition-shadow"
+                    onClick={() => handleTaskClick(task)}
+                    className="bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700 cursor-pointer hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">

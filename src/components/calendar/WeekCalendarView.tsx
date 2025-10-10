@@ -145,35 +145,6 @@ export function WeekCalendarView() {
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventData | null>(null);
   const scheduleRef = useRef<ScheduleComponent>(null);
 
-  // Hantera HTML5 drag-and-drop från sidebar
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const onDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    try {
-      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-
-      // Hitta vilken cell som droppades på
-      const target = e.target as HTMLElement;
-      const cell = target.closest('.e-work-cells, .e-header-cells');
-
-      if (cell && scheduleRef.current && data.taskId) {
-        const cellData = scheduleRef.current.getCellDetails(cell);
-        if (cellData) {
-          // Sätt deadline på tasken
-          await updateTask(data.taskId, {
-            deadline: cellData.startTime.toISOString()
-          });
-          toast.success('Task deadline satt!');
-        }
-      }
-    } catch (error) {
-      console.error('Drop error:', error);
-    }
-  };
-
   // Ladda kalenderdata
   const loadCalendarData = useCallback(async () => {
     try {
@@ -388,31 +359,30 @@ export function WeekCalendarView() {
     }
   };
 
-  // Anpassa popup för att visa vår egen modal
+  // Hantera event click - visa custom modal
+  const onEventClick = (args: any) => {
+    const eventData = args.event as CalendarEvent;
+
+    setSelectedEvent({
+      id: String(eventData.Id),
+      title: eventData.Subject,
+      start: eventData.StartTime,
+      end: eventData.EndTime,
+      editable: !eventData.IsReadonly,
+      extendedProps: {
+        taskId: eventData.TaskId,
+        eventId: eventData.EventId,
+        isPrioEvent: eventData.IsPrioEvent,
+        type: eventData.EventType!,
+      },
+    });
+  };
+
+  // Anpassa popup för att blockera default popups
   const onPopupOpen = (args: PopupOpenEventArgs) => {
-    if (args.type === 'QuickInfo' && args.data) {
-      args.cancel = true; // Avbryt default popup
-
-      const eventData = args.data as CalendarEvent;
-
-      setSelectedEvent({
-        id: String(eventData.Id),
-        title: eventData.Subject,
-        start: eventData.StartTime,
-        end: eventData.EndTime,
-        editable: !eventData.IsReadonly,
-        extendedProps: {
-          taskId: eventData.TaskId,
-          eventId: eventData.EventId,
-          isPrioEvent: eventData.IsPrioEvent,
-          type: eventData.EventType!,
-        },
-      });
-    }
-
-    // Anpassa editor-popup
-    if (args.type === 'Editor') {
-      // Här kan vi anpassa formuläret om vi vill
+    // Blockera alla default popups - vi använder vår egen modal
+    if (args.type === 'QuickInfo' || args.type === 'Editor' || args.type === 'DeleteAlert') {
+      args.cancel = true;
     }
   };
 
@@ -540,11 +510,7 @@ export function WeekCalendarView() {
       </div>
 
       {/* Syncfusion Scheduler */}
-      <div
-        className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden"
-        onDragOver={onDragOver}
-        onDrop={onDrop}
-      >
+      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden">
         <ScheduleComponent
           ref={scheduleRef}
           height="100%"
@@ -557,6 +523,7 @@ export function WeekCalendarView() {
           eventSettings={eventSettings}
           actionComplete={onActionComplete}
           popupOpen={onPopupOpen}
+          eventClick={onEventClick}
           eventRendered={onEventRendered}
           editorTemplate={() => null}
           allowDragAndDrop={true}
