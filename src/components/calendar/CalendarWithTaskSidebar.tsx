@@ -61,15 +61,20 @@ export function CalendarWithTaskSidebar() {
             const taskData = treeData.find(t => t.Id === draggedData.id || t.Id === draggedData.Id);
 
             if (taskData) {
+              console.log('Updating task:', taskData.TaskId, 'with deadline:', cellData.startTime.toISOString());
+
               // Sätt deadline på tasken
               updateTask(taskData.TaskId, {
                 deadline: cellData.startTime.toISOString()
-              }).then(() => {
+              }).then((result) => {
+                console.log('Task updated successfully:', result);
                 // TreeView uppdateras automatiskt via tasks dependency
-                // INGEN MANUELL REMOVE! Det var buggen - tasken försvann innan Supabase hann uppdatera
               }).catch((error) => {
-                console.error('Failed to update task:', error);
+                console.error('CRITICAL: Failed to update task:', error);
+                alert(`Kunde inte uppdatera task: ${error.message || 'Okänt fel'}`);
               });
+            } else {
+              console.error('CRITICAL: Could not find task data for dragged node:', draggedData);
             }
           }
         }
