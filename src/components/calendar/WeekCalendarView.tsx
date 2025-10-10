@@ -234,7 +234,21 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
       });
 
     console.log('Task events created:', taskEvents.length);
-    console.log('Task events:', taskEvents.map(e => ({title: e.Subject, start: e.StartTime})));
+    console.log('Task events:', taskEvents.map(e => ({
+      id: e.TaskId,
+      title: e.Subject,
+      start: e.StartTime.toISOString()
+    })));
+
+    // Debug: Visa tasks MED deadline
+    const tasksWithDeadline = tasks.filter(t => t.deadline && t.status !== 'done');
+    console.log('Tasks with deadline (filtered):', tasksWithDeadline.length);
+    console.log('Tasks with deadline details:', tasksWithDeadline.map(t => ({
+      id: t.id,
+      title: t.title,
+      deadline: t.deadline,
+      status: t.status
+    })));
 
     // Spara nuvarande vy
     if (scheduleRef.current) {

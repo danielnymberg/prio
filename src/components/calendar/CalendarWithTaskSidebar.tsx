@@ -83,6 +83,12 @@ export function CalendarWithTaskSidebar() {
                 deadline: deadline.toISOString()
               }).then((result) => {
                 console.log('Task updated successfully:', result);
+                console.log('Updated task details:', {
+                  id: result.id,
+                  title: result.title,
+                  deadline: result.deadline,
+                  status: result.status
+                });
                 // TreeView uppdateras automatiskt via tasks dependency
               }).catch((error) => {
                 console.error('CRITICAL: Failed to update task:', error);

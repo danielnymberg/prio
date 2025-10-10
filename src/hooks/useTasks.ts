@@ -111,8 +111,12 @@ export function useTasks() {
 
   const updateTask = async (id: string, input: UpdateTaskInput) => {
     try {
+      console.log('[useTasks] updateTask called with id:', id, 'input:', input);
+
       // Optimistic update - uppdatera lokalt direkt för snabb feedback
       setTasks(prevTasks => {
+        console.log('[useTasks] Optimistic update - prevTasks count:', prevTasks.length);
+
         const updated = prevTasks.map(task =>
           task.id === id
             ? {
@@ -131,6 +135,14 @@ export function useTasks() {
 
         // Sortera efter ny priority
         withPriority.sort((a, b) => b.priority - a.priority);
+
+        const updatedTask = withPriority.find(t => t.id === id);
+        console.log('[useTasks] Optimistic update completed. Updated task:', updatedTask ? {
+          id: updatedTask.id,
+          title: updatedTask.title,
+          deadline: updatedTask.deadline,
+          status: updatedTask.status
+        } : 'NOT FOUND');
 
         return withPriority;
       });
@@ -158,7 +170,16 @@ export function useTasks() {
       }
 
       // Uppdatera med faktisk data från server
+      console.log('[useTasks] Server update - data received:', {
+        id: data.id,
+        title: data.title,
+        deadline: data.deadline,
+        status: data.status
+      });
+
       setTasks(prevTasks => {
+        console.log('[useTasks] Server update - prevTasks count:', prevTasks.length);
+
         const updated = prevTasks.map(task => (task.id === id ? data : task));
 
         // Omberäkna priority med deadline boost för alla tasks
@@ -169,6 +190,8 @@ export function useTasks() {
 
         // Sortera efter ny priority
         withPriority.sort((a, b) => b.priority - a.priority);
+
+        console.log('[useTasks] Server update completed. Total tasks:', withPriority.length);
 
         return withPriority;
       });
