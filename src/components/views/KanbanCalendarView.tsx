@@ -152,25 +152,27 @@ export function KanbanCalendarView() {
     <div className="flex h-full gap-4 relative" id="kanban-calendar-container">
       {/* Kanban board */}
       <div className="w-1/3 flex-shrink-0 overflow-hidden">
-        <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4">
+        <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col">
           <h2 className="text-lg font-semibold mb-4 text-stone-900 dark:text-cream-50">
             Uppgifter
           </h2>
-          <KanbanComponent
-            id="kanban-board"
-            dataSource={kanbanData}
-            keyField="Status"
-            cardSettings={{
-              contentField: 'Summary',
-              headerField: 'Title',
-              template: cardTemplate
-            }}
-            dialogSettings={{ fields: [] }}
-            cardClick={onCardClick}
-            dragStop={onDragStop}
-            allowDragAndDrop={true}
-            externalDropId={['#kanban-calendar-container']}
-          >
+          <div className="flex-1 overflow-hidden">
+            <KanbanComponent
+              id="kanban-board"
+              dataSource={kanbanData}
+              keyField="Status"
+              cardSettings={{
+                contentField: 'Summary',
+                headerField: 'Title',
+                template: cardTemplate
+              }}
+              dialogSettings={{ fields: [] }}
+              cardClick={onCardClick}
+              dragStop={onDragStop}
+              allowDragAndDrop={true}
+              externalDropId={['#kanban-calendar-container']}
+              height="100%"
+            >
             <ColumnsDirective>
               <ColumnDirective
                 headerText="📋 Ej påbörjad"
@@ -189,6 +191,7 @@ export function KanbanCalendarView() {
               />
             </ColumnsDirective>
           </KanbanComponent>
+          </div>
         </div>
       </div>
 

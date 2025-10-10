@@ -60,4 +60,26 @@
   .button > svg {
     flex-shrink: 0;
   }
+
+  /* Syncfusion Kanban fixes */
+  .e-kanban {
+    @apply h-full;
+  }
+
+  .e-kanban .e-kanban-content {
+    @apply h-full overflow-auto;
+  }
+
+  .e-kanban .e-card-wrapper {
+    @apply min-h-0;
+  }
+
+  /* Make swimlanes more visible */
+  .e-kanban .e-swimlane-row {
+    @apply border-t-2 border-sand-300 dark:border-charcoal-700;
+  }
+
+  .e-kanban .e-swimlane-header {
+    @apply bg-sand-100 dark:bg-charcoal-800 font-semibold;
+  }
 }

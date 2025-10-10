@@ -21,6 +21,8 @@ import '@syncfusion/ej2-navigations/styles/material.css';
 import '@syncfusion/ej2-popups/styles/material.css';
 import '@syncfusion/ej2-splitbuttons/styles/material.css';
 import '@syncfusion/ej2-react-schedule/styles/material.css';
+import '@syncfusion/ej2-react-kanban/styles/material.css';
+import '@syncfusion/ej2-notifications/styles/material.css';
 
 // Register Syncfusion license
 const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;

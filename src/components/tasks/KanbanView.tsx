@@ -115,28 +115,30 @@ export function KanbanView() {
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4">
+      <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col">
         <h2 className="text-lg font-semibold mb-4 text-stone-900 dark:text-cream-50">
           Kanban Board
         </h2>
-        <KanbanComponent
-          id="kanban"
-          dataSource={kanbanData}
-          keyField="Status"
-          cardSettings={{
-            contentField: 'Summary',
-            headerField: 'Title',
-            template: cardTemplate
-          }}
-          swimlaneSettings={{
-            keyField: 'ProjectId',
-            textField: 'ProjectName',
-            allowDragAndDrop: true
-          }}
-          dialogSettings={{ fields: [] }} // Disable default dialog
-          cardClick={onCardClick}
-          dragStop={onDragStop}
-        >
+        <div className="flex-1 overflow-hidden">
+          <KanbanComponent
+            id="kanban"
+            dataSource={kanbanData}
+            keyField="Status"
+            cardSettings={{
+              contentField: 'Summary',
+              headerField: 'Title',
+              template: cardTemplate
+            }}
+            swimlaneSettings={{
+              keyField: 'ProjectId',
+              textField: 'ProjectName',
+              allowDragAndDrop: true
+            }}
+            dialogSettings={{ fields: [] }} // Disable default dialog
+            cardClick={onCardClick}
+            dragStop={onDragStop}
+            height="100%"
+          >
           <ColumnsDirective>
             <ColumnDirective
               headerText="📋 Ej påbörjad"
@@ -155,6 +157,7 @@ export function KanbanView() {
             />
           </ColumnsDirective>
         </KanbanComponent>
+        </div>
       </div>
 
       {/* Task detail modal */}
