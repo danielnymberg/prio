@@ -32,7 +32,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
   const [blocksTaskIds, setBlocksTaskIds] = useState<string[]>([]);
 
   const [deadlineDate, setDeadlineDate] = useState('');
+  const [deadlineHasTime, setDeadlineHasTime] = useState(false);
   const [deadlineHour, setDeadlineHour] = useState('17');
+  const [scheduledStartDate, setScheduledStartDate] = useState('');
+  const [scheduledStartHasTime, setScheduledStartHasTime] = useState(false);
+  const [scheduledStartHour, setScheduledStartHour] = useState('09');
   const [status, setStatus] = useState<'not_started' | 'in_progress' | 'done'>('not_started');
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
   const [customDurationText, setCustomDurationText] = useState('');
@@ -116,9 +120,19 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       setConfidence(task.confidence || 7);
       setEffort(task.effort || 5);
       setBlocksTaskIds(task.blocks_task_ids || []);
-      const parsed = parseDeadline(task.deadline);
-      setDeadlineDate(parsed.date);
-      setDeadlineHour(parsed.hour);
+
+      // Deadline
+      const parsedDeadline = parseDeadline(task.deadline);
+      setDeadlineDate(parsedDeadline.date);
+      setDeadlineHour(parsedDeadline.hour);
+      setDeadlineHasTime(!!task.deadline && parsedDeadline.hour !== '00');
+
+      // Scheduled start
+      const parsedScheduledStart = parseDeadline(task.scheduled_start);
+      setScheduledStartDate(parsedScheduledStart.date);
+      setScheduledStartHour(parsedScheduledStart.hour);
+      setScheduledStartHasTime(!!task.scheduled_start && parsedScheduledStart.hour !== '00');
+
       setStatus(task.status);
       setEstimatedDuration(task.estimated_duration);
       setProjectId(task.project_id || null);
@@ -132,7 +146,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       setEffort(5);
       setBlocksTaskIds([]);
       setDeadlineDate('');
+      setDeadlineHasTime(false);
       setDeadlineHour('17');
+      setScheduledStartDate('');
+      setScheduledStartHasTime(false);
+      setScheduledStartHour('09');
       setStatus('not_started');
       setEstimatedDuration(null);
       setProjectId(null);
@@ -158,14 +176,29 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       // Lägg bara till optional fields om de har värden
       if (blocksTaskIds.length > 0) input.blocks_task_ids = blocksTaskIds;
 
-      // Bygg deadline från datum + timme
+      // Bygg deadline från datum + timme (optional)
       if (deadlineDate) {
-        input.deadline = `${deadlineDate}T${deadlineHour}:00:00`;
+        if (deadlineHasTime) {
+          input.deadline = `${deadlineDate}T${deadlineHour}:00:00`;
+        } else {
+          input.deadline = `${deadlineDate}T00:00:00`;
+        }
         input.priority_flag = null; // Tasks med deadline får inte priority_flag
       } else {
         // Tasks utan deadline använder priority_flag
         input.deadline = null; // Sätt explicit null för att ta bort deadline
         input.priority_flag = priorityFlag;
+      }
+
+      // Bygg scheduled_start från datum + timme (optional)
+      if (scheduledStartDate) {
+        if (scheduledStartHasTime) {
+          input.scheduled_start = `${scheduledStartDate}T${scheduledStartHour}:00:00`;
+        } else {
+          input.scheduled_start = `${scheduledStartDate}T00:00:00`;
+        }
+      } else {
+        input.scheduled_start = null;
       }
 
       if (estimatedDuration) input.estimated_duration = estimatedDuration;
