@@ -214,6 +214,8 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
 
   // Uppdatera task events när tasks ändras (ingen reload av kalendern)
   useEffect(() => {
+    console.log('Tasks changed, updating calendar. Total tasks:', tasks.length);
+
     const taskEvents: CalendarEvent[] = tasks
       .filter((task) => task.deadline && task.status !== 'done')
       .map((task) => {
@@ -231,6 +233,9 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
         };
       });
 
+    console.log('Task events created:', taskEvents.length);
+    console.log('Task events:', taskEvents.map(e => ({title: e.Subject, start: e.StartTime})));
+
     // Spara nuvarande vy
     if (scheduleRef.current) {
       currentViewRef.current = scheduleRef.current.currentView;
@@ -238,7 +243,9 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps = {}
     }
 
     // Kombinera Microsoft events och task events
-    setEvents([...msftEvents, ...taskEvents]);
+    const combinedEvents = [...msftEvents, ...taskEvents];
+    console.log('Setting events. Total:', combinedEvents.length, 'MS events:', msftEvents.length, 'Task events:', taskEvents.length);
+    setEvents(combinedEvents);
 
     // Återställ vy efter data-uppdatering
     setTimeout(() => {
