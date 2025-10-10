@@ -10,16 +10,17 @@ import { createClient } from '@supabase/supabase-js';
 const app = express();
 
 // Initialize Sentry for error tracking (optional)
+// Sentry v10+ auto-instruments Express - no need for Handlers
 if (process.env.SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV || 'development',
     tracesSampleRate: 1.0,
+    integrations: [
+      Sentry.httpIntegration(),
+      Sentry.expressIntegration({ app }),
+    ],
   });
-
-  // Sentry request handler must be first
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
   console.log('✅ Sentry error tracking enabled');
 } else {
   console.log('⚠️  Sentry not configured - error tracking disabled');
@@ -473,12 +474,12 @@ app.post('/api/azure-tts', authenticateUser, rateLimiter, async (req, res) => {
   }
 });
 
-// Sentry error handler must be before other error handlers and after all routes
+// Sentry v10 error handler (replaces old Handlers.errorHandler)
 if (process.env.SENTRY_DSN) {
-  app.use(Sentry.Handlers.errorHandler());
+  Sentry.setupExpressErrorHandler(app);
 }
 
-// General error handler
+// General error handler (after Sentry)
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({
