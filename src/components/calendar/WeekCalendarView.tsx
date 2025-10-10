@@ -235,42 +235,52 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
   // Uppdatera task events när tasks ändras (ingen reload av kalendern)
   useEffect(() => {
-    console.log('Tasks changed, updating calendar. Total tasks:', tasks.length);
+    console.log('📅 [WeekCalendarView] Tasks changed, updating calendar. Total tasks:', tasks.length);
+    console.log('📅 [WeekCalendarView] All tasks:', tasks.map(t => ({
+      id: t.id,
+      title: t.title,
+      scheduled_start: t.scheduled_start,
+      status: t.status,
+      estimated_duration: t.estimated_duration
+    })));
 
     const taskEvents: CalendarEvent[] = tasks
-      .filter((task) => task.scheduled_start && task.status !== 'done')
+      .filter((task) => {
+        const hasScheduledStart = !!task.scheduled_start;
+        const isNotDone = task.status !== 'done';
+        const shouldShow = hasScheduledStart && isNotDone;
+
+        console.log(`📅 [WeekCalendarView] Task "${task.title}": scheduled_start=${task.scheduled_start}, status=${task.status}, shouldShow=${shouldShow}`);
+
+        return shouldShow;
+      })
       .map((task) => {
         const scheduledStart = new Date(task.scheduled_start!);
         const durationMinutes = task.estimated_duration || 30;
-        return {
+        const event = {
           Id: `task-${task.id}`,
           Subject: `📌 ${task.title}`,
           StartTime: scheduledStart,
           EndTime: new Date(scheduledStart.getTime() + durationMinutes * 60 * 1000),
           IsReadonly: false,
           CategoryColor: '#dc2626',
-          EventType: 'task',
+          EventType: 'task' as const,
           TaskId: task.id,
         };
+
+        console.log(`📅 [WeekCalendarView] Created event for "${task.title}":`, {
+          StartTime: event.StartTime.toISOString(),
+          EndTime: event.EndTime.toISOString()
+        });
+
+        return event;
       });
 
-    console.log('Task events created:', taskEvents.length);
-    console.log('Task events:', taskEvents.map(e => ({
-      id: e.TaskId,
-      title: e.Subject,
-      start: e.StartTime.toISOString()
-    })));
+    console.log('📅 [WeekCalendarView] Task events created:', taskEvents.length);
 
     // Debug: Visa tasks MED scheduled_start
     const scheduledTasks = tasks.filter(t => t.scheduled_start && t.status !== 'done');
-    console.log('Tasks with scheduled_start (filtered):', scheduledTasks.length);
-    console.log('Scheduled tasks details:', scheduledTasks.map(t => ({
-      id: t.id,
-      title: t.title,
-      scheduled_start: t.scheduled_start,
-      deadline: t.deadline,
-      status: t.status
-    })));
+    console.log('📅 [WeekCalendarView] Tasks with scheduled_start (filtered):', scheduledTasks.length);
 
     // Spara nuvarande vy
     if (scheduleRef.current) {

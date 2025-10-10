@@ -97,23 +97,34 @@ export function CalendarWithTaskSidebar() {
 
               // Sätt scheduled_start på tasken (INTE deadline - deadline är när det ska vara KLART)
               console.log('⏰ Scheduling task:', taskData.TaskId, 'to:', deadline.toISOString());
+              console.log('⏰ Original task before update:', originalTask);
+
               updateTask(taskData.TaskId, {
                 scheduled_start: deadline.toISOString()
               }).then((result) => {
-                console.log('✅ Task scheduled successfully!', {
-                  id: result.id,
-                  title: result.title,
-                  scheduled_start: result.scheduled_start,
-                  status: result.status
-                });
-                // Show undo toast
-                showUndoToast(result.title, result.id, previousStart);
+                if (result) {
+                  console.log('✅ Task scheduled successfully!', {
+                    id: result.id,
+                    title: result.title,
+                    scheduled_start: result.scheduled_start,
+                    status: result.status,
+                    estimated_duration: result.estimated_duration
+                  });
 
-                // Force calendar to refresh by triggering a re-render
-                if (scheduleRef.current) {
-                  setTimeout(() => {
-                    scheduleRef.current?.refresh();
-                  }, 100);
+                  // Show undo toast
+                  showUndoToast(result.title, result.id, previousStart);
+
+                  // Force calendar to refresh by triggering a re-render
+                  if (scheduleRef.current) {
+                    console.log('🔄 Forcing calendar refresh...');
+                    setTimeout(() => {
+                      scheduleRef.current?.refresh();
+                      console.log('🔄 Calendar refresh() called');
+                    }, 100);
+                  }
+                } else {
+                  console.error('❌ updateTask returned null - operation failed');
+                  toast.error('Kunde inte schemalägga task - serverfel');
                 }
               }).catch((error) => {
                 console.error('❌ FAILED to schedule task:', error);
