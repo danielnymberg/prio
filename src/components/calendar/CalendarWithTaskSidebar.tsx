@@ -109,11 +109,20 @@ export function CalendarWithTaskSidebar() {
 
   // Hantera click på task i sidebar - öppna task-detaljer
   const onNodeClick = (args: any) => {
-    // NodeClickEventArgs har olika struktur beroende på Syncfusion-version
-    const nodeData = args.nodeData || args.node?.dataset;
-    const taskId = nodeData?.id || nodeData?.Id;
+    console.log('Node clicked, args:', args);
+
+    // Prova olika sätt att hitta task ID
+    const nodeData = args.nodeData || args.node;
+    console.log('nodeData:', nodeData);
+
+    // TreeView använder 'id' som lowercase i treeData
+    const taskId = nodeData?.id || nodeData?.Id || nodeData?.TaskId;
+    console.log('taskId found:', taskId);
+
     if (taskId) {
       navigate(`/task/${taskId}`);
+    } else {
+      console.error('Could not find taskId in click event');
     }
   };
 
@@ -162,12 +171,12 @@ export function CalendarWithTaskSidebar() {
                 nodeClicked={onNodeClick}
                 nodeTemplate={(data: any) => (
                   <div className="p-2 cursor-pointer hover:bg-sand-50 dark:hover:bg-charcoal-800 rounded transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="font-medium text-sm text-stone-900 dark:text-cream-50 flex-1">
+                    <div className="flex items-start gap-2">
+                      <div className="font-medium text-sm text-stone-900 dark:text-cream-50 flex-1 min-w-0 break-words">
                         {data.Name}
                       </div>
                       {data.Priority !== undefined && (
-                        <div className="text-xs font-semibold px-2 py-0.5 rounded bg-copper-100 dark:bg-copper-900 text-copper-700 dark:text-copper-300 ml-2">
+                        <div className="text-xs font-semibold px-2 py-0.5 rounded bg-copper-100 dark:bg-copper-900 text-copper-700 dark:text-copper-300 flex-shrink-0">
                           {data.Priority}
                         </div>
                       )}
