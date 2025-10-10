@@ -96,23 +96,28 @@ export function CalendarWithTaskSidebar() {
               const previousStart = originalTask?.scheduled_start || null;
 
               // Sätt scheduled_start på tasken (INTE deadline - deadline är när det ska vara KLART)
+              console.log('⏰ Scheduling task:', taskData.TaskId, 'to:', deadline.toISOString());
               updateTask(taskData.TaskId, {
                 scheduled_start: deadline.toISOString()
               }).then((result) => {
-                console.log('Task updated successfully:', result);
-                console.log('Updated task details:', {
+                console.log('✅ Task scheduled successfully!', {
                   id: result.id,
                   title: result.title,
                   scheduled_start: result.scheduled_start,
-                  deadline: result.deadline,
                   status: result.status
                 });
                 // Show undo toast
                 showUndoToast(result.title, result.id, previousStart);
-                // TreeView uppdateras automatiskt via tasks dependency
+
+                // Force calendar to refresh by triggering a re-render
+                if (scheduleRef.current) {
+                  setTimeout(() => {
+                    scheduleRef.current?.refresh();
+                  }, 100);
+                }
               }).catch((error) => {
-                console.error('CRITICAL: Failed to update task:', error);
-                alert(`Kunde inte uppdatera task: ${error.message || 'Okänt fel'}`);
+                console.error('❌ FAILED to schedule task:', error);
+                toast.error(`Kunde inte schemalägga task: ${error.message || 'Okänt fel'}`);
               });
             } else {
               console.error('CRITICAL: Could not find task data for dragged node:', draggedData);
