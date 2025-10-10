@@ -26,7 +26,7 @@ import {
 } from '@/services/microsoft-graph';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
-import { AlertCircle, Trash2 } from 'lucide-react';
+import { AlertCircle, Trash2, Sparkles } from 'lucide-react';
 
 // Import CLDR data för svensk kultur
 import * as numberingSystems from 'cldr-data/supplemental/numberingSystems.json';
@@ -303,6 +303,248 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
     return () => clearInterval(interval);
   }, [loadMicrosoftEvents]);
+
+  // Helper: Hitta lediga tidsluckor i kalendern
+  interface TimeSlot {
+    start: Date;
+    end: Date;
+    duration: number; // minuter
+  }
+
+  const findFreeTimeSlots = (startDate: Date, endDate: Date): TimeSlot[] => {
+    const freeSlots: TimeSlot[] = [];
+    const workStartHour = 8; // 08:00
+    const workEndHour = 17; // 17:00
+
+    // Gå igenom varje dag
+    const currentDate = new Date(startDate);
+    while (currentDate < endDate) {
+      // Skippa helger
+      const dayOfWeek = currentDate.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        continue;
+      }
+
+      // Skapa arbetsdag (08:00-17:00)
+      const dayStart = new Date(currentDate);
+      dayStart.setHours(workStartHour, 0, 0, 0);
+      const dayEnd = new Date(currentDate);
+      dayEnd.setHours(workEndHour, 0, 0, 0);
+
+      // Hitta alla events denna dag
+      const dayEvents = events
+        .filter(e => {
+          const eStart = new Date(e.StartTime);
+          const eEnd = new Date(e.EndTime);
+          return (eStart >= dayStart && eStart < dayEnd) ||
+                 (eEnd > dayStart && eEnd <= dayEnd) ||
+                 (eStart <= dayStart && eEnd >= dayEnd);
+        })
+        .sort((a, b) => new Date(a.StartTime).getTime() - new Date(b.StartTime).getTime());
+
+      // Hitta luckor mellan events
+      let currentTime = dayStart;
+      for (const event of dayEvents) {
+        const eventStart = new Date(event.StartTime);
+        const eventEnd = new Date(event.EndTime);
+
+        // Lucka före detta event?
+        if (currentTime < eventStart) {
+          const gapMinutes = (eventStart.getTime() - currentTime.getTime()) / 60000;
+          if (gapMinutes >= 30) { // Minst 30 min lucka
+            freeSlots.push({
+              start: new Date(currentTime),
+              end: new Date(eventStart),
+              duration: gapMinutes
+            });
+          }
+        }
+
+        // Flytta currentTime till efter eventet
+        if (eventEnd > currentTime) {
+          currentTime = eventEnd;
+        }
+      }
+
+      // Lucka efter sista eventet till dagens slut?
+      if (currentTime < dayEnd) {
+        const gapMinutes = (dayEnd.getTime() - currentTime.getTime()) / 60000;
+        if (gapMinutes >= 30) {
+          freeSlots.push({
+            start: new Date(currentTime),
+            end: new Date(dayEnd),
+            duration: gapMinutes
+          });
+        }
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return freeSlots;
+  };
+
+  // Helper: Hitta bästa slot för en task
+  const findBestSlotForTask = (task: Task, freeSlots: TimeSlot[]): TimeSlot | null => {
+    const duration = task.estimated_duration || 60;
+    const now = new Date();
+
+    // Filtrera slots som är tillräckligt långa
+    let validSlots = freeSlots.filter(slot => slot.duration >= duration);
+
+    // Om task har deadline, filtrera bort slots efter deadline
+    if (task.deadline) {
+      const deadline = new Date(task.deadline);
+      validSlots = validSlots.filter(slot => slot.start < deadline);
+    }
+
+    // Filtrera bort slots i det förflutna
+    validSlots = validSlots.filter(slot => slot.start > now);
+
+    if (validSlots.length === 0) return null;
+
+    // Prioritera morgon (08:00-12:00) för viktiga tasks (value_score >= 8)
+    if (task.value_score >= 8) {
+      const morningSlots = validSlots.filter(slot => {
+        const hour = slot.start.getHours();
+        return hour >= 8 && hour < 12;
+      });
+      if (morningSlots.length > 0) {
+        validSlots = morningSlots;
+      }
+    }
+
+    // Ta första tillgängliga slot (tidigast i tiden)
+    const bestSlot = validSlots[0];
+
+    return {
+      start: bestSlot.start,
+      end: new Date(bestSlot.start.getTime() + duration * 60000),
+      duration
+    };
+  };
+
+  // Auto-schedule alla oplanerade tasks
+  const handleAutoScheduleAll = async () => {
+    if (!isMsftConnected) {
+      toast.error('Anslut till Microsoft Kalender först');
+      return;
+    }
+
+    // Filter: ej schemalagda tasks (samma logik som sidebar)
+    const unscheduledTasks = tasks.filter(
+      t => t.status !== 'done' && !t.scheduled_start && (t.estimated_duration || 999) > 2
+    );
+
+    if (unscheduledTasks.length === 0) {
+      toast.error('Inga oplanerade uppgifter att schemalägga');
+      return;
+    }
+
+    setLoading(true);
+    const loadingToast = toast.loading(`Analyserar kalender och schemalägger ${unscheduledTasks.length} uppgifter...`);
+
+    try {
+      // 1. Sortera efter priority (högst först)
+      const sortedTasks = [...unscheduledTasks].sort((a, b) =>
+        (b.priority || 0) - (a.priority || 0)
+      );
+
+      console.log('Auto-scheduling tasks:', sortedTasks.map(t => ({
+        title: t.title,
+        priority: t.priority,
+        duration: t.estimated_duration
+      })));
+
+      // 2. Hitta lediga tider (nästa 7 dagar)
+      const now = new Date();
+      const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      let freeSlots = findFreeTimeSlots(now, nextWeek);
+
+      console.log('Found free slots:', freeSlots.length);
+
+      // 3. Placera tasks i lediga slots
+      let scheduled = 0;
+      let failedTasks: string[] = [];
+
+      for (const task of sortedTasks) {
+        const slot = findBestSlotForTask(task, freeSlots);
+
+        if (slot) {
+          try {
+            // Boka i kalendern först
+            await blockCalendarTime(
+              slot.start,
+              task.estimated_duration || 60,
+              `🎯 Fokus: ${task.title}`
+            );
+
+            // Uppdatera task
+            await updateTask(task.id, {
+              scheduled_start: slot.start.toISOString()
+            });
+
+            scheduled++;
+            console.log(`Scheduled: ${task.title} at ${slot.start.toISOString()}`);
+
+            // Ta bort använd tid från freeSlots
+            const slotIndex = freeSlots.indexOf(freeSlots.find(s => s.start === slot.start)!);
+            if (slotIndex !== -1) {
+              const originalSlot = freeSlots[slotIndex];
+              freeSlots.splice(slotIndex, 1);
+
+              // Lägg till resterande tid före och efter
+              if (slot.start > originalSlot.start) {
+                freeSlots.push({
+                  start: originalSlot.start,
+                  end: slot.start,
+                  duration: (slot.start.getTime() - originalSlot.start.getTime()) / 60000
+                });
+              }
+              if (slot.end < originalSlot.end) {
+                freeSlots.push({
+                  start: slot.end,
+                  end: originalSlot.end,
+                  duration: (originalSlot.end.getTime() - slot.end.getTime()) / 60000
+                });
+              }
+              // Sortera om
+              freeSlots.sort((a, b) => a.start.getTime() - b.start.getTime());
+            }
+          } catch (error) {
+            console.error(`Failed to schedule ${task.title}:`, error);
+            failedTasks.push(task.title);
+          }
+        } else {
+          failedTasks.push(task.title);
+        }
+      }
+
+      toast.dismiss(loadingToast);
+
+      if (scheduled === sortedTasks.length) {
+        toast.success(`✅ Schemalade ${scheduled} uppgifter automatiskt!`);
+      } else if (scheduled > 0) {
+        toast.success(`✅ Schemalade ${scheduled} av ${sortedTasks.length} uppgifter`);
+        if (failedTasks.length > 0) {
+          toast.error(`⚠️ ${failedTasks.length} uppgifter fick inte plats: ${failedTasks.slice(0, 2).join(', ')}${failedTasks.length > 2 ? '...' : ''}`);
+        }
+      } else {
+        toast.error('❌ Kunde inte schemalägga några uppgifter. Ingen ledig tid i kalendern?');
+      }
+
+      // Uppdatera kalendern
+      await loadMicrosoftEvents();
+
+    } catch (error) {
+      console.error('Auto-schedule error:', error);
+      toast.dismiss(loadingToast);
+      toast.error('Kunde inte schemalägga automatiskt');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Event settings för Syncfusion
   const eventSettings: EventSettingsModel = {
@@ -604,22 +846,40 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     );
   }
 
+  // Räkna oplanerade tasks
+  const unscheduledTasks = tasks.filter(
+    t => t.status !== 'done' && !t.scheduled_start && (t.estimated_duration || 999) > 2
+  );
+
   return (
     <div className="h-full flex flex-col gap-4">
-      {/* Info box */}
-      <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-blue-500" />
-          <span>Externa möten</span>
+      {/* Info box & Auto-schedule button */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-blue-500" />
+            <span>Externa möten</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-orange-600" />
+            <span>Prio fokustid (kan flyttas)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-red-500" />
+            <span>Task deadlines</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-orange-600" />
-          <span>Prio fokustid (kan flyttas)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-500" />
-          <span>Task deadlines</span>
-        </div>
+
+        {/* Auto-schedule button */}
+        <Button
+          onClick={handleAutoScheduleAll}
+          variant="primary"
+          disabled={loading || unscheduledTasks.length === 0}
+          className="flex items-center gap-2 whitespace-nowrap"
+        >
+          <Sparkles className="h-4 w-4" />
+          🤖 Schemalägg {unscheduledTasks.length} oplanerade
+        </Button>
       </div>
 
       {/* Syncfusion Scheduler */}
