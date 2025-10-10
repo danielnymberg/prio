@@ -668,7 +668,10 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
               // Visa varning om tajt (men tillåt)
               if (validation.message) {
-                toast.warning(validation.message, { duration: 4000 });
+                toast(validation.message, {
+                  duration: 4000,
+                  icon: '⚠️'
+                });
               }
             }
 
@@ -746,7 +749,10 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
               // Visa varning om tajt (men tillåt)
               if (validation.message) {
-                toast.warning(validation.message, { duration: 4000 });
+                toast(validation.message, {
+                  duration: 4000,
+                  icon: '⚠️'
+                });
               }
             }
 
