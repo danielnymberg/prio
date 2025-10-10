@@ -13,6 +13,15 @@ export function CalendarWithTaskSidebar() {
     (t) => t.status !== 'done' && !t.deadline && (t.estimated_duration || 999) > 2
   );
 
+  const onDragStart = (e: React.DragEvent, task: any) => {
+    const dragData = {
+      taskId: task.id,
+      title: task.title,
+      duration: task.estimated_duration || 30,
+    };
+    e.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+  };
+
   return (
     <div className="flex h-full gap-4 relative overflow-hidden">
       {/* Sidebar med tasks */}
@@ -47,15 +56,8 @@ export function CalendarWithTaskSidebar() {
                   <div
                     key={task.id}
                     draggable
-                    className="e-draggable bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700 cursor-move hover:shadow-md transition-shadow"
-                    data-id={`task-${task.id}`}
-                    data-subject={`📌 ${task.title}`}
-                    data-start-time={new Date().toISOString()}
-                    data-end-time={new Date(Date.now() + (task.estimated_duration || 30) * 60 * 1000).toISOString()}
-                    data-task-id={task.id}
-                    data-event-type="task"
-                    data-category-color="#dc2626"
-                    data-is-readonly="false"
+                    onDragStart={(e) => onDragStart(e, task)}
+                    className="bg-sand-50 dark:bg-charcoal-800 rounded-lg p-3 border border-sand-200 dark:border-charcoal-700 cursor-move hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">

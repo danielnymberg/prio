@@ -144,7 +144,35 @@ export function WeekCalendarView() {
   const [isMsftConnected, setIsMsftConnected] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<SelectedEventData | null>(null);
   const scheduleRef = useRef<ScheduleComponent>(null);
-  const currentDateRef = useRef<Date | null>(null);
+
+  // Hantera HTML5 drag-and-drop från sidebar
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const onDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+
+      // Hitta vilken cell som droppades på
+      const target = e.target as HTMLElement;
+      const cell = target.closest('.e-work-cells, .e-header-cells');
+
+      if (cell && scheduleRef.current && data.taskId) {
+        const cellData = scheduleRef.current.getCellDetails(cell);
+        if (cellData) {
+          // Sätt deadline på tasken
+          await updateTask(data.taskId, {
+            deadline: cellData.startTime.toISOString()
+          });
+          toast.success('Task deadline satt!');
+        }
+      }
+    } catch (error) {
+      console.error('Drop error:', error);
+    }
+  };
 
   // Ladda kalenderdata
   const loadCalendarData = useCallback(async () => {
@@ -235,22 +263,6 @@ export function WeekCalendarView() {
     } as any, // Type workaround for Syncfusion fields
   };
 
-  // Spara nuvarande datum innan uppdatering
-  const saveCurrentDate = () => {
-    if (scheduleRef.current) {
-      currentDateRef.current = scheduleRef.current.selectedDate;
-    }
-  };
-
-  // Återställ vy efter uppdatering
-  const restoreView = () => {
-    if (scheduleRef.current && currentDateRef.current) {
-      setTimeout(() => {
-        scheduleRef.current?.scrollTo(currentDateRef.current!.toISOString());
-      }, 100);
-    }
-  };
-
   // Hantera när event ändras (drag, resize)
   const onActionComplete = async (args: ActionEventArgs) => {
     if (args.requestType === 'eventChanged' && args.data) {
@@ -262,12 +274,8 @@ export function WeekCalendarView() {
         // Blockera externa möten
         if (calEvent.EventId && !calEvent.IsPrioEvent) {
           toast.error('Kan inte flytta externa möten!');
-          await loadCalendarData();
-          restoreView();
           return;
         }
-
-        saveCurrentDate();
 
         // Prio focus-session
         if (calEvent.EventId && calEvent.IsPrioEvent) {
@@ -279,18 +287,13 @@ export function WeekCalendarView() {
 
             if (success) {
               toast.success('Fokustid uppdaterad!');
-              await loadCalendarData();
-              restoreView();
+              // Microsoft synk sker i bakgrunden
             } else {
               toast.error('Kunde inte uppdatera fokustiden');
-              await loadCalendarData();
-              restoreView();
             }
           } catch (error) {
             console.error('Failed to update event:', error);
             toast.error('Kunde inte uppdatera fokustiden');
-            await loadCalendarData();
-            restoreView();
           }
         }
 
@@ -301,13 +304,10 @@ export function WeekCalendarView() {
               deadline: calEvent.StartTime.toISOString()
             });
             toast.success('Task deadline uppdaterad!');
-            await loadCalendarData();
-            restoreView();
+            // Supabase realtime uppdaterar automatiskt
           } catch (error) {
             console.error('Failed to update task:', error);
             toast.error('Kunde inte uppdatera task');
-            await loadCalendarData();
-            restoreView();
           }
         }
       }
@@ -320,19 +320,14 @@ export function WeekCalendarView() {
       for (const event of removedEvents) {
         const calEvent = event as CalendarEvent;
 
-        saveCurrentDate();
-
         if (calEvent.EventId && calEvent.IsPrioEvent) {
           try {
             await deleteCalendarEvent(calEvent.EventId);
             toast.success('Fokustid borttagen!');
-            await loadCalendarData();
-            restoreView();
+            // Microsoft synk sker i bakgrunden
           } catch (error) {
             console.error('Failed to delete event:', error);
             toast.error('Kunde inte ta bort fokustiden');
-            await loadCalendarData();
-            restoreView();
           }
         }
 
@@ -340,13 +335,10 @@ export function WeekCalendarView() {
           try {
             await updateTask(calEvent.TaskId, { deadline: undefined });
             toast.success('Task deadline borttagen!');
-            await loadCalendarData();
-            restoreView();
+            // Supabase realtime uppdaterar automatiskt
           } catch (error) {
             console.error('Failed to remove task deadline:', error);
             toast.error('Kunde inte ta bort deadline');
-            await loadCalendarData();
-            restoreView();
           }
         }
       }
@@ -359,8 +351,6 @@ export function WeekCalendarView() {
       for (const event of newEvents) {
         const calEvent = event as CalendarEvent;
 
-        saveCurrentDate();
-
         // Om TaskId finns = task från sidebar
         if (calEvent.TaskId) {
           try {
@@ -368,19 +358,15 @@ export function WeekCalendarView() {
               deadline: calEvent.StartTime.toISOString()
             });
             toast.success('Task deadline satt!');
-            await loadCalendarData();
-            restoreView();
+            // Supabase realtime uppdaterar automatiskt
           } catch (error) {
             console.error('Failed to set task deadline:', error);
             toast.error('Kunde inte sätta deadline');
-            await loadCalendarData();
-            restoreView();
           }
         } else {
           // Annars = ny fokustid
           if (!isMsftConnected) {
             toast.error('Anslut till Microsoft för att schemalägga');
-            await loadCalendarData();
             return;
           }
 
@@ -392,13 +378,10 @@ export function WeekCalendarView() {
           try {
             await blockCalendarTime(startDate, durationMinutes, `🎯 Fokus: ${title}`);
             toast.success('Fokustid inbokad!');
-            await loadCalendarData();
-            restoreView();
+            // Microsoft synk sker i bakgrunden
           } catch (error) {
             console.error('Failed to block time:', error);
             toast.error('Kunde inte boka tid');
-            await loadCalendarData();
-            restoreView();
           }
         }
       }
@@ -480,15 +463,12 @@ export function WeekCalendarView() {
       return;
     }
 
-    saveCurrentDate();
-
     if (extendedProps?.eventId && extendedProps?.isPrioEvent) {
       try {
         await deleteCalendarEvent(extendedProps.eventId);
         toast.success('Fokustid borttagen!');
         setSelectedEvent(null);
-        await loadCalendarData();
-        restoreView();
+        // Microsoft synk sker i bakgrunden
       } catch (error) {
         console.error('Failed to delete event:', error);
         toast.error('Kunde inte ta bort fokustiden');
@@ -500,8 +480,7 @@ export function WeekCalendarView() {
         await updateTask(extendedProps.taskId, { deadline: undefined });
         toast.success('Task deadline borttagen!');
         setSelectedEvent(null);
-        await loadCalendarData();
-        restoreView();
+        // Supabase realtime uppdaterar automatiskt
       } catch (error) {
         console.error('Failed to remove task deadline:', error);
         toast.error('Kunde inte ta bort deadline');
@@ -561,7 +540,11 @@ export function WeekCalendarView() {
       </div>
 
       {/* Syncfusion Scheduler */}
-      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden">
+      <div
+        className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden"
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+      >
         <ScheduleComponent
           ref={scheduleRef}
           height="100%"

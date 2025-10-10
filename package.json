@@ -18,6 +18,7 @@
     "@microsoft/microsoft-graph-types": "^2.43.1",
     "@supabase/supabase-js": "^2.39.0",
     "@syncfusion/ej2-react-calendars": "^31.1.23",
+    "@syncfusion/ej2-react-navigations": "^31.1.20",
     "@syncfusion/ej2-react-schedule": "^31.1.21",
     "cldr-data": "^36.0.4",
     "clsx": "^2.1.0",
