@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -7,6 +8,7 @@ import { closest } from '@syncfusion/ej2-base';
 
 export function CalendarWithTaskSidebar() {
   const { tasks, updateTask } = useTasks();
+  const navigate = useNavigate();
   const [showSidebar, setShowSidebar] = useState(true);
   const scheduleRef = useRef<any>(null);
   const [treeData, setTreeData] = useState<any[]>([]);
@@ -23,6 +25,7 @@ export function CalendarWithTaskSidebar() {
       Id: task.id,
       Name: task.title,
       Duration: task.estimated_duration || 30,
+      Priority: Math.round(task.priority),
       TaskId: task.id,
     }));
     setTreeData(updatedTreeData);
@@ -104,6 +107,16 @@ export function CalendarWithTaskSidebar() {
     }
   };
 
+  // Hantera click på task i sidebar - öppna task-detaljer
+  const onNodeClick = (args: any) => {
+    // NodeClickEventArgs har olika struktur beroende på Syncfusion-version
+    const nodeData = args.nodeData || args.node?.dataset;
+    const taskId = nodeData?.id || nodeData?.Id;
+    if (taskId) {
+      navigate(`/task/${taskId}`);
+    }
+  };
+
   // Sätt schedule ref från child
   const setScheduleRef = (ref: any) => {
     scheduleRef.current = ref;
@@ -123,7 +136,10 @@ export function CalendarWithTaskSidebar() {
               Ej schemalagt
             </h3>
             <p className="text-xs text-stone-600 dark:text-stone-400 mb-2">
-              Dra uppgifter till kalendern för att planera när du ska jobba på dem
+              Dra uppgifter till kalendern för att planera när du ska jobba på dem. Klicka för detaljer.
+            </p>
+            <p className="text-xs text-stone-500 dark:text-stone-500 italic mb-1">
+              📊 Sorterade efter priority (högst först)
             </p>
             <p className="text-xs text-stone-500 dark:text-stone-500 italic">
               💡 För att ta bort från schema: Klicka på uppgift i kalendern → "Ta bort från schema"
@@ -143,10 +159,18 @@ export function CalendarWithTaskSidebar() {
                 allowDragAndDrop={true}
                 dragArea=".flex.h-full.gap-4"
                 nodeDragStop={onTreeDragStop}
+                nodeClicked={onNodeClick}
                 nodeTemplate={(data: any) => (
-                  <div className="p-2">
-                    <div className="font-medium text-sm text-stone-900 dark:text-cream-50">
-                      {data.Name}
+                  <div className="p-2 cursor-pointer hover:bg-sand-50 dark:hover:bg-charcoal-800 rounded transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-sm text-stone-900 dark:text-cream-50 flex-1">
+                        {data.Name}
+                      </div>
+                      {data.Priority !== undefined && (
+                        <div className="text-xs font-semibold px-2 py-0.5 rounded bg-copper-100 dark:bg-copper-900 text-copper-700 dark:text-copper-300 ml-2">
+                          {data.Priority}
+                        </div>
+                      )}
                     </div>
                     {data.Duration && (
                       <div className="text-xs text-stone-600 dark:text-stone-400 mt-1">
