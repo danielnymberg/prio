@@ -129,14 +129,7 @@ export function KanbanCalendarView() {
 
                 showUndoToast(originalTask.title, taskId, previousStart);
 
-                // Force calendar refresh
-                if (scheduleRef.current) {
-                  console.log('🔄 [Kanban] Forcing calendar refresh...');
-                  setTimeout(() => {
-                    scheduleRef.current?.refresh();
-                    console.log('🔄 [Kanban] Calendar refresh() called');
-                  }, 100);
-                }
+                // Ingen calendar refresh behövs - useTasks realtime uppdatering + useEffect kommer trigga automatiskt
               } else {
                 console.error('❌ [Kanban] updateTask returned null - operation failed');
                 toast.error('Kunde inte schemalägga task - serverfel');

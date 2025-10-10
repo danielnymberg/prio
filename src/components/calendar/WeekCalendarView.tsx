@@ -151,6 +151,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
   const scheduleRef = useRef<ScheduleComponent>(null);
   const currentViewRef = useRef<string>('Week');
   const currentDateRef = useRef<Date>(new Date());
+  const [scheduleKey, setScheduleKey] = useState(0); // Force re-mount när events ändras
 
   // Exponera schedule ref till parent och konfigurera scroll-hastighet
   useEffect(() => {
@@ -292,6 +293,9 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     const combinedEvents = [...msftEvents, ...taskEvents];
     console.log('Setting events. Total:', combinedEvents.length, 'MS events:', msftEvents.length, 'Task events:', taskEvents.length);
     setEvents(combinedEvents);
+
+    // Force Schedule component to re-render by changing key
+    setScheduleKey(prev => prev + 1);
 
     // Återställ vy efter data-uppdatering
     setTimeout(() => {
@@ -1029,6 +1033,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
       {/* Syncfusion Scheduler */}
       <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden">
         <ScheduleComponent
+          key={scheduleKey}
           ref={scheduleRef}
           height="100%"
           locale="sv"

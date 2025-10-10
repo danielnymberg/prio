@@ -114,14 +114,7 @@ export function CalendarWithTaskSidebar() {
                   // Show undo toast
                   showUndoToast(result.title, result.id, previousStart);
 
-                  // Force calendar to refresh by triggering a re-render
-                  if (scheduleRef.current) {
-                    console.log('🔄 Forcing calendar refresh...');
-                    setTimeout(() => {
-                      scheduleRef.current?.refresh();
-                      console.log('🔄 Calendar refresh() called');
-                    }, 100);
-                  }
+                  // Ingen calendar refresh behövs - useTasks realtime uppdatering + useEffect kommer trigga automatiskt
                 } else {
                   console.error('❌ updateTask returned null - operation failed');
                   toast.error('Kunde inte schemalägga task - serverfel');
