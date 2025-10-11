@@ -14,6 +14,7 @@ import {
   Sparkles,
   Filter
 } from 'lucide-react';
+import { CapacityTimeline } from '@/components/capacity/CapacityTimeline';
 
 type TimeHorizon = '1' | '3' | '6' | '12';
 
@@ -403,6 +404,11 @@ export function OverviewView() {
             })}
           </div>
         )}
+      </div>
+
+      {/* Capacity Timeline */}
+      <div className="mt-8">
+        <CapacityTimeline />
       </div>
     </div>
   );
