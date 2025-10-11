@@ -74,15 +74,15 @@ export function CapacityTimeline() {
   const totalAvailableHours = Math.round(capacityData.reduce((sum, d) => sum + d.availableHours, 0));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-charcoal-900 dark:text-sand-50">
-            Kapacitetsöversikt
+          <h2 className="text-2xl font-bold text-charcoal-900 dark:text-sand-50 flex items-center gap-2">
+            📊 Kapacitetsöversikt
           </h2>
           <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
-            Visualisering av din beläggning över tid
+            Din beläggning baserat på tasks, projekt och möten
           </p>
         </div>
 
@@ -107,34 +107,34 @@ export function CapacityTimeline() {
       </div>
 
       {/* Info cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           {
             label: 'Snittbeläggning',
             value: `${avgUtilization}%`,
             icon: TrendingUp,
-            color: 'text-copper-600',
-            bgColor: 'bg-copper-50 dark:bg-copper-900/20',
+            color: avgUtilization >= settings.capacity_thresholds.over ? 'text-red-600 dark:text-red-400' : avgUtilization >= settings.capacity_thresholds.sweet_start ? 'text-green-600 dark:text-green-400' : 'text-copper-600 dark:text-copper-400',
+            bgColor: avgUtilization >= settings.capacity_thresholds.over ? 'bg-red-50 dark:bg-red-900/20' : avgUtilization >= settings.capacity_thresholds.sweet_start ? 'bg-green-50 dark:bg-green-900/20' : 'bg-copper-50 dark:bg-copper-900/20',
           },
           {
-            label: 'Överbelagda perioder',
+            label: 'Överbelagda',
             value: overloadedPeriods,
             icon: AlertCircle,
-            color: 'text-red-600',
+            color: 'text-red-600 dark:text-red-400',
             bgColor: 'bg-red-50 dark:bg-red-900/20',
           },
           {
-            label: 'Sweetspot perioder',
+            label: 'Sweetspot',
             value: sweetspotPeriods,
             icon: Calendar,
-            color: 'text-green-600',
+            color: 'text-green-600 dark:text-green-400',
             bgColor: 'bg-green-50 dark:bg-green-900/20',
           },
           {
-            label: 'Lediga timmar',
+            label: 'Ledigt',
             value: `${totalAvailableHours}h`,
             icon: Calendar,
-            color: 'text-blue-600',
+            color: 'text-blue-600 dark:text-blue-400',
             bgColor: 'bg-blue-50 dark:bg-blue-900/20',
           },
         ].map((stat, i) => {
@@ -142,18 +142,16 @@ export function CapacityTimeline() {
           return (
             <div
               key={i}
-              className={`${stat.bgColor} rounded-lg p-4 border border-sand-200 dark:border-charcoal-700`}
+              className={`${stat.bgColor} rounded-xl p-4 border-2 border-sand-200 dark:border-charcoal-700 transition-all hover:shadow-md`}
             >
-              <div className="flex items-center gap-3">
-                <div className={`${stat.color}`}>
-                  <Icon className="w-5 h-5" />
+              <div className="flex flex-col gap-2">
+                <div className={`${stat.color} flex items-center gap-2`}>
+                  <Icon className="w-4 h-4" />
+                  <p className="text-xs font-medium text-stone-600 dark:text-stone-400">{stat.label}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-stone-600 dark:text-stone-400">{stat.label}</p>
-                  <p className="text-2xl font-bold text-charcoal-900 dark:text-sand-50">
-                    {stat.value}
-                  </p>
-                </div>
+                <p className="text-3xl font-bold text-charcoal-900 dark:text-sand-50">
+                  {stat.value}
+                </p>
               </div>
             </div>
           );
@@ -161,19 +159,20 @@ export function CapacityTimeline() {
       </div>
 
       {/* Timeline visualization */}
-      <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border border-sand-200 dark:border-charcoal-800">
+      <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border-2 border-sand-200 dark:border-charcoal-800 shadow-sm">
         <div className="space-y-4">
           {/* Timeline header */}
-          <div className="flex items-center justify-between text-sm text-stone-600 dark:text-stone-400">
-            <span>Period</span>
-            <span>Beläggning</span>
-            <span>Timmar</span>
+          <div className="flex items-center justify-between text-sm font-semibold text-stone-600 dark:text-stone-400 pb-2 border-b border-sand-200 dark:border-charcoal-700">
+            <span className="w-20">Period</span>
+            <span className="flex-1 text-center">Beläggning</span>
+            <span className="w-16 text-right">%</span>
+            <span className="w-32 text-right">Timmar</span>
           </div>
 
           {/* Timeline bars */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             {capacityData.map((data, idx) => (
-              <div key={idx} className="group">
+              <div key={idx} className="group hover:bg-sand-50 dark:hover:bg-charcoal-900 rounded-lg p-2 transition-all cursor-default">
                 <div className="flex items-center gap-4">
                   {/* Period label */}
                   <div className="w-20 text-sm font-medium text-charcoal-900 dark:text-sand-50">
