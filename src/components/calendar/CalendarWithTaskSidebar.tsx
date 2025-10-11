@@ -72,59 +72,50 @@ export function CalendarWithTaskSidebar() {
           if (cellData && args.draggedNodeData) {
             // Hämta task data
             const draggedData = args.draggedNodeData as any;
-            console.log('Dragged node data:', draggedData);
+            console.log('🎯 [Sidebar] Dragged node data:', draggedData);
 
             // Hitta rätt task från treeData (draggedNodeData innehåller bara id/text)
             const taskData = treeData.find(t => t.Id === draggedData.id || t.Id === draggedData.Id);
 
             if (taskData) {
-              console.log('RAW cellData.startTime:', cellData.startTime);
-              console.log('Current view:', scheduleRef.current.currentView);
+              console.log('🎯 [Sidebar] RAW cellData.startTime:', cellData.startTime);
+              console.log('🎯 [Sidebar] Current view:', scheduleRef.current.currentView);
 
               // I månadsvy - använd klockan 08:00 som default
-              let deadline = new Date(cellData.startTime);
+              let startTime = new Date(cellData.startTime);
               if (scheduleRef.current.currentView === 'Month') {
-                deadline.setHours(8, 0, 0, 0);
-                console.log('Month view detected - setting time to 08:00');
+                startTime.setHours(8, 0, 0, 0);
+                console.log('🎯 [Sidebar] Month view detected - setting time to 08:00');
               }
 
-              console.log('Final scheduled_start:', deadline.toISOString());
-              console.log('Updating task:', taskData.TaskId, 'with scheduled_start:', deadline.toISOString());
-
-              // Hitta original task för att få previous state
+              // Hitta original task för duration och undo
               const originalTask = tasks.find(t => t.id === taskData.TaskId);
               const previousStart = originalTask?.scheduled_start || null;
+              const durationMinutes = originalTask?.estimated_duration || 30;
 
-              // Sätt scheduled_start på tasken (INTE deadline - deadline är när det ska vara KLART)
-              console.log('⏰ Scheduling task:', taskData.TaskId, 'to:', deadline.toISOString());
-              console.log('⏰ Original task before update:', originalTask);
+              // Skapa event-objekt för Schedule (som sedan sparas via adaptor)
+              const eventData = {
+                Id: `task-${taskData.TaskId}`,
+                Subject: `📌 ${taskData.Name}`,
+                StartTime: startTime,
+                EndTime: new Date(startTime.getTime() + durationMinutes * 60 * 1000),
+                IsReadonly: false,
+                CategoryColor: '#dc2626',
+                EventType: 'task',
+                TaskId: taskData.TaskId,
+              };
 
-              updateTask(taskData.TaskId, {
-                scheduled_start: deadline.toISOString()
-              }).then((result) => {
-                if (result) {
-                  console.log('✅ Task scheduled successfully!', {
-                    id: result.id,
-                    title: result.title,
-                    scheduled_start: result.scheduled_start,
-                    status: result.status,
-                    estimated_duration: result.estimated_duration
-                  });
+              console.log('🎯 [Sidebar] Adding event via Schedule.addEvent():', eventData);
 
-                  // Show undo toast
-                  showUndoToast(result.title, result.id, previousStart);
+              // Använd Syncfusion addEvent - detta triggar adaptor.insert() automatiskt!
+              scheduleRef.current.addEvent(eventData);
 
-                  // Ingen calendar refresh behövs - useTasks realtime uppdatering + useEffect kommer trigga automatiskt
-                } else {
-                  console.error('❌ updateTask returned null - operation failed');
-                  toast.error('Kunde inte schemalägga task - serverfel');
-                }
-              }).catch((error) => {
-                console.error('❌ FAILED to schedule task:', error);
-                toast.error(`Kunde inte schemalägga task: ${error.message || 'Okänt fel'}`);
-              });
+              // Show undo toast
+              if (originalTask) {
+                showUndoToast(originalTask.title, taskData.TaskId, previousStart);
+              }
             } else {
-              console.error('CRITICAL: Could not find task data for dragged node:', draggedData);
+              console.error('❌ [Sidebar] Could not find task data for dragged node:', draggedData);
             }
           }
         }

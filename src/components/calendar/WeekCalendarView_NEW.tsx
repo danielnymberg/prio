@@ -222,8 +222,19 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps) {
 
   return (
     <div className="h-full flex flex-col gap-4">
+      {/* Visuell markör för nya DataManager-versionen */}
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="text-lg">🔷</div>
+          <div>
+            <div className="font-semibold text-sm">DataManager-baserad kalender (NYA VERSIONEN)</div>
+            <div className="text-xs opacity-90">Använder Syncfusion DataManager + SupabaseAdaptor</div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800">
+        <div className="flex items-center gap-4 text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-slate-800 rounded-lg p-3 border-2 border-blue-300 dark:border-blue-700">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded bg-red-500" />
             <span>Schemalagda tasks</span>
@@ -231,8 +242,8 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps) {
         </div>
       </div>
 
-      {/* Syncfusion Scheduler med DataManager */}
-      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden">
+      {/* Syncfusion Scheduler med DataManager - NYA VERSIONEN MED DATAMANAGER */}
+      <div className="flex-1 bg-blue-50 dark:bg-slate-900 rounded-xl p-4 border-2 border-blue-300 dark:border-blue-700 overflow-hidden">
         <ScheduleComponent
           ref={scheduleRef}
           height="100%"

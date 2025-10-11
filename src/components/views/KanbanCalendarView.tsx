@@ -100,44 +100,36 @@ export function KanbanCalendarView() {
           console.log('🎯 [Kanban] Original task:', originalTask);
 
           if (originalTask) {
-            let scheduledTime = new Date(cellData.startTime);
+            let startTime = new Date(cellData.startTime);
 
             // I månadsvy - använd 08:00 som default
             if (scheduleRef.current.currentView === 'Month') {
-              scheduledTime.setHours(8, 0, 0, 0);
+              startTime.setHours(8, 0, 0, 0);
               console.log('🎯 [Kanban] Month view - setting time to 08:00');
             }
 
             const previousStart = originalTask.scheduled_start || null;
+            const durationMinutes = originalTask.estimated_duration || 30;
 
-            console.log('⏰ [Kanban] Scheduling task:', taskId, 'to:', scheduledTime.toISOString());
-            console.log('⏰ [Kanban] Original task before update:', originalTask);
+            // Skapa event-objekt för Schedule (som sedan sparas via adaptor)
+            const eventData = {
+              Id: `task-${taskId}`,
+              Subject: `📌 ${originalTask.title}`,
+              StartTime: startTime,
+              EndTime: new Date(startTime.getTime() + durationMinutes * 60 * 1000),
+              IsReadonly: false,
+              CategoryColor: '#dc2626',
+              EventType: 'task',
+              TaskId: taskId,
+            };
 
-            try {
-              const result = await updateTask(taskId, {
-                scheduled_start: scheduledTime.toISOString()
-              });
+            console.log('🎯 [Kanban] Adding event via Schedule.addEvent():', eventData);
 
-              if (result) {
-                console.log('✅ [Kanban] Task scheduled successfully!', {
-                  id: result.id,
-                  title: result.title,
-                  scheduled_start: result.scheduled_start,
-                  status: result.status,
-                  estimated_duration: result.estimated_duration
-                });
+            // Använd Syncfusion addEvent - detta triggar adaptor.insert() automatiskt!
+            scheduleRef.current.addEvent(eventData);
 
-                showUndoToast(originalTask.title, taskId, previousStart);
-
-                // Ingen calendar refresh behövs - useTasks realtime uppdatering + useEffect kommer trigga automatiskt
-              } else {
-                console.error('❌ [Kanban] updateTask returned null - operation failed');
-                toast.error('Kunde inte schemalägga task - serverfel');
-              }
-            } catch (error) {
-              console.error('❌ [Kanban] Failed to schedule task:', error);
-              toast.error('Kunde inte schemalägga task');
-            }
+            // Show undo toast
+            showUndoToast(originalTask.title, taskId, previousStart);
           } else {
             console.error('❌ [Kanban] Could not find original task for ID:', taskId);
           }
