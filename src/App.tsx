@@ -22,8 +22,6 @@ import { GlobalSearch } from './components/search/GlobalSearch';
 
 // Lazy load routes för bättre initial load performance
 const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
-const TodayView = lazy(() => import('./components/views/TodayView').then(m => ({ default: m.TodayView })));
-const WeekView = lazy(() => import('./components/views/WeekView').then(m => ({ default: m.WeekView })));
 const ArchiveView = lazy(() => import('./components/views/ArchiveView').then(m => ({ default: m.ArchiveView })));
 const ImportView = lazy(() => import('./components/views/ImportView').then(m => ({ default: m.ImportView })));
 const AllTasksView = lazy(() => import('./components/views/AllTasksView').then(m => ({ default: m.AllTasksView })));
@@ -274,26 +272,6 @@ function App() {
           element={
             <ProtectedRoute>
               <HomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/today"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <TodayView />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/week"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <WeekView />
-              </Suspense>
             </ProtectedRoute>
           }
         />

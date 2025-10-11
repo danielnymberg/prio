@@ -169,3 +169,54 @@ export interface QuadrantInfo {
   borderColor: string;
   filter: (task: Task) => boolean;
 }
+
+// ============================================
+// CAPACITY TIMELINE TYPES
+// ============================================
+
+export type ZoomLevel = 'year' | 'quarter' | 'month' | 'week' | 'day';
+
+export interface AbsencePeriod {
+  id: string;
+  user_id: string;
+  start_date: string; // YYYY-MM-DD
+  end_date: string;   // YYYY-MM-DD
+  absence_percentage: number; // 0-100
+  reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateAbsencePeriodInput {
+  start_date: string;
+  end_date: string;
+  absence_percentage: number;
+  reason?: string;
+}
+
+export interface CapacityThresholds {
+  under: number;        // < detta = underbeläggning (standard: 70)
+  sweet_start: number;  // Sweetspot start (standard: 70)
+  sweet_end: number;    // Sweetspot slut (standard: 80)
+  over: number;         // > detta = överbeläggning (standard: 90)
+}
+
+export interface CapacitySettings {
+  working_hours_per_week: number;
+  working_days: number[]; // 1-7 (1=Sön, 2=Mån, ..., 7=Lör)
+  capacity_thresholds: CapacityThresholds;
+}
+
+export interface PeriodCapacity {
+  period: string;           // "2025-W44" eller "2025-10" eller "2025-Q4"
+  periodLabel: string;      // "V44" eller "Okt" eller "Q4"
+  totalHours: number;       // Total tillgänglig kapacitet
+  meetingHours: number;     // Bokade möten
+  projectHours: number;     // Projekt-fokustid
+  taskHours: number;        // Tasks
+  usedHours: number;        // Total använd tid
+  availableHours: number;   // Kvar att använda
+  utilization: number;      // % beläggning (0-100+)
+  status: 'under' | 'sweet' | 'high' | 'full' | 'over'; // Färgkod
+  absencePercentage: number; // 0-100 (från absence_periods)
+}
