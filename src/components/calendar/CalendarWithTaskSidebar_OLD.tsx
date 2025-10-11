@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { WeekCalendarView } from './WeekCalendarView_NEW';
+import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
