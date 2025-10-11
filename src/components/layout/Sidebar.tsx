@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { Calendar, CalendarDays, List, Archive, Plus, Upload, Target, X, Inbox, Settings, FolderKanban, BarChart3, CalendarRange, KanbanSquare } from 'lucide-react';
+import { List, Plus, Upload, Target, X, Settings, FolderKanban, BarChart3, CalendarRange } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
-import { isToday, isThisWeek, isPast } from 'date-fns';
 import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
@@ -19,15 +18,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   // Exkludera Snabbis (≤2 min) från räknare - de visas endast i FocusView
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
-  const todayTasks = activeTasks.filter(t => t.deadline && isToday(new Date(t.deadline)));
-  const weekTasks = activeTasks.filter(t => t.deadline && isThisWeek(new Date(t.deadline)));
-  const overdueTasks = activeTasks.filter(t => t.deadline && isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline)));
-  const inboxTasks = tasks.filter(t =>
-    t.status === 'not_started' &&
-    !t.deadline &&
-    (t.value_score === 8 && t.time_sensitivity === 5) &&
-    (t.estimated_duration || 999) > 2  // Exkludera Snabbis från Inkorg-räknare
-  );
 
   const navItems = [
     { to: '/focus', icon: Target, label: 'Just nu', count: null, highlight: true, section: 'main' },
@@ -81,7 +71,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </Button>
 
         <nav className="space-y-1 flex-1">
-          {navItems.map(({ to, icon: Icon, label, count, alert, highlight }) => (
+          {navItems.map(({ to, icon: Icon, label, count, highlight }) => (
             <NavLink
               key={to}
               to={to}
@@ -103,14 +93,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <span className="font-medium">{label}</span>
               </div>
               {count !== null && (
-                <div className="flex items-center gap-2">
-                  {alert && (
-                    <span className="w-2 h-2 bg-error-500 rounded-full animate-pulse" />
-                  )}
-                  <span className="text-sm text-stone-500 dark:text-stone-400">
-                    {count}
-                  </span>
-                </div>
+                <span className="text-sm text-stone-500 dark:text-stone-400">
+                  {count}
+                </span>
               )}
             </NavLink>
           ))}
@@ -140,14 +125,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             ))}
           </div>
         </nav>
-
-        {overdueTasks.length > 0 && (
-          <div className="mt-6 p-4 bg-error-50 dark:bg-error-950 border border-error-200 dark:border-error-800 rounded-xl">
-            <p className="text-sm font-medium text-error-700 dark:text-error-400">
-              ⚠️ {overdueTasks.length} försenade tasks
-            </p>
-          </div>
-        )}
       </aside>
 
       <TaskForm
