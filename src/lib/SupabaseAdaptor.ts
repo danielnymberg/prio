@@ -78,97 +78,117 @@ export class SupabaseAdaptor extends JsonAdaptor {
   /**
    * Lägg till ny event (task scheduling)
    */
-  async insert(_dm: DataManager, data: any, _tableName?: string): Promise<any> {
-    try {
-      console.log('🟢 [SupabaseAdaptor] insert called with:', data);
+  insert(_dm: DataManager, data: any, _tableName?: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log('🟢 [SupabaseAdaptor] insert called with:', data);
 
-      // Om det är en ny task som schemaläggs via drag-and-drop
-      if (data.TaskId) {
-        // Uppdatera befintlig task med scheduled_start
-        const { data: result, error } = await supabase
-          .from(this.tableName)
-          .update({ scheduled_start: data.StartTime.toISOString() })
-          .eq('id', data.TaskId)
-          .eq('user_id', this.userId)
-          .select()
-          .single();
+        // Om det är en ny task som schemaläggs via drag-and-drop
+        if (data.TaskId) {
+          // Uppdatera befintlig task med scheduled_start
+          const { data: result, error } = await supabase
+            .from(this.tableName)
+            .update({ scheduled_start: data.StartTime.toISOString() })
+            .eq('id', data.TaskId)
+            .eq('user_id', this.userId)
+            .select()
+            .single();
 
-        if (error) throw error;
+          if (error) {
+            console.error('❌ [SupabaseAdaptor] insert error:', error);
+            reject(error);
+            return;
+          }
 
-        console.log('✅ [SupabaseAdaptor] Task scheduled:', result.id);
-        return this.taskToEvent(result);
+          console.log('✅ [SupabaseAdaptor] Task scheduled:', result.id);
+          const event = this.taskToEvent(result);
+          resolve(event);
+        } else {
+          // Annars: Skapa ny fokustid/event
+          // (Detta hanteras senare om vi vill skapa nya events direkt i kalendern)
+          resolve(data);
+        }
+      } catch (error) {
+        console.error('❌ [SupabaseAdaptor] insert error:', error);
+        reject(error);
       }
-
-      // Annars: Skapa ny fokustid/event
-      // (Detta hanteras senare om vi vill skapa nya events direkt i kalendern)
-      return data;
-    } catch (error) {
-      console.error('❌ [SupabaseAdaptor] insert error:', error);
-      throw error;
-    }
+    });
   }
 
   /**
    * Uppdatera event (flytta tid, resize, etc)
    */
-  async update(_dm: DataManager, _keyField: string, data: any, _tableName?: string): Promise<any> {
-    try {
-      console.log('🟡 [SupabaseAdaptor] update called with:', data);
+  update(_dm: DataManager, _keyField: string, data: any, _tableName?: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log('🟡 [SupabaseAdaptor] update called with:', data);
 
-      if (data.TaskId) {
-        // Uppdatera task scheduled_start när man drar i kalendern
-        const { data: result, error } = await supabase
-          .from(this.tableName)
-          .update({
-            scheduled_start: data.StartTime.toISOString()
-          })
-          .eq('id', data.TaskId)
-          .eq('user_id', this.userId)
-          .select()
-          .single();
+        if (data.TaskId) {
+          // Uppdatera task scheduled_start när man drar i kalendern
+          const { data: result, error } = await supabase
+            .from(this.tableName)
+            .update({
+              scheduled_start: data.StartTime.toISOString()
+            })
+            .eq('id', data.TaskId)
+            .eq('user_id', this.userId)
+            .select()
+            .single();
 
-        if (error) throw error;
+          if (error) {
+            console.error('❌ [SupabaseAdaptor] update error:', error);
+            reject(error);
+            return;
+          }
 
-        console.log('✅ [SupabaseAdaptor] Task updated:', result.id);
-        return this.taskToEvent(result);
+          console.log('✅ [SupabaseAdaptor] Task updated:', result.id);
+          const event = this.taskToEvent(result);
+          resolve(event);
+        } else {
+          resolve(data);
+        }
+      } catch (error) {
+        console.error('❌ [SupabaseAdaptor] update error:', error);
+        reject(error);
       }
-
-      return data;
-    } catch (error) {
-      console.error('❌ [SupabaseAdaptor] update error:', error);
-      throw error;
-    }
+    });
   }
 
   /**
    * Ta bort event (remove from schedule)
    */
-  async remove(_dm: DataManager, keyField: string, value: any, _tableName?: string): Promise<any> {
-    try {
-      console.log('🔴 [SupabaseAdaptor] remove called with:', value);
+  remove(_dm: DataManager, keyField: string, value: any, _tableName?: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log('🔴 [SupabaseAdaptor] remove called with:', value);
 
-      // Hitta vilket event som ska tas bort
-      const eventId = typeof value === 'object' ? value[keyField] : value;
+        // Hitta vilket event som ska tas bort
+        const eventId = typeof value === 'object' ? value[keyField] : value;
 
-      // Om det är en task-event, ta bara bort scheduled_start (inte hela tasken!)
-      const taskId = eventId.toString().replace('task-', '');
+        // Om det är en task-event, ta bara bort scheduled_start (inte hela tasken!)
+        const taskId = eventId.toString().replace('task-', '');
 
-      const { error } = await supabase
-        .from(this.tableName)
-        .update({ scheduled_start: null })
-        .eq('id', taskId)
-        .eq('user_id', this.userId)
-        .select()
-        .single();
+        const { error } = await supabase
+          .from(this.tableName)
+          .update({ scheduled_start: null })
+          .eq('id', taskId)
+          .eq('user_id', this.userId)
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (error) {
+          console.error('❌ [SupabaseAdaptor] remove error:', error);
+          reject(error);
+          return;
+        }
 
-      console.log('✅ [SupabaseAdaptor] Task removed from schedule:', taskId);
-      return {};
-    } catch (error) {
-      console.error('❌ [SupabaseAdaptor] remove error:', error);
-      throw error;
-    }
+        console.log('✅ [SupabaseAdaptor] Task removed from schedule:', taskId);
+        resolve({});
+      } catch (error) {
+        console.error('❌ [SupabaseAdaptor] remove error:', error);
+        reject(error);
+      }
+    });
   }
 
   /**
