@@ -97,9 +97,10 @@
   background-color: #292524;
 }
 
-/* SCHEDULE CONTAINER - Enkel fast höjd */
+/* SCHEDULE CONTAINER - Flexibel höjd enligt SyncFusion standard */
 .schedule-container {
-  height: 700px; /* Fast höjd som är större än Schedule komponenten */
+  min-height: 600px; /* Minst 50px större än Schedule (550px) */
+  height: auto;
   background-color: white;
   border: 1px solid #e7e5e4;
   border-radius: 0.75rem;
@@ -350,15 +351,5 @@
   .schedule-export-buttons {
     width: 100%;
     justify-content: flex-end;
-  }
-
-  .schedule-container {
-    height: calc(100vh - 120px);
-  }
-
-  .prio-schedule.e-schedule .e-content-wrap {
-    height: 100% !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain;
   }
 }

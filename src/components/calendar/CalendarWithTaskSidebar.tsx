@@ -299,7 +299,7 @@ export function CalendarWithTaskSidebar() {
       </button>
 
       {/* Kalendervy */}
-      <div className="flex-1 min-w-0 overflow-hidden">
+      <div className="flex-1 min-w-0">
         <WeekCalendarView
           onScheduleReady={setScheduleRef}
           tasks={tasks}
