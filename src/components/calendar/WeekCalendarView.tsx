@@ -87,19 +87,10 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     [tasks]
   );
 
-  // Exponera schedule ref till parent och konfigurera scroll
+  // Exponera schedule ref till parent
   useEffect(() => {
     if (scheduleRef.current && onScheduleReady) {
       onScheduleReady(scheduleRef.current);
-
-      // Konfigurera smooth scroll
-      const schedule: any = scheduleRef.current;
-      if (schedule.element) {
-        const contentWrap = schedule.element.querySelector('.e-content-wrap');
-        if (contentWrap) {
-          contentWrap.style.scrollBehavior = 'smooth';
-        }
-      }
     }
   }, [scheduleRef.current, onScheduleReady]);
 
@@ -348,7 +339,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
       </div>
 
       {/* SyncFusion Schedule */}
-      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-hidden">
+      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-auto">
         <ScheduleComponent
           ref={scheduleRef}
           height="100%"

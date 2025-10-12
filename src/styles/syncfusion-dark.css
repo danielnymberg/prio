@@ -114,12 +114,6 @@
   z-index: 1000 !important;
 }
 
-/* Smooth scrolling vid drag */
-.prio-compact-schedule.e-schedule .e-content-wrap {
-  scroll-behavior: smooth !important;
-  -webkit-overflow-scrolling: touch;
-}
-
 /* Smooth cell-highlight vid drag-over */
 .prio-compact-schedule.e-schedule .e-work-cells.e-highlight {
   background-color: rgba(234, 88, 12, 0.08) !important;
