@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTasks } from '@/hooks/useTasks';
 import {
@@ -12,13 +12,20 @@ import { toast } from 'react-hot-toast';
 export function EmailTaskListener() {
   const { user } = useAuth();
   const { createTask } = useTasks();
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
     if (!user) return;
 
+    // Förhindra multipla listeners
+    if (unsubscribeRef.current) return;
+
     console.log('📧 Email task listener started');
 
-    const unsubscribe = subscribeToEmailTasks(user.id, async (emailTask: EmailTask) => {
+    unsubscribeRef.current = subscribeToEmailTasks(user.id, async (emailTask: EmailTask) => {
+      if (!isMountedRef.current) return;
+
       console.log('📧 New email task received:', emailTask);
 
       try {
@@ -33,27 +40,35 @@ export function EmailTaskListener() {
           await markEmailTaskProcessed(emailTask.id);
 
           // Visa notifikation
-          toast.success(
-            `📧 Task skapad från mejl: ${emailTask.task_data.title}`,
-            {
-              duration: 5000,
-              icon: '✉️',
-            }
-          );
+          if (isMountedRef.current) {
+            toast.success(
+              `📧 Task skapad från mejl: ${emailTask.task_data.title}`,
+              {
+                duration: 5000,
+                icon: '✉️',
+              }
+            );
+          }
 
           console.log('✅ Email task processed:', createdTask.id);
         }
       } catch (error) {
         console.error('Failed to process email task:', error);
-        toast.error('Kunde inte skapa task från mejl');
+        if (isMountedRef.current) {
+          toast.error('Kunde inte skapa task från mejl');
+        }
       }
     });
 
     return () => {
-      console.log('📧 Email task listener stopped');
-      unsubscribe();
+      isMountedRef.current = false;
+      if (unsubscribeRef.current) {
+        console.log('📧 Email task listener stopped');
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
     };
-  }, [user]); // Removed createTask from dependencies to prevent loop
+  }, [user?.id]); // Endast user.id, inte hela user-objektet
 
   // Denna komponent renderar ingenting
   return null;
