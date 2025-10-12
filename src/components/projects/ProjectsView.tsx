@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Project, CreateProjectInput, UpdateProjectInput } from '@/lib/types';
+import { Project, UpdateProjectInput } from '@/lib/types';
 import { ProjectOnboardingModal } from '../onboarding/ProjectOnboardingModal';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/services/toast';
