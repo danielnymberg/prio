@@ -120,7 +120,7 @@ export function AllTasksView() {
     'Search',
     'ExcelExport',
     'ColumnChooser',
-    { text: 'Ny uppgift', prefixIcon: 'e-add', id: 'add_task' }
+    { text: 'Ny uppgift', prefixIcon: 'e-add', id: 'add_task' } as any
   ];
 
   // Spara och ladda grid state från localStorage
@@ -141,7 +141,7 @@ export function AllTasksView() {
   const saveGridState = () => {
     if (gridRef.current) {
       const state = {
-        columns: gridRef.current.getColumns().map(col => ({
+        columns: gridRef.current.getColumns().map((col: any) => ({
           field: col.field,
           width: col.width,
           visible: col.visible
