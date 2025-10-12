@@ -250,6 +250,7 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps) {
           locale="sv"
           cssClass="prio-compact-schedule"
           firstDayOfWeek={1}
+          selectedDate={new Date(2025, 9, 13)} // Oktober 13, 2025 (månad är 0-indexerad)
           startHour="00:00"
           endHour="24:00"
           timeScale={{ enable: true, interval: 60, slotCount: 1 }}
