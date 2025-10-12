@@ -426,7 +426,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         <ScheduleComponent
           ref={scheduleRef}
           cssClass="prio-schedule"
-          height="600px"
+          height="100%"
           width="100%"
           locale="sv"
           firstDayOfWeek={1}

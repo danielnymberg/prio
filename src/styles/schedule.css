@@ -1,25 +1,24 @@
 /* ============================================
-   SYNCFUSION SCHEDULE - BEST PRACTICES
-   Följer officiella riktlinjer för container-struktur
+   SYNCFUSION SCHEDULE - SCROLLFIX VERSION 2.0
    ============================================ */
 
-/* MAIN WRAPPER - Flexbox layout */
+/* MAIN WRAPPER - Använd viewport height */
 .schedule-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  gap: 1rem;
+  height: calc(100vh - 80px); /* Minus header */
   padding: 20px;
   box-sizing: border-box;
 }
 
-/* HEADER SECTION - Export buttons och legend */
+/* HEADER SECTION */
 .schedule-header {
   flex-shrink: 0;
   background-color: #fafaf9;
   border: 1px solid #e7e5e4;
   border-radius: 0.75rem;
   padding: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .dark .schedule-header {
@@ -98,13 +97,15 @@
   background-color: #292524;
 }
 
-/* SCHEDULE CONTAINER - KRITISKT: Ingen padding! */
+/* SCHEDULE CONTAINER - KRITISK FIX */
 .schedule-container {
-  height: 600px;
+  flex: 1; /* Ta resterande höjd */
+  min-height: 0; /* Tillåt krympning */
   background-color: white;
   border: 1px solid #e7e5e4;
   border-radius: 0.75rem;
   position: relative;
+  overflow: hidden; /* Viktigt! */
 }
 
 .dark .schedule-container {
@@ -112,48 +113,39 @@
   border-color: #44403c;
 }
 
-/* SCHEDULE COMPONENT - Let SyncFusion handle everything */
+/* SCHEDULE COMPONENT - Fyll containern */
 .prio-schedule.e-schedule {
+  height: 100% !important; /* Fyll hela containern */
   background-color: transparent;
 }
 
-/* SCROLLING - The critical fix */
+/* KRITISK SCROLLFIX - Huvudlösningen */
 .prio-schedule.e-schedule .e-content-wrap {
-  overflow-y: scroll !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+  overflow-y: auto !important; /* auto istället för scroll */
+  overflow-x: hidden !important; /* Ingen horisontell scroll */
+  height: calc(100% - 50px) !important; /* Minus toolbar */
+  position: relative !important;
 }
 
+/* Tidslots ska INTE scrolla separat */
 .prio-schedule.e-schedule .e-time-slots-wrap {
-  overflow-y: hidden !important;
-}
-
-/* Let SyncFusion handle heights */
-.prio-schedule.e-schedule .e-work-cells,
-.prio-schedule.e-schedule .e-time-cells {
+  overflow: visible !important;
   height: auto !important;
 }
 
-/* Compact styling - optional refinements */
-.prio-schedule.e-schedule .e-vertical-view .e-time-cells {
-  font-size: 0.6875rem;
-  padding: 0 0.25rem;
-  text-align: right;
-  vertical-align: middle;
+/* Låt SyncFusion beräkna cell-höjder */
+.prio-schedule.e-schedule .e-work-cells,
+.prio-schedule.e-schedule .e-time-cells {
+  height: 60px !important; /* Standard höjd per timme */
+  min-height: 60px !important;
 }
 
-.prio-schedule.e-schedule .e-header-cells {
-  padding: 0.5rem;
-}
-
-.prio-schedule.e-schedule .e-schedule-toolbar {
-  min-height: 3rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.prio-schedule.e-schedule .e-time-cells-wrap {
-  width: 60px;
+/* Touch-scroll för mobil */
+@media (pointer: coarse) {
+  .prio-schedule.e-schedule .e-content-wrap {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
 }
 
 /* Event styling with smooth animations */
@@ -190,6 +182,27 @@
 
 .prio-schedule.e-schedule .e-appointment .e-subject {
   font-weight: 500;
+}
+
+/* Compact styling */
+.prio-schedule.e-schedule .e-vertical-view .e-time-cells {
+  font-size: 0.6875rem;
+  padding: 0 0.25rem;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.prio-schedule.e-schedule .e-header-cells {
+  padding: 0.5rem;
+}
+
+.prio-schedule.e-schedule .e-schedule-toolbar {
+  min-height: 3rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.prio-schedule.e-schedule .e-time-cells-wrap {
+  width: 60px;
 }
 
 /* ============================================
@@ -345,7 +358,8 @@
 
 @media (max-width: 768px) {
   .schedule-wrapper {
-    gap: 0.5rem;
+    padding: 10px;
+    height: calc(100vh - 60px);
   }
 
   .schedule-header-content {
@@ -368,7 +382,13 @@
     justify-content: flex-end;
   }
 
+  .schedule-container {
+    height: calc(100vh - 120px);
+  }
+
   .prio-schedule.e-schedule .e-content-wrap {
-    -webkit-overflow-scrolling: touch;
+    height: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain;
   }
 }

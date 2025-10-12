@@ -11,33 +11,9 @@
 }
 
 /* ============================================
-   KRITISK FIX FÖR SCROLLNING
-   Låt SyncFusion hantera höjdberäkningar
+   SCHEDULE STYLING - Flyttat till schedule.css
    ============================================ */
-
-/* FIX FÖR SCROLLNING - huvudcontainer */
-.e-schedule .e-content-wrap {
-  overflow-y: scroll !important;
-  overflow-x: auto !important;
-  height: 100% !important;
-}
-
-.e-schedule .e-time-slots-wrap {
-  overflow-y: hidden !important;
-}
-
-/* Ta bort all custom höjd-styling - låt SyncFusion beräkna */
-.e-schedule .e-work-cells,
-.e-schedule .e-time-cells {
-  height: auto !important;
-}
-
-/* ============================================
-   PRIO COMPACT SCHEDULE CUSTOMIZATION
-   Följer Syncfusion best practices
-   ============================================ */
-
-/* INGA fixed heights på cells - SyncFusion hanterar detta */
+/* Schedule-specifik styling finns nu i schedule.css */
 
 /* Time cell text styling */
 .prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells {
