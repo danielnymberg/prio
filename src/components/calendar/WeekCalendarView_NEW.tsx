@@ -70,6 +70,7 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps) {
   const [loading, setLoading] = useState(true);
   const scheduleRef = useRef<ScheduleComponent>(null);
   const [dataManager, setDataManager] = useState<DataManager | null>(null);
+  const adaptorRef = useRef<SupabaseAdaptor | null>(null);
 
   // Skapa DataManager med SupabaseAdaptor
   useEffect(() => {
@@ -81,6 +82,8 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps) {
     console.log('🔷 [WeekCalendarView NEW] Creating DataManager with SupabaseAdaptor');
 
     const adaptor = new SupabaseAdaptor(user.id);
+    adaptorRef.current = adaptor;
+
     const dm = new DataManager({
       adaptor: adaptor,
       offline: false // Vi vill alltid hämta från Supabase
@@ -134,6 +137,14 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps) {
       endTime: { name: 'EndTime' },
       isReadonly: { name: 'IsReadonly' },
     } as any,
+  };
+
+  // DataBound - ladda initial data (krävs för custom adaptors enligt Syncfusion docs)
+  const onDataBound = () => {
+    console.log('🔷 [WeekCalendarView NEW] DataBound called');
+    if (scheduleRef.current) {
+      console.log('🔷 [WeekCalendarView NEW] Events count:', scheduleRef.current.eventsData?.length || 0);
+    }
   };
 
   // Hantera CRUD-operationer (Syncfusion anropar adaptor automatiskt!)
@@ -257,12 +268,12 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps) {
           locale="sv"
           cssClass="prio-compact-schedule"
           firstDayOfWeek={1}
-          selectedDate={new Date(2025, 9, 13)} // Oktober 13, 2025 (månad är 0-indexerad)
           startHour="00:00"
           endHour="24:00"
           timeScale={{ enable: true, interval: 60, slotCount: 1 }}
           showQuickInfo={false}
           eventSettings={eventSettings}
+          dataBound={onDataBound}
           actionComplete={onActionComplete}
           popupOpen={onPopupOpen}
           eventRendered={onEventRendered}
