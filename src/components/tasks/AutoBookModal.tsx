@@ -120,7 +120,7 @@ export function AutoBookModal({
   const topSlots = freeSlots.slice(0, 3);
 
   return (
-    <Modal
+    <Dialog
       isOpen={isOpen}
       onClose={onClose}
       title={useMultipleSessions ? "📅 Planera projekt-sessioner" : "📅 Boka tid automatiskt"}

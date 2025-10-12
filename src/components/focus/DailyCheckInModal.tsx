@@ -37,7 +37,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
   };
 
   return (
-    <Modal
+    <Dialog
       isOpen={isOpen}
       onClose={onClose}
       title="Dagens avstämning"

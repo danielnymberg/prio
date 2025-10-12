@@ -33,7 +33,7 @@ export function ResultImpactModal() {
   if (!task) return null;
 
   return (
-    <Modal
+    <Dialog
       isOpen={true}
       onClose={handleSkip}
       title="Task slutförd! 🎉"

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mic, MicOff, MessageSquare } from 'lucide-react';
-import { SyncButton as Button } from './Button';
+import { SyncButton as Button } from './SyncButton';
 import { startSpeechRecognition, speak, parseVoiceCommand } from '@/lib/voiceControl';
 import { toast } from 'react-hot-toast';
 

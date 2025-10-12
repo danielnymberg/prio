@@ -250,7 +250,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
   const priorityPreview = (valueScore * timeSensitivity * confidence) / effort;
 
   return (
-    <Modal
+    <Dialog
       isOpen={isOpen}
       onClose={onClose}
       title={task ? 'Redigera uppgift' : 'Ny uppgift'}

@@ -1,6 +1,6 @@
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { SyncButton as Button } from './Button';
+import { SyncButton as Button } from './SyncButton';
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
