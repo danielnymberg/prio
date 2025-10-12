@@ -101,4 +101,30 @@
   .e-kanban .e-swimlane-header {
     @apply bg-sand-100 dark:bg-charcoal-800 font-semibold;
   }
+
+  /* Syncfusion Grid Dark Mode Support */
+  .e-grid.e-lib.e-dark {
+    @apply bg-gray-800 text-gray-100;
+  }
+
+  .dark .e-grid .e-gridheader {
+    @apply bg-gray-900 border-gray-700;
+  }
+
+  .dark .e-grid .e-gridcontent {
+    @apply bg-gray-800;
+  }
+
+  .dark .e-grid .e-row:hover {
+    @apply bg-gray-700;
+  }
+
+  .dark .e-grid .e-toolbar {
+    @apply bg-gray-900 border-gray-700;
+  }
+
+  /* Grupperings-area */
+  .e-grid .e-groupdroparea {
+    @apply min-h-[40px] p-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700;
+  }
 }

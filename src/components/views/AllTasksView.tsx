@@ -1,370 +1,346 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import {
+  GridComponent,
+  ColumnsDirective,
+  ColumnDirective,
+  Page,
+  Sort,
+  Filter,
+  Group,
+  Toolbar,
+  ExcelExport,
+  ColumnChooser,
+  Inject,
+  FilterSettingsModel,
+  ToolbarItems,
+  SearchSettingsModel,
+  PageSettingsModel,
+  SortSettingsModel,
+  GroupSettingsModel
+} from '@syncfusion/ej2-react-grids';
 import { useTasks } from '@/hooks/useTasks';
-import { TaskCard } from '@/components/tasks/TaskCard';
+import { useProjects } from '@/hooks/useProjects';
 import { TaskForm } from '@/components/tasks/TaskForm';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Task, CreateTaskInput, Project } from '@/lib/types';
-import { List, Search, Filter, Calendar, Clock, CalendarDays, CalendarRange } from 'lucide-react';
-import { isToday, isTomorrow, isThisWeek, isThisMonth, isPast } from 'date-fns';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
-
-type PriorityLevel = 'all' | 'high' | 'medium' | 'low';
-type ViewMode = 'grid' | 'timeline';
+import { Task, CreateTaskInput } from '@/lib/types';
+import { toast } from 'react-hot-toast';
+import { formatDistanceToNow, format, isToday, isTomorrow, isPast } from 'date-fns';
+import { sv } from 'date-fns/locale';
 
 export function AllTasksView() {
-  const { user } = useAuth();
   const { tasks, updateTask, createTask, deleteTask } = useTasks();
+  const { projects } = useProjects();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterPriority, setFilterPriority] = useState<PriorityLevel>('all');
-  const [filterStatus] = useState<'all' | 'not_started' | 'in_progress' | 'done'>('all');
-  const [viewMode, setViewMode] = useState<ViewMode>('timeline');
-  const [projects, setProjects] = useState<Project[]>([]);
+  const gridRef = useRef<GridComponent>(null);
 
-  // Hämta projekt för sökning
-  useEffect(() => {
-    if (user) {
-      fetchProjects();
+  // Filtrera bort Snabbis (≤2 min) och slutförda
+  const activeTasks = tasks.filter(
+    t => t.status !== 'done' && (t.estimated_duration || 999) > 2
+  );
+
+  // Förbered data med extra kolumner för visning
+  const gridData = activeTasks.map(task => {
+    const project = projects.find(p => p.id === task.project_id);
+
+    // Deadline-gruppering
+    let deadlineGroup = 'Ingen deadline';
+    if (task.deadline) {
+      const deadline = new Date(task.deadline);
+      if (isPast(deadline) && !isToday(deadline)) {
+        deadlineGroup = '🔴 Försenad';
+      } else if (isToday(deadline)) {
+        deadlineGroup = '🟠 Idag';
+      } else if (isTomorrow(deadline)) {
+        deadlineGroup = '🟡 Imorgon';
+      } else {
+        deadlineGroup = '🟢 Framtid';
+      }
     }
-  }, [user]);
 
-  const fetchProjects = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('user_id', user.id);
-    setProjects(data || []);
+    return {
+      ...task,
+      projectName: project?.name || '-',
+      clientName: project?.client_name || '-',
+      deadlineFormatted: task.deadline
+        ? format(new Date(task.deadline), 'yyyy-MM-dd', { locale: sv })
+        : '-',
+      deadlineDistance: task.deadline
+        ? formatDistanceToNow(new Date(task.deadline), {
+            addSuffix: true,
+            locale: sv
+          })
+        : '-',
+      deadlineGroup,
+      durationFormatted: task.estimated_duration
+        ? task.estimated_duration >= 60
+          ? `${Math.round(task.estimated_duration / 60)}h`
+          : `${task.estimated_duration}m`
+        : '-',
+      priorityCategory:
+        task.priority >= 50 ? 'Hög' :
+        task.priority >= 20 ? 'Medel' : 'Låg',
+      statusLabel:
+        task.status === 'not_started' ? 'Ej påbörjad' :
+        task.status === 'in_progress' ? 'Pågående' : 'Klar'
+    };
+  });
+
+  // Grid-inställningar
+  const pageSettings: PageSettingsModel = {
+    pageSize: 20,
+    pageSizes: [10, 20, 50, 100]
   };
 
-  // Filtrera bort Snabbis (≤2 min) - de visas endast i FocusView
-  const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
+  const filterSettings: FilterSettingsModel = {
+    type: 'Menu',
+    operators: {
+      stringOperator: [
+        { value: 'contains', text: 'Innehåller' },
+        { value: 'equal', text: 'Lika med' },
+        { value: 'notequal', text: 'Inte lika med' }
+      ]
+    }
+  };
 
-  let filteredTasks = activeTasks;
+  const sortSettings: SortSettingsModel = {
+    columns: [{ field: 'priority', direction: 'Descending' }]
+  };
 
-  if (searchQuery) {
-    const query = searchQuery.toLowerCase();
-    filteredTasks = filteredTasks.filter(t => {
-      // Sök i titel och beskrivning
-      if (t.title.toLowerCase().includes(query)) return true;
-      if (t.description?.toLowerCase().includes(query)) return true;
+  const groupSettings: GroupSettingsModel = {
+    showDropArea: true,
+    columns: ['deadlineGroup']
+  };
 
-      // Sök i projekt-namn och kund
-      if (t.project_id) {
-        const project = projects.find(p => p.id === t.project_id);
-        if (project) {
-          if (project.name.toLowerCase().includes(query)) return true;
-          if (project.client_name?.toLowerCase().includes(query)) return true;
+  const searchSettings: SearchSettingsModel = {
+    fields: ['title', 'description', 'projectName', 'clientName'],
+    ignoreCase: true
+  };
+
+  const toolbarItems: ToolbarItems[] = [
+    'Search',
+    'ExcelExport',
+    'ColumnChooser',
+    { text: 'Ny uppgift', prefixIcon: 'e-add', id: 'add_task' }
+  ];
+
+  // Spara och ladda grid state från localStorage
+  useEffect(() => {
+    const savedState = localStorage.getItem('allTasksViewGridState');
+    if (savedState && gridRef.current) {
+      try {
+        const state = JSON.parse(savedState);
+        if (state.columns) {
+          gridRef.current.setProperties({ columns: state.columns });
+        }
+      } catch (e) {
+        console.warn('Could not load grid state:', e);
+      }
+    }
+  }, []);
+
+  const saveGridState = () => {
+    if (gridRef.current) {
+      const state = {
+        columns: gridRef.current.getColumns().map(col => ({
+          field: col.field,
+          width: col.width,
+          visible: col.visible
+        }))
+      };
+      localStorage.setItem('allTasksViewGridState', JSON.stringify(state));
+    }
+  };
+
+  // Event handlers
+  const handleRecordDoubleClick = (args: any) => {
+    const task = tasks.find(t => t.id === args.rowData.id);
+    if (task) {
+      setSelectedTask(task);
+      setIsFormOpen(true);
+    }
+  };
+
+  const toolbarClick = (args: any) => {
+    if (args.item.id === 'grid_excelexport') {
+      gridRef.current?.excelExport();
+    } else if (args.item.id === 'add_task') {
+      setSelectedTask(undefined);
+      setIsFormOpen(true);
+    }
+  };
+
+  const handleKeyDown = (args: any) => {
+    // Space för att öppna task
+    if (args.keyCode === 32 && gridRef.current) {
+      const selectedRecords = gridRef.current.getSelectedRecords();
+      if (selectedRecords.length > 0) {
+        const task = tasks.find(t => t.id === (selectedRecords[0] as any).id);
+        if (task) {
+          setSelectedTask(task);
+          setIsFormOpen(true);
+          args.preventDefault();
         }
       }
-
-      return false;
-    });
-  }
-
-  if (filterPriority !== 'all') {
-    filteredTasks = filteredTasks.filter(t => {
-      if (filterPriority === 'high') return t.priority >= 50;
-      if (filterPriority === 'medium') return t.priority >= 20 && t.priority < 50;
-      if (filterPriority === 'low') return t.priority < 20;
-      return true;
-    });
-  }
-
-  if (filterStatus !== 'all') {
-    filteredTasks = filteredTasks.filter(t => t.status === filterStatus);
-  }
-
-  const sortedTasks = [...filteredTasks].sort((a, b) => b.priority - a.priority);
-
-  const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
-    setIsFormOpen(true);
+    }
+    // Delete för att radera task
+    else if (args.keyCode === 46 && gridRef.current) {
+      const selectedRecords = gridRef.current.getSelectedRecords();
+      if (selectedRecords.length > 0) {
+        const taskId = (selectedRecords[0] as any).id;
+        if (confirm('Är du säker på att du vill radera denna uppgift?')) {
+          deleteTask(taskId);
+          toast.success('Uppgift raderad');
+        }
+        args.preventDefault();
+      }
+    }
   };
 
-  const priorityCounts = {
-    high: activeTasks.filter(t => t.priority >= 50).length,
-    medium: activeTasks.filter(t => t.priority >= 20 && t.priority < 50).length,
-    low: activeTasks.filter(t => t.priority < 20).length,
+  // Templates för custom rendering
+  const priorityTemplate = (props: any) => {
+    const getColor = () => {
+      if (props.priorityCategory === 'Hög') return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      if (props.priorityCategory === 'Medel') return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
+      return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
+    };
+
+    return (
+      <div className={`inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${getColor()}`}>
+        <span className="font-bold">{Math.round(props.priority)}</span>
+        <span>{props.priorityCategory}</span>
+      </div>
+    );
   };
 
-  // Gruppera tasks efter deadline
-  const groupTasksByDeadline = (tasks: Task[]) => {
-    const overdue = tasks.filter(t => t.deadline && isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline)));
-    const today = tasks.filter(t => t.deadline && isToday(new Date(t.deadline)));
-    const tomorrow = tasks.filter(t => t.deadline && isTomorrow(new Date(t.deadline)));
-    const thisWeek = tasks.filter(t => t.deadline && isThisWeek(new Date(t.deadline)) && !isToday(new Date(t.deadline)) && !isTomorrow(new Date(t.deadline)));
-    const thisMonth = tasks.filter(t => t.deadline && isThisMonth(new Date(t.deadline)) && !isThisWeek(new Date(t.deadline)));
-    const later = tasks.filter(t => t.deadline && !isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline)) && !isTomorrow(new Date(t.deadline)) && !isThisWeek(new Date(t.deadline)) && !isThisMonth(new Date(t.deadline)));
-    const noDeadline = tasks.filter(t => !t.deadline);
+  const statusTemplate = (props: any) => {
+    const getStatusStyle = () => {
+      if (props.status === 'not_started') return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+      if (props.status === 'in_progress') return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+      return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+    };
 
-    return { overdue, today, tomorrow, thisWeek, thisMonth, later, noDeadline };
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs ${getStatusStyle()}`}>
+        {props.statusLabel}
+      </span>
+    );
   };
 
-  const timelineGroups = groupTasksByDeadline(sortedTasks);
+  const deadlineTemplate = (props: any) => {
+    if (!props.deadline) return <span className="text-gray-400">-</span>;
+
+    const deadline = new Date(props.deadline);
+    const isOverdue = isPast(deadline) && !isToday(deadline);
+
+    return (
+      <div className={`text-sm ${isOverdue ? 'text-red-600 dark:text-red-400 font-semibold' : ''}`}>
+        <div>{props.deadlineFormatted}</div>
+        <div className="text-xs opacity-75">{props.deadlineDistance}</div>
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Alla uppgifter
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {activeTasks.length} aktiva uppgifter (exkl. Snabbis)
-        </p>
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Sök uppgifter, projekt, kunder..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-          />
-        </div>
-
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3 flex-wrap">
-            <Filter className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-
-            <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => setFilterPriority('all')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterPriority === 'all'
-                  ? 'bg-sand-100 text-copper-600 dark:bg-charcoal-850 dark:text-copper-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Alla ({activeTasks.length})
-            </button>
-            <button
-              onClick={() => setFilterPriority('high')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterPriority === 'high'
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Hög prioritet (≥50) ({priorityCounts.high})
-            </button>
-            <button
-              onClick={() => setFilterPriority('medium')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterPriority === 'medium'
-                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Medel (20-50) ({priorityCounts.medium})
-            </button>
-            <button
-              onClick={() => setFilterPriority('low')}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                filterPriority === 'low'
-                  ? 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Låg (&lt;20) ({priorityCounts.low})
-            </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode('timeline')}
-              className={`p-2 rounded-lg transition-colors ${
-                viewMode === 'timeline'
-                  ? 'bg-sand-100 text-copper-600 dark:bg-charcoal-850 dark:text-copper-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-              title="Tidslinjevy"
-            >
-              <Calendar className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-lg transition-colors ${
-                viewMode === 'grid'
-                  ? 'bg-sand-100 text-copper-600 dark:bg-charcoal-850 dark:text-copper-400'
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-              title="Rutnätsvy"
-            >
-              <List className="h-5 w-5" />
-            </button>
-          </div>
+    <div className="h-full flex flex-col space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Alla uppgifter
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            {activeTasks.length} aktiva uppgifter (exkl. Snabbis)
+          </p>
         </div>
       </div>
 
-      {sortedTasks.length === 0 ? (
-        <EmptyState
-          icon={<List className="h-16 w-16" />}
-          title={searchQuery ? "Inga tasks hittades" : "Inga aktiva tasks"}
-          description={searchQuery ? `Inga tasks matchar "${searchQuery}"` : "Skapa din första task för att komma igång!"}
-        />
-      ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sortedTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onClick={() => handleTaskClick(task)}
-              onUpdate={updateTask}
-              onDelete={deleteTask}
+      {/* Grid */}
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <GridComponent
+          ref={gridRef}
+          dataSource={gridData}
+          allowPaging={true}
+          allowSorting={true}
+          allowFiltering={true}
+          allowGrouping={true}
+          allowExcelExport={true}
+          allowTextWrap={true}
+          showColumnChooser={true}
+          pageSettings={pageSettings}
+          filterSettings={filterSettings}
+          sortSettings={sortSettings}
+          groupSettings={groupSettings}
+          searchSettings={searchSettings}
+          toolbar={toolbarItems}
+          toolbarClick={toolbarClick}
+          recordDoubleClick={handleRecordDoubleClick}
+          keyPressed={handleKeyDown}
+          columnMenuClick={saveGridState}
+          resizeStop={saveGridState}
+          height="100%"
+          rowHeight={60}
+          gridLines="Horizontal"
+          enableHover={true}
+          enableStickyHeader={true}
+          enablePersistence={false}
+        >
+          <ColumnsDirective>
+            <ColumnDirective
+              field="title"
+              headerText="Uppgift"
+              width="250"
+              clipMode="EllipsisWithTooltip"
             />
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {timelineGroups.overdue.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-                <Clock className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">Försenade ({timelineGroups.overdue.length})</h3>
-              </div>
-              <div className="space-y-2">
-                {timelineGroups.overdue.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => handleTaskClick(task)}
-                    onUpdate={updateTask}
-                    viewMode="compact"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+            <ColumnDirective
+              field="priority"
+              headerText="Prioritet"
+              width="140"
+              template={priorityTemplate}
+              allowFiltering={false}
+            />
+            <ColumnDirective
+              field="deadlineFormatted"
+              headerText="Deadline"
+              width="140"
+              template={deadlineTemplate}
+            />
+            <ColumnDirective
+              field="status"
+              headerText="Status"
+              width="120"
+              template={statusTemplate}
+            />
+            <ColumnDirective
+              field="projectName"
+              headerText="Projekt"
+              width="150"
+              clipMode="Ellipsis"
+            />
+            <ColumnDirective
+              field="clientName"
+              headerText="Kund"
+              width="150"
+              clipMode="Ellipsis"
+              visible={false}
+            />
+            <ColumnDirective
+              field="durationFormatted"
+              headerText="Tid"
+              width="80"
+              textAlign="Center"
+            />
+            <ColumnDirective
+              field="deadlineGroup"
+              headerText="Tidsgrupp"
+              width="120"
+              visible={false}
+            />
+          </ColumnsDirective>
+          <Inject services={[Page, Sort, Filter, Group, Toolbar, ExcelExport, ColumnChooser]} />
+        </GridComponent>
+      </div>
 
-          {timelineGroups.today.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
-                <Calendar className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">Idag ({timelineGroups.today.length})</h3>
-              </div>
-              <div className="space-y-2">
-                {timelineGroups.today.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => handleTaskClick(task)}
-                    onUpdate={updateTask}
-                    viewMode="compact"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {timelineGroups.tomorrow.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                <CalendarDays className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">Imorgon ({timelineGroups.tomorrow.length})</h3>
-              </div>
-              <div className="space-y-2">
-                {timelineGroups.tomorrow.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => handleTaskClick(task)}
-                    onUpdate={updateTask}
-                    viewMode="compact"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {timelineGroups.thisWeek.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-copper-600 dark:text-copper-400">
-                <CalendarDays className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">Denna vecka ({timelineGroups.thisWeek.length})</h3>
-              </div>
-              <div className="space-y-2">
-                {timelineGroups.thisWeek.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => handleTaskClick(task)}
-                    onUpdate={updateTask}
-                    viewMode="compact"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {timelineGroups.thisMonth.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-stone-600 dark:text-sand-300">
-                <CalendarRange className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">Denna månad ({timelineGroups.thisMonth.length})</h3>
-              </div>
-              <div className="space-y-2">
-                {timelineGroups.thisMonth.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => handleTaskClick(task)}
-                    onUpdate={updateTask}
-                    viewMode="compact"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {timelineGroups.later.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                <CalendarRange className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">Senare ({timelineGroups.later.length})</h3>
-              </div>
-              <div className="space-y-2">
-                {timelineGroups.later.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => handleTaskClick(task)}
-                    onUpdate={updateTask}
-                    viewMode="compact"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {timelineGroups.noDeadline.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-500">
-                <List className="h-5 w-5" />
-                <h3 className="font-semibold text-lg">Ingen deadline ({timelineGroups.noDeadline.length})</h3>
-              </div>
-              <div className="space-y-2">
-                {timelineGroups.noDeadline.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => handleTaskClick(task)}
-                    onUpdate={updateTask}
-                    viewMode="compact"
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
+      {/* TaskForm Modal */}
       <TaskForm
         isOpen={isFormOpen}
         onClose={() => {
@@ -374,8 +350,10 @@ export function AllTasksView() {
         onSubmit={async (input) => {
           if (selectedTask) {
             await updateTask(selectedTask.id, input);
+            toast.success('Uppgift uppdaterad');
           } else {
             await createTask(input as CreateTaskInput);
+            toast.success('Uppgift skapad');
           }
         }}
         onDelete={deleteTask}
