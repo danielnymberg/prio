@@ -1,0 +1,109 @@
+/* ============================================
+   PRIO DIALOG CUSTOMIZATION
+   SyncFusion Dialog styling
+   ============================================ */
+
+/* Dialog container */
+.prio-dialog.e-dialog {
+  border-radius: 24px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden;
+}
+
+/* Dialog header */
+.prio-dialog .e-dlg-header {
+  padding: 2rem !important;
+  border-bottom: 1px solid #e7e5e4;
+  background-color: #fafaf9;
+}
+
+.dark .prio-dialog .e-dlg-header {
+  border-bottom-color: #44403c;
+  background-color: #1c1917;
+}
+
+.prio-dialog .e-dlg-header-content {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1c1917;
+}
+
+.dark .prio-dialog .e-dlg-header-content {
+  color: #fafaf9;
+}
+
+/* Close button */
+.prio-dialog .e-dlg-closeicon-btn {
+  border-radius: 9999px !important;
+  padding: 0.5rem !important;
+  transition: background-color 0.2s ease;
+}
+
+.prio-dialog .e-dlg-closeicon-btn:hover {
+  background-color: #f5f5f4 !important;
+}
+
+.dark .prio-dialog .e-dlg-closeicon-btn:hover {
+  background-color: #44403c !important;
+}
+
+/* Dialog content */
+.prio-dialog .e-dlg-content {
+  padding: 2rem !important;
+  background-color: #fafaf9;
+  max-height: calc(90vh - 100px);
+  overflow-y: auto;
+}
+
+.dark .prio-dialog .e-dlg-content {
+  background-color: #292524;
+}
+
+.prio-dialog-content {
+  color: #1c1917;
+}
+
+.dark .prio-dialog-content {
+  color: #fafaf9;
+}
+
+/* Overlay */
+.e-dlg-overlay {
+  background-color: rgba(12, 10, 9, 0.6) !important;
+  backdrop-filter: blur(4px);
+}
+
+/* Animation */
+.prio-dialog.e-dialog {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important;
+}
+
+/* Scrollbar styling for dialog content */
+.prio-dialog .e-dlg-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.prio-dialog .e-dlg-content::-webkit-scrollbar-track {
+  background: #f5f5f4;
+}
+
+.dark .prio-dialog .e-dlg-content::-webkit-scrollbar-track {
+  background: #1c1917;
+}
+
+.prio-dialog .e-dlg-content::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 4px;
+}
+
+.dark .prio-dialog .e-dlg-content::-webkit-scrollbar-thumb {
+  background: #44403c;
+}
+
+.prio-dialog .e-dlg-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+.dark .prio-dialog .e-dlg-content::-webkit-scrollbar-thumb:hover {
+  background: #57534e;
+}

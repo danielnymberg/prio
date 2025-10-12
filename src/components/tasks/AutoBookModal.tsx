@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { Dialog } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Calendar, Clock, X, Layers } from 'lucide-react';
 import { FreeTimeSlot, blockCalendarTime, planWorkSessions, blockMultipleSessions, SessionPlan } from '@/services/microsoft-graph';
@@ -366,6 +366,6 @@ export function AutoBookModal({
           💡 Tid bokas i din Microsoft 365-kalender som "🎯 Fokus: {taskTitle}"
         </p>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

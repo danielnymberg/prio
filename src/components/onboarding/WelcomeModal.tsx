@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { Dialog } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Target, Zap, Brain, AlertTriangle, ArrowRight, CheckCircle } from 'lucide-react';
 
@@ -25,7 +25,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleSkip} title="Välkommen till Prio" size="lg">
+    <Dialog isOpen={isOpen} onClose={handleSkip} title="Välkommen till Prio" size="lg">
       {/* Progress Indicator */}
       <div className="flex gap-2 mb-6">
         {[1, 2, 3, 4].map(s => (
@@ -266,6 +266,6 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
           </div>
         </div>
       )}
-    </Modal>
+    </Dialog>
   );
 }

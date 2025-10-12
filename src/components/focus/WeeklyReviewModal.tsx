@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { Dialog } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Task } from '@/lib/types';
 import { TrendingUp, CheckCircle, Clock, AlertTriangle, Target } from 'lucide-react';
@@ -100,7 +100,7 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="📊 Veckoöversikt" size="lg">
+    <Dialog isOpen={isOpen} onClose={onClose} title="📊 Veckoöversikt" size="lg">
       <div className="space-y-6">
         {/* Header */}
         <div className="text-center">
@@ -276,6 +276,6 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
           💡 Tips: Gör denna review varje måndag för bästa resultat (GTD-metoden)
         </p>
       </div>
-    </Modal>
+    </Dialog>
   );
 }

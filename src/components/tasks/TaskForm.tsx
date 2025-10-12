@@ -1,6 +1,6 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { Task, CreateTaskInput, UpdateTaskInput, Project, PriorityFlag } from '@/lib/types';
-import { Modal } from '@/components/ui/Modal';
+import { Dialog } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
@@ -744,6 +744,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           deadline={autoBookDeadline}
         />
       )}
-    </Modal>
+    </Dialog>
   );
 }

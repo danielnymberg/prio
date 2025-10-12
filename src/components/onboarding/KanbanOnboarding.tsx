@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { Dialog } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { KanbanSquare, Calendar, Undo2, FolderKanban, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 
@@ -22,7 +22,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleSkip} title="✨ Nya kraftfulla funktioner!" size="lg">
+    <Dialog isOpen={isOpen} onClose={handleSkip} title="✨ Nya kraftfulla funktioner!" size="lg">
       {/* Progress Indicator */}
       <div className="flex gap-2 mb-6">
         {[1, 2, 3].map(s => (
@@ -230,6 +230,6 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
           </div>
         </div>
       )}
-    </Modal>
+    </Dialog>
   );
 }

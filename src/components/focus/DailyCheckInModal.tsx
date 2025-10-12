@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { Dialog } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { DailyCheckIn, EnergyLevel, FocusStrategy } from '@/lib/types';
 import { Battery, BatteryMedium, BatteryLow, Zap, Target, BarChart } from 'lucide-react';
@@ -282,6 +282,6 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
           </div>
         </div>
       )}
-    </Modal>
+    </Dialog>
   );
 }

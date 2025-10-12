@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { Dialog } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { FolderKanban, Sparkles, Calculator, TrendingUp, FileText, ArrowRight, CheckCircle } from 'lucide-react';
 
@@ -22,7 +22,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleSkip} title="Välkommen till Projekthantering" size="lg">
+    <Dialog isOpen={isOpen} onClose={handleSkip} title="Välkommen till Projekthantering" size="lg">
       {/* Progress Indicator */}
       <div className="flex gap-2 mb-6">
         {[1, 2, 3, 4, 5].map(s => (
@@ -434,6 +434,6 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
           </div>
         </div>
       )}
-    </Modal>
+    </Dialog>
   );
 }
