@@ -160,6 +160,13 @@ export function WeekCalendarView({ onScheduleReady }: WeekCalendarViewProps) {
   const onEventRendered = (args: EventRenderedArgs) => {
     const eventData = args.data as any;
 
+    console.log('🔷 [WeekCalendarView NEW] Event rendered:', {
+      Id: eventData.Id,
+      Subject: eventData.Subject,
+      StartTime: eventData.StartTime,
+      element: args.element
+    });
+
     if (args.element && eventData.CategoryColor) {
       args.element.style.backgroundColor = eventData.CategoryColor;
       args.element.style.borderColor = eventData.CategoryColor;
