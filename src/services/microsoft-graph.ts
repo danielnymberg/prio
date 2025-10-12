@@ -211,6 +211,43 @@ export async function getCalendarEvents(
   }
 }
 
+// Get external meetings only (not Prio-created events)
+export async function getExternalMeetings(
+  startDate: Date,
+  endDate: Date
+): Promise<CalendarEvent[]> {
+  const client = await getGraphClient();
+  if (!client) return [];
+
+  try {
+    const response = await client
+      .api('/me/calendar/events')
+      .filter(
+        `start/dateTime ge '${startDate.toISOString()}' and end/dateTime le '${endDate.toISOString()}'`
+      )
+      .select('id,subject,start,end,isAllDay,categories')
+      .orderby('start/dateTime')
+      .get();
+
+    // Filter out Prio-created events
+    return response.value
+      .filter((event: any) =>
+        !event.categories?.includes('Prio Focus') &&
+        !event.subject?.startsWith('🎯')
+      )
+      .map((event: any) => ({
+        id: event.id,
+        subject: event.subject,
+        start: event.start.dateTime + 'Z',
+        end: event.end.dateTime + 'Z',
+        isAllDay: event.isAllDay,
+      }));
+  } catch (error) {
+    console.error('Failed to fetch external meetings:', error);
+    return [];
+  }
+}
+
 // Find free time slots in calendar with priority for preferred hours
 export async function findFreeTimeSlots(
   startDate: Date,
@@ -428,15 +465,15 @@ export async function blockCalendarTime(
   startTime: Date,
   durationMinutes: number,
   taskTitle: string
-): Promise<boolean> {
+): Promise<string | null> {
   const client = await getGraphClient();
-  if (!client) return false;
+  if (!client) return null;
 
   const endTime = new Date(startTime.getTime() + durationMinutes * 60 * 1000);
 
   try {
-    await client.api('/me/calendar/events').post({
-      subject: `🎯 Fokus: ${taskTitle}`,
+    const event = await client.api('/me/calendar/events').post({
+      subject: `🎯 ${taskTitle}`,
       start: {
         dateTime: startTime.toISOString(),
         timeZone: 'Europe/Stockholm',
@@ -447,14 +484,13 @@ export async function blockCalendarTime(
       },
       categories: ['Prio Focus'],
       showAs: 'busy',
-      isReminderOn: true,
-      reminderMinutesBeforeStart: 15,
+      isReminderOn: false,
     });
 
-    return true;
+    return event.id;
   } catch (error) {
     console.error('Failed to block calendar time:', error);
-    return false;
+    return null;
   }
 }
 
