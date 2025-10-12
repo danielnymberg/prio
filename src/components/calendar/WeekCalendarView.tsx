@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   ScheduleComponent,
   Day,
@@ -76,17 +76,39 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
   const [isMsftConnected, setIsMsftConnected] = useState(false);
   const scheduleRef = useRef<ScheduleComponent>(null);
 
-  // Exponera schedule ref till parent
+  // Memoize counts för att undvika onödiga re-renders
+  const scheduledCount = useMemo(
+    () => tasks.filter(t => t.scheduled_start && t.status !== 'done').length,
+    [tasks]
+  );
+
+  const outlookLinkedCount = useMemo(
+    () => tasks.filter(t => t.calendar_event_id).length,
+    [tasks]
+  );
+
+  // Exponera schedule ref till parent och konfigurera scroll
   useEffect(() => {
     if (scheduleRef.current && onScheduleReady) {
       onScheduleReady(scheduleRef.current);
+
+      // Konfigurera smooth scroll
+      const schedule: any = scheduleRef.current;
+      if (schedule.element) {
+        const contentWrap = schedule.element.querySelector('.e-content-wrap');
+        if (contentWrap) {
+          contentWrap.style.scrollBehavior = 'smooth';
+        }
+      }
     }
   }, [scheduleRef.current, onScheduleReady]);
 
   // Ladda alla events
-  const loadAllEvents = async () => {
+  const loadAllEvents = async (showSpinner = false) => {
     try {
-      setLoading(true);
+      if (showSpinner) {
+        setLoading(true);
+      }
 
       // Kolla Microsoft-status
       const connected = await isMicrosoftLoggedIn();
@@ -140,10 +162,15 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     }
   };
 
-  // Ladda events vid mount och när tasks ändras
+  // Första laddning - visa spinner
   useEffect(() => {
-    loadAllEvents();
-  }, [tasks]);
+    loadAllEvents(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Uppdateringar när tasks ändras - ingen spinner
+  useEffect(() => {
+    loadAllEvents(false);
+  }, [tasks.length, scheduledCount, outlookLinkedCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Hantera CRUD-operationer
   const onActionComplete = async (args: ActionEventArgs) => {
@@ -154,7 +181,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
       // Blockera flyttning av externa möten
       if (event.EventType === 'meeting') {
         toast.error('Kan inte flytta externa möten!');
-        await loadAllEvents();
+        await loadAllEvents(false); // Behövs för att återställa vid fel
         return;
       }
 
@@ -175,10 +202,11 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           }
 
           toast.success('Task omschemalagd!');
+          // loadAllEvents() körs automatiskt via useEffect när updateTask ändrar tasks
         } catch (error) {
           console.error('Failed to update task:', error);
           toast.error('Kunde inte uppdatera task');
-          await loadAllEvents();
+          await loadAllEvents(false); // Behövs för att återställa vid fel
         }
       }
     }
@@ -243,11 +271,11 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           }
 
           toast.success('Task schemalagd!');
-          await loadAllEvents();
+          // loadAllEvents() körs automatiskt via useEffect när updateTask ändrar tasks
         } catch (error) {
           console.error('Failed to schedule task:', error);
           toast.error('Kunde inte schemalägga task');
-          await loadAllEvents();
+          await loadAllEvents(false); // Behövs för att återställa vid fel
         }
       }
     }
