@@ -35,12 +35,34 @@ export class SupabaseAdaptor extends JsonAdaptor {
 
       console.log('🔵 [SupabaseAdaptor] Fetched', tasks?.length || 0, 'tasks');
 
+      // Debug: Visa ALLA tasks
+      console.log('🔵 [SupabaseAdaptor] All tasks:', tasks?.map(t => ({
+        id: t.id,
+        title: t.title,
+        scheduled_start: t.scheduled_start,
+        status: t.status
+      })));
+
       // Konvertera till Schedule event format
-      const events = (tasks || [])
-        .filter(task => task.scheduled_start && task.status !== 'done')
-        .map(task => this.taskToEvent(task));
+      const filteredTasks = (tasks || [])
+        .filter(task => {
+          const hasSchedule = !!task.scheduled_start;
+          const notDone = task.status !== 'done';
+          console.log(`🔵 [SupabaseAdaptor] Task "${task.title}": scheduled=${hasSchedule}, notDone=${notDone}`);
+          return hasSchedule && notDone;
+        });
+
+      console.log('🔵 [SupabaseAdaptor] Filtered to', filteredTasks.length, 'scheduled tasks');
+
+      const events = filteredTasks.map(task => this.taskToEvent(task));
 
       console.log('🔵 [SupabaseAdaptor] Converted to', events.length, 'events');
+      console.log('🔵 [SupabaseAdaptor] Event details:', events.map(e => ({
+        Id: e.Id,
+        Subject: e.Subject,
+        StartTime: e.StartTime,
+        EndTime: e.EndTime
+      })));
 
       // Returnera i Syncfusion-format
       return {
