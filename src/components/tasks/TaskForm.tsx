@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { TextBoxComponent, SliderComponent } from '@syncfusion/ej2-react-inputs';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
+import { Tooltip } from '@/components/ui/Tooltip';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -575,9 +576,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">CPM Prioritering</h3>
 
           <div className="select-none">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Värde - Objektiva konsekvenser: {valueScore}/10
-            </label>
+            <Tooltip content="Bedöm objektiva konsekvenser: Vad händer om du INTE gör detta? Fokusera på mätbara effekter, inte känslor." position="TopCenter">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 cursor-help">
+                Värde - Objektiva konsekvenser: {valueScore}/10
+              </label>
+            </Tooltip>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 italic">
               💡 Vad händer om du INTE gör detta? (Inte hur viktigt det känns)
             </p>
@@ -597,9 +600,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           </div>
 
           <div className="select-none">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tidskänslighet - Kostnad av fördröjning: {timeSensitivity}/10
-            </label>
+            <Tooltip content="Bedöm kostnaden av fördröjning: Vad kostar det att vänta 1 timme eller 1 dag? Inte samma som deadline!" position="TopCenter">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 cursor-help">
+                Tidskänslighet - Kostnad av fördröjning: {timeSensitivity}/10
+              </label>
+            </Tooltip>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 italic">
               💡 Vad kostar det att vänta 1 timme/1 dag? (Inte när deadline är)
             </p>
@@ -640,9 +645,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           </div>
 
           <div className="select-none">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tillit/Säkerhet - Sannolikhet för resultat: {confidence}/10
-            </label>
+            <Tooltip content="Hur säker är du på att resultatet blir som förväntat? Hög tillit = garanterat resultat, låg = osäkert utfall." position="TopCenter">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 cursor-help">
+                Tillit/Säkerhet - Sannolikhet för resultat: {confidence}/10
+              </label>
+            </Tooltip>
             <SliderComponent
               value={confidence}
               change={(e: any) => setConfidence(e.value)}
@@ -659,9 +666,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           </div>
 
           <div className="select-none">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Ansträngning - Faktisk tid/resurser: {effort}/10
-            </label>
+            <Tooltip content="Hur mycket tid och energi krävs för att slutföra detta? 1 = snabbt och lätt, 10 = mycket krävande." position="TopCenter">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 cursor-help">
+                Ansträngning - Faktisk tid/resurser: {effort}/10
+              </label>
+            </Tooltip>
             <SliderComponent
               value={effort}
               change={(e: any) => setEffort(e.value)}
