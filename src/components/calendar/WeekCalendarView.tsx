@@ -421,63 +421,60 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         </div>
       </div>
 
-      {/* SyncFusion Schedule - Let SyncFusion handle its own scrolling */}
-      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800">
-        <div className="h-full p-4 relative">
-          <ScheduleComponent
-            ref={scheduleRef}
-            cssClass="prio-compact-schedule"
-            height="calc(100% - 2rem)"
-            width="100%"
-            locale="sv"
-            firstDayOfWeek={1}
-            startHour="07:00"
-            endHour="20:00"
-            currentView="Week"
-            timeScale={{
-              enable: true,
-              interval: 30,
-              slotCount: 2,
-              minorSlotCount: 1
-            }}
-            showQuickInfo={false}
-            eventSettings={eventSettings}
-            actionComplete={onActionComplete}
-            popupOpen={onPopupOpen}
-            eventRendered={onEventRendered}
-            allowDragAndDrop={true}
-            allowResizing={true}
-            enableRecurrenceValidation={true}
-            enablePersistence={false}
-            allowKeyboardInteraction={true}
-            enableAdaptiveUI={true}
-            rowAutoHeight={false}
-            showTimeIndicator={true}
-          >
-            <ViewsDirective>
-              <ViewDirective option="Day" />
-              <ViewDirective option="Week" />
-              <ViewDirective option="WorkWeek" />
-              <ViewDirective option="Month" />
-              <ViewDirective option="Agenda" />
-              <ViewDirective option="TimelineWeek" />
-            </ViewsDirective>
-            <Inject services={[
-              Day,
-              Week,
-              WorkWeek,
-              Month,
-              Agenda,
-              TimelineViews,
-              TimelineMonth,
-              DragAndDrop,
-              Resize,
-              Print,
-              ExcelExport,
-              ICalendarExport
-            ]} />
-          </ScheduleComponent>
-        </div>
+      {/* SyncFusion Schedule - Fixed height container for proper scrolling */}
+      <div style={{ height: 'calc(100vh - 200px)', position: 'relative' }} className="bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4">
+        <ScheduleComponent
+          ref={scheduleRef}
+          cssClass="prio-compact-schedule"
+          height="100%"
+          width="100%"
+          locale="sv"
+          firstDayOfWeek={1}
+          startHour="07:00"
+          endHour="20:00"
+          currentView="Week"
+          timeScale={{
+            enable: true,
+            interval: 30,
+            slotCount: 2
+          }}
+          showQuickInfo={false}
+          eventSettings={eventSettings}
+          actionComplete={onActionComplete}
+          popupOpen={onPopupOpen}
+          eventRendered={onEventRendered}
+          allowDragAndDrop={true}
+          allowResizing={true}
+          enableRecurrenceValidation={true}
+          enablePersistence={false}
+          allowKeyboardInteraction={true}
+          enableAdaptiveUI={true}
+          rowAutoHeight={false}
+          showTimeIndicator={true}
+        >
+          <ViewsDirective>
+            <ViewDirective option="Day" />
+            <ViewDirective option="Week" />
+            <ViewDirective option="WorkWeek" />
+            <ViewDirective option="Month" />
+            <ViewDirective option="Agenda" />
+            <ViewDirective option="TimelineWeek" />
+          </ViewsDirective>
+          <Inject services={[
+            Day,
+            Week,
+            WorkWeek,
+            Month,
+            Agenda,
+            TimelineViews,
+            TimelineMonth,
+            DragAndDrop,
+            Resize,
+            Print,
+            ExcelExport,
+            ICalendarExport
+          ]} />
+        </ScheduleComponent>
       </div>
     </div>
   );
