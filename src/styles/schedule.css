@@ -7,8 +7,10 @@
 .schedule-wrapper {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 80px);  /* EXPLICIT HÖJD! */
+  height: 100vh;
   gap: 1rem;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 /* HEADER SECTION - Export buttons och legend */
@@ -98,13 +100,11 @@
 
 /* SCHEDULE CONTAINER - KRITISKT: Ingen padding! */
 .schedule-container {
-  flex: 1;
-  min-height: 0;  /* KRITISKT för flexbox children */
+  height: 600px;
   background-color: white;
   border: 1px solid #e7e5e4;
   border-radius: 0.75rem;
   position: relative;
-  /* INGEN overflow: hidden! */
 }
 
 .dark .schedule-container {
