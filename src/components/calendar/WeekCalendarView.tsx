@@ -258,6 +258,15 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     args.cancel = true;
   };
 
+  // Custom rendering av events (sätt färger)
+  const onEventRendered = (args: any) => {
+    const eventData = args.data as CalendarEvent;
+    if (args.element && eventData.CategoryColor) {
+      args.element.style.backgroundColor = eventData.CategoryColor;
+      args.element.style.borderColor = eventData.CategoryColor;
+    }
+  };
+
   const eventSettings: EventSettingsModel = {
     dataSource: events,
     fields: {
@@ -324,6 +333,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           eventSettings={eventSettings}
           actionComplete={onActionComplete}
           popupOpen={onPopupOpen}
+          eventRendered={onEventRendered}
           allowDragAndDrop={true}
           allowResizing={true}
         >
