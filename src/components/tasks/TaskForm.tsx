@@ -1,7 +1,6 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { Task, CreateTaskInput, UpdateTaskInput, Project, PriorityFlag } from '@/lib/types';
 import { Dialog } from '@/components/ui/Dialog';
-import { Input } from '@/components/ui/Input';
 import { DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
@@ -9,6 +8,11 @@ import { AutoBookModal } from './AutoBookModal';
 import { findFreeTimeSlots, isMicrosoftLoggedIn, FreeTimeSlot } from '@/services/microsoft-graph';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+
+// Syncfusion Components
+import { TextBoxComponent, SliderComponent } from '@syncfusion/ej2-react-inputs';
+import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
+import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -258,47 +262,48 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Input
-            label="Titel"
+          <TextBoxComponent
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Vad ska du göra?"
-            required
-            maxLength={100}
-            autoFocus
+            change={(e: any) => setTitle(e.value || '')}
+            placeholder="Titel"
+            floatLabelType="Auto"
+            cssClass="e-outline"
+            showClearButton={true}
+            htmlAttributes={{ maxLength: '100' }}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Beskrivning
-          </label>
-          <textarea
+          <TextBoxComponent
+            multiline={true}
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Detaljer (valfritt)"
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+            change={(e: any) => setDescription(e.value || '')}
+            placeholder="Beskrivning (valfritt)"
+            floatLabelType="Auto"
+            cssClass="e-outline"
+            htmlAttributes={{ rows: '3' }}
           />
         </div>
 
         {/* Project Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Projekt (valfritt)
-          </label>
-          <select
+          <DropDownListComponent
+            dataSource={[
+              { id: '', name: 'Inget projekt', client_name: '' },
+              ...projects
+            ] as any}
+            fields={{ text: 'name', value: 'id' }}
             value={projectId || ''}
-            onChange={(e) => setProjectId(e.target.value || null)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          >
-            <option value="">Inget projekt</option>
-            {projects.map(project => (
-              <option key={project.id} value={project.id}>
-                {project.name} {project.client_name ? `(${project.client_name})` : ''}
-              </option>
-            ))}
-          </select>
+            change={(e: any) => setProjectId(e.value || null)}
+            placeholder="Välj projekt (valfritt)"
+            floatLabelType="Auto"
+            allowFiltering={true}
+            itemTemplate={(data: any) => (
+              <div>
+                {data.name} {data.client_name ? `(${data.client_name})` : ''}
+              </div>
+            )}
+          />
         </div>
 
         {/* Tidsuppskattning - FLYTTAD HIT */}
@@ -359,19 +364,20 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             </>
           ) : (
             <div className="space-y-2">
-              <input
-                type="text"
+              <TextBoxComponent
                 value={customDurationText}
-                onChange={(e) => {
-                  setCustomDurationText(e.target.value);
-                  const parsed = parseCustomDuration(e.target.value);
+                change={(e: any) => {
+                  const value = e.value || '';
+                  setCustomDurationText(value);
+                  const parsed = parseCustomDuration(value);
                   if (parsed) {
                     setEstimatedDuration(parsed);
                   }
                 }}
                 placeholder="T.ex: 3 veckor, 5 dagar, 40 timmar"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                autoFocus
+                floatLabelType="Auto"
+                cssClass="e-outline"
+                showClearButton={true}
               />
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Exempel: "3v", "5 dagar", "40h", "2 veckor", "10d"
@@ -438,26 +444,29 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               Slutdatum
             </label>
             <div className="space-y-2">
-              <Input
+              <input
                 type="date"
                 value={deadlineDate}
                 onChange={(e) => setDeadlineDate(e.target.value)}
-                placeholder="Datum"
-              />
-              <select
-                value={deadlineHour}
-                onChange={(e) => setDeadlineHour(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              >
-                <option value="00">00:00</option>
-                <option value="06">06:00</option>
-                <option value="09">09:00</option>
-                <option value="12">12:00</option>
-                <option value="15">15:00</option>
-                <option value="17">17:00</option>
-                <option value="18">18:00</option>
-                <option value="21">21:00</option>
-              </select>
+              />
+              <DropDownListComponent
+                dataSource={[
+                  { value: '00', text: '00:00' },
+                  { value: '06', text: '06:00' },
+                  { value: '09', text: '09:00' },
+                  { value: '12', text: '12:00' },
+                  { value: '15', text: '15:00' },
+                  { value: '17', text: '17:00' },
+                  { value: '18', text: '18:00' },
+                  { value: '21', text: '21:00' }
+                ]}
+                fields={{ text: 'text', value: 'value' }}
+                value={deadlineHour}
+                change={(e: any) => setDeadlineHour(e.value)}
+                placeholder="Klockslag"
+                floatLabelType="Auto"
+              />
 
               {/* Rensa slutdatum-knapp */}
               {deadlineDate && (
@@ -479,47 +488,45 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             Starttid (schemalägg uppgiften)
           </label>
           <div className="space-y-2">
-            <Input
+            <input
               type="date"
               value={scheduledStartDate}
               onChange={(e) => setScheduledStartDate(e.target.value)}
-              placeholder="Datum"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
             {scheduledStartDate && (
               <>
                 <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="scheduledStartHasTime"
+                  <CheckBoxComponent
                     checked={scheduledStartHasTime}
-                    onChange={(e) => setScheduledStartHasTime(e.target.checked)}
-                    className="rounded border-gray-300 dark:border-gray-600"
+                    change={(e: any) => setScheduledStartHasTime(e.checked)}
+                    label="Ange klockslag"
                   />
-                  <label htmlFor="scheduledStartHasTime" className="text-sm text-gray-700 dark:text-gray-300">
-                    Ange klockslag
-                  </label>
                 </div>
 
                 {scheduledStartHasTime && (
-                  <select
+                  <DropDownListComponent
+                    dataSource={[
+                      { value: '06', text: '06:00' },
+                      { value: '07', text: '07:00' },
+                      { value: '08', text: '08:00' },
+                      { value: '09', text: '09:00' },
+                      { value: '10', text: '10:00' },
+                      { value: '11', text: '11:00' },
+                      { value: '12', text: '12:00' },
+                      { value: '13', text: '13:00' },
+                      { value: '14', text: '14:00' },
+                      { value: '15', text: '15:00' },
+                      { value: '16', text: '16:00' },
+                      { value: '17', text: '17:00' },
+                      { value: '18', text: '18:00' }
+                    ]}
+                    fields={{ text: 'text', value: 'value' }}
                     value={scheduledStartHour}
-                    onChange={(e) => setScheduledStartHour(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  >
-                    <option value="06">06:00</option>
-                    <option value="07">07:00</option>
-                    <option value="08">08:00</option>
-                    <option value="09">09:00</option>
-                    <option value="10">10:00</option>
-                    <option value="11">11:00</option>
-                    <option value="12">12:00</option>
-                    <option value="13">13:00</option>
-                    <option value="14">14:00</option>
-                    <option value="15">15:00</option>
-                    <option value="16">16:00</option>
-                    <option value="17">17:00</option>
-                    <option value="18">18:00</option>
-                  </select>
+                    change={(e: any) => setScheduledStartHour(e.value)}
+                    placeholder="Klockslag"
+                    floatLabelType="Auto"
+                  />
                 )}
 
                 <button
@@ -546,15 +553,17 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Prioritetsnivå (för uppgifter utan slutdatum)
             </label>
-            <select
+            <DropDownListComponent
+              dataSource={[
+                { value: 'asap', text: '🎯 ASAP - Gör så snart möjligt (+50% prio)' },
+                { value: 'whenever', text: '📅 När det passar (normal prio)' },
+                { value: 'someday', text: '💭 Någon gång i framtiden (-30% prio)' }
+              ]}
+              fields={{ text: 'text', value: 'value' }}
               value={priorityFlag}
-              onChange={(e) => setPriorityFlag(e.target.value as PriorityFlag)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            >
-              <option value="asap">🎯 ASAP - Gör så snart möjligt (+50% prio)</option>
-              <option value="whenever">📅 När det passar (normal prio)</option>
-              <option value="someday">💭 Någon gång i framtiden (-30% prio)</option>
-            </select>
+              change={(e: any) => setPriorityFlag(e.value as PriorityFlag)}
+              floatLabelType="Auto"
+            />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
               💡 Styr hur viktiga uppgifter utan slutdatum prioriteras
             </p>
@@ -572,13 +581,14 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 italic">
               💡 Vad händer om du INTE gör detta? (Inte hur viktigt det känns)
             </p>
-            <input
-              type="range"
-              min="1"
-              max="10"
+            <SliderComponent
               value={valueScore}
-              onChange={(e) => setValueScore(Number(e.target.value))}
-              className="w-full cursor-pointer"
+              change={(e: any) => setValueScore(e.value)}
+              min={1}
+              max={10}
+              step={1}
+              tooltip={{ isVisible: true, placement: 'Before', showOn: 'Always' }}
+              ticks={{ placement: 'After', largeStep: 2, smallStep: 1 }}
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
               <span>Minimal påverkan</span>
@@ -593,13 +603,14 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 italic">
               💡 Vad kostar det att vänta 1 timme/1 dag? (Inte när deadline är)
             </p>
-            <input
-              type="range"
-              min="1"
-              max="10"
+            <SliderComponent
               value={timeSensitivity}
-              onChange={(e) => setTimeSensitivity(Number(e.target.value))}
-              className="w-full cursor-pointer"
+              change={(e: any) => setTimeSensitivity(e.value)}
+              min={1}
+              max={10}
+              step={1}
+              tooltip={{ isVisible: true, placement: 'Before', showOn: 'Always' }}
+              ticks={{ placement: 'After', largeStep: 2, smallStep: 1 }}
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
               <span>Kan vänta (låg kostnad)</span>
@@ -632,13 +643,14 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Tillit/Säkerhet - Sannolikhet för resultat: {confidence}/10
             </label>
-            <input
-              type="range"
-              min="1"
-              max="10"
+            <SliderComponent
               value={confidence}
-              onChange={(e) => setConfidence(Number(e.target.value))}
-              className="w-full cursor-pointer"
+              change={(e: any) => setConfidence(e.value)}
+              min={1}
+              max={10}
+              step={1}
+              tooltip={{ isVisible: true, placement: 'Before', showOn: 'Always' }}
+              ticks={{ placement: 'After', largeStep: 2, smallStep: 1 }}
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
               <span>Osäker</span>
@@ -650,13 +662,14 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Ansträngning - Faktisk tid/resurser: {effort}/10
             </label>
-            <input
-              type="range"
-              min="1"
-              max="10"
+            <SliderComponent
               value={effort}
-              onChange={(e) => setEffort(Number(e.target.value))}
-              className="w-full cursor-pointer"
+              change={(e: any) => setEffort(e.value)}
+              min={1}
+              max={10}
+              step={1}
+              tooltip={{ isVisible: true, placement: 'Before', showOn: 'Always' }}
+              ticks={{ placement: 'After', largeStep: 2, smallStep: 1 }}
             />
             <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
               <span>Lätt</span>
@@ -681,15 +694,17 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Prioritetsnivå (för uppgifter utan slutdatum)
             </label>
-            <select
+            <DropDownListComponent
+              dataSource={[
+                { value: 'asap', text: '🎯 ASAP - Gör så snart möjligt (+50% prio)' },
+                { value: 'whenever', text: '📅 När det passar (normal prio)' },
+                { value: 'someday', text: '💭 Någon gång i framtiden (-30% prio)' }
+              ]}
+              fields={{ text: 'text', value: 'value' }}
               value={priorityFlag}
-              onChange={(e) => setPriorityFlag(e.target.value as PriorityFlag)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            >
-              <option value="asap">🎯 ASAP - Gör så snart möjligt (+50% prio)</option>
-              <option value="whenever">📅 När det passar (normal prio)</option>
-              <option value="someday">💭 Någon gång i framtiden (-30% prio)</option>
-            </select>
+              change={(e: any) => setPriorityFlag(e.value as PriorityFlag)}
+              floatLabelType="Auto"
+            />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
               💡 Styr hur viktiga uppgifter utan slutdatum prioriteras
             </p>
