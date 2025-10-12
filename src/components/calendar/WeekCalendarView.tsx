@@ -358,17 +358,66 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     );
   }
 
+  // Handle export actions
+  const handleExcelExport = () => {
+    if (scheduleRef.current) {
+      scheduleRef.current.exportToExcel();
+    }
+  };
+
+  const handleICalExport = () => {
+    if (scheduleRef.current) {
+      scheduleRef.current.exportToICalendar();
+    }
+  };
+
+  const handlePrint = () => {
+    if (scheduleRef.current) {
+      scheduleRef.current.print();
+    }
+  };
+
   return (
     <div className="h-full flex flex-col gap-4">
-      {/* Info box */}
-      <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-blue-500" />
-          <span>Externa möten</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-500" />
-          <span>Schemalagda tasks</span>
+      {/* Info box with export buttons */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-4 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800">
+          <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-blue-500" />
+              <span>Externa möten</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-red-500" />
+              <span>Schemalagda tasks</span>
+            </div>
+            <div className="text-xs text-stone-500 dark:text-stone-500 ml-4">
+              💡 Byt vy med knapparna i kalendern: Dag, Vecka, Arbetsvecka, Månad, Agenda, Timeline
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExcelExport}
+              className="text-xs px-3 py-1.5 bg-white dark:bg-charcoal-800 hover:bg-sand-100 dark:hover:bg-charcoal-700 rounded-md border border-sand-300 dark:border-charcoal-700 transition-colors"
+              title="Exportera till Excel"
+            >
+              📊 Excel
+            </button>
+            <button
+              onClick={handleICalExport}
+              className="text-xs px-3 py-1.5 bg-white dark:bg-charcoal-800 hover:bg-sand-100 dark:hover:bg-charcoal-700 rounded-md border border-sand-300 dark:border-charcoal-700 transition-colors"
+              title="Exportera till iCalendar (.ics)"
+            >
+              📅 iCal
+            </button>
+            <button
+              onClick={handlePrint}
+              className="text-xs px-3 py-1.5 bg-white dark:bg-charcoal-800 hover:bg-sand-100 dark:hover:bg-charcoal-700 rounded-md border border-sand-300 dark:border-charcoal-700 transition-colors"
+              title="Skriv ut"
+            >
+              🖨️ Print
+            </button>
+          </div>
         </div>
       </div>
 
