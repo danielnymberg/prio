@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Download, X, Share } from 'lucide-react';
 import { usePWA, useIOSInstallPrompt } from '@/hooks/usePWA';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 
 export function InstallPrompt() {
   const { isInstallable, platform, install } = usePWA();

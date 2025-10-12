@@ -5,7 +5,7 @@ import { TaskForm } from '@/components/tasks/TaskForm';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Task, CreateTaskInput } from '@/lib/types';
 import { Inbox, FileCheck, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 
 export function InboxView() {
   const { tasks, updateTask, deleteTask, createTask } = useTasks();

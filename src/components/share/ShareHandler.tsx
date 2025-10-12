@@ -4,7 +4,7 @@ import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 
 export function ShareHandler() {
   const navigate = useNavigate();

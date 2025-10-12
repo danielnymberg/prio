@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Coffee, Mail, ArrowRight } from 'lucide-react';
 
 export function BreakView() {

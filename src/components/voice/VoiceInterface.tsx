@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Mic, MicOff, MessageSquare, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { useTasks } from '@/hooks/useTasks';

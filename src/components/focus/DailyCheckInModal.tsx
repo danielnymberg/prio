@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Dialog } from '@/components/ui/Dialog';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { DailyCheckIn, EnergyLevel, FocusStrategy } from '@/lib/types';
 import { Battery, BatteryMedium, BatteryLow, Zap, Target, BarChart } from 'lucide-react';
 

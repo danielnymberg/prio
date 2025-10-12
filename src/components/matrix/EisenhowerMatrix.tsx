@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Task, Quadrant } from '@/lib/types';
 import { QuadrantCard } from './QuadrantCard';
 import { TaskForm } from '@/components/tasks/TaskForm';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { useTasks } from '@/hooks/useTasks';
 import { getTaskQuadrant } from '@/lib/utils';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';

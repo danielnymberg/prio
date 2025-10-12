@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Input } from '@/components/ui/Input';
 import { toast } from 'react-hot-toast';
 import { Zap, DollarSign, TrendingUp, AlertCircle, Key, Lock } from 'lucide-react';

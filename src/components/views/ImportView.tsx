@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { toast } from 'react-hot-toast';
 import { Upload, FileJson } from 'lucide-react';
 

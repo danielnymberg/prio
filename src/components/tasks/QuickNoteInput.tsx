@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Textarea } from '@/components/ui/Textarea';
 import { Plus, Zap, X, MessageSquare, Sparkles, Trash2 } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';

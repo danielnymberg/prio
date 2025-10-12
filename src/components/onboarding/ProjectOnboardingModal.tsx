@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Dialog } from '@/components/ui/Dialog';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { FolderKanban, Sparkles, Calculator, TrendingUp, FileText, ArrowRight, CheckCircle } from 'lucide-react';
 
 interface ProjectOnboardingModalProps {

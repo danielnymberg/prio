@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, LogOut, LogIn, Info, Bell, BellOff, Clock, Mail } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import {
   loginToMicrosoft,
   logoutFromMicrosoft,

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
 import { getNextTask, getTaskQueue, hasEmergencyTasks, calculatePartialWork } from '@/lib/focusAlgorithm';
 import { Task, UserContext, DailyCheckIn } from '@/lib/types';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { formatDuration, formatRelativeTime } from '@/lib/utils';
 import { Play, ChevronRight, AlertTriangle, CheckCircle, SkipForward, Clock, Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';

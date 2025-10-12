@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Dialog } from '@/components/ui/Dialog';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Task } from '@/lib/types';
 import { TrendingUp, CheckCircle, Clock, AlertTriangle, Target } from 'lucide-react';
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Dialog } from '@/components/ui/Dialog';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Calendar, Clock, X, Layers } from 'lucide-react';
 import { FreeTimeSlot, blockCalendarTime, planWorkSessions, blockMultipleSessions, SessionPlan } from '@/services/microsoft-graph';
 import { toast } from 'react-hot-toast';

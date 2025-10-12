@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { List, Plus, Upload, Target, X, Settings, FolderKanban, BarChart3, CalendarRange } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { useState } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { Task, CreateTaskInput } from '@/lib/types';

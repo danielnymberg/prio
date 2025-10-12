@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
 import { useTasks } from '@/hooks/useTasks';

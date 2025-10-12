@@ -1,5 +1,5 @@
 import { Task } from '@/lib/types';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { formatDuration } from '@/lib/utils';
 import { calculateDynamicPriority } from '@/lib/focusAlgorithm';
 

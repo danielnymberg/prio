@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import { closest } from '@syncfusion/ej2-base';
 import { TaskForm } from '@/components/tasks/TaskForm';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Task } from '@/lib/types';
 import { DialogUtility } from '@syncfusion/ej2-popups';
 import { ToastComponent } from '@syncfusion/ej2-react-notifications';

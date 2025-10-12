@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Camera } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { useTasks } from '@/hooks/useTasks';
 import { CreateTaskInput } from '@/lib/types';

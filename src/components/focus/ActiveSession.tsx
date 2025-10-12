@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
-import { Button } from '@/components/ui/Button';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Task } from '@/lib/types';
 import { CheckCircle, Pause, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
