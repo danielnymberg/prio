@@ -327,7 +327,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
   return (
     <div className="h-full flex flex-col gap-4">
       {/* Info box */}
-      <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800">
+      <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800 flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded bg-blue-500" />
           <span>Externa möten</span>
@@ -338,31 +338,34 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         </div>
       </div>
 
-      {/* SyncFusion Schedule */}
-      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800 overflow-auto">
-        <ScheduleComponent
-          ref={scheduleRef}
-          height="100%"
-          locale="sv"
-          firstDayOfWeek={1}
-          startHour="07:00"
-          endHour="20:00"
-          timeScale={{ enable: true, interval: 60, slotCount: 1 }}
-          showQuickInfo={false}
-          eventSettings={eventSettings}
-          actionComplete={onActionComplete}
-          popupOpen={onPopupOpen}
-          eventRendered={onEventRendered}
-          allowDragAndDrop={true}
-          allowResizing={true}
-        >
-          <ViewsDirective>
-            <ViewDirective option="Week" />
-            <ViewDirective option="Day" />
-            <ViewDirective option="Month" />
-          </ViewsDirective>
-          <Inject services={[Day, Week, Month, Agenda, DragAndDrop, Resize]} />
-        </ScheduleComponent>
+      {/* SyncFusion Schedule - Following Syncfusion responsiveness guidelines */}
+      <div className="flex-1 min-h-0 bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 overflow-hidden">
+        <div className="h-full p-4 overflow-auto">
+          <ScheduleComponent
+            ref={scheduleRef}
+            height="100%"
+            width="100%"
+            locale="sv"
+            firstDayOfWeek={1}
+            startHour="07:00"
+            endHour="20:00"
+            timeScale={{ enable: true, interval: 60, slotCount: 1 }}
+            showQuickInfo={false}
+            eventSettings={eventSettings}
+            actionComplete={onActionComplete}
+            popupOpen={onPopupOpen}
+            eventRendered={onEventRendered}
+            allowDragAndDrop={true}
+            allowResizing={true}
+          >
+            <ViewsDirective>
+              <ViewDirective option="Week" />
+              <ViewDirective option="Day" />
+              <ViewDirective option="Month" />
+            </ViewsDirective>
+            <Inject services={[Day, Week, Month, Agenda, DragAndDrop, Resize]} />
+          </ScheduleComponent>
+        </div>
       </div>
     </div>
   );
