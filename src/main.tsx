@@ -5,6 +5,7 @@ import './index.css';
 import './styles/syncfusion-dark.css';
 import './styles/dialog.css';
 import './styles/button.css';
+import './styles/schedule.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'react-hot-toast';

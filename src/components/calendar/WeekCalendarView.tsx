@@ -378,41 +378,41 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
   };
 
   return (
-    <div className="h-full flex flex-col gap-4">
-      {/* Info box with export buttons */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-4 bg-sand-50 dark:bg-charcoal-900 rounded-lg p-3 border border-sand-200 dark:border-charcoal-800">
-          <div className="flex items-center gap-4 text-xs text-stone-600 dark:text-stone-400">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-blue-500" />
+    <div className="schedule-wrapper">
+      {/* Header section - Legend and export buttons */}
+      <div className="schedule-header">
+        <div className="schedule-header-content">
+          <div className="schedule-legend">
+            <div className="schedule-legend-item">
+              <div className="schedule-legend-color" style={{ backgroundColor: '#3b82f6' }} />
               <span>Externa möten</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-red-500" />
+            <div className="schedule-legend-item">
+              <div className="schedule-legend-color" style={{ backgroundColor: '#ef4444' }} />
               <span>Schemalagda tasks</span>
             </div>
-            <div className="text-xs text-stone-500 dark:text-stone-500 ml-4">
+            <div className="schedule-info">
               💡 Byt vy med knapparna i kalendern: Dag, Vecka, Arbetsvecka, Månad, Agenda, Timeline
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="schedule-export-buttons">
             <button
               onClick={handleExcelExport}
-              className="text-xs px-3 py-1.5 bg-white dark:bg-charcoal-800 hover:bg-sand-100 dark:hover:bg-charcoal-700 rounded-md border border-sand-300 dark:border-charcoal-700 transition-colors"
+              className="schedule-export-btn"
               title="Exportera till Excel"
             >
               📊 Excel
             </button>
             <button
               onClick={handleICalExport}
-              className="text-xs px-3 py-1.5 bg-white dark:bg-charcoal-800 hover:bg-sand-100 dark:hover:bg-charcoal-700 rounded-md border border-sand-300 dark:border-charcoal-700 transition-colors"
+              className="schedule-export-btn"
               title="Exportera till iCalendar (.ics)"
             >
               📅 iCal
             </button>
             <button
               onClick={handlePrint}
-              className="text-xs px-3 py-1.5 bg-white dark:bg-charcoal-800 hover:bg-sand-100 dark:hover:bg-charcoal-700 rounded-md border border-sand-300 dark:border-charcoal-700 transition-colors"
+              className="schedule-export-btn"
               title="Skriv ut"
             >
               🖨️ Print
@@ -421,11 +421,11 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         </div>
       </div>
 
-      {/* SyncFusion Schedule - Fixed height container for proper scrolling */}
-      <div style={{ height: 'calc(100vh - 200px)', position: 'relative' }} className="bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4">
+      {/* Schedule container - NO padding, clean structure */}
+      <div className="schedule-container">
         <ScheduleComponent
           ref={scheduleRef}
-          cssClass="prio-compact-schedule"
+          cssClass="prio-schedule"
           height="100%"
           width="100%"
           locale="sv"
