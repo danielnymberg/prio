@@ -7,7 +7,7 @@
 .schedule-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100vh - 80px);  /* EXPLICIT HÖJD! */
   gap: 1rem;
 }
 
@@ -99,11 +99,12 @@
 /* SCHEDULE CONTAINER - KRITISKT: Ingen padding! */
 .schedule-container {
   flex: 1;
+  min-height: 0;  /* KRITISKT för flexbox children */
   background-color: white;
   border: 1px solid #e7e5e4;
   border-radius: 0.75rem;
-  overflow: hidden;
   position: relative;
+  /* INGEN overflow: hidden! */
 }
 
 .dark .schedule-container {
