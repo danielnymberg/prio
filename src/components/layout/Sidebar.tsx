@@ -1,10 +1,11 @@
-import { NavLink } from 'react-router-dom';
-import { List, Plus, Upload, Target, X, Settings, FolderKanban, BarChart3, CalendarRange } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Plus, X } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { useState } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { Task, CreateTaskInput } from '@/lib/types';
+import { TreeViewComponent } from '@syncfusion/ej2-react-navigations';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,26 +14,114 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { tasks, createTask, updateTask } = useTasks();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
 
   // Exkludera Snabbis (≤2 min) från räknare - de visas endast i FocusView
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
 
-  const navItems = [
-    { to: '/focus', icon: Target, label: 'Just nu', count: null, highlight: true, section: 'main' },
-    { to: '/overview', icon: BarChart3, label: 'Översikt', count: null, section: 'main' },
-    { to: '/calendar', icon: CalendarRange, label: 'Kalender', count: null, section: 'main' },
-    { to: '/all', icon: List, label: 'Alla uppgifter', count: activeTasks.length, section: 'main' },
-    { to: '/settings', icon: Settings, label: 'Inställningar', count: null, section: 'main' },
+  // TreeView data structure
+  const menuData = [
+    {
+      id: '1',
+      name: 'Just nu',
+      iconCss: 'e-icons e-target',
+      url: '/focus',
+      expanded: true,
+      highlight: true,
+    },
+    {
+      id: '2',
+      name: 'Översikt',
+      iconCss: 'e-icons e-bar-chart',
+      url: '/overview',
+    },
+    {
+      id: '3',
+      name: 'Kalender',
+      iconCss: 'e-icons e-schedule',
+      url: '/calendar',
+    },
+    {
+      id: '4',
+      name: `Alla uppgifter (${activeTasks.length})`,
+      iconCss: 'e-icons e-list-unordered',
+      url: '/all',
+    },
+    {
+      id: '5',
+      name: 'Avancerat',
+      iconCss: 'e-icons e-settings',
+      expanded: false,
+      hasChild: true,
+      child: [
+        {
+          id: '5-1',
+          name: 'Projekt',
+          iconCss: 'e-icons e-folder',
+          url: '/projects',
+        },
+        {
+          id: '5-2',
+          name: 'Kanban + Kalender',
+          iconCss: 'e-icons e-schedule',
+          url: '/kanban-calendar',
+        },
+        {
+          id: '5-3',
+          name: 'Importera',
+          iconCss: 'e-icons e-upload-1',
+          url: '/import',
+        },
+        {
+          id: '5-4',
+          name: 'Arkiv',
+          iconCss: 'e-icons e-archive',
+          url: '/archive',
+        },
+      ],
+    },
+    {
+      id: '6',
+      name: 'Inställningar',
+      iconCss: 'e-icons e-settings',
+      url: '/settings',
+    },
   ];
 
-  const advancedItems = [
-    { to: '/projects', icon: FolderKanban, label: 'Projekt', count: null, section: 'advanced' },
-    { to: '/kanban-calendar', icon: CalendarRange, label: 'Kanban + Kalender', count: null, section: 'advanced' },
-    { to: '/import', icon: Upload, label: 'Importera', count: null, section: 'advanced' },
-    { to: '/settings', icon: Settings, label: 'Inställningar', count: null, section: 'advanced' },
-  ];
+  // Handle node selection
+  const handleNodeSelect = (args: any) => {
+    const nodeData = args.nodeData;
+    if (nodeData.url) {
+      navigate(nodeData.url);
+      onClose(); // Close sidebar on mobile after navigation
+    }
+  };
+
+  // Custom template for highlighting current route
+  const nodeTemplate = (data: any) => {
+    const isActive = location.pathname === data.url;
+    const isHighlight = data.highlight;
+
+    return (
+      <div
+        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+          isHighlight
+            ? isActive
+              ? 'bg-copper-500 text-white shadow-soft'
+              : 'bg-copper-400 text-white hover:bg-copper-500 shadow-subtle'
+            : isActive
+            ? 'bg-sand-200 dark:bg-charcoal-800 text-copper-600 dark:text-copper-400'
+            : 'text-stone-700 dark:text-stone-300 hover:bg-sand-100 dark:hover:bg-charcoal-850'
+        }`}
+      >
+        <span className={data.iconCss} />
+        <span className="font-medium">{data.name}</span>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -70,60 +159,22 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           Ny uppgift
         </Button>
 
-        <nav className="space-y-1 flex-1">
-          {navItems.map(({ to, icon: Icon, label, count, highlight }) => (
-            <NavLink
-              key={to}
-              to={to}
-              onClick={() => onClose()} // Stäng sidebar på mobil efter navigering
-              className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-3 rounded-xl transition-all min-h-[44px] ${
-                  highlight
-                    ? isActive
-                      ? 'bg-copper-500 text-white shadow-soft'
-                      : 'bg-copper-400 text-white hover:bg-copper-500 shadow-subtle'
-                    : isActive
-                    ? 'bg-sand-200 dark:bg-charcoal-800 text-copper-600 dark:text-copper-400'
-                    : 'text-stone-700 dark:text-stone-300 hover:bg-sand-100 dark:hover:bg-charcoal-850'
-                }`
-              }
-            >
-              <div className="flex items-center gap-3">
-                <Icon className="h-5 w-5" />
-                <span className="font-medium">{label}</span>
-              </div>
-              {count !== null && (
-                <span className="text-sm text-stone-500 dark:text-stone-400">
-                  {count}
-                </span>
-              )}
-            </NavLink>
-          ))}
-
-          <div className="pt-6 mt-6 border-t border-sand-200 dark:border-charcoal-800">
-            <div className="px-4 mb-3 text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
-              Avancerat
-            </div>
-            {advancedItems.map(({ to, icon: Icon, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={() => onClose()} // Stäng sidebar på mobil efter navigering
-                className={({ isActive }) =>
-                  `flex items-center justify-between px-4 py-3 rounded-xl transition-all min-h-[44px] ${
-                    isActive
-                      ? 'bg-sand-200 dark:bg-charcoal-800 text-copper-600 dark:text-copper-400'
-                      : 'text-stone-700 dark:text-stone-300 hover:bg-sand-100 dark:hover:bg-charcoal-850'
-                  }`
-                }
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className="h-5 w-5" />
-                  <span className="font-medium">{label}</span>
-                </div>
-              </NavLink>
-            ))}
-          </div>
+        <nav className="space-y-1 flex-1 overflow-y-auto">
+          <TreeViewComponent
+            fields={{
+              dataSource: menuData,
+              id: 'id',
+              text: 'name',
+              child: 'child',
+              iconCss: 'iconCss',
+              expanded: 'expanded',
+              hasChildren: 'hasChild',
+            }}
+            nodeSelected={handleNodeSelect}
+            nodeTemplate={nodeTemplate}
+            cssClass="sidebar-treeview"
+            expandOn="Click"
+          />
         </nav>
       </aside>
 

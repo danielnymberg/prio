@@ -128,3 +128,42 @@
     @apply min-h-[40px] p-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700;
   }
 }
+
+/* Sidebar TreeView Styling */
+.sidebar-treeview.e-treeview {
+  background: transparent;
+  border: none;
+}
+
+.sidebar-treeview .e-list-item {
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+.sidebar-treeview .e-text-content {
+  padding: 0;
+}
+
+.sidebar-treeview .e-list-icon {
+  margin-right: 8px;
+}
+
+.sidebar-treeview .e-icons {
+  font-size: 20px;
+}
+
+/* Hide default TreeView expand/collapse icons */
+.sidebar-treeview .e-icon-collapsible,
+.sidebar-treeview .e-icon-expandable {
+  display: none;
+}
+
+/* Nested items indentation */
+.sidebar-treeview .e-list-item.e-level-2 {
+  padding-left: 12px;
+}
+
+/* Dark mode adjustments */
+.dark .sidebar-treeview .e-list-item {
+  color: inherit;
+}
