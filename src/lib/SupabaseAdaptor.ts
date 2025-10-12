@@ -18,6 +18,23 @@ export class SupabaseAdaptor extends JsonAdaptor {
   }
 
   /**
+   * Process response - transform data format if needed
+   * This is called by DataManager after processQuery
+   */
+  processResponse(data: any, _ds?: object, _query?: Query, _xhr?: object): any {
+    console.log('🟣 [SupabaseAdaptor] processResponse called with:', data);
+    // If data already has result/count structure, return as-is
+    if (data && typeof data === 'object' && 'result' in data) {
+      console.log('🟣 [SupabaseAdaptor] processResponse returning:', data);
+      return data;
+    }
+    // Otherwise wrap it
+    const wrapped = { result: data || [], count: (data || []).length };
+    console.log('🟣 [SupabaseAdaptor] processResponse wrapped:', wrapped);
+    return wrapped;
+  }
+
+  /**
    * Hämta data från Supabase
    * Denna metod körs av DataManager för att ladda initial data och vid refresh
    */
