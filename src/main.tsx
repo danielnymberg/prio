@@ -10,7 +10,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { logDebugInfo } from './utils/debug';
-import { registerLicense } from '@syncfusion/ej2-base';
+import { registerLicense, enableRipple, setCulture } from '@syncfusion/ej2-base';
 
 // Import Syncfusion CSS
 import '@syncfusion/ej2-base/styles/material.css';
@@ -33,6 +33,12 @@ if (syncfusionLicense) {
 } else {
   console.warn('Syncfusion license key not found. Add VITE_SYNCFUSION_LICENSE_KEY to .env.local');
 }
+
+// Enable ripple effect globally for Material design
+enableRipple(true);
+
+// Set Swedish culture globally
+setCulture('sv');
 
 // Conditional StrictMode - endast i development
 const AppWrapper = import.meta.env.DEV ? React.StrictMode : React.Fragment;

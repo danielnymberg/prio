@@ -42,18 +42,46 @@ import * as timeZoneNames from 'cldr-data/main/sv/timeZoneNames.json';
 loadCldr(numberingSystems, gregorian, numbers, timeZoneNames);
 setCulture('sv');
 
-// Svensk lokalisering
+// Svensk lokalisering för alla SyncFusion komponenter
 L10n.load({
   'sv': {
     'schedule': {
       'day': 'Dag',
       'week': 'Vecka',
+      'workWeek': 'Arbetsvecka',
       'month': 'Månad',
+      'agenda': 'Agenda',
       'today': 'Idag',
       'noEvents': 'Inga händelser',
       'delete': 'Ta bort',
       'save': 'Spara',
       'cancel': 'Avbryt',
+      'allDay': 'Heldag',
+      'repeat': 'Upprepa',
+      'never': 'Aldrig',
+      'daily': 'Dagligen',
+      'weekly': 'Veckovis',
+      'monthly': 'Månadsvis',
+      'yearly': 'Årligen',
+    },
+    'grid': {
+      'EmptyRecord': 'Inga poster att visa',
+      'GroupDropArea': 'Dra en kolumnrubrik hit för att gruppera',
+      'UnGroup': 'Klicka här för att avgruppera',
+      'Item': 'post',
+      'Items': 'poster',
+      'Print': 'Skriv ut',
+      'Pdfexport': 'PDF Export',
+      'Excelexport': 'Excel Export',
+      'Search': 'Sök',
+    },
+    'pager': {
+      'currentPageInfo': '{0} av {1} sidor',
+      'totalItemsInfo': '({0} poster)',
+      'firstPageTooltip': 'Gå till första sidan',
+      'lastPageTooltip': 'Gå till sista sidan',
+      'nextPageTooltip': 'Gå till nästa sida',
+      'previousPageTooltip': 'Gå till föregående sida',
     }
   }
 });
