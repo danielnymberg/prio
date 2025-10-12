@@ -473,6 +473,73 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           </div>
         </div>
 
+        {/* Starttid/Schemaläggning */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Starttid (schemalägg uppgiften)
+          </label>
+          <div className="space-y-2">
+            <Input
+              type="date"
+              value={scheduledStartDate}
+              onChange={(e) => setScheduledStartDate(e.target.value)}
+              placeholder="Datum"
+            />
+            {scheduledStartDate && (
+              <>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="scheduledStartHasTime"
+                    checked={scheduledStartHasTime}
+                    onChange={(e) => setScheduledStartHasTime(e.target.checked)}
+                    className="rounded border-gray-300 dark:border-gray-600"
+                  />
+                  <label htmlFor="scheduledStartHasTime" className="text-sm text-gray-700 dark:text-gray-300">
+                    Ange klockslag
+                  </label>
+                </div>
+
+                {scheduledStartHasTime && (
+                  <select
+                    value={scheduledStartHour}
+                    onChange={(e) => setScheduledStartHour(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  >
+                    <option value="06">06:00</option>
+                    <option value="07">07:00</option>
+                    <option value="08">08:00</option>
+                    <option value="09">09:00</option>
+                    <option value="10">10:00</option>
+                    <option value="11">11:00</option>
+                    <option value="12">12:00</option>
+                    <option value="13">13:00</option>
+                    <option value="14">14:00</option>
+                    <option value="15">15:00</option>
+                    <option value="16">16:00</option>
+                    <option value="17">17:00</option>
+                    <option value="18">18:00</option>
+                  </select>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScheduledStartDate('');
+                    setScheduledStartHasTime(false);
+                  }}
+                  className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-1"
+                >
+                  ❌ Ta bort schemaläggning
+                </button>
+              </>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+            💡 Schemalagda uppgifter visas i kalendervyn
+          </p>
+        </div>
+
         {/* Priority Flag - visas ENDAST om ingen deadline är satt */}
         {!deadlineDate && (
           <div>
