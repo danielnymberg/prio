@@ -97,15 +97,12 @@
   background-color: #292524;
 }
 
-/* SCHEDULE CONTAINER - KRITISK FIX */
+/* SCHEDULE CONTAINER - Enkel fast höjd */
 .schedule-container {
-  flex: 1; /* Ta resterande höjd */
-  min-height: 0; /* Tillåt krympning */
+  height: 700px; /* Fast höjd som är större än Schedule komponenten */
   background-color: white;
   border: 1px solid #e7e5e4;
   border-radius: 0.75rem;
-  position: relative;
-  overflow: hidden; /* Viktigt! */
 }
 
 .dark .schedule-container {
@@ -113,40 +110,13 @@
   border-color: #44403c;
 }
 
-/* SCHEDULE COMPONENT - Fyll containern */
+/* SCHEDULE COMPONENT - Låt SyncFusion hantera sin scrollning */
 .prio-schedule.e-schedule {
-  height: 100% !important; /* Fyll hela containern */
   background-color: transparent;
 }
 
-/* KRITISK SCROLLFIX - Huvudlösningen */
-.prio-schedule.e-schedule .e-content-wrap {
-  overflow-y: auto !important; /* auto istället för scroll */
-  overflow-x: hidden !important; /* Ingen horisontell scroll */
-  height: calc(100% - 50px) !important; /* Minus toolbar */
-  position: relative !important;
-}
-
-/* Tidslots ska INTE scrolla separat */
-.prio-schedule.e-schedule .e-time-slots-wrap {
-  overflow: visible !important;
-  height: auto !important;
-}
-
-/* Låt SyncFusion beräkna cell-höjder */
-.prio-schedule.e-schedule .e-work-cells,
-.prio-schedule.e-schedule .e-time-cells {
-  height: 60px !important; /* Standard höjd per timme */
-  min-height: 60px !important;
-}
-
-/* Touch-scroll för mobil */
-@media (pointer: coarse) {
-  .prio-schedule.e-schedule .e-content-wrap {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
-}
+/* TA BORT ALLA CSS-OVERRIDES - Låt SyncFusion göra sitt jobb! */
+/* Syncfusion hanterar scrollning internt när den har fast höjd */
 
 /* Event styling with smooth animations */
 .prio-schedule.e-schedule .e-appointment {
