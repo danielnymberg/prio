@@ -40,6 +40,7 @@ export interface Task {
   // Befintliga fält (behåll)
   deadline: string | null;             // När det måste vara KLART
   scheduled_start: string | null;      // När du planerar att BÖRJA arbeta på det
+  calendar_event_id: string | null;    // Microsoft Calendar event ID (för synk)
   status: TaskStatus;
   project_id: string | null;
   estimated_duration: number | null;  // Minuter
@@ -110,6 +111,7 @@ export interface UpdateTaskInput {
   result_impact?: number;
   deadline?: string;
   scheduled_start?: string;
+  calendar_event_id?: string;
   priority_flag?: PriorityFlag | null;
   status?: TaskStatus;
   project_id?: string;
