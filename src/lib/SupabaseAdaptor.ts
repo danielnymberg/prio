@@ -21,58 +21,64 @@ export class SupabaseAdaptor extends JsonAdaptor {
    * Hämta data från Supabase
    * Denna metod körs av DataManager för att ladda initial data och vid refresh
    */
-  async processQuery(_dataManager: DataManager, _query?: Query): Promise<any> {
-    try {
-      console.log('🔵 [SupabaseAdaptor] processQuery called');
+  processQuery(_dataManager: DataManager, _query?: Query): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log('🔵 [SupabaseAdaptor] processQuery called');
 
-      // Hämta tasks från Supabase
-      const { data: tasks, error } = await supabase
-        .from(this.tableName)
-        .select('*')
-        .eq('user_id', this.userId);
+        // Hämta tasks från Supabase
+        const { data: tasks, error } = await supabase
+          .from(this.tableName)
+          .select('*')
+          .eq('user_id', this.userId);
 
-      if (error) throw error;
+        if (error) {
+          console.error('❌ [SupabaseAdaptor] processQuery error:', error);
+          reject(error);
+          return;
+        }
 
-      console.log('🔵 [SupabaseAdaptor] Fetched', tasks?.length || 0, 'tasks');
+        console.log('🔵 [SupabaseAdaptor] Fetched', tasks?.length || 0, 'tasks');
 
-      // Debug: Visa ALLA tasks
-      console.log('🔵 [SupabaseAdaptor] All tasks:', tasks?.map(t => ({
-        id: t.id,
-        title: t.title,
-        scheduled_start: t.scheduled_start,
-        status: t.status
-      })));
+        // Debug: Visa ALLA tasks
+        console.log('🔵 [SupabaseAdaptor] All tasks:', tasks?.map(t => ({
+          id: t.id,
+          title: t.title,
+          scheduled_start: t.scheduled_start,
+          status: t.status
+        })));
 
-      // Konvertera till Schedule event format
-      const filteredTasks = (tasks || [])
-        .filter(task => {
-          const hasSchedule = !!task.scheduled_start;
-          const notDone = task.status !== 'done';
-          console.log(`🔵 [SupabaseAdaptor] Task "${task.title}": scheduled=${hasSchedule}, notDone=${notDone}`);
-          return hasSchedule && notDone;
+        // Konvertera till Schedule event format
+        const filteredTasks = (tasks || [])
+          .filter(task => {
+            const hasSchedule = !!task.scheduled_start;
+            const notDone = task.status !== 'done';
+            console.log(`🔵 [SupabaseAdaptor] Task "${task.title}": scheduled=${hasSchedule}, notDone=${notDone}`);
+            return hasSchedule && notDone;
+          });
+
+        console.log('🔵 [SupabaseAdaptor] Filtered to', filteredTasks.length, 'scheduled tasks');
+
+        const events = filteredTasks.map(task => this.taskToEvent(task));
+
+        console.log('🔵 [SupabaseAdaptor] Converted to', events.length, 'events');
+        console.log('🔵 [SupabaseAdaptor] Event details:', events.map(e => ({
+          Id: e.Id,
+          Subject: e.Subject,
+          StartTime: e.StartTime,
+          EndTime: e.EndTime
+        })));
+
+        // Returnera i Syncfusion-format
+        resolve({
+          result: events,
+          count: events.length
         });
-
-      console.log('🔵 [SupabaseAdaptor] Filtered to', filteredTasks.length, 'scheduled tasks');
-
-      const events = filteredTasks.map(task => this.taskToEvent(task));
-
-      console.log('🔵 [SupabaseAdaptor] Converted to', events.length, 'events');
-      console.log('🔵 [SupabaseAdaptor] Event details:', events.map(e => ({
-        Id: e.Id,
-        Subject: e.Subject,
-        StartTime: e.StartTime,
-        EndTime: e.EndTime
-      })));
-
-      // Returnera i Syncfusion-format
-      return {
-        result: events,
-        count: events.length
-      };
-    } catch (error) {
-      console.error('❌ [SupabaseAdaptor] processQuery error:', error);
-      return { result: [], count: 0 };
-    }
+      } catch (error) {
+        console.error('❌ [SupabaseAdaptor] processQuery error:', error);
+        reject(error);
+      }
+    });
   }
 
   /**
