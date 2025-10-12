@@ -3,8 +3,11 @@ import {
   ScheduleComponent,
   Day,
   Week,
+  WorkWeek,
   Month,
   Agenda,
+  TimelineViews,
+  TimelineMonth,
   Inject,
   ViewsDirective,
   ViewDirective,
@@ -13,6 +16,9 @@ import {
   PopupOpenEventArgs,
   Resize,
   DragAndDrop,
+  Print,
+  ExcelExport,
+  ICalendarExport,
 } from '@syncfusion/ej2-react-schedule';
 import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
 import type { Task, UpdateTaskInput } from '@/lib/types';
@@ -350,7 +356,13 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
             firstDayOfWeek={1}
             startHour="07:00"
             endHour="20:00"
-            timeScale={{ enable: true, interval: 60, slotCount: 1 }}
+            currentView="Week"
+            timeScale={{
+              enable: true,
+              interval: 30,
+              slotCount: 2,
+              minorSlotCount: 1
+            }}
             showQuickInfo={false}
             eventSettings={eventSettings}
             actionComplete={onActionComplete}
@@ -358,13 +370,35 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
             eventRendered={onEventRendered}
             allowDragAndDrop={true}
             allowResizing={true}
+            enableRecurrenceValidation={true}
+            enablePersistence={false}
+            allowKeyboardInteraction={true}
+            enableAdaptiveUI={true}
+            rowAutoHeight={false}
+            showTimeIndicator={true}
           >
             <ViewsDirective>
-              <ViewDirective option="Week" />
               <ViewDirective option="Day" />
+              <ViewDirective option="Week" />
+              <ViewDirective option="WorkWeek" />
               <ViewDirective option="Month" />
+              <ViewDirective option="Agenda" />
+              <ViewDirective option="TimelineWeek" />
             </ViewsDirective>
-            <Inject services={[Day, Week, Month, Agenda, DragAndDrop, Resize]} />
+            <Inject services={[
+              Day,
+              Week,
+              WorkWeek,
+              Month,
+              Agenda,
+              TimelineViews,
+              TimelineMonth,
+              DragAndDrop,
+              Resize,
+              Print,
+              ExcelExport,
+              ICalendarExport
+            ]} />
           </ScheduleComponent>
         </div>
       </div>
