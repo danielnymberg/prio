@@ -1,213 +1,213 @@
 import { useState } from 'react';
-import { Task, Quadrant } from '@/lib/types';
-import { QuadrantCard } from './QuadrantCard';
-import { TaskForm } from '@/components/tasks/TaskForm';
-import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { useTasks } from '@/hooks/useTasks';
-import { getTaskQuadrant } from '@/lib/utils';
-import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
-import { CheckCheck, Grid, List } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { useProjects } from '@/hooks/useProjects';
+import { Task, Quadrant, CreateTaskInput } from '@/lib/types';
+import { TaskForm } from '@/components/tasks/TaskForm';
+import { showToast } from '@/services/toast';
+import {
+  KanbanComponent,
+  ColumnsDirective,
+  ColumnDirective,
+} from '@syncfusion/ej2-react-kanban';
 
 export function EisenhowerMatrix() {
-  const { tasks, createTask, updateTask, deleteTask } = useTasks();
+  const { tasks, updateTask, createTask, deleteTask } = useTasks();
+  const { projects } = useProjects();
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [targetQuadrant, setTargetQuadrant] = useState<Quadrant | undefined>(undefined);
-  const [viewMode, setViewMode] = useState<'compact' | 'expanded'>('compact');
 
-  const tasksByQuadrant: Record<Quadrant, Task[]> = {
-    Q1: tasks.filter((t) => getTaskQuadrant(t) === 'Q1' && t.status !== 'done'),
-    Q2: tasks.filter((t) => getTaskQuadrant(t) === 'Q2' && t.status !== 'done'),
-    Q3: tasks.filter((t) => getTaskQuadrant(t) === 'Q3' && t.status !== 'done'),
-    Q4: tasks.filter((t) => getTaskQuadrant(t) === 'Q4' && t.status !== 'done'),
+  // Filter active tasks only
+  const activeTasks = tasks.filter(t => t.status !== 'done');
+
+  // Map tasks to quadrants based on importance/urgency
+  const getQuadrant = (task: Task): Quadrant => {
+    const importance = task.importance || task.value_score || 5;
+    const urgency = task.urgency || task.time_sensitivity || 5;
+
+    if (importance > 5 && urgency > 5) return 'Q1'; // Important & Urgent
+    if (importance > 5 && urgency <= 5) return 'Q2'; // Important, Not Urgent
+    if (importance <= 5 && urgency > 5) return 'Q3'; // Not Important, Urgent
+    return 'Q4'; // Not Important, Not Urgent
   };
 
-  const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
-    setTargetQuadrant(undefined);
-    setIsFormOpen(true);
-  };
-
-  const handleAddTask = (quadrant: Quadrant) => {
-    setSelectedTask(undefined);
-    setTargetQuadrant(quadrant);
-    setIsFormOpen(true);
-  };
-
-  const handleFormSubmit = async (input: any) => {
-    if (targetQuadrant && !selectedTask) {
-      const quadrantDefaults = {
-        Q1: { value_score: 8, time_sensitivity: 8 },
-        Q2: { value_score: 8, time_sensitivity: 3 },
-        Q3: { value_score: 3, time_sensitivity: 8 },
-        Q4: { value_score: 3, time_sensitivity: 3 },
-      };
-
-      const defaults = quadrantDefaults[targetQuadrant];
-      await createTask({
-        ...input,
-        value_score: input.value_score ?? defaults.value_score,
-        time_sensitivity: input.time_sensitivity ?? defaults.time_sensitivity,
-        confidence: input.confidence ?? 7,
-        effort: input.effort ?? 5,
-      });
-    } else if (selectedTask) {
-      await updateTask(selectedTask.id, input);
-    }
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) return;
-
-    const task = tasks.find((t) => t.id === active.id);
-    if (!task) return;
-
-    const targetQuadrant = over.id as Quadrant;
-    const quadrantUpdates = {
-      Q1: { value_score: 8, time_sensitivity: 8 },
-      Q2: { value_score: 8, time_sensitivity: 3 },
-      Q3: { value_score: 3, time_sensitivity: 8 },
-      Q4: { value_score: 3, time_sensitivity: 3 },
+  // Prepare Kanban data
+  const kanbanData = activeTasks.map(task => {
+    const project = projects.find(p => p.id === task.project_id);
+    return {
+      ...task,
+      quadrant: getQuadrant(task),
+      projectName: project?.name || 'Inget projekt',
+      projectColor: project?.color || '#999',
     };
+  });
 
-    const updates = quadrantUpdates[targetQuadrant];
-    if (updates) {
-      await updateTask(task.id, updates);
+  // Card template
+  const cardTemplate = (props: any) => {
+    const task = props as Task & { projectName: string; projectColor: string; quadrant: string };
+
+    return (
+      <div className="e-card-content p-3">
+        <div className="flex items-start justify-between mb-2">
+          <h4 className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2">
+            {task.title}
+          </h4>
+        </div>
+
+        {task.description && (
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+            {task.description}
+          </p>
+        )}
+
+        <div className="flex items-center justify-between text-xs">
+          <div
+            className="px-2 py-1 rounded-full"
+            style={{
+              backgroundColor: `${task.projectColor}20`,
+              color: task.projectColor,
+              border: `1px solid ${task.projectColor}40`,
+            }}
+          >
+            {task.projectName}
+          </div>
+
+          {task.estimated_duration && (
+            <span className="text-gray-500 dark:text-gray-400">
+              {task.estimated_duration >= 60
+                ? `${Math.round(task.estimated_duration / 60)}h`
+                : `${task.estimated_duration}m`}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <span>V: {task.value_score || task.importance || 5}</span>
+          <span>T: {task.time_sensitivity || task.urgency || 5}</span>
+          <span className="ml-auto font-medium">
+            P: {((task.value_score || 5) * (task.time_sensitivity || 5) * (task.confidence || 7) / (task.effort || 5)).toFixed(1)}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  // Handle card click
+  const handleCardClick = (args: any) => {
+    const taskId = args.data.id;
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      setSelectedTask(task);
+      setIsFormOpen(true);
     }
   };
 
-  const handleBulkCompleteQ4 = async () => {
-    const q4Tasks = tasksByQuadrant.Q4;
-    if (q4Tasks.length === 0) {
-      toast.error('Inga tasks i Q4');
-      return;
+  // Handle drag & drop (quadrant change)
+  const handleDragStop = async (args: any) => {
+    const taskId = args.data[0].id;
+    const newQuadrant = args.dropIndex;
+
+    // Update task based on new quadrant
+    let updates: any = {};
+
+    switch (newQuadrant) {
+      case 'Q1': // Important & Urgent
+        updates = { importance: 8, urgency: 8 };
+        break;
+      case 'Q2': // Important, Not Urgent
+        updates = { importance: 8, urgency: 3 };
+        break;
+      case 'Q3': // Not Important, Urgent
+        updates = { importance: 3, urgency: 8 };
+        break;
+      case 'Q4': // Not Important, Not Urgent
+        updates = { importance: 3, urgency: 3 };
+        break;
     }
 
-    const confirmed = confirm(`Markera alla ${q4Tasks.length} tasks i Q4 som klara?`);
-    if (!confirmed) return;
-
-    try {
-      await Promise.all(
-        q4Tasks.map(task => updateTask(task.id, { status: 'done' }))
-      );
-      toast.success(`${q4Tasks.length} tasks markerade som klara!`);
-    } catch (error) {
-      console.error('Bulk complete error:', error);
-      toast.error('Kunde inte markera alla tasks som klara');
-    }
-  };
-
-  const handleDuplicate = async (task: Task) => {
-    try {
-      await createTask({
-        title: `${task.title} (kopia)`,
-        description: task.description || undefined,
-        value_score: task.value_score || 5,
-        time_sensitivity: task.time_sensitivity || 5,
-        confidence: task.confidence || 7,
-        effort: task.effort || 5,
-        deadline: task.deadline || undefined,
-        status: 'not_started',
-      });
-      toast.success('Task duplicerad!');
-    } catch (error) {
-      console.error('Duplicate error:', error);
-      toast.error('Kunde inte duplicera task');
-    }
+    await updateTask(taskId, updates);
+    showToast.success('Uppgift flyttad till ny kvadrant');
   };
 
   return (
-    <>
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === 'compact' ? 'primary' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('compact')}
-              >
-                <Grid className="h-4 w-4 mr-2" />
-                Kompakt
-              </Button>
-              <Button
-                variant={viewMode === 'expanded' ? 'primary' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('expanded')}
-              >
-                <List className="h-4 w-4 mr-2" />
-                Utökad
-              </Button>
-            </div>
+    <div className="h-full flex flex-col space-y-4 p-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          Eisenhower Matrix
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Prioritera uppgifter baserat på viktighet och brådska
+        </p>
+      </div>
 
-            {tasksByQuadrant.Q4.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBulkCompleteQ4}
-                className="text-gray-600 dark:text-gray-400"
-              >
-                <CheckCheck className="h-4 w-4 mr-2" />
-                Markera alla Q4 som klara ({tasksByQuadrant.Q4.length})
-              </Button>
-            )}
-          </div>
+      {/* Tips */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <p className="text-sm text-blue-900 dark:text-blue-100">
+          <strong>💡 Tips:</strong> Dra och släpp uppgifter mellan kvadranter för att ändra prioritering.
+          Q1 = Gör nu, Q2 = Schemalägg, Q3 = Delegera, Q4 = Eliminera
+        </p>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-          <QuadrantCard
-            quadrant="Q1"
-            tasks={tasksByQuadrant.Q1}
-            onTaskClick={handleTaskClick}
-            onAddTask={handleAddTask}
-            onDuplicate={handleDuplicate}
-            onUpdate={(id, updates) => updateTask(id, updates as any)}
-            onDelete={deleteTask}
-            viewMode={viewMode}
-          />
-          <QuadrantCard
-            quadrant="Q2"
-            tasks={tasksByQuadrant.Q2}
-            onTaskClick={handleTaskClick}
-            onAddTask={handleAddTask}
-            onDuplicate={handleDuplicate}
-            onUpdate={(id, updates) => updateTask(id, updates as any)}
-            onDelete={deleteTask}
-            viewMode={viewMode}
-          />
-          <QuadrantCard
-            quadrant="Q3"
-            tasks={tasksByQuadrant.Q3}
-            onTaskClick={handleTaskClick}
-            onAddTask={handleAddTask}
-            onDuplicate={handleDuplicate}
-            onUpdate={(id, updates) => updateTask(id, updates as any)}
-            onDelete={deleteTask}
-            viewMode={viewMode}
-          />
-          <QuadrantCard
-            quadrant="Q4"
-            tasks={tasksByQuadrant.Q4}
-            onTaskClick={handleTaskClick}
-            onAddTask={handleAddTask}
-            onDuplicate={handleDuplicate}
-            onUpdate={(id, updates) => updateTask(id, updates as any)}
-            onDelete={deleteTask}
-            viewMode={viewMode}
-          />
-          </div>
-        </div>
-      </DndContext>
+      {/* Kanban Board */}
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <KanbanComponent
+          dataSource={kanbanData}
+          keyField="quadrant"
+          cardSettings={{
+            contentField: 'title',
+            headerField: 'title',
+            template: cardTemplate,
+          }}
+          swimlaneSettings={{ keyField: 'project_id' }}
+          cardClick={handleCardClick}
+          dragStop={handleDragStop}
+          height="100%"
+          cssClass="eisenhower-kanban"
+        >
+          <ColumnsDirective>
+            <ColumnDirective
+              headerText="🎯 Q1: Gör nu"
+              keyField="Q1"
+              allowToggle={true}
+            />
+            <ColumnDirective
+              headerText="📅 Q2: Schemalägg"
+              keyField="Q2"
+              allowToggle={true}
+            />
+            <ColumnDirective
+              headerText="👥 Q3: Delegera"
+              keyField="Q3"
+              allowToggle={true}
+            />
+            <ColumnDirective
+              headerText="🗑️ Q4: Eliminera"
+              keyField="Q4"
+              allowToggle={true}
+            />
+          </ColumnsDirective>
+        </KanbanComponent>
+      </div>
 
+      {/* TaskForm Modal */}
       <TaskForm
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleFormSubmit}
+        onClose={() => {
+          setIsFormOpen(false);
+          setSelectedTask(undefined);
+        }}
+        onSubmit={async (input) => {
+          if (selectedTask) {
+            await updateTask(selectedTask.id, input);
+            showToast.success('Uppgift uppdaterad!');
+          } else {
+            await createTask(input as CreateTaskInput);
+            showToast.success('Uppgift skapad!');
+          }
+        }}
         onDelete={deleteTask}
         task={selectedTask}
       />
-    </>
+    </div>
   );
 }

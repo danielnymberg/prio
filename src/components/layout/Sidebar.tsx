@@ -52,42 +52,42 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
     {
       id: '5',
-      name: 'Avancerat',
-      iconCss: 'e-icons e-settings',
-      expanded: false,
-      hasChild: true,
-      child: [
-        {
-          id: '5-1',
-          name: 'Projekt',
-          iconCss: 'e-icons e-folder',
-          url: '/projects',
-        },
-        {
-          id: '5-2',
-          name: 'Kanban + Kalender',
-          iconCss: 'e-icons e-schedule',
-          url: '/kanban-calendar',
-        },
-        {
-          id: '5-3',
-          name: 'Importera',
-          iconCss: 'e-icons e-upload-1',
-          url: '/import',
-        },
-        {
-          id: '5-4',
-          name: 'Arkiv',
-          iconCss: 'e-icons e-archive',
-          url: '/archive',
-        },
-      ],
+      name: 'Eisenhower Matrix',
+      iconCss: 'e-icons e-grid-layout',
+      url: '/matrix',
     },
     {
       id: '6',
       name: 'Inställningar',
       iconCss: 'e-icons e-settings',
       url: '/settings',
+    },
+    {
+      id: '7',
+      name: 'Avancerat',
+      iconCss: 'e-icons e-more-horizontal-1',
+      expanded: false,
+      hasChild: true,
+      child: [
+        {
+          id: '7-1',
+          name: 'Projekt',
+          iconCss: 'e-icons e-folder',
+          url: '/projects',
+        },
+        {
+          id: '7-2',
+          name: 'Importera',
+          iconCss: 'e-icons e-upload-1',
+          url: '/import',
+        },
+        {
+          id: '7-3',
+          name: 'Arkiv',
+          iconCss: 'e-icons e-archive',
+          url: '/archive',
+        },
+      ],
     },
   ];
 

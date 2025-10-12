@@ -37,8 +37,7 @@ const ProjectsView = lazy(() => import('./components/projects/ProjectsView').the
 const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetailView').then(m => ({ default: m.ProjectDetailView })));
 const OverviewView = lazy(() => import('./components/overview/OverviewView').then(m => ({ default: m.OverviewView })));
 const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSidebar').then(m => ({ default: m.CalendarWithTaskSidebar })));
-const KanbanView = lazy(() => import('./components/tasks/KanbanView').then(m => ({ default: m.KanbanView })));
-const KanbanCalendarView = lazy(() => import('./components/views/KanbanCalendarView').then(m => ({ default: m.KanbanCalendarView })));
+const EisenhowerMatrix = lazy(() => import('./components/matrix/EisenhowerMatrix').then(m => ({ default: m.EisenhowerMatrix })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -372,13 +371,13 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* Alias /matrix to Dashboard for backwards compatibility */}
+        {/* Eisenhower Matrix */}
         <Route
           path="/matrix"
           element={
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
-                <Dashboard />
+                <EisenhowerMatrix />
               </Suspense>
             </ProtectedRoute>
           }
@@ -444,28 +443,6 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <CalendarView />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        {/* Kanban (standalone) */}
-        <Route
-          path="/kanban"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <KanbanView />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        {/* Kanban + Calendar combined */}
-        <Route
-          path="/kanban-calendar"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <KanbanCalendarView />
               </Suspense>
             </ProtectedRoute>
           }
