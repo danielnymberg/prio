@@ -23,7 +23,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
 
   // TreeView data structure
-  const menuData = [
+  const menuData: any[] = [
     {
       id: '1',
       name: 'Just nu',

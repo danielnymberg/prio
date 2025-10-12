@@ -22,7 +22,6 @@ import { VoiceInterface } from './components/voice/VoiceInterface';
 import { GlobalSearch } from './components/search/GlobalSearch';
 
 // Lazy load routes för bättre initial load performance
-const Dashboard = lazy(() => import('./components/views/Dashboard').then(m => ({ default: m.Dashboard })));
 const ArchiveView = lazy(() => import('./components/views/ArchiveView').then(m => ({ default: m.ArchiveView })));
 const ImportView = lazy(() => import('./components/views/ImportView').then(m => ({ default: m.ImportView })));
 const AllTasksView = lazy(() => import('./components/views/AllTasksView').then(m => ({ default: m.AllTasksView })));
