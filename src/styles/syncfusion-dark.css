@@ -10,9 +10,15 @@
   overflow: visible !important;
 }
 
-/* Slower auto-scroll during drag operations */
+/* Korrekt scroll-hantering för Schedule - låt SyncFusion hantera sin egen scrollning */
 .e-schedule .e-content-wrap {
+  overflow-y: auto !important;
+  overflow-x: auto !important;
   scroll-behavior: smooth !important;
+}
+
+.e-schedule .e-time-slots-wrap {
+  overflow: hidden !important; /* Tid-kolumnen ska INTE scrolla separat */
 }
 
 /* ============================================
@@ -23,28 +29,24 @@
 /* Cell heights - KRITISKT för alignment */
 /* Syncfusion's DOM: e-time-slots-wrap innehåller tid-celler, e-content-wrap innehåller work-celler */
 
-/* ALLA table cells måste ha EXAKT samma höjd */
+/* KOMPAKTA cells - men låt SyncFusion hantera höjdberäkningar */
 .prio-compact-schedule.e-schedule .e-vertical-view .e-time-slots-wrap table tbody tr,
 .prio-compact-schedule.e-schedule .e-vertical-view .e-content-wrap table tbody tr {
-  height: 36px !important;
+  height: 36px;
 }
 
 .prio-compact-schedule.e-schedule .e-vertical-view .e-time-slots-wrap table tbody tr td,
 .prio-compact-schedule.e-schedule .e-vertical-view .e-content-wrap table tbody tr td {
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  box-sizing: border-box !important;
+  height: 36px;
+  box-sizing: border-box;
 }
 
 /* Specifika selectors för time cells och work cells */
 .prio-compact-schedule.e-schedule .e-vertical-view .e-time-cells,
 .prio-compact-schedule.e-schedule .e-vertical-view .e-work-cells {
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  line-height: 36px !important;
-  box-sizing: border-box !important;
+  height: 36px;
+  line-height: 36px;
+  box-sizing: border-box;
 }
 
 /* Time cell text styling */
@@ -269,4 +271,15 @@
 .dark .e-schedule .e-agenda-view .e-appointment {
   background-color: #292524 !important;
   border-color: #44403c !important;
+}
+
+/* ============================================
+   MOBILE OPTIMIZATION
+   ============================================ */
+/* Smooth scrolling på mobil */
+@media (max-width: 768px) {
+  .e-schedule .e-content-wrap {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
 }

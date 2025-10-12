@@ -338,12 +338,13 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
         </div>
       </div>
 
-      {/* SyncFusion Schedule - Following Syncfusion responsiveness guidelines */}
-      <div className="flex-1 min-h-0 bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 overflow-hidden">
-        <div className="h-full p-4 overflow-auto">
+      {/* SyncFusion Schedule - Let SyncFusion handle its own scrolling */}
+      <div className="flex-1 bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800">
+        <div className="h-full p-4 relative">
           <ScheduleComponent
             ref={scheduleRef}
-            height="100%"
+            cssClass="prio-compact-schedule"
+            height="calc(100% - 2rem)"
             width="100%"
             locale="sv"
             firstDayOfWeek={1}
