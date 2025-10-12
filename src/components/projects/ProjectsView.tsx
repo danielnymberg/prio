@@ -1,20 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Project } from '@/lib/types';
-import { ProjectForm } from './ProjectForm';
+import { Project, CreateProjectInput, UpdateProjectInput } from '@/lib/types';
 import { ProjectOnboardingModal } from '../onboarding/ProjectOnboardingModal';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, DollarSign, Clock } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { showToast } from '@/services/toast';
+import {
+  GridComponent,
+  ColumnsDirective,
+  ColumnDirective,
+  Page,
+  Sort,
+  Filter,
+  Toolbar,
+  Edit,
+  Inject,
+  ToolbarItems,
+  EditSettingsModel,
+} from '@syncfusion/ej2-react-grids';
 
 export function ProjectsView() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const gridRef = useRef<GridComponent>(null);
 
   useEffect(() => {
     if (user) {
@@ -42,10 +53,152 @@ export function ProjectsView() {
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
-      toast.error('Kunde inte hämta projekt');
+      showToast.error('Kunde inte hämta projekt');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle grid actions
+  const actionComplete = async (args: any) => {
+    if (args.requestType === 'save') {
+      // Update existing project
+      const updatedData = args.data;
+      try {
+        const updateInput: UpdateProjectInput = {
+          name: updatedData.name,
+          description: updatedData.description,
+          client_name: updatedData.client_name,
+          quoted_hours: updatedData.quoted_hours,
+          hourly_rate: updatedData.hourly_rate,
+          external_costs: updatedData.external_costs,
+          project_deadline: updatedData.project_deadline,
+          completion_percentage: updatedData.completion_percentage,
+          color: updatedData.color,
+          status: updatedData.status,
+        };
+
+        const { error } = await supabase
+          .from('projects')
+          .update(updateInput)
+          .eq('id', updatedData.id);
+
+        if (error) throw error;
+        showToast.success('Projekt uppdaterat!');
+        fetchProjects();
+      } catch (error) {
+        console.error('Error updating project:', error);
+        showToast.error('Kunde inte uppdatera projekt');
+      }
+    } else if (args.requestType === 'delete') {
+      // Delete project
+      const deletedData = args.data[0];
+      try {
+        const { error } = await supabase
+          .from('projects')
+          .delete()
+          .eq('id', deletedData.id);
+
+        if (error) throw error;
+        showToast.success('Projekt raderat');
+        fetchProjects();
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        showToast.error('Kunde inte radera projekt');
+      }
+    } else if (args.requestType === 'beginEdit') {
+      // User started editing
+    }
+  };
+
+  const actionBegin = async (args: any) => {
+    if (args.requestType === 'add') {
+      // Prevent default add, we'll handle it custom
+      args.cancel = true;
+      navigate('/projects/new'); // Or show custom form
+    }
+  };
+
+  // Prepare grid data with calculated fields
+  const gridData = projects.map(project => {
+    const totalBudget = project.quoted_hours * project.hourly_rate + project.external_costs;
+    return {
+      ...project,
+      total_budget: totalBudget,
+      status_display: project.status === 'active' ? 'Aktiv' : project.status === 'completed' ? 'Slutförd' : 'Arkiverad',
+    };
+  });
+
+  const editSettings: EditSettingsModel = {
+    allowEditing: true,
+    allowAdding: false, // Disable built-in add, use custom flow
+    allowDeleting: true,
+    mode: 'Dialog',
+    template: undefined, // Use default dialog
+  };
+
+  const toolbarItems: ToolbarItems[] = [
+    'Edit',
+    'Delete',
+    'Update',
+    'Cancel',
+    'Search',
+  ];
+
+  const pageSettings = { pageSize: 20, pageSizes: [10, 20, 50] };
+  const sortSettings = { columns: [{ field: 'created_at', direction: 'Descending' as any }] };
+
+  // Progress bar template
+  const progressTemplate = (props: any) => {
+    const percentage = props.completion_percentage || 0;
+    const getColor = () => {
+      if (percentage < 30) return 'bg-red-500';
+      if (percentage < 70) return 'bg-yellow-500';
+      return 'bg-green-500';
+    };
+
+    return (
+      <div className="flex items-center gap-2">
+        <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div
+            className={`h-full ${getColor()} transition-all`}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+        <span className="text-xs font-medium w-10">{percentage}%</span>
+      </div>
+    );
+  };
+
+  // Budget template (formatted currency)
+  const budgetTemplate = (props: any) => {
+    return (
+      <span className="font-medium">
+        {props.total_budget.toLocaleString('sv-SE')} kr
+      </span>
+    );
+  };
+
+  // Status badge template
+  const statusTemplate = (props: any) => {
+    const getStatusStyle = () => {
+      if (props.status === 'active')
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      if (props.status === 'completed')
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+      return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
+    };
+
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs ${getStatusStyle()}`}>
+        {props.status_display}
+      </span>
+    );
+  };
+
+  // Handle row double-click to navigate to details
+  const handleRecordDoubleClick = (args: any) => {
+    navigate(`/projects/${args.rowData.id}`);
   };
 
   if (loading) {
@@ -56,92 +209,129 @@ export function ProjectsView() {
     );
   }
 
-  if (showForm) {
-    return (
-      <div className="max-w-2xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-2">Skapa nytt projekt</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Ladda upp en offert-PDF för att automatiskt extrahera projektinformation,
-          eller fyll i manuellt nedan.
-        </p>
-        <ProjectForm
-          onSuccess={() => {
-            setShowForm(false);
-            fetchProjects();
-          }}
-          onCancel={() => setShowForm(false)}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Projekt</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-copper-600 text-white rounded-lg hover:bg-copper-600"
-        >
-          <Plus className="h-5 w-5" />
-          Nytt projekt
-        </button>
+    <div className="h-full flex flex-col space-y-4 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            Projekt
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            {projects.length} projekt totalt
+          </p>
+        </div>
       </div>
 
       {projects.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">Inga projekt än</p>
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-6 py-3 bg-copper-600 text-white rounded-lg hover:bg-copper-600"
-          >
-            Skapa ditt första projekt
-          </button>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-500 mb-4">Inga projekt än</p>
+            <button
+              onClick={() => navigate('/projects/new')}
+              className="px-6 py-3 bg-copper-600 text-white rounded-lg hover:bg-copper-700"
+            >
+              Skapa ditt första projekt
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              onClick={() => navigate(`/projects/${project.id}`)}
-              className="p-6 border-2 rounded-xl hover:shadow-lg transition-shadow cursor-pointer"
-              style={{ borderColor: project.color }}
-            >
-              <h3 className="font-bold text-lg mb-2">{project.name}</h3>
-
-              {project.client_name && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  {project.client_name}
-                </p>
-              )}
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-gray-500" />
-                  <span>{project.quoted_hours}h offererat</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm">
-                  <DollarSign className="h-4 w-4 text-gray-500" />
-                  <span>{project.total_budget.toLocaleString('sv-SE')} kr</span>
-                </div>
-
-                {project.project_deadline && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-gray-500" />
-                    <span>{new Date(project.project_deadline).toLocaleDateString('sv-SE')}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-4 pt-4 border-t">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Färdigt:</span>
-                  <span className="font-semibold">{project.completion_percentage}%</span>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <GridComponent
+            ref={gridRef}
+            dataSource={gridData}
+            allowPaging={true}
+            allowSorting={true}
+            allowFiltering={true}
+            editSettings={editSettings}
+            toolbar={toolbarItems}
+            pageSettings={pageSettings}
+            sortSettings={sortSettings}
+            actionComplete={actionComplete}
+            actionBegin={actionBegin}
+            recordDoubleClick={handleRecordDoubleClick}
+            height="100%"
+            rowHeight={60}
+            gridLines="Horizontal"
+            enableHover={true}
+            enableStickyHeader={true}
+          >
+            <ColumnsDirective>
+              <ColumnDirective
+                field="name"
+                headerText="Projektnamn"
+                width="200"
+                clipMode="EllipsisWithTooltip"
+                validationRules={{ required: true }}
+              />
+              <ColumnDirective
+                field="client_name"
+                headerText="Kund"
+                width="150"
+                clipMode="EllipsisWithTooltip"
+              />
+              <ColumnDirective
+                field="quoted_hours"
+                headerText="Offererade timmar"
+                width="120"
+                editType="numericedit"
+                format="N0"
+                textAlign="Center"
+                validationRules={{ required: true, min: 0 }}
+              />
+              <ColumnDirective
+                field="hourly_rate"
+                headerText="Timpris (kr)"
+                width="100"
+                editType="numericedit"
+                format="N0"
+                textAlign="Right"
+                validationRules={{ required: true, min: 0 }}
+              />
+              <ColumnDirective
+                field="total_budget"
+                headerText="Budget"
+                width="120"
+                template={budgetTemplate}
+                allowEditing={false}
+                textAlign="Right"
+              />
+              <ColumnDirective
+                field="completion_percentage"
+                headerText="Färdigt"
+                width="150"
+                template={progressTemplate}
+                editType="numericedit"
+                edit={{ params: { min: 0, max: 100, step: 5 } }}
+              />
+              <ColumnDirective
+                field="status"
+                headerText="Status"
+                width="100"
+                template={statusTemplate}
+                editType="dropdownedit"
+                edit={{
+                  params: {
+                    dataSource: [
+                      { value: 'active', text: 'Aktiv' },
+                      { value: 'completed', text: 'Slutförd' },
+                      { value: 'archived', text: 'Arkiverad' },
+                    ],
+                    fields: { value: 'value', text: 'text' },
+                  },
+                }}
+              />
+              <ColumnDirective
+                field="project_deadline"
+                headerText="Deadline"
+                width="120"
+                type="date"
+                format="yyyy-MM-dd"
+                editType="datepickeredit"
+              />
+            </ColumnsDirective>
+            <Inject services={[Page, Sort, Filter, Toolbar, Edit]} />
+          </GridComponent>
         </div>
       )}
 
