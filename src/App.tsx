@@ -11,7 +11,8 @@ import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding';
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
-import { toast } from 'react-hot-toast';
+import { ToastComponent } from '@syncfusion/ej2-react-notifications';
+import { globalToastRef, showToast } from './services/toast';
 import { useTasks } from './hooks/useTasks';
 import { checkAndSendNotifications } from './services/notifications';
 import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
@@ -238,9 +239,11 @@ function App() {
     const storedVersion = localStorage.getItem('prio_app_version');
 
     if (storedVersion && storedVersion !== currentVersion) {
-      toast.success('Appen har uppdaterats till v' + currentVersion, {
-        duration: 5000,
-        icon: '🎉',
+      showToast.custom({
+        title: '🎉 Uppdaterad!',
+        content: `Appen har uppdaterats till v${currentVersion}`,
+        cssClass: 'e-toast-success',
+        timeOut: 5000,
       });
     }
 
@@ -262,6 +265,20 @@ function App() {
 
   return (
     <BrowserRouter>
+      {/* Global Toast Component */}
+      <ToastComponent
+        ref={globalToastRef}
+        id="toast_global"
+        position={{ X: 'Right', Y: 'Top' }}
+        showCloseButton={true}
+        newestOnTop={true}
+        showProgressBar={true}
+        timeOut={3000}
+        animation={{
+          show: { effect: 'SlideRightIn', duration: 300 },
+          hide: { effect: 'SlideRightOut', duration: 300 }
+        }}
+      />
       <VersionBanner />
       <OfflineBanner />
       <GlobalSearch isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} />
