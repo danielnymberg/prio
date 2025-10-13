@@ -333,10 +333,23 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500 mx-auto mb-4"></div>
-          <p className="text-stone-600 dark:text-stone-400">Laddar kalender...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '2px solid transparent',
+            borderBottomColor: 'var(--copper-500)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }}></div>
+          <p style={{ color: 'var(--e-text)' }}>Laddar kalender...</p>
         </div>
       </div>
     );
@@ -344,13 +357,38 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
   if (!isMsftConnected) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="bg-white dark:bg-charcoal-850 rounded-xl p-8 max-w-md text-center border border-sand-200 dark:border-charcoal-800">
-          <AlertCircle className="h-12 w-12 text-copper-600 dark:text-copper-400 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-stone-900 dark:text-cream-50 mb-2">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%'
+      }}>
+        <div style={{
+          background: 'var(--e-surface)',
+          borderRadius: '12px',
+          padding: '32px',
+          maxWidth: '448px',
+          textAlign: 'center',
+          border: '1px solid var(--e-border)'
+        }}>
+          <AlertCircle style={{
+            width: '48px',
+            height: '48px',
+            color: 'var(--copper-500)',
+            margin: '0 auto 16px'
+          }} />
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: 'var(--e-text)',
+            marginBottom: '8px'
+          }}>
             Microsoft Kalender Ej Ansluten
           </h3>
-          <p className="text-stone-600 dark:text-stone-400 mb-6">
+          <p style={{
+            color: 'var(--e-text)',
+            marginBottom: '24px'
+          }}>
             Anslut ditt Microsoft-konto för att synka kalender och schemalägga fokustid.
           </p>
         </div>
@@ -378,41 +416,108 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
   };
 
   return (
-    <div className="schedule-wrapper">
+    <div style={{ width: '100%', height: '100%' }}>
       {/* Header section - Legend and export buttons */}
-      <div className="schedule-header">
-        <div className="schedule-header-content">
-          <div className="schedule-legend">
-            <div className="schedule-legend-item">
-              <div className="schedule-legend-color" style={{ backgroundColor: '#3b82f6' }} />
-              <span>Externa möten</span>
+      <div style={{
+        padding: '16px',
+        background: 'var(--e-surface)',
+        borderBottom: '1px solid var(--e-border)'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
+          <div style={{
+            display: 'flex',
+            gap: '24px',
+            alignItems: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <div style={{
+                backgroundColor: '#3b82f6',
+                width: '16px',
+                height: '16px',
+                borderRadius: '4px'
+              }} />
+              <span style={{ color: 'var(--e-text)', fontSize: '14px' }}>Externa möten</span>
             </div>
-            <div className="schedule-legend-item">
-              <div className="schedule-legend-color" style={{ backgroundColor: '#ef4444' }} />
-              <span>Schemalagda tasks</span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <div style={{
+                backgroundColor: '#ef4444',
+                width: '16px',
+                height: '16px',
+                borderRadius: '4px'
+              }} />
+              <span style={{ color: 'var(--e-text)', fontSize: '14px' }}>Schemalagda tasks</span>
             </div>
-            <div className="schedule-info">
+            <div style={{
+              color: 'var(--e-text)',
+              fontSize: '13px',
+              opacity: 0.8
+            }}>
               💡 Byt vy med knapparna i kalendern: Dag, Vecka, Arbetsvecka, Månad, Agenda, Timeline
             </div>
           </div>
-          <div className="schedule-export-buttons">
+          <div style={{
+            display: 'flex',
+            gap: '8px'
+          }}>
             <button
               onClick={handleExcelExport}
-              className="schedule-export-btn"
+              style={{
+                padding: '8px 16px',
+                background: 'var(--e-surface)',
+                border: '1px solid var(--e-border)',
+                borderRadius: '6px',
+                color: 'var(--e-text)',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
               title="Exportera till Excel"
             >
               📊 Excel
             </button>
             <button
               onClick={handleICalExport}
-              className="schedule-export-btn"
+              style={{
+                padding: '8px 16px',
+                background: 'var(--e-surface)',
+                border: '1px solid var(--e-border)',
+                borderRadius: '6px',
+                color: 'var(--e-text)',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
               title="Exportera till iCalendar (.ics)"
             >
               📅 iCal
             </button>
             <button
               onClick={handlePrint}
-              className="schedule-export-btn"
+              style={{
+                padding: '8px 16px',
+                background: 'var(--e-surface)',
+                border: '1px solid var(--e-border)',
+                borderRadius: '6px',
+                color: 'var(--e-text)',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
               title="Skriv ut"
             >
               🖨️ Print
@@ -422,7 +527,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
       </div>
 
       {/* Schedule container - NO padding, clean structure */}
-      <div className="schedule-container">
+      <div style={{ width: '100%', height: 'calc(100% - 70px)' }}>
         <ScheduleComponent
           ref={scheduleRef}
           height="550px"

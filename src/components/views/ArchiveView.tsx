@@ -135,30 +135,48 @@ export function ArchiveView() {
   const impactTemplate = (props: any) => {
     const getImpactStyle = () => {
       if (props.result_impact && props.result_impact >= 8)
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        return { backgroundColor: '#10b981', color: '#fff' };
       if (props.result_impact && props.result_impact >= 5)
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
+        return { backgroundColor: '#f59e0b', color: '#fff' };
       if (props.result_impact && props.result_impact < 5)
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
-      return 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500';
+        return { backgroundColor: '#6b7280', color: '#fff' };
+      return { backgroundColor: 'var(--e-border)', color: 'var(--e-text)' };
     };
 
     return (
-      <span className={`px-2 py-1 rounded-full text-xs ${getImpactStyle()}`}>
+      <span style={{
+        padding: '4px 8px',
+        borderRadius: '16px',
+        fontSize: '12px',
+        ...getImpactStyle()
+      }}>
         {props.impactLabel}
       </span>
     );
   };
 
   return (
-    <div className="h-full flex flex-col space-y-4">
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px'
+    }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 style={{
+            fontSize: 'clamp(24px, 5vw, 30px)',
+            fontWeight: 'bold',
+            color: 'var(--e-text)'
+          }}>
             Arkiv
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p style={{ color: 'var(--e-text)', opacity: 0.7 }}>
             {completedTasks.length} slutförda uppgifter
           </p>
         </div>
@@ -166,15 +184,26 @@ export function ArchiveView() {
 
       {/* Grid eller Empty State */}
       {completedTasks.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
           <EmptyState
-            icon={<Archive className="h-16 w-16" />}
+            icon={<Archive style={{ width: '64px', height: '64px' }} />}
             title="Inget i arkivet"
             description="Du har inga slutförda uppgifter än. När du markerar uppgifter som klara hamnar de här."
           />
         </div>
       ) : (
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <div style={{
+          flex: 1,
+          background: 'var(--e-surface)',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          overflow: 'hidden'
+        }}>
           <GridComponent
             ref={gridRef}
             dataSource={gridData}

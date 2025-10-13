@@ -108,40 +108,93 @@ export function ShareHandler() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-sand-100 to-sand-200 dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md w-full">
-        <div className="text-center">
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      background: 'var(--e-surface)',
+      padding: '16px'
+    }}>
+      <div style={{
+        background: 'var(--e-surface)',
+        borderRadius: '16px',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+        padding: '32px',
+        maxWidth: '448px',
+        width: '100%'
+      }}>
+        <div style={{ textAlign: 'center' }}>
           {status === 'processing' && (
             <>
-              <Loader2 className="h-16 w-16 text-copper-600 animate-spin mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <Loader2 style={{
+                width: '64px',
+                height: '64px',
+                color: 'var(--copper-500)',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px'
+              }} />
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: 'var(--e-text)',
+                marginBottom: '8px'
+              }}>
                 Skapar task
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">{message}</p>
+              <p style={{ color: 'var(--e-text)', opacity: 0.7 }}>{message}</p>
             </>
           )}
 
           {status === 'success' && (
             <>
-              <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <CheckCircle style={{
+                width: '64px',
+                height: '64px',
+                color: '#10b981',
+                margin: '0 auto 16px'
+              }} />
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: 'var(--e-text)',
+                marginBottom: '8px'
+              }}>
                 Task skapad!
               </h2>
               {createdTaskTitle && (
-                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
+                <p style={{
+                  fontSize: '18px',
+                  fontWeight: '500',
+                  color: 'var(--e-text)',
+                  marginBottom: '12px'
+                }}>
                   "{createdTaskTitle}"
                 </p>
               )}
-              <p className="text-gray-600 dark:text-gray-400 mb-4">{message}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p style={{
+                color: 'var(--e-text)',
+                opacity: 0.7,
+                marginBottom: '16px'
+              }}>{message}</p>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--e-text)',
+                opacity: 0.6
+              }}>
                 Omdirigerar till inbox om 3 sekunder...
               </p>
-              <div className="mt-4 space-y-2">
+              <div style={{
+                marginTop: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
                 <Button
                   variant="primary"
                   size="md"
                   onClick={() => navigate('/inbox')}
-                  className="w-full"
+                  style={{ width: '100%' }}
                 >
                   Gå till Inbox nu
                 </Button>
@@ -149,7 +202,7 @@ export function ShareHandler() {
                   variant="ghost"
                   size="md"
                   onClick={() => navigate('/focus')}
-                  className="w-full"
+                  style={{ width: '100%' }}
                 >
                   Gå till Just Nu
                 </Button>
@@ -159,16 +212,30 @@ export function ShareHandler() {
 
           {status === 'error' && (
             <>
-              <AlertCircle className="h-16 w-16 text-red-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <AlertCircle style={{
+                width: '64px',
+                height: '64px',
+                color: '#ef4444',
+                margin: '0 auto 16px'
+              }} />
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: 'var(--e-text)',
+                marginBottom: '8px'
+              }}>
                 Något gick fel
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">{message}</p>
+              <p style={{
+                color: 'var(--e-text)',
+                opacity: 0.7,
+                marginBottom: '16px'
+              }}>{message}</p>
               <Button
                 variant="primary"
                 size="md"
                 onClick={() => navigate('/focus')}
-                className="w-full"
+                style={{ width: '100%' }}
               >
                 Tillbaka till appen
               </Button>

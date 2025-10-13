@@ -132,44 +132,46 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] px-4">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '20vh', paddingLeft: '16px', paddingRight: '16px' }}>
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
 
       {/* Search Modal */}
-      <div className="relative w-full max-w-2xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700">
+      <div style={{ position: 'relative', width: '100%', maxWidth: '672px', backgroundColor: 'var(--e-surface)', borderRadius: '12px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', border: '1px solid var(--e-border)' }}>
         {/* Search Input */}
-        <div className="flex items-center gap-3 p-4 border-b border-gray-200 dark:border-gray-700">
-          <Search className="h-5 w-5 text-gray-400" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', borderBottom: '1px solid var(--e-border)' }}>
+          <Search style={{ height: '20px', width: '20px', color: 'var(--e-text)', opacity: 0.4 }} />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Sök uppgifter, projekt, kunder..."
-            className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none"
+            style={{ flex: 1, backgroundColor: 'transparent', color: 'var(--e-text)', outline: 'none', border: 'none' }}
             autoFocus
           />
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+            style={{ padding: '4px', backgroundColor: 'transparent', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <X className="h-5 w-5 text-gray-400" />
+            <X style={{ height: '20px', width: '20px', color: 'var(--e-text)', opacity: 0.4 }} />
           </button>
         </div>
 
         {/* Results */}
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
           {results.length === 0 && query && (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div style={{ padding: '32px', textAlign: 'center', color: 'var(--e-text)', opacity: 0.5 }}>
               Inga resultat för "{query}"
             </div>
           )}
 
           {results.length === 0 && !query && (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <div style={{ padding: '32px', textAlign: 'center', color: 'var(--e-text)', opacity: 0.5 }}>
               Börja skriva för att söka...
             </div>
           )}
@@ -180,24 +182,41 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
               <button
                 key={`${result.type}-${result.id}`}
                 onClick={() => handleSelect(result)}
-                className={`w-full flex items-center gap-3 p-4 text-left transition-colors ${
-                  index === selectedIndex
-                    ? 'bg-copper-50 dark:bg-copper-900/20'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                }`}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '16px',
+                  textAlign: 'left',
+                  transition: 'colors 0.2s',
+                  backgroundColor: index === selectedIndex ? 'var(--copper-50)' : 'transparent',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  if (index !== selectedIndex) {
+                    e.currentTarget.style.backgroundColor = 'var(--e-surface)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (index !== selectedIndex) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
               >
-                <Icon className="h-5 w-5 text-gray-400 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 dark:text-white truncate">
+                <Icon style={{ height: '20px', width: '20px', color: 'var(--e-text)', opacity: 0.4, flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: '500', color: 'var(--e-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {result.title}
                   </p>
                   {result.subtitle && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    <p style={{ fontSize: '14px', color: 'var(--e-text)', opacity: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {result.subtitle}
                     </p>
                   )}
                 </div>
-                <span className="text-xs text-gray-400 uppercase">
+                <span style={{ fontSize: '12px', color: 'var(--e-text)', opacity: 0.4, textTransform: 'uppercase' }}>
                   {result.type === 'task' ? 'Uppgift' : 'Projekt'}
                 </span>
               </button>
@@ -206,11 +225,11 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
         </div>
 
         {/* Footer hint */}
-        <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          <div className="flex items-center gap-4">
-            <span><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">↑↓</kbd> navigera</span>
-            <span><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">Enter</kbd> välj</span>
-            <span><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">Esc</kbd> stäng</span>
+        <div style={{ padding: '12px', borderTop: '1px solid var(--e-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px', color: 'var(--e-text)', opacity: 0.5 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span><kbd style={{ padding: '4px 8px', backgroundColor: 'var(--e-surface)', borderRadius: '4px' }}>↑↓</kbd> navigera</span>
+            <span><kbd style={{ padding: '4px 8px', backgroundColor: 'var(--e-surface)', borderRadius: '4px' }}>Enter</kbd> välj</span>
+            <span><kbd style={{ padding: '4px 8px', backgroundColor: 'var(--e-surface)', borderRadius: '4px' }}>Esc</kbd> stäng</span>
           </div>
         </div>
       </div>

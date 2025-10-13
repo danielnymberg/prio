@@ -41,10 +41,24 @@ const EisenhowerMatrix = lazy(() => import('./components/matrix/EisenhowerMatrix
 // Loading fallback component
 function RouteLoader() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500 mx-auto mb-4"></div>
-        <p className="text-stone-600 dark:text-stone-400">Laddar...</p>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      background: 'var(--e-surface)'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '2px solid transparent',
+          borderBottomColor: 'var(--copper-500)',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px'
+        }}></div>
+        <p style={{ color: 'var(--e-text)' }}>Laddar...</p>
       </div>
     </div>
   );
@@ -52,24 +66,55 @@ function RouteLoader() {
 
 function LoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
-      <div className="absolute top-6 right-6">
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      background: 'var(--e-surface)'
+    }}>
+      <div style={{
+        position: 'absolute',
+        top: '24px',
+        right: '24px'
+      }}>
         <ThemeToggle />
       </div>
 
-      <div className="bg-cream-100 dark:bg-charcoal-900 p-10 rounded-3xl shadow-medium w-full max-w-md mx-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-copper-600 dark:text-copper-400">
+      <div style={{
+        background: 'var(--e-surface)',
+        padding: '40px',
+        borderRadius: '24px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        width: '100%',
+        maxWidth: '448px',
+        margin: '0 16px'
+      }}>
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '32px'
+        }}>
+          <h1 style={{
+            fontSize: '36px',
+            fontWeight: 'bold',
+            marginBottom: '8px',
+            color: 'var(--copper-500)'
+          }}>
             Prio
           </h1>
-          <p className="text-stone-600 dark:text-stone-400">
+          <p style={{ color: 'var(--e-text)' }}>
             Håll fokus på det som är viktigt
           </p>
         </div>
 
         <LoginForm />
 
-        <p className="text-center text-sm text-stone-500 dark:text-stone-400 mt-6">
+        <p style={{
+          textAlign: 'center',
+          fontSize: '14px',
+          color: 'var(--e-text)',
+          marginTop: '24px'
+        }}>
           Samma inloggning som Anmärkt
         </p>
       </div>
@@ -155,8 +200,21 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [user, loading]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500"></div>
+    return <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      background: 'var(--e-surface)'
+    }}>
+      <div style={{
+        width: '48px',
+        height: '48px',
+        border: '2px solid transparent',
+        borderBottomColor: 'var(--copper-500)',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
+      }}></div>
     </div>;
   }
 
@@ -168,31 +226,34 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     <AppLayout>
       {children}
       {/* Email task listener (realtime) */}
-      <EmailTaskListener />
+      <EmailTaskListener key="email-listener" />
       {/* Voice AI assistant */}
-      <VoiceInterface />
+      <VoiceInterface key="voice-interface" />
       {/* Quick note input */}
-      <QuickNoteInput />
+      <QuickNoteInput key="quick-note" />
       {/* Quick capture bar för mobil */}
-      <QuickCaptureBar />
+      <QuickCaptureBar key="quick-capture" />
       {/* Onboarding modal för nya användare */}
       <WelcomeModal
+        key="welcome-modal"
         isOpen={showWelcome}
         onComplete={() => setShowWelcome(false)}
       />
       {/* Kanban onboarding för befintliga användare */}
       <KanbanOnboarding
+        key="kanban-onboarding"
         isOpen={showKanbanOnboarding}
         onComplete={() => setShowKanbanOnboarding(false)}
       />
       {/* Weekly review modal */}
       <WeeklyReviewModal
+        key="weekly-review"
         isOpen={showWeeklyReview}
         onClose={() => setShowWeeklyReview(false)}
         tasks={tasks}
       />
       {/* PWA install prompt */}
-      <InstallPrompt />
+      <InstallPrompt key="install-prompt" />
     </AppLayout>
   );
 }
@@ -219,10 +280,24 @@ function HomePage() {
   }, [navigate]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500 mx-auto mb-4"></div>
-        <p className="text-stone-600 dark:text-stone-400">Laddar...</p>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      background: 'var(--e-surface)'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '2px solid transparent',
+          borderBottomColor: 'var(--copper-500)',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px'
+        }}></div>
+        <p style={{ color: 'var(--e-text)' }}>Laddar...</p>
       </div>
     </div>
   );

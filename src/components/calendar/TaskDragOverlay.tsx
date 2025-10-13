@@ -18,13 +18,32 @@ export function TaskDragOverlay() {
 
   return (
     <DragOverlay>
-      <div className="bg-white dark:bg-charcoal-850 rounded-lg shadow-2xl border-2 border-copper-600 p-3 w-64 opacity-90">
-        <div className="font-semibold text-sm text-stone-900 dark:text-cream-50 mb-1">
+      <div style={{
+        backgroundColor: 'var(--e-surface, #ffffff)',
+        borderRadius: '8px',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        border: '2px solid var(--copper-600, #d4764e)',
+        padding: '12px',
+        width: '256px',
+        opacity: 0.9
+      }}>
+        <div style={{
+          fontWeight: '600',
+          fontSize: '14px',
+          color: 'var(--e-text, #1c1917)',
+          marginBottom: '4px'
+        }}>
           {task.title}
         </div>
         {task.estimated_duration && (
-          <div className="flex items-center gap-1 text-xs text-stone-600 dark:text-stone-400">
-            <Clock className="h-3 w-3" />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '12px',
+            color: 'var(--e-text-secondary, #57534e)'
+          }}>
+            <Clock style={{ height: '12px', width: '12px' }} />
             {formatDuration(task.estimated_duration)}
           </div>
         )}

@@ -28,32 +28,36 @@ export function VersionBanner() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-copper-600 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-3">
-            <RefreshCw className="w-5 h-5 flex-shrink-0" />
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, backgroundColor: 'var(--copper-600)', color: 'white', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '12px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <RefreshCw style={{ width: '20px', height: '20px', flexShrink: 0 }} />
             <div>
-              <p className="font-medium">Ny version tillgänglig!</p>
-              <p className="text-sm text-sand-100">
+              <p style={{ fontWeight: '500' }}>Ny version tillgänglig!</p>
+              <p style={{ fontSize: '14px', color: 'var(--sand-100)' }}>
                 Uppdatera appen för att få de senaste funktionerna och förbättringarna
                 {oldVersion && ` (från v${oldVersion})`}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               onClick={handleUpdate}
-              className="px-4 py-2 bg-white text-copper-600 font-medium rounded-lg hover:bg-sand-100 transition-colors"
+              style={{ padding: '8px 16px', backgroundColor: 'white', color: 'var(--copper-600)', fontWeight: '500', borderRadius: '8px', border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--sand-100)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
             >
               Uppdatera nu
             </button>
             <button
               onClick={handleDismiss}
-              className="p-2 hover:bg-copper-600 rounded-lg transition-colors"
+              style={{ padding: '8px', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.2s' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               aria-label="Stäng"
             >
-              <X className="w-5 h-5" />
+              <X style={{ width: '20px', height: '20px' }} />
             </button>
           </div>
         </div>

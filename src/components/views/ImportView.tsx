@@ -80,38 +80,80 @@ export function ImportView() {
 ]`;
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+      maxWidth: '896px',
+      margin: '0 auto'
+    }}>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 style={{
+          fontSize: 'clamp(24px, 5vw, 30px)',
+          fontWeight: 'bold',
+          color: 'var(--e-text)',
+          marginBottom: '8px'
+        }}>
           Importera tasks
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p style={{ color: 'var(--e-text)', opacity: 0.7 }}>
           Importera tasks från JSON-format
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-4 mb-4">
-          <label className="cursor-pointer inline-block">
+      <div style={{
+        background: 'var(--e-surface)',
+        borderRadius: '12px',
+        padding: '24px',
+        border: '1px solid var(--e-border)'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          marginBottom: '16px'
+        }}>
+          <label style={{ cursor: 'pointer', display: 'inline-block' }}>
             <input
               type="file"
               accept=".json"
               onChange={handleFileUpload}
-              className="hidden"
+              style={{ display: 'none' }}
             />
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white focus:ring-gray-500 text-base cursor-pointer">
-              <Upload className="h-4 w-4" />
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontWeight: '500',
+              background: 'var(--e-border)',
+              color: 'var(--e-text)',
+              cursor: 'pointer',
+              fontSize: '16px'
+            }}>
+              <Upload style={{ width: '16px', height: '16px' }} />
               Välj JSON-fil
             </span>
           </label>
 
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+          <span style={{
+            fontSize: '14px',
+            color: 'var(--e-text)',
+            opacity: 0.7
+          }}>
             eller klistra in JSON nedan
           </span>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label style={{
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'var(--e-text)',
+            marginBottom: '8px'
+          }}>
             JSON-data
           </label>
           <textarea
@@ -119,16 +161,31 @@ export function ImportView() {
             onChange={(e) => setJsonInput(e.target.value)}
             placeholder={exampleJson}
             rows={15}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-mono text-sm resize-none"
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: '1px solid var(--e-border)',
+              borderRadius: '8px',
+              background: 'var(--e-surface)',
+              color: 'var(--e-text)',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              resize: 'none',
+              outline: 'none'
+            }}
           />
         </div>
 
-        <div className="flex gap-2 mt-4">
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          marginTop: '16px'
+        }}>
           <Button
             variant="primary"
             onClick={handleImport}
             disabled={loading || !jsonInput.trim()}
-            className="flex-1"
+            style={{ flex: 1 }}
           >
             {loading ? 'Importerar...' : 'Importera tasks'}
           </Button>
@@ -142,23 +199,55 @@ export function ImportView() {
         </div>
       </div>
 
-      <div className="bg-sand-100 dark:bg-charcoal-850 border border-sand-300 dark:border-charcoal-700 rounded-xl p-6">
-        <div className="flex items-start gap-3">
-          <FileJson className="h-5 w-5 text-copper-600 dark:text-copper-400 mt-0.5" />
+      <div style={{
+        background: 'var(--e-surface)',
+        border: '1px solid var(--e-border)',
+        borderRadius: '12px',
+        padding: '24px'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '12px'
+        }}>
+          <FileJson style={{
+            width: '20px',
+            height: '20px',
+            color: 'var(--copper-500)',
+            marginTop: '2px'
+          }} />
           <div>
-            <h3 className="font-semibold text-stone-600 dark:text-sand-100 mb-2">
+            <h3 style={{
+              fontWeight: '600',
+              color: 'var(--e-text)',
+              marginBottom: '8px'
+            }}>
               JSON-format
             </h3>
-            <p className="text-sm text-stone-600 dark:text-sand-200 mb-2">
+            <p style={{
+              fontSize: '14px',
+              color: 'var(--e-text)',
+              opacity: 0.8,
+              marginBottom: '8px'
+            }}>
               JSON måste vara en array av tasks med följande fält:
             </p>
-            <ul className="text-sm text-copper-600 dark:text-sand-200 space-y-1 list-disc list-inside">
-              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">title</code> (required) - Titel på tasken</li>
-              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">description</code> (optional) - Beskrivning</li>
-              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">importance</code> (optional, 1-10) - Viktighet (default: 5)</li>
-              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">urgency</code> (optional, 1-10) - Brådskande (default: 5)</li>
-              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">deadline</code> (optional, YYYY-MM-DD) - Deadline</li>
-              <li><code className="bg-sand-100 dark:bg-charcoal-850 px-1 rounded">status</code> (optional) - not_started, in_progress, eller done</li>
+            <ul style={{
+              fontSize: '14px',
+              color: 'var(--e-text)',
+              opacity: 0.8,
+              listStyleType: 'disc',
+              listStylePosition: 'inside',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px'
+            }}>
+              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>title</code> (required) - Titel på tasken</li>
+              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>description</code> (optional) - Beskrivning</li>
+              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>importance</code> (optional, 1-10) - Viktighet (default: 5)</li>
+              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>urgency</code> (optional, 1-10) - Brådskande (default: 5)</li>
+              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>deadline</code> (optional, YYYY-MM-DD) - Deadline</li>
+              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>status</code> (optional) - not_started, in_progress, eller done</li>
             </ul>
           </div>
         </div>

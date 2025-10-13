@@ -13,11 +13,11 @@ interface RangeSliderProps {
   color?: 'blue' | 'green' | 'amber' | 'red';
 }
 
-const colorClasses = {
-  blue: 'accent-copper-600',
-  green: 'accent-green-600',
-  amber: 'accent-amber-600',
-  red: 'accent-red-600',
+const colorAccents = {
+  blue: 'var(--copper-600, #d4764e)',
+  green: '#10b981',
+  amber: '#f59e0b',
+  red: '#ef4444',
 };
 
 export function RangeSlider({
@@ -35,19 +35,19 @@ export function RangeSlider({
   const id = useId();
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label htmlFor={id} className="text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <label htmlFor={id} style={{ fontSize: '14px', fontWeight: '500', color: 'var(--e-text, #374151)' }}>
           {label}
         </label>
         {showValue && (
-          <span className="text-sm font-semibold text-gray-900 dark:text-white">
+          <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--e-text, #111827)' }}>
             {formatValue(value)}
           </span>
         )}
       </div>
       {description && (
-        <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
+        <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}>{description}</p>
       )}
       <input
         id={id}
@@ -57,9 +57,17 @@ export function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className={`w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 ${colorClasses[color]}`}
+        style={{
+          width: '100%',
+          height: '8px',
+          backgroundColor: 'var(--e-border, #e5e7eb)',
+          borderRadius: '8px',
+          appearance: 'none',
+          cursor: 'pointer',
+          accentColor: colorAccents[color]
+        }}
       />
-      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}>
         <span>{min}</span>
         <span>{max}</span>
       </div>

@@ -24,57 +24,61 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
   return (
     <Dialog isOpen={isOpen} onClose={handleSkip} title="✨ Nya kraftfulla funktioner!" size="lg">
       {/* Progress Indicator */}
-      <div className="flex gap-2 mb-6">
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
         {[1, 2, 3].map(s => (
           <div
             key={s}
-            className={`h-2 flex-1 rounded transition-all ${
-              s <= step ? 'bg-copper-600' : 'bg-gray-200 dark:bg-gray-700'
-            }`}
+            style={{
+              height: '8px',
+              flex: 1,
+              borderRadius: '4px',
+              transition: 'all 0.3s',
+              backgroundColor: s <= step ? 'var(--copper-600)' : 'var(--e-border)'
+            }}
           />
         ))}
       </div>
 
-      <div className="text-center mb-4 text-sm text-gray-600 dark:text-gray-400">
+      <div style={{ textAlign: 'center', marginBottom: '16px', fontSize: '14px', color: 'var(--e-text)' }}>
         Steg {step} av 3
       </div>
 
       {/* Steg 1: Kanban Board */}
       {step === 1 && (
-        <div className="space-y-6">
-          <div className="text-center">
-            <div className="text-6xl mb-4">📋</div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '60px', marginBottom: '16px' }}>📋</div>
+            <h2 style={{ fontSize: '30px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '12px' }}>
               Kanban Board
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
+            <p style={{ fontSize: '18px', color: 'var(--e-text)' }}>
               Visualisera ditt arbetsflöde och dra tasks mellan status
             </p>
           </div>
 
-          <div className="bg-sand-100 dark:bg-charcoal-850 border-2 border-sand-300 dark:border-charcoal-700 rounded-xl p-6">
-            <h3 className="font-bold text-stone-600 dark:text-sand-100 mb-3 flex items-center gap-2">
-              <KanbanSquare className="h-6 w-6" />
+          <div style={{ backgroundColor: 'var(--e-surface)', border: '2px solid var(--e-border)', borderRadius: '12px', padding: '24px' }}>
+            <h3 style={{ fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <KanbanSquare style={{ height: '24px', width: '24px' }} />
               Vad är Kanban?
             </h3>
-            <p className="text-stone-600 dark:text-sand-200 mb-4">
+            <p style={{ color: 'var(--e-text)', marginBottom: '16px' }}>
               En visuell metod för att hantera arbete. Se alla dina uppgifter i tre kolumner:
             </p>
-            <div className="space-y-2 text-sm">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 flex items-center gap-3">
-                <span className="text-2xl">📋</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px' }}>
+              <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '8px', padding: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px' }}>📋</span>
                 <div>
                   <strong>Ej påbörjad</strong> - Tasks som väntar
                 </div>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 flex items-center gap-3">
-                <span className="text-2xl">🚀</span>
+              <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '8px', padding: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px' }}>🚀</span>
                 <div>
                   <strong>Pågående</strong> - Det du jobbar på nu
                 </div>
               </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 flex items-center gap-3">
-                <span className="text-2xl">✅</span>
+              <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '8px', padding: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px' }}>✅</span>
                 <div>
                   <strong>Klar</strong> - Färdiga uppgifter
                 </div>
@@ -82,19 +86,19 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-            <p className="text-sm text-blue-900 dark:text-blue-100">
-              <FolderKanban className="inline h-4 w-4 mr-1" />
+          <div style={{ background: 'linear-gradient(to right, #3b82f6, #3b82f6)', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid #3b82f6' }}>
+            <p style={{ fontSize: '14px', color: '#3b82f6' }}>
+              <FolderKanban style={{ display: 'inline', height: '16px', width: '16px', marginRight: '4px' }} />
               <strong>Swimlanes för projekt:</strong> Tasks grupperas automatiskt per projekt så du ser strukturen tydligt!
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="ghost" onClick={handleSkip} className="flex-1">
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Button variant="ghost" onClick={handleSkip} style={{ flex: 1 }}>
               Hoppa över
             </Button>
-            <Button onClick={() => setStep(2)} className="flex-1">
-              Nästa <ArrowRight className="h-4 w-4 ml-2" />
+            <Button onClick={() => setStep(2)} style={{ flex: 1 }}>
+              Nästa <ArrowRight style={{ height: '16px', width: '16px', marginLeft: '8px' }} />
             </Button>
           </div>
         </div>
@@ -102,54 +106,54 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
 
       {/* Steg 2: Drag-and-Drop till Kalender */}
       {step === 2 && (
-        <div className="space-y-6">
-          <div className="text-center mb-6">
-            <div className="text-6xl mb-4">🗓️</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <div style={{ fontSize: '60px', marginBottom: '16px' }}>🗓️</div>
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               Drag-and-Drop Schemaläggning
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p style={{ color: 'var(--e-text)' }}>
               Dra tasks direkt från Kanban till kalendern
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <h4 className="font-bold text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ backgroundColor: '#10b981', opacity: 0.1, border: '1px solid #10b981', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar style={{ height: '20px', width: '20px' }} />
                 Kanban + Kalender
               </h4>
-              <p className="text-sm text-green-800 dark:text-green-200 mb-3">
+              <p style={{ fontSize: '14px', color: '#10b981', marginBottom: '12px' }}>
                 Den nya kombinerade vyn visar Kanban och kalender sida vid sida. Dra tasks till en kalendercell för att schemalägga när du ska jobba på dem!
               </p>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-xs">
+              <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '8px', padding: '12px', fontSize: '12px' }}>
                 <strong>📍 Hitta den här:</strong> Sidebar → Avancerat → "Kanban + Kalender"
               </div>
             </div>
 
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <h4 className="font-bold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
-                <Undo2 className="h-5 w-5" />
+            <div style={{ backgroundColor: '#f59e0b', opacity: 0.1, border: '1px solid #f59e0b', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: '#f59e0b', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Undo2 style={{ height: '20px', width: '20px' }} />
                 Ångra-funktion
               </h4>
-              <p className="text-sm text-amber-800 dark:text-amber-200">
+              <p style={{ fontSize: '14px', color: '#f59e0b' }}>
                 När du schemalägger en task visas en notifikation med "Ångra"-knapp. Du har 5 sekunder på dig att ändra dig!
               </p>
             </div>
           </div>
 
-          <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4">
-            <p className="text-sm text-stone-600 dark:text-sand-200">
+          <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '8px', padding: '16px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--e-text)' }}>
               <strong>💡 Tips:</strong> Du kan också dra tasks mellan projekt genom att dra dem mellan swimlanes i Kanban-vyn!
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => setStep(1)} className="flex-1">
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Button variant="ghost" onClick={() => setStep(1)} style={{ flex: 1 }}>
               Tillbaka
             </Button>
-            <Button onClick={() => setStep(3)} className="flex-1">
-              Nästa <ArrowRight className="h-4 w-4 ml-2" />
+            <Button onClick={() => setStep(3)} style={{ flex: 1 }}>
+              Nästa <ArrowRight style={{ height: '16px', width: '16px', marginLeft: '8px' }} />
             </Button>
           </div>
         </div>
@@ -157,74 +161,74 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
 
       {/* Steg 3: Kom igång */}
       {step === 3 && (
-        <div className="space-y-6">
-          <div className="text-center mb-6">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <CheckCircle style={{ height: '64px', width: '64px', color: '#10b981', margin: '0 auto 16px' }} />
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               Prova de nya funktionerna!
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p style={{ color: 'var(--e-text)' }}>
               Här är snabbguiden för att komma igång
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 1
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                <h4 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '4px' }}>
                   Öppna Kanban-vyn
                 </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p style={{ fontSize: '14px', color: 'var(--e-text)' }}>
                   Gå till Sidebar → "Kanban" för standalone-vy eller "Kanban + Kalender" för kombinerad vy
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 2
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                <h4 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '4px' }}>
                   Dra och släpp
                 </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p style={{ fontSize: '14px', color: 'var(--e-text)' }}>
                   Dra tasks mellan kolumner för att ändra status, eller till kalendern för att schemalägga
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="flex-shrink-0 w-8 h-8 bg-copper-600 text-white rounded-full flex items-center justify-center font-bold">
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 3
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                <h4 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '4px' }}>
                   Klicka för detaljer
                 </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p style={{ fontSize: '14px', color: 'var(--e-text)' }}>
                   Klicka på en task i Kanban för att öppna detaljvyn och redigera alla fält
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-            <p className="text-sm text-center text-purple-900 dark:text-purple-100">
-              <Sparkles className="inline h-4 w-4 mr-1" />
+          <div style={{ background: 'linear-gradient(to right, #9333ea, #ec4899)', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid #9333ea' }}>
+            <p style={{ fontSize: '14px', textAlign: 'center', color: '#9333ea' }}>
+              <Sparkles style={{ display: 'inline', height: '16px', width: '16px', marginRight: '4px' }} />
               <strong>Byggt med Syncfusion:</strong> Professionella UI-komponenter för bästa möjliga UX!
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => setStep(2)} className="flex-1">
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <Button variant="ghost" onClick={() => setStep(2)} style={{ flex: 1 }}>
               Tillbaka
             </Button>
-            <Button onClick={handleComplete} className="flex-1">
-              <CheckCircle className="h-4 w-4 mr-2" />
+            <Button onClick={handleComplete} style={{ flex: 1 }}>
+              <CheckCircle style={{ height: '16px', width: '16px', marginRight: '8px' }} />
               Kom igång!
             </Button>
           </div>

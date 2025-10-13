@@ -71,28 +71,28 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
-            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
-              <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+        <div style={{ minHeight: '100vh', backgroundColor: 'var(--e-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ maxWidth: '448px', width: '100%', backgroundColor: 'var(--e-surface)', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', margin: '0 auto 16px', backgroundColor: '#ef4444', opacity: 0.1, borderRadius: '50%' }}>
+              <AlertTriangle style={{ width: '32px', height: '32px', color: '#ef4444' }} />
             </div>
 
-            <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', color: 'var(--e-text)', marginBottom: '8px' }}>
               Något gick fel
             </h1>
 
-            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
+            <p style={{ textAlign: 'center', color: 'var(--e-text)', marginBottom: '24px' }}>
               Appen stötte på ett oväntat fel. Försök ladda om appen för att fortsätta.
             </p>
 
             {/* Visa felinformation i development mode */}
             {import.meta.env.DEV && this.state.error && (
-              <div className="mb-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <p className="text-sm font-mono text-red-600 dark:text-red-400 mb-2">
+              <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
+                <p style={{ fontSize: '14px', fontFamily: 'monospace', color: '#ef4444', marginBottom: '8px' }}>
                   {this.state.error.toString()}
                 </p>
                 {this.state.errorInfo && (
-                  <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-auto max-h-32">
+                  <pre style={{ fontSize: '12px', color: 'var(--e-text)', overflowX: 'auto', maxHeight: '128px' }}>
                     {this.state.errorInfo.componentStack}
                   </pre>
                 )}
@@ -101,13 +101,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <button
               onClick={this.handleReloadApp}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-copper-600 hover:bg-copper-600 text-white font-medium rounded-lg transition-colors"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 16px', backgroundColor: 'var(--copper-600)', color: 'white', fontWeight: '500', borderRadius: '8px', transition: 'background-color 0.2s', border: 'none', cursor: 'pointer' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
             >
-              <RefreshCw className="w-5 h-5" />
+              <RefreshCw style={{ width: '20px', height: '20px' }} />
               Ladda om appen
             </button>
 
-            <p className="mt-4 text-xs text-center text-gray-500 dark:text-gray-500">
+            <p style={{ marginTop: '16px', fontSize: '12px', textAlign: 'center', color: 'var(--e-text)', opacity: 0.5 }}>
               Detta rensar all cachad data och laddar om appen
             </p>
           </div>

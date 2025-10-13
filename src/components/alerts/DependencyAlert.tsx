@@ -12,50 +12,55 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
   const { level, label, color } = getCriticalityLevel(chain.criticalityScore);
 
   const getBorderColor = () => {
-    if (level === 'critical') return 'border-red-500 dark:border-red-600';
-    if (level === 'high') return 'border-orange-500 dark:border-orange-600';
-    if (level === 'medium') return 'border-amber-500 dark:border-amber-600';
-    return 'border-gray-300 dark:border-gray-600';
+    if (level === 'critical') return '#ef4444';
+    if (level === 'high') return '#f59e0b';
+    if (level === 'medium') return '#f59e0b';
+    return 'var(--e-border, #d1d5db)';
   };
 
   const getBgColor = () => {
-    if (level === 'critical') return 'bg-red-50 dark:bg-red-900/20';
-    if (level === 'high') return 'bg-orange-50 dark:bg-orange-900/20';
-    if (level === 'medium') return 'bg-amber-50 dark:bg-amber-900/20';
-    return 'bg-gray-50 dark:bg-gray-800';
+    if (level === 'critical') return 'rgba(254, 226, 226, 0.5)';
+    if (level === 'high') return 'rgba(255, 237, 213, 0.5)';
+    if (level === 'medium') return 'rgba(254, 243, 199, 0.5)';
+    return 'var(--e-surface, #f9fafb)';
   };
 
   const rootTask = chain.chain[0];
 
   return (
-    <div className={`rounded-lg border-2 ${getBorderColor()} ${getBgColor()} p-4 mb-4`}>
-      <div className="flex items-start gap-3">
-        <AlertTriangle className={`h-5 w-5 ${color} flex-shrink-0 mt-0.5`} />
+    <div style={{
+      borderRadius: '8px',
+      border: `2px solid ${getBorderColor()}`,
+      backgroundColor: getBgColor(),
+      padding: '16px',
+      marginBottom: '16px'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+        <AlertTriangle style={{ height: '20px', width: '20px', color, flexShrink: 0, marginTop: '2px' }} />
 
-        <div className="flex-1 min-w-0">
+        <div style={{ flex: 1, minWidth: 0 }}>
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold ${color} mb-1`}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h3 style={{ fontWeight: '600', color, marginBottom: '4px' }}>
                 🔗 Kritisk blockeringskedja
               </h3>
-              <p className="text-sm text-gray-900 dark:text-white font-medium">
+              <p style={{ fontSize: '14px', color: 'var(--e-text, #111827)', fontWeight: '500' }}>
                 "{rootTask.title}" blockerar {chain.blockedCount} andra{' '}
                 {chain.blockedCount === 1 ? 'uppgift' : 'uppgifter'}
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                className={`px-2 py-1 rounded text-xs font-bold ${
-                  level === 'critical'
-                    ? 'bg-red-600 text-white'
-                    : level === 'high'
-                    ? 'bg-orange-600 text-white'
-                    : level === 'medium'
-                    ? 'bg-amber-600 text-white'
-                    : 'bg-gray-600 text-white'
-                }`}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  backgroundColor: level === 'critical' ? '#dc2626' : level === 'high' ? '#ea580c' : level === 'medium' ? '#d97706' : '#4b5563',
+                  color: '#ffffff'
+                }}
               >
                 {label}: {chain.criticalityScore}
               </span>
@@ -63,16 +68,16 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <div className="flex items-center gap-2 text-sm">
-              <Target className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              <span className="text-gray-700 dark:text-gray-300">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+              <Target style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary, #6b7280)' }} />
+              <span style={{ color: 'var(--e-text, #374151)' }}>
                 Djup: {chain.depth} nivåer
               </span>
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              <span className="text-gray-700 dark:text-gray-300">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+              <Clock style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary, #6b7280)' }} />
+              <span style={{ color: 'var(--e-text, #374151)' }}>
                 Total tid: {formatDuration(chain.totalEstimatedTime)}
               </span>
             </div>
@@ -80,8 +85,14 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
 
           {/* Deadline Warning */}
           {chain.isDeadlineCritical && (
-            <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded px-3 py-2 mb-3">
-              <p className="text-sm text-red-800 dark:text-red-200 font-medium">
+            <div style={{
+              backgroundColor: 'rgba(254, 226, 226, 0.7)',
+              border: '1px solid #fca5a5',
+              borderRadius: '4px',
+              padding: '8px 12px',
+              marginBottom: '12px'
+            }}>
+              <p style={{ fontSize: '14px', color: '#991b1b', fontWeight: '500' }}>
                 ⚠️ Innehåller uppgifter med deadline inom 48h!
               </p>
             </div>
@@ -90,16 +101,27 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
           {/* Expand/Collapse Button */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1 text-sm font-medium text-copper-600 dark:text-copper-400 hover:text-copper-600 dark:hover:text-sand-200 transition-colors"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'var(--copper-600, #d4764e)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0
+            }}
           >
             {isExpanded ? (
               <>
-                <ChevronUp className="h-4 w-4" />
+                <ChevronUp style={{ height: '16px', width: '16px' }} />
                 Dölj detaljer
               </>
             ) : (
               <>
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown style={{ height: '16px', width: '16px' }} />
                 Visa alla {chain.blockedCount} blockerade uppgifter
               </>
             )}
@@ -107,32 +129,43 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
 
           {/* Expanded Details */}
           {isExpanded && (
-            <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+            <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--e-border, #d1d5db)' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--e-text, #111827)', marginBottom: '8px' }}>
                 Blockeringskedja (ordning):
               </h4>
-              <div className="space-y-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {chain.chain.map((task, index) => (
                   <div
                     key={task.id}
-                    className="flex items-start gap-2 text-sm"
-                    style={{ paddingLeft: `${index * 16}px` }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '8px',
+                      fontSize: '14px',
+                      paddingLeft: `${index * 16}px`
+                    }}
                   >
-                    <span className="text-gray-500 dark:text-gray-400 flex-shrink-0">
+                    <span style={{ color: 'var(--e-text-secondary, #9ca3af)', flexShrink: 0 }}>
                       {index === 0 ? '🔴' : '↳'}
                     </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-900 dark:text-white font-medium truncate">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ color: 'var(--e-text, #111827)', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {task.title}
                       </p>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                         {task.estimated_duration && (
-                          <span className="text-xs px-2 py-0.5 rounded bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200">
+                          <span style={{
+                            fontSize: '12px',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            backgroundColor: 'var(--e-surface-secondary, #f5f5f4)',
+                            color: 'var(--copper-600, #d4764e)'
+                          }}>
                             {formatDuration(task.estimated_duration)}
                           </span>
                         )}
                         {task.deadline && (
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                          <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}>
                             Deadline: {new Date(task.deadline).toLocaleDateString('sv-SE')}
                           </span>
                         )}
@@ -142,8 +175,8 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
                 ))}
               </div>
 
-              <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
-                <p className="text-xs text-gray-600 dark:text-gray-400 italic">
+              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--e-border, #d1d5db)' }}>
+                <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)', fontStyle: 'italic' }}>
                   💡 <strong>Tips:</strong> Slutför "{rootTask.title}" först för att låsa upp alla
                   {chain.blockedCount} blockerade uppgifter.
                 </p>

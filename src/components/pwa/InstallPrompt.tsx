@@ -26,24 +26,24 @@ export function InstallPrompt() {
   // Android/Desktop install prompt
   if (isInstallable && (platform === 'android' || platform === 'desktop')) {
     return (
-      <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-4 z-40 border border-gray-200 dark:border-gray-700">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-10 h-10 bg-sand-100 dark:bg-charcoal-850 rounded-lg flex items-center justify-center">
-            <Download className="w-5 h-5 text-copper-600 dark:text-copper-400" />
+      <div style={{ position: 'fixed', bottom: '80px', left: '16px', right: '16px', width: 'auto', maxWidth: '384px', backgroundColor: 'var(--e-surface)', borderRadius: '8px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '16px', zIndex: 40, border: '1px solid var(--e-border)', marginLeft: 'auto', marginRight: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <div style={{ flexShrink: 0, width: '40px', height: '40px', backgroundColor: 'var(--e-surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Download style={{ width: '20px', height: '20px', color: 'var(--copper-600)' }} />
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '4px' }}>
               Installera Prio
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            <p style={{ fontSize: '14px', color: 'var(--e-text)', marginBottom: '12px' }}>
               Installera appen för snabbare åtkomst och offline-stöd
             </p>
-            <div className="flex gap-2">
+            <div style={{ display: 'flex', gap: '8px' }}>
               <Button onClick={handleInstall} size="sm" variant="primary">
                 Installera
               </Button>
               <Button onClick={handleDismiss} size="sm" variant="ghost">
-                <X className="w-4 h-4" />
+                <X style={{ width: '16px', height: '16px' }} />
               </Button>
             </div>
           </div>
@@ -55,26 +55,26 @@ export function InstallPrompt() {
   // iOS install instructions
   if (shouldShowIOSPrompt) {
     return (
-      <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-4 z-40 border border-gray-200 dark:border-gray-700">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-10 h-10 bg-sand-100 dark:bg-charcoal-850 rounded-lg flex items-center justify-center">
-            <Download className="w-5 h-5 text-copper-600 dark:text-copper-400" />
+      <div style={{ position: 'fixed', bottom: '80px', left: '16px', right: '16px', width: 'auto', maxWidth: '384px', backgroundColor: 'var(--e-surface)', borderRadius: '8px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '16px', zIndex: 40, border: '1px solid var(--e-border)', marginLeft: 'auto', marginRight: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <div style={{ flexShrink: 0, width: '40px', height: '40px', backgroundColor: 'var(--e-surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Download style={{ width: '20px', height: '20px', color: 'var(--copper-600)' }} />
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '4px' }}>
               Installera Prio på iOS
             </h3>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              <p className="mb-2">För att installera:</p>
-              <ol className="list-decimal list-inside space-y-1">
+            <div style={{ fontSize: '14px', color: 'var(--e-text)', marginBottom: '12px' }}>
+              <p style={{ marginBottom: '8px' }}>För att installera:</p>
+              <ol style={{ listStyle: 'decimal', listStylePosition: 'inside', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>
-                  Tryck på <Share className="w-4 h-4 inline" /> (dela-knappen)
+                  Tryck på <Share style={{ width: '16px', height: '16px', display: 'inline' }} /> (dela-knappen)
                 </li>
                 <li>Välj "Lägg till på hemskärmen"</li>
                 <li>Tryck på "Lägg till"</li>
               </ol>
             </div>
-            <Button onClick={handleDismiss} size="sm" variant="ghost" className="w-full">
+            <Button onClick={handleDismiss} size="sm" variant="ghost" style={{ width: '100%' }}>
               Stäng
             </Button>
           </div>

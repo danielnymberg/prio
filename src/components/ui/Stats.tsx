@@ -8,21 +8,25 @@ interface StatsProps {
 
 export function Stats({ stats }: StatsProps) {
   const variantStyles = {
-    default: 'text-gray-900 dark:text-white',
-    warning: 'text-amber-600 dark:text-amber-400',
-    danger: 'text-red-600 dark:text-red-400',
+    default: 'var(--e-text, #111827)',
+    warning: '#f59e0b',
+    danger: '#ef4444',
   };
 
   return (
-    <div className="flex items-center gap-6 text-sm">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '24px', fontSize: '14px' }}>
       {stats.map((stat, index) => (
-        <div key={index} className="flex items-center gap-2">
+        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span
-            className={`font-bold text-lg ${variantStyles[stat.variant || 'default']}`}
+            style={{
+              fontWeight: 'bold',
+              fontSize: '18px',
+              color: variantStyles[stat.variant || 'default']
+            }}
           >
             {stat.value}
           </span>
-          <span className="text-gray-600 dark:text-gray-400">
+          <span style={{ color: 'var(--e-text-secondary, #6b7280)' }}>
             {stat.label}
           </span>
         </div>

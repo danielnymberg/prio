@@ -26,31 +26,76 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px'
+    }}>
       <Alert variant="info" title="Matrix (Beta)">
         Eisenhower Matrix är nu i beta-läge. För bästa upplevelse rekommenderar vi vår nya <strong>Just Nu</strong>-vy som använder CPM (Consequence-Priority Model) för smartare prioritering baserat på forskningsbaserade principer.
       </Alert>
 
       {highestPriorityTask && (
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-6">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
-              <Target className="h-6 w-6 text-red-600 dark:text-red-400" />
+        <div style={{
+          background: 'linear-gradient(to right, #fef2f2, #fff7ed)',
+          border: '2px solid #ef4444',
+          borderRadius: '12px',
+          padding: '24px'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '16px'
+          }}>
+            <div style={{
+              padding: '12px',
+              background: '#ef4444',
+              opacity: 0.2,
+              borderRadius: '8px'
+            }}>
+              <Target style={{
+                width: '24px',
+                height: '24px',
+                color: '#ef4444'
+              }} />
             </div>
-            <div className="flex-1">
-              <h2 className="text-lg font-bold text-red-900 dark:text-red-100 mb-1">
+            <div style={{ flex: 1 }}>
+              <h2 style={{
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: '#ef4444',
+                marginBottom: '4px'
+              }}>
                 🎯 Börja med:
               </h2>
-              <p className="text-xl font-medium text-red-800 dark:text-red-200 mb-2">
+              <p style={{
+                fontSize: '20px',
+                fontWeight: '500',
+                color: '#ef4444',
+                marginBottom: '8px'
+              }}>
                 {highestPriorityTask.title}
               </p>
               {highestPriorityTask.description && (
-                <p className="text-sm text-red-700 dark:text-red-300">
+                <p style={{
+                  fontSize: '14px',
+                  color: '#ef4444',
+                  opacity: 0.9
+                }}>
                   {highestPriorityTask.description}
                 </p>
               )}
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-xs font-mono text-red-600 dark:text-red-400">
+              <div style={{
+                marginTop: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span style={{
+                  fontSize: '12px',
+                  fontFamily: 'monospace',
+                  color: '#ef4444'
+                }}>
                   Prioritet: {highestPriorityTask.priority.toFixed(1)}
                 </span>
               </div>
@@ -59,14 +104,29 @@ export function Dashboard() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+      <div style={{
+        background: 'var(--e-surface)',
+        borderRadius: '12px',
+        padding: '24px',
+        border: '1px solid var(--e-border)'
+      }}>
+        <h2 style={{
+          fontSize: '20px',
+          fontWeight: 'bold',
+          color: 'var(--e-text)',
+          marginBottom: '16px'
+        }}>
           Eisenhower Matrix
         </h2>
         <EisenhowerMatrix />
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+      <div style={{
+        background: 'var(--e-surface)',
+        borderRadius: '12px',
+        padding: '24px',
+        border: '1px solid var(--e-border)'
+      }}>
         <Stats stats={stats} />
       </div>
     </div>

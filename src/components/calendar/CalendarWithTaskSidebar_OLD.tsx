@@ -173,31 +173,45 @@ export function CalendarWithTaskSidebar() {
   };
 
   return (
-    <div className="flex h-full gap-4 relative overflow-hidden">
+    <div style={{ display: 'flex', height: '100%', gap: '16px', position: 'relative', overflow: 'hidden' }}>
       {/* Sidebar med tasks */}
       <div
-        className={`transition-all duration-300 ${
-          showSidebar ? 'w-80' : 'w-0'
-        } flex-shrink-0 overflow-hidden flex flex-col`}
+        style={{
+          transition: 'all 0.3s',
+          width: showSidebar ? '320px' : '0',
+          flexShrink: 0,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
       >
-        <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col overflow-hidden">
-          <div className="mb-4 flex-shrink-0">
-            <h3 className="text-lg font-semibold text-stone-900 dark:text-cream-50 mb-2">
+        <div style={{
+          height: '100%',
+          backgroundColor: 'var(--e-surface, #ffffff)',
+          borderRadius: '12px',
+          border: '1px solid var(--e-border, #e7e5e4)',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
+          <div style={{ marginBottom: '16px', flexShrink: 0 }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '8px' }}>
               Ej schemalagt
             </h3>
-            <p className="text-xs text-stone-600 dark:text-stone-400 mb-2">
+            <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #57534e)', marginBottom: '8px' }}>
               Dra uppgifter till kalendern för att planera när du ska jobba på dem. Klicka för detaljer.
             </p>
-            <p className="text-xs text-stone-500 dark:text-stone-500 italic mb-1">
+            <p style={{ fontSize: '12px', color: 'var(--e-text-tertiary, #78716c)', fontStyle: 'italic', marginBottom: '4px' }}>
               📊 Sorterade efter priority (högst först)
             </p>
-            <p className="text-xs text-stone-500 dark:text-stone-500 italic">
+            <p style={{ fontSize: '12px', color: 'var(--e-text-tertiary, #78716c)', fontStyle: 'italic' }}>
               💡 För att ta bort från schema: Klicka på uppgift i kalendern → "Ta bort från schema"
             </p>
 
             {/* Batch scheduling button */}
             {checkedTaskIds.length > 0 && (
-              <div className="mt-3 space-y-2">
+              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <Button
                   onClick={() => {
                     const selectedTasks = tasks.filter(t => checkedTaskIds.includes(t.id));
@@ -232,14 +246,22 @@ export function CalendarWithTaskSidebar() {
                     });
                   }}
                   variant="primary"
-                  className="w-full flex items-center justify-center gap-2"
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
-                  <Calendar className="h-4 w-4" />
+                  <Calendar style={{ height: '16px', width: '16px' }} />
                   {`Schemalägg ${checkedTaskIds.length} valda`}
                 </Button>
                 <button
                   onClick={() => setCheckedTaskIds([])}
-                  className="w-full text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300"
+                  style={{
+                    width: '100%',
+                    fontSize: '12px',
+                    color: 'var(--e-text-tertiary, #78716c)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0
+                  }}
                 >
                   Rensa urval
                 </button>
@@ -247,10 +269,10 @@ export function CalendarWithTaskSidebar() {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto" id="tree-container">
+          <div style={{ flex: 1, overflowY: 'auto' }} id="tree-container">
             {treeData.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-sm text-stone-500 dark:text-stone-400">
+              <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                <p style={{ fontSize: '14px', color: 'var(--e-text-tertiary, #78716c)' }}>
                   Alla uppgifter är schemalagda! 🎉
                 </p>
               </div>
@@ -270,19 +292,39 @@ export function CalendarWithTaskSidebar() {
                   setCheckedTaskIds(checked);
                 }}
                 nodeTemplate={(data: any) => (
-                  <div className="p-2 cursor-pointer hover:bg-sand-50 dark:hover:bg-charcoal-800 rounded transition-colors">
-                    <div className="flex items-start gap-2">
-                      <div className="font-medium text-sm text-stone-900 dark:text-cream-50 flex-1 min-w-0 break-words">
+                  <div style={{
+                    padding: '8px',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                    transition: 'background-color 0.2s'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                      <div style={{
+                        fontWeight: '500',
+                        fontSize: '14px',
+                        color: 'var(--e-text, #1c1917)',
+                        flex: 1,
+                        minWidth: 0,
+                        wordBreak: 'break-word'
+                      }}>
                         {data.Name}
                       </div>
                       {data.Priority !== undefined && (
-                        <div className="text-xs font-semibold px-2 py-0.5 rounded bg-copper-100 dark:bg-copper-900 text-copper-700 dark:text-copper-300 flex-shrink-0">
+                        <div style={{
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          backgroundColor: 'var(--copper-100, #fef3ee)',
+                          color: 'var(--copper-700, #c2410c)',
+                          flexShrink: 0
+                        }}>
                           {data.Priority}
                         </div>
                       )}
                     </div>
                     {data.Duration && (
-                      <div className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+                      <div style={{ fontSize: '12px', color: 'var(--e-text-secondary, #57534e)', marginTop: '4px' }}>
                         ~{Math.round(data.Duration / 60)}h
                       </div>
                     )}
@@ -297,18 +339,33 @@ export function CalendarWithTaskSidebar() {
       {/* Toggle button */}
       <button
         onClick={() => setShowSidebar(!showSidebar)}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-charcoal-850 border border-sand-200 dark:border-charcoal-800 rounded-r-lg p-2 shadow-lg hover:bg-sand-50 dark:hover:bg-charcoal-800 transition-colors"
-        style={{ left: showSidebar ? '320px' : '0px' }}
+        style={{
+          position: 'absolute',
+          left: showSidebar ? '320px' : '0px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 10,
+          backgroundColor: 'var(--e-surface, #ffffff)',
+          border: '1px solid var(--e-border, #e7e5e4)',
+          borderTopLeftRadius: 0,
+          borderBottomLeftRadius: 0,
+          borderTopRightRadius: '8px',
+          borderBottomRightRadius: '8px',
+          padding: '8px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          cursor: 'pointer',
+          transition: 'background-color 0.2s'
+        }}
       >
         {showSidebar ? (
-          <ChevronLeft className="h-4 w-4 text-stone-600 dark:text-stone-400" />
+          <ChevronLeft style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary, #57534e)' }} />
         ) : (
-          <ChevronRight className="h-4 w-4 text-stone-600 dark:text-stone-400" />
+          <ChevronRight style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary, #57534e)' }} />
         )}
       </button>
 
       {/* Kalendervy */}
-      <div className="flex-1 min-w-0 overflow-hidden">
+      <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
         <WeekCalendarView
           onScheduleReady={setScheduleRef}
           tasks={tasks}

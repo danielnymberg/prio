@@ -33,31 +33,65 @@ export function KanbanCalendarView() {
 
   const cardTemplate = (props: any) => {
     return (
-      <div className="e-card-content">
-        <div className="e-card-header">
-          <div className="e-card-header-title font-semibold flex items-center justify-between">
+      <div style={{ padding: '12px' }}>
+        <div style={{ marginBottom: '8px' }}>
+          <div style={{
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
             <span>{props.Title}</span>
-            {props.Scheduled && <span className="text-xs">📅</span>}
+            {props.Scheduled && <span style={{ fontSize: '12px' }}>📅</span>}
           </div>
         </div>
         {props.Summary && (
-          <div className="e-card-content-description text-sm text-stone-600 dark:text-stone-400 mt-2">
+          <div style={{
+            fontSize: '14px',
+            color: 'var(--e-text)',
+            opacity: 0.7,
+            marginTop: '8px'
+          }}>
             {props.Summary.substring(0, 80)}{props.Summary.length > 80 ? '...' : ''}
           </div>
         )}
-        <div className="flex items-center justify-between mt-3 text-xs flex-wrap gap-1">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: '12px',
+          fontSize: '12px',
+          flexWrap: 'wrap',
+          gap: '4px'
+        }}>
           {props.Estimate && (
-            <span className="px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+            <span style={{
+              padding: '4px 8px',
+              borderRadius: '4px',
+              backgroundColor: '#3b82f6',
+              color: '#fff'
+            }}>
               ⏱️ {props.Estimate}
             </span>
           )}
           {props.Deadline && (
-            <span className="px-2 py-1 rounded bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300">
+            <span style={{
+              padding: '4px 8px',
+              borderRadius: '4px',
+              backgroundColor: '#f59e0b',
+              color: '#fff'
+            }}>
               📅 {props.Deadline}
             </span>
           )}
           {props.Priority && (
-            <span className="px-2 py-1 rounded bg-copper-100 dark:bg-copper-900 text-copper-700 dark:text-copper-300 font-semibold">
+            <span style={{
+              padding: '4px 8px',
+              borderRadius: '4px',
+              backgroundColor: 'var(--copper-500)',
+              color: '#fff',
+              fontWeight: '600'
+            }}>
               {Math.round(props.Priority)}
             </span>
           )}
@@ -173,14 +207,41 @@ export function KanbanCalendarView() {
   };
 
   return (
-    <div className="flex h-full gap-4 relative" id="kanban-calendar-container">
+    <div style={{
+      display: 'flex',
+      height: '100%',
+      gap: '16px',
+      position: 'relative'
+    }} id="kanban-calendar-container">
       {/* Kanban board */}
-      <div className="w-1/3 flex-shrink-0">
-        <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col">
-          <h2 className="text-lg font-semibold mb-4 text-stone-900 dark:text-cream-50 flex-shrink-0">
+      <div style={{
+        width: '33.333%',
+        flexShrink: 0
+      }}>
+        <div style={{
+          height: '100%',
+          background: 'var(--e-surface)',
+          borderRadius: '12px',
+          border: '1px solid var(--e-border)',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <h2 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            marginBottom: '16px',
+            color: 'var(--e-text)',
+            flexShrink: 0
+          }}>
             Uppgifter
           </h2>
-          <div className="flex-1 min-h-0" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{
+            flex: 1,
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
             <KanbanComponent
               id="kanban-board"
               dataSource={kanbanData}
@@ -220,7 +281,11 @@ export function KanbanCalendarView() {
       </div>
 
       {/* Calendar */}
-      <div className="flex-1 min-w-0 overflow-hidden">
+      <div style={{
+        flex: 1,
+        minWidth: 0,
+        overflow: 'hidden'
+      }}>
         <WeekCalendarView
           onScheduleReady={setScheduleRef}
           tasks={tasks}

@@ -24,36 +24,48 @@ const quadrantConfig = {
     title: 'Viktigt + Brådskande',
     emoji: '🔥',
     icon: Flame,
-    bgColor: 'bg-red-50 dark:bg-red-900/10',
-    borderColor: 'border-red-200 dark:border-red-800',
-    textColor: 'text-red-700 dark:text-red-400',
+    bgColor: 'rgba(254, 226, 226, 0.5)',
+    bgColorDark: 'rgba(127, 29, 29, 0.1)',
+    borderColor: '#fecaca',
+    borderColorDark: '#991b1b',
+    textColor: '#b91c1c',
+    textColorDark: '#f87171',
     action: 'Gör nu',
   },
   Q2: {
     title: 'Viktigt + Ej Brådskande',
     emoji: '🎯',
     icon: Target,
-    bgColor: 'bg-green-50 dark:bg-green-900/10',
-    borderColor: 'border-green-200 dark:border-green-800',
-    textColor: 'text-green-700 dark:text-green-400',
+    bgColor: 'rgba(220, 252, 231, 0.5)',
+    bgColorDark: 'rgba(20, 83, 45, 0.1)',
+    borderColor: '#bbf7d0',
+    borderColorDark: '#166534',
+    textColor: '#15803d',
+    textColorDark: '#4ade80',
     action: 'Schemalägg',
   },
   Q3: {
     title: 'Ej Viktigt + Brådskande',
     emoji: '⚡',
     icon: Zap,
-    bgColor: 'bg-amber-50 dark:bg-amber-900/10',
-    borderColor: 'border-amber-200 dark:border-amber-800',
-    textColor: 'text-amber-700 dark:text-amber-400',
+    bgColor: 'rgba(254, 243, 199, 0.5)',
+    bgColorDark: 'rgba(120, 53, 15, 0.1)',
+    borderColor: '#fde68a',
+    borderColorDark: '#92400e',
+    textColor: '#b45309',
+    textColorDark: '#fbbf24',
     action: 'Delegera',
   },
   Q4: {
     title: 'Ej Viktigt + Ej Brådskande',
     emoji: '📦',
     icon: Package,
-    bgColor: 'bg-gray-50 dark:bg-gray-900/10',
-    borderColor: 'border-gray-200 dark:border-gray-700',
-    textColor: 'text-gray-700 dark:text-gray-400',
+    bgColor: 'rgba(249, 250, 251, 0.5)',
+    bgColorDark: 'rgba(17, 24, 39, 0.1)',
+    borderColor: '#e5e7eb',
+    borderColorDark: '#374151',
+    textColor: '#374151',
+    textColorDark: '#9ca3af',
     action: 'Eliminera',
   },
 };
@@ -68,33 +80,51 @@ export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplic
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-xl border-2 ${config.borderColor} ${config.bgColor} p-4 flex flex-col h-full transition-all ${
-        isOver ? 'ring-2 ring-copper-500 scale-[1.02]' : ''
-      }`}
+      style={{
+        borderRadius: '12px',
+        border: `2px solid var(--e-border, ${config.borderColor})`,
+        backgroundColor: `var(--e-surface, ${config.bgColor})`,
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        transition: 'all 0.2s',
+        ...(isOver && {
+          boxShadow: '0 0 0 2px var(--copper-500, #d4764e)',
+          transform: 'scale(1.02)',
+        }),
+      }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Icon className={`h-5 w-5 ${config.textColor}`} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Icon style={{ height: '20px', width: '20px', color: `var(--e-text, ${config.textColor})` }} />
           <div>
-            <h3 className={`font-bold text-sm ${config.textColor}`}>
+            <h3 style={{ fontWeight: 'bold', fontSize: '14px', color: `var(--e-text, ${config.textColor})` }}>
               {quadrant}: {config.title}
             </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}>
               {config.action}
             </p>
           </div>
         </div>
-        <div className={`px-2 py-1 rounded-full ${config.bgColor} ${config.textColor} text-xs font-bold`}>
+        <div style={{
+          padding: '4px 8px',
+          borderRadius: '9999px',
+          backgroundColor: `var(--e-surface, ${config.bgColor})`,
+          color: `var(--e-text, ${config.textColor})`,
+          fontSize: '12px',
+          fontWeight: 'bold'
+        }}>
           {tasks.length}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto max-h-[500px] space-y-2">
+      <div style={{ flex: 1, overflowY: 'auto', maxHeight: '500px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {sortedTasks.length === 0 ? (
           <EmptyState
             title="Inga tasks"
             description="Dra hit en task eller klicka + för att lägga till"
-            icon={<span className="text-4xl">{config.emoji}</span>}
+            icon={<span style={{ fontSize: '36px' }}>{config.emoji}</span>}
             action={{
               label: 'Lägg till task',
               onClick: () => onAddTask(quadrant),

@@ -153,10 +153,10 @@ export function ApiUsageView() {
 
   const getTierColor = (tier: string) => {
     switch (tier) {
-      case 'free': return 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300';
-      case 'pro': return 'bg-copper-100 text-copper-700 dark:bg-copper-900 dark:text-copper-300';
-      case 'business': return 'bg-success-100 text-success-700 dark:bg-success-900 dark:text-success-300';
-      default: return 'bg-stone-100 text-stone-700';
+      case 'free': return { bg: 'var(--e-surface-secondary, #f5f5f4)', color: 'var(--e-text, #44403c)' };
+      case 'pro': return { bg: 'var(--copper-100, #fef3ee)', color: 'var(--copper-700, #c2410c)' };
+      case 'business': return { bg: 'rgba(220, 252, 231, 0.5)', color: '#15803d' };
+      default: return { bg: 'var(--e-surface-secondary, #f5f5f4)', color: 'var(--e-text, #44403c)' };
     }
   };
 
@@ -170,8 +170,15 @@ export function ApiUsageView() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-copper-600" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+        <div style={{
+          animation: 'spin 1s linear infinite',
+          borderRadius: '9999px',
+          height: '32px',
+          width: '32px',
+          border: '2px solid transparent',
+          borderBottomColor: 'var(--copper-600, #d4764e)'
+        }} />
       </div>
     );
   }
@@ -184,26 +191,43 @@ export function ApiUsageView() {
     : 0;
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-stone-900 dark:text-cream-50">
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text, #1c1917)' }}>
           API-användning
         </h2>
-        <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
+        <p style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', marginTop: '4px' }}>
           Håll koll på din AI-förbrukning och kostnader
         </p>
       </div>
 
       {/* Pricing Tier Badge */}
       {settings && (
-        <div className="flex items-center gap-3">
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTierColor(settings.pricing_tier)}`}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{
+            padding: '4px 12px',
+            borderRadius: '9999px',
+            fontSize: '14px',
+            fontWeight: '500',
+            backgroundColor: getTierColor(settings.pricing_tier).bg,
+            color: getTierColor(settings.pricing_tier).color
+          }}>
             {settings.pricing_tier.toUpperCase()}
           </span>
           {settings.use_own_api_keys && (
-            <span className="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-              <Key className="h-3 w-3" />
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '4px 12px',
+              borderRadius: '9999px',
+              fontSize: '14px',
+              fontWeight: '500',
+              backgroundColor: 'rgba(233, 213, 255, 0.5)',
+              color: '#7c3aed'
+            }}>
+              <Key style={{ height: '12px', width: '12px' }} />
               Egen API-nyckel
             </span>
           )}
@@ -211,93 +235,127 @@ export function ApiUsageView() {
       )}
 
       {/* Usage Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '16px'
+      }}>
         {/* Today's Requests */}
-        <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border border-sand-200 dark:border-charcoal-800">
-          <div className="flex items-center justify-between mb-2">
-            <div className="p-2 bg-copper-100 dark:bg-copper-900 rounded-lg">
-              <Zap className="h-5 w-5 text-copper-600 dark:text-copper-400" />
+        <div style={{
+          backgroundColor: 'var(--e-surface, #ffffff)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid var(--e-border, #e7e5e4)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ padding: '8px', backgroundColor: 'var(--copper-100, #fef3ee)', borderRadius: '8px' }}>
+              <Zap style={{ height: '20px', width: '20px', color: 'var(--copper-600, #d4764e)' }} />
             </div>
-            <span className="text-xs text-stone-500 dark:text-stone-400">
+            <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Idag
             </span>
           </div>
-          <div className="text-2xl font-bold text-stone-900 dark:text-cream-50">
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text, #1c1917)' }}>
             {usage?.claude_requests_today || 0}
           </div>
-          <div className="text-sm text-stone-600 dark:text-stone-400">
+          <div style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)' }}>
             av {settings?.daily_claude_quota || 0} requests
           </div>
-          <div className="mt-3 bg-stone-200 dark:bg-charcoal-700 rounded-full h-2">
+          <div style={{ marginTop: '12px', backgroundColor: 'var(--e-border, #e5e7eb)', borderRadius: '9999px', height: '8px' }}>
             <div
-              className="bg-copper-600 h-2 rounded-full transition-all"
-              style={{ width: `${dailyPercentage}%` }}
+              style={{
+                backgroundColor: 'var(--copper-600, #d4764e)',
+                height: '8px',
+                borderRadius: '9999px',
+                transition: 'width 0.3s',
+                width: `${dailyPercentage}%`
+              }}
             />
           </div>
-          <div className="text-xs text-stone-500 dark:text-stone-400 mt-2">
+          <div style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)', marginTop: '8px' }}>
             Återställs om {usage && getTimeUntilReset(usage.daily_reset_at)}
           </div>
         </div>
 
         {/* Month's Requests */}
-        <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border border-sand-200 dark:border-charcoal-800">
-          <div className="flex items-center justify-between mb-2">
-            <div className="p-2 bg-warning-100 dark:bg-warning-900 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-warning-600 dark:text-warning-400" />
+        <div style={{
+          backgroundColor: 'var(--e-surface, #ffffff)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid var(--e-border, #e7e5e4)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ padding: '8px', backgroundColor: 'rgba(254, 243, 199, 0.5)', borderRadius: '8px' }}>
+              <TrendingUp style={{ height: '20px', width: '20px', color: '#f59e0b' }} />
             </div>
-            <span className="text-xs text-stone-500 dark:text-stone-400">
+            <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Denna månad
             </span>
           </div>
-          <div className="text-2xl font-bold text-stone-900 dark:text-cream-50">
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text, #1c1917)' }}>
             {usage?.claude_requests_month || 0}
           </div>
-          <div className="text-sm text-stone-600 dark:text-stone-400">
+          <div style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)' }}>
             av {settings?.monthly_claude_quota || 0} requests
           </div>
-          <div className="mt-3 bg-stone-200 dark:bg-charcoal-700 rounded-full h-2">
+          <div style={{ marginTop: '12px', backgroundColor: 'var(--e-border, #e5e7eb)', borderRadius: '9999px', height: '8px' }}>
             <div
-              className="bg-warning-600 h-2 rounded-full transition-all"
-              style={{ width: `${monthlyPercentage}%` }}
+              style={{
+                backgroundColor: '#f59e0b',
+                height: '8px',
+                borderRadius: '9999px',
+                transition: 'width 0.3s',
+                width: `${monthlyPercentage}%`
+              }}
             />
           </div>
-          <div className="text-xs text-stone-500 dark:text-stone-400 mt-2">
+          <div style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)', marginTop: '8px' }}>
             Återställs om {usage && getTimeUntilReset(usage.monthly_reset_at)}
           </div>
         </div>
 
         {/* Cost Today */}
-        <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border border-sand-200 dark:border-charcoal-800">
-          <div className="flex items-center justify-between mb-2">
-            <div className="p-2 bg-success-100 dark:bg-success-900 rounded-lg">
-              <DollarSign className="h-5 w-5 text-success-600 dark:text-success-400" />
+        <div style={{
+          backgroundColor: 'var(--e-surface, #ffffff)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid var(--e-border, #e7e5e4)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ padding: '8px', backgroundColor: 'rgba(220, 252, 231, 0.5)', borderRadius: '8px' }}>
+              <DollarSign style={{ height: '20px', width: '20px', color: '#10b981' }} />
             </div>
-            <span className="text-xs text-stone-500 dark:text-stone-400">
+            <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Kostnad idag
             </span>
           </div>
-          <div className="text-2xl font-bold text-stone-900 dark:text-cream-50">
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text, #1c1917)' }}>
             {usage ? formatCost(usage.estimated_cost_today_cents) : '$0.00'}
           </div>
-          <div className="text-sm text-stone-600 dark:text-stone-400">
+          <div style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)' }}>
             Uppskattad kostnad
           </div>
         </div>
 
         {/* Cost Month */}
-        <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border border-sand-200 dark:border-charcoal-800">
-          <div className="flex items-center justify-between mb-2">
-            <div className="p-2 bg-error-100 dark:bg-error-900 rounded-lg">
-              <DollarSign className="h-5 w-5 text-error-600 dark:text-error-400" />
+        <div style={{
+          backgroundColor: 'var(--e-surface, #ffffff)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid var(--e-border, #e7e5e4)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ padding: '8px', backgroundColor: 'rgba(254, 226, 226, 0.5)', borderRadius: '8px' }}>
+              <DollarSign style={{ height: '20px', width: '20px', color: '#ef4444' }} />
             </div>
-            <span className="text-xs text-stone-500 dark:text-stone-400">
+            <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Kostnad månad
             </span>
           </div>
-          <div className="text-2xl font-bold text-stone-900 dark:text-cream-50">
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text, #1c1917)' }}>
             {usage ? formatCost(usage.estimated_cost_month_cents) : '$0.00'}
           </div>
-          <div className="text-sm text-stone-600 dark:text-stone-400">
+          <div style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)' }}>
             Uppskattad kostnad
           </div>
         </div>
@@ -305,30 +363,35 @@ export function ApiUsageView() {
 
       {/* Token Details */}
       {usage && (usage.claude_input_tokens_month > 0 || usage.claude_output_tokens_month > 0) && (
-        <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border border-sand-200 dark:border-charcoal-800">
-          <h3 className="text-lg font-semibold text-stone-900 dark:text-cream-50 mb-4">
+        <div style={{
+          backgroundColor: 'var(--e-surface, #ffffff)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid var(--e-border, #e7e5e4)'
+        }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '16px' }}>
             Token-användning denna månad
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             <div>
-              <div className="text-sm text-stone-600 dark:text-stone-400 mb-1">
+              <div style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', marginBottom: '4px' }}>
                 Input tokens
               </div>
-              <div className="text-xl font-bold text-stone-900 dark:text-cream-50">
+              <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--e-text, #1c1917)' }}>
                 {usage.claude_input_tokens_month.toLocaleString()}
               </div>
-              <div className="text-xs text-stone-500 dark:text-stone-400">
+              <div style={{ fontSize: '12px', color: 'var(--e-text-tertiary, #78716c)' }}>
                 $3 per miljon tokens
               </div>
             </div>
             <div>
-              <div className="text-sm text-stone-600 dark:text-stone-400 mb-1">
+              <div style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', marginBottom: '4px' }}>
                 Output tokens
               </div>
-              <div className="text-xl font-bold text-stone-900 dark:text-cream-50">
+              <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--e-text, #1c1917)' }}>
                 {usage.claude_output_tokens_month.toLocaleString()}
               </div>
-              <div className="text-xs text-stone-500 dark:text-stone-400">
+              <div style={{ fontSize: '12px', color: 'var(--e-text-tertiary, #78716c)' }}>
                 $15 per miljon tokens
               </div>
             </div>
@@ -340,14 +403,19 @@ export function ApiUsageView() {
       {settings && usage && (
         <>
           {dailyPercentage >= 80 && (
-            <div className="bg-warning-50 dark:bg-warning-950 border border-warning-200 dark:border-warning-800 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-warning-600 dark:text-warning-400 mt-0.5" />
+            <div style={{
+              backgroundColor: 'rgba(254, 243, 199, 0.3)',
+              border: '1px solid #fde68a',
+              borderRadius: '12px',
+              padding: '16px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <AlertCircle style={{ height: '20px', width: '20px', color: '#f59e0b', marginTop: '2px' }} />
                 <div>
-                  <h4 className="font-semibold text-warning-900 dark:text-warning-200">
+                  <h4 style={{ fontWeight: '600', color: '#b45309' }}>
                     Nära daglig gräns
                   </h4>
-                  <p className="text-sm text-warning-700 dark:text-warning-300 mt-1">
+                  <p style={{ fontSize: '14px', color: '#d97706', marginTop: '4px' }}>
                     Du har använt {dailyPercentage.toFixed(0)}% av dina dagliga requests.
                     {settings.pricing_tier === 'free' && ' Uppgradera till Pro för fler requests.'}
                   </p>
@@ -356,14 +424,19 @@ export function ApiUsageView() {
             </div>
           )}
           {monthlyPercentage >= 80 && (
-            <div className="bg-error-50 dark:bg-error-950 border border-error-200 dark:border-error-800 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-error-600 dark:text-error-400 mt-0.5" />
+            <div style={{
+              backgroundColor: 'rgba(254, 226, 226, 0.3)',
+              border: '1px solid #fca5a5',
+              borderRadius: '12px',
+              padding: '16px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <AlertCircle style={{ height: '20px', width: '20px', color: '#ef4444', marginTop: '2px' }} />
                 <div>
-                  <h4 className="font-semibold text-error-900 dark:text-error-200">
+                  <h4 style={{ fontWeight: '600', color: '#991b1b' }}>
                     Nära månadsgräns
                   </h4>
-                  <p className="text-sm text-error-700 dark:text-error-300 mt-1">
+                  <p style={{ fontSize: '14px', color: '#dc2626', marginTop: '4px' }}>
                     Du har använt {monthlyPercentage.toFixed(0)}% av dina månatliga requests.
                     {settings.pricing_tier === 'free' && ' Uppgradera till Pro för obegränsade requests.'}
                   </p>
@@ -375,30 +448,43 @@ export function ApiUsageView() {
       )}
 
       {/* Own API Key Section */}
-      <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border border-sand-200 dark:border-charcoal-800">
-        <h3 className="text-lg font-semibold text-stone-900 dark:text-cream-50 mb-2">
+      <div style={{
+        backgroundColor: 'var(--e-surface, #ffffff)',
+        borderRadius: '12px',
+        padding: '24px',
+        border: '1px solid var(--e-border, #e7e5e4)'
+      }}>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '8px' }}>
           Använd din egen Claude API-nyckel
         </h3>
-        <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">
+        <p style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', marginBottom: '16px' }}>
           Koppla din egen Anthropic API-nyckel för obegränsad användning. Du betalar direkt till Anthropic istället.
         </p>
 
         {settings?.use_own_api_keys ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 p-3 bg-success-50 dark:bg-success-950 border border-success-200 dark:border-success-800 rounded-lg">
-              <Lock className="h-4 w-4 text-success-600 dark:text-success-400" />
-              <span className="text-sm text-success-700 dark:text-success-300 font-medium">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px',
+              backgroundColor: 'rgba(220, 252, 231, 0.3)',
+              border: '1px solid #bbf7d0',
+              borderRadius: '8px'
+            }}>
+              <Lock style={{ height: '16px', width: '16px', color: '#10b981' }} />
+              <span style={{ fontSize: '14px', color: '#15803d', fontWeight: '500' }}>
                 Egen API-nyckel aktiv
               </span>
             </div>
-            <p className="text-xs text-stone-600 dark:text-stone-400">
+            <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #57534e)' }}>
               Din API-nyckel är krypterad och lagras säkert. Endast du kan se den.
             </p>
             <Button
               variant="ghost"
               onClick={removeApiKey}
               disabled={saving}
-              className="text-error-600 hover:text-error-700 dark:text-error-400"
+              style={{ color: '#ef4444' }}
             >
               Ta bort API-nyckel
             </Button>
@@ -407,19 +493,19 @@ export function ApiUsageView() {
           <>
             {!showApiKeyInput ? (
               <Button onClick={() => setShowApiKeyInput(true)}>
-                <Key className="h-4 w-4 mr-2" />
+                <Key style={{ height: '16px', width: '16px', marginRight: '8px' }} />
                 Lägg till egen API-nyckel
               </Button>
             ) : (
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <Input
                   type="password"
                   value={claudeApiKey}
                   onChange={(e) => setClaudeApiKey(e.target.value)}
                   placeholder="sk-ant-api03-..."
-                  className="font-mono text-sm"
+                  style={{ fontFamily: 'monospace', fontSize: '14px' }}
                 />
-                <div className="flex gap-2">
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <Button onClick={saveApiKey} disabled={saving}>
                     {saving ? 'Sparar...' : 'Spara nyckel'}
                   </Button>
@@ -433,9 +519,9 @@ export function ApiUsageView() {
                     Avbryt
                   </Button>
                 </div>
-                <p className="text-xs text-stone-600 dark:text-stone-400">
+                <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #57534e)' }}>
                   <strong>Hur får jag en API-nyckel?</strong><br />
-                  1. Gå till <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-copper-600 hover:underline">console.anthropic.com</a><br />
+                  1. Gå till <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--copper-600, #d4764e)', textDecoration: 'underline' }}>console.anthropic.com</a><br />
                   2. Skapa konto och gå till Settings → API Keys<br />
                   3. Klicka "Create Key" och kopiera nyckeln hit
                 </p>
@@ -447,16 +533,26 @@ export function ApiUsageView() {
 
       {/* Pricing Tiers */}
       {settings?.pricing_tier === 'free' && (
-        <div className="bg-gradient-to-r from-copper-50 to-sand-50 dark:from-copper-950 dark:to-charcoal-850 rounded-xl p-6 border border-copper-200 dark:border-copper-800">
-          <h3 className="text-lg font-semibold text-stone-900 dark:text-cream-50 mb-4">
+        <div style={{
+          background: 'linear-gradient(to right, var(--copper-50, #fef3ee), var(--sand-50, #fafaf9))',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid var(--copper-200, #fed7aa)'
+        }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '16px' }}>
             Uppgradera för mer kapacitet
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             {/* Free */}
-            <div className="bg-white dark:bg-charcoal-850 rounded-lg p-4 border-2 border-copper-600">
-              <h4 className="font-semibold text-stone-900 dark:text-cream-50 mb-2">Free</h4>
-              <div className="text-2xl font-bold text-copper-600 mb-3">$0</div>
-              <ul className="text-sm text-stone-600 dark:text-stone-400 space-y-1">
+            <div style={{
+              backgroundColor: 'var(--e-surface, #ffffff)',
+              borderRadius: '8px',
+              padding: '16px',
+              border: '2px solid var(--copper-600, #d4764e)'
+            }}>
+              <h4 style={{ fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '8px' }}>Free</h4>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--copper-600, #d4764e)', marginBottom: '12px' }}>$0</div>
+              <ul style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>• 50 requests/dag</li>
                 <li>• 1,500 requests/månad</li>
                 <li>• Grundläggande support</li>
@@ -464,10 +560,17 @@ export function ApiUsageView() {
             </div>
 
             {/* Pro */}
-            <div className="bg-white dark:bg-charcoal-850 rounded-lg p-4 border border-sand-200 dark:border-charcoal-800">
-              <h4 className="font-semibold text-stone-900 dark:text-cream-50 mb-2">Pro</h4>
-              <div className="text-2xl font-bold text-copper-600 mb-3">$9<span className="text-sm text-stone-500">/månad</span></div>
-              <ul className="text-sm text-stone-600 dark:text-stone-400 space-y-1">
+            <div style={{
+              backgroundColor: 'var(--e-surface, #ffffff)',
+              borderRadius: '8px',
+              padding: '16px',
+              border: '1px solid var(--e-border, #e7e5e4)'
+            }}>
+              <h4 style={{ fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '8px' }}>Pro</h4>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--copper-600, #d4764e)', marginBottom: '12px' }}>
+                $9<span style={{ fontSize: '14px', color: 'var(--e-text-tertiary, #78716c)' }}>/månad</span>
+              </div>
+              <ul style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>• 500 requests/dag</li>
                 <li>• 15,000 requests/månad</li>
                 <li>• Prioriterad support</li>
@@ -475,18 +578,25 @@ export function ApiUsageView() {
             </div>
 
             {/* Business */}
-            <div className="bg-white dark:bg-charcoal-850 rounded-lg p-4 border border-sand-200 dark:border-charcoal-800">
-              <h4 className="font-semibold text-stone-900 dark:text-cream-50 mb-2">Business</h4>
-              <div className="text-2xl font-bold text-copper-600 mb-3">$29<span className="text-sm text-stone-500">/månad</span></div>
-              <ul className="text-sm text-stone-600 dark:text-stone-400 space-y-1">
+            <div style={{
+              backgroundColor: 'var(--e-surface, #ffffff)',
+              borderRadius: '8px',
+              padding: '16px',
+              border: '1px solid var(--e-border, #e7e5e4)'
+            }}>
+              <h4 style={{ fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '8px' }}>Business</h4>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--copper-600, #d4764e)', marginBottom: '12px' }}>
+                $29<span style={{ fontSize: '14px', color: 'var(--e-text-tertiary, #78716c)' }}>/månad</span>
+              </div>
+              <ul style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>• Obegränsat requests</li>
                 <li>• Premium support</li>
                 <li>• Dedikerad API-endpoint</li>
               </ul>
             </div>
           </div>
-          <div className="mt-4 text-center">
-            <Button className="bg-copper-600 hover:bg-copper-700 text-white">
+          <div style={{ marginTop: '16px', textAlign: 'center' }}>
+            <Button style={{ backgroundColor: 'var(--copper-600, #d4764e)', color: '#ffffff' }}>
               Uppgradera nu
             </Button>
           </div>
