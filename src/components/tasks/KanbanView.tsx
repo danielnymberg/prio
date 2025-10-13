@@ -59,26 +59,26 @@ export function KanbanView() {
     return (
       <div className="e-card-content">
         <div className="e-card-header">
-          <div className="e-card-header-title font-semibold">{props.Title}</div>
+          <div className="e-card-header-title" style={{ fontWeight: '600' }}>{props.Title}</div>
         </div>
         {props.Summary && (
-          <div className="e-card-content-description text-sm text-stone-600 dark:text-stone-400 mt-2">
+          <div className="e-card-content-description" style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', marginTop: '0.5rem' }}>
             {props.Summary.substring(0, 100)}{props.Summary.length > 100 ? '...' : ''}
           </div>
         )}
-        <div className="flex items-center justify-between mt-3 text-xs">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.75rem', fontSize: '0.75rem', gap: '0.5rem', flexWrap: 'wrap' }}>
           {props.Estimate && (
-            <span className="px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: '#dbeafe', color: '#1e40af' }}>
               ⏱️ {props.Estimate}
             </span>
           )}
           {props.Deadline && (
-            <span className="px-2 py-1 rounded bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300">
+            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: '#fed7aa', color: '#9a3412' }}>
               📅 {props.Deadline}
             </span>
           )}
           {props.Priority && (
-            <span className="px-2 py-1 rounded bg-copper-100 dark:bg-copper-900 text-copper-700 dark:text-copper-300 font-semibold">
+            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: '#fef3c7', color: '#78350f', fontWeight: '600' }}>
               {Math.round(props.Priority)}
             </span>
           )}
@@ -115,11 +115,11 @@ export function KanbanView() {
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-charcoal-850 rounded-xl border border-sand-200 dark:border-charcoal-800 p-4 flex flex-col">
-        <h2 className="text-lg font-semibold mb-4 text-stone-900 dark:text-cream-50 flex-shrink-0">
+      <div style={{ height: '100%', backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', border: '1px solid var(--e-border)', padding: '1rem', display: 'flex', flexDirection: 'column' }}>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--e-text)', flexShrink: 0 }}>
           Kanban Board
         </h2>
-        <div className="flex-1 min-h-0" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
           <KanbanComponent
             id="kanban"
             dataSource={kanbanData}

@@ -13,19 +13,19 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, icon, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center p-8 text-center">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
       {icon && (
-        <div className="mb-4 text-gray-400 dark:text-gray-600">
+        <div style={{ marginBottom: '1rem', color: 'var(--e-text-secondary)' }}>
           {icon}
         </div>
       )}
 
-      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+      <h3 style={{ fontSize: '1.125rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
         {title}
       </h3>
 
       {description && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
+        <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', marginBottom: '1rem', maxWidth: '24rem' }}>
           {description}
         </p>
       )}
@@ -33,9 +33,22 @@ export function EmptyState({ title, description, icon, action }: EmptyStateProps
       {action && (
         <button
           onClick={action.onClick}
-          className="inline-flex items-center gap-2 text-sm text-copper-600 hover:text-copper-600 dark:text-copper-400 dark:hover:text-sand-200 font-medium"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.875rem',
+            color: 'var(--copper-600)',
+            fontWeight: '500',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'color 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--copper-500)'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--copper-600)'}
         >
-          <Plus className="h-4 w-4" />
+          <Plus style={{ height: '16px', width: '16px' }} />
           {action.label}
         </button>
       )}

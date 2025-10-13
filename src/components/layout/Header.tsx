@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
+import { DropDownButtonComponent, ItemModel } from '@syncfusion/ej2-react-splitbuttons';
+import { BadgeComponent } from '@syncfusion/ej2-react-notifications';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
 import { useTasks } from '@/hooks/useTasks';
 import { CreateTaskInput, DailyCheckIn } from '@/lib/types';
-import { LogOut, User, Plus, Menu, RefreshCw, Settings } from 'lucide-react';
 import { isMicrosoftLoggedIn } from '@/services/microsoft-graph';
 
 interface HeaderProps {
@@ -21,8 +22,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
+  const [needsCheckIn, setNeedsCheckIn] = useState(false);
 
-  // Check Microsoft connection status
   useEffect(() => {
     const checkMicrosoftStatus = async () => {
       const connected = await isMicrosoftLoggedIn();
@@ -30,106 +31,161 @@ export function Header({ onMenuClick }: HeaderProps) {
     };
     checkMicrosoftStatus();
 
-    // Re-check every 30 seconds
     const interval = setInterval(checkMicrosoftStatus, 30000);
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Check if daily check-in is needed
+    const checkInData = localStorage.getItem('prio-daily-checkin');
+    if (checkInData) {
+      const lastCheckIn = JSON.parse(checkInData);
+      const lastCheckInDate = new Date(lastCheckIn.date || lastCheckIn.timestamp);
+      const today = new Date();
+      const isToday = lastCheckInDate.toDateString() === today.toDateString();
+      setNeedsCheckIn(!isToday);
+    } else {
+      setNeedsCheckIn(true);
+    }
+  }, []);
+
   const handleCheckInComplete = (checkIn: DailyCheckIn) => {
     localStorage.setItem('prio-daily-checkin', JSON.stringify(checkIn));
-    // Reload för att uppdatera FocusView med ny strategi
     window.location.reload();
   };
 
-  return (
-    <header className="bg-cream-100 dark:bg-charcoal-900 border-b border-sand-200 dark:border-charcoal-800 px-6 sm:px-8 py-4 sm:py-5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 sm:gap-4">
-          {/* Hamburgermeny - endast synlig på mobil/tablet */}
-          <button
-            onClick={onMenuClick}
-            className="lg:hidden p-2 hover:bg-sand-200 dark:hover:bg-charcoal-850 rounded-xl transition-colors"
-            aria-label="Öppna meny"
-          >
-            <Menu className="h-6 w-6 text-stone-700 dark:text-stone-300" />
-          </button>
+  // User menu items for DropDownButton
+  const userMenuItems: ItemModel[] = [
+    {
+      text: user?.email || '',
+      iconCss: 'e-icons e-user',
+      disabled: true
+    },
+    {
+      separator: true
+    },
+    {
+      text: 'Inställningar',
+      iconCss: 'e-icons e-settings',
+      id: 'settings'
+    },
+    {
+      text: 'Logga ut',
+      iconCss: 'e-icons e-logout',
+      id: 'logout'
+    }
+  ];
 
-          <h1 className="text-xl sm:text-2xl font-bold text-copper-600 dark:text-copper-400">
-            Prio
-          </h1>
-          <span className="hidden sm:inline text-sm text-stone-500 dark:text-stone-400">
-            Håll fokus på det som är viktigt
-          </span>
+  const handleUserMenuSelect = (args: any) => {
+    if (args.item.id === 'logout') {
+      signOut();
+    } else if (args.item.id === 'settings') {
+      navigate('/settings');
+    }
+  };
+
+  return (
+    <header style={{
+      backgroundColor: 'var(--e-surface)',
+      borderBottom: '1px solid var(--e-border)',
+      padding: '1rem 2rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {/* Mobile menu button */}
+        <ButtonComponent
+          cssClass="e-flat mobile-menu-btn"
+          iconCss="e-icons e-menu"
+          onClick={onMenuClick}
+          style={{ display: 'none' }}
+        />
+
+        <h1 style={{
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          color: 'var(--copper-500)',
+          margin: 0
+        }}>
+          Prio
+        </h1>
+        <span style={{
+          fontSize: '0.875rem',
+          color: 'var(--e-text-secondary)'
+        }}>
+          Håll fokus på det som är viktigt
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Microsoft status */}
+        <div
+          onClick={() => navigate('/settings')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.5rem 0.75rem',
+            borderRadius: '4px',
+            backgroundColor: 'var(--e-surface-secondary)',
+            cursor: 'pointer'
+          }}
+          title={isMicrosoftConnected ? 'Microsoft Calendar ansluten' : 'Ej ansluten'}
+        >
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: isMicrosoftConnected ? '#10b981' : '#ef4444'
+          }} />
+          <span style={{ fontSize: '0.75rem' }}>MSFT</span>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Microsoft status indicator */}
-          <div
-            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-sand-100 dark:bg-charcoal-850 cursor-pointer hover:bg-sand-200 dark:hover:bg-charcoal-800 transition-colors"
-            onClick={() => navigate('/settings')}
-            title={isMicrosoftConnected ? 'Microsoft Calendar ansluten' : 'Microsoft Calendar ej ansluten - klicka för att ansluta'}
-          >
-            <div className={`w-2 h-2 rounded-full ${isMicrosoftConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-xs text-stone-600 dark:text-stone-400 hidden sm:inline">
-              MSFT
-            </span>
-          </div>
+        <ButtonComponent
+          cssClass="e-flat"
+          iconCss="e-icons e-settings"
+          onClick={() => navigate('/settings')}
+          content=""
+        />
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/settings')}
-            title="Inställningar"
-            className="min-h-[44px]"
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
+        <div style={{ position: 'relative' }}>
+          <ButtonComponent
+            cssClass="e-outline"
+            iconCss="e-icons e-refresh"
             onClick={() => setIsCheckInOpen(true)}
-            title="Gör ny avstämning"
-            className="min-h-[44px]"
-          >
-            <RefreshCw className="h-4 w-4 sm:mr-1" />
-            <span className="hidden lg:inline">Avstämning</span>
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setIsQuickAddOpen(true)}
-            title="Snabblägg uppgift (Cmd+K)"
-            className="min-h-[44px]"
-          >
-            <Plus className="h-4 w-4 sm:mr-1" />
-            <span className="hidden sm:inline">Ny uppgift</span>
-          </Button>
-
-          <ThemeToggle />
-
-          {user && (
-            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-sand-200 dark:border-charcoal-800">
-              <div className="hidden md:flex items-center gap-2">
-                <User className="h-4 w-4 text-stone-600 dark:text-stone-400" />
-                <span className="text-sm text-stone-700 dark:text-stone-300">
-                  {user.email}
-                </span>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => signOut()}
-                title="Logga ut"
-                className="min-h-[44px]"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
+            content="Avstämning"
+          />
+          {needsCheckIn && (
+            <BadgeComponent
+              content="!"
+              cssClass="e-badge-danger e-badge-notification e-badge-overlap"
+              style={{
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px'
+              }}
+            />
           )}
         </div>
+
+        <ButtonComponent
+          cssClass="e-primary"
+          iconCss="e-icons e-plus"
+          onClick={() => setIsQuickAddOpen(true)}
+          content="Ny uppgift"
+        />
+
+        <ThemeToggle />
+
+        {user && (
+          <DropDownButtonComponent
+            items={userMenuItems}
+            select={handleUserMenuSelect}
+            iconCss="e-icons e-user"
+            cssClass="e-caret-hide"
+          />
+        )}
       </div>
 
       <TaskForm

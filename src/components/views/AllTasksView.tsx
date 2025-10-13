@@ -199,14 +199,25 @@ export function AllTasksView() {
   // Templates för custom rendering
   const priorityTemplate = (props: any) => {
     const getColor = () => {
-      if (props.priorityCategory === 'Hög') return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-      if (props.priorityCategory === 'Medel') return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
-      return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
+      if (props.priorityCategory === 'Hög') return { bg: '#fee2e2', color: '#b91c1c' };
+      if (props.priorityCategory === 'Medel') return { bg: '#fef3c7', color: '#b45309' };
+      return { bg: '#f3f4f6', color: '#374151' };
     };
+    const colors = getColor();
 
     return (
-      <div className={`inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${getColor()}`}>
-        <span className="font-bold">{Math.round(props.priority)}</span>
+      <div style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        padding: '0.25rem 0.5rem',
+        borderRadius: '9999px',
+        fontSize: '0.75rem',
+        fontWeight: '500',
+        backgroundColor: colors.bg,
+        color: colors.color
+      }}>
+        <span style={{ fontWeight: 'bold' }}>{Math.round(props.priority)}</span>
         <span>{props.priorityCategory}</span>
       </div>
     );
@@ -214,48 +225,59 @@ export function AllTasksView() {
 
   const statusTemplate = (props: any) => {
     const getStatusStyle = () => {
-      if (props.status === 'not_started') return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
-      if (props.status === 'in_progress') return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-      return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      if (props.status === 'not_started') return { bg: '#f3f4f6', color: '#374151' };
+      if (props.status === 'in_progress') return { bg: '#dbeafe', color: '#1e40af' };
+      return { bg: '#d1fae5', color: '#065f46' };
     };
+    const colors = getStatusStyle();
 
     return (
-      <span className={`px-2 py-1 rounded-full text-xs ${getStatusStyle()}`}>
+      <span style={{
+        padding: '0.25rem 0.5rem',
+        borderRadius: '9999px',
+        fontSize: '0.75rem',
+        backgroundColor: colors.bg,
+        color: colors.color
+      }}>
         {props.statusLabel}
       </span>
     );
   };
 
   const deadlineTemplate = (props: any) => {
-    if (!props.deadline) return <span className="text-gray-400">-</span>;
+    if (!props.deadline) return <span style={{ color: 'var(--e-text-secondary)' }}>-</span>;
 
     const deadline = new Date(props.deadline);
     const isOverdue = isPast(deadline) && !isToday(deadline);
 
     return (
-      <div className={`text-sm ${isOverdue ? 'text-red-600 dark:text-red-400 font-semibold' : ''}`}>
+      <div style={{
+        fontSize: '0.875rem',
+        color: isOverdue ? '#dc2626' : 'var(--e-text)',
+        fontWeight: isOverdue ? '600' : 'normal'
+      }}>
         <div>{props.deadlineFormatted}</div>
-        <div className="text-xs opacity-75">{props.deadlineDistance}</div>
+        <div style={{ fontSize: '0.75rem', opacity: 0.75 }}>{props.deadlineDistance}</div>
       </div>
     );
   };
 
   return (
-    <div className="h-full flex flex-col space-y-4">
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
             Alla uppgifter
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
             {activeTasks.length} aktiva uppgifter (exkl. Snabbis)
           </p>
         </div>
       </div>
 
       {/* Grid */}
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+      <div style={{ flex: 1, backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
         <GridComponent
           ref={gridRef}
           dataSource={gridData}

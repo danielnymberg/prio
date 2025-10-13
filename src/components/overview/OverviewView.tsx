@@ -56,8 +56,8 @@ export function OverviewView() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-cream-50 dark:bg-charcoal-950">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-500" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: 'var(--cream-50)' }}>
+        <div style={{ animation: 'spin 1s linear infinite', borderRadius: '9999px', height: '48px', width: '48px', borderBottom: '2px solid var(--copper-500)' }} />
       </div>
     );
   }
@@ -119,27 +119,33 @@ export function OverviewView() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto p-8">
+    <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem' }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <div>
-          <h1 className="text-3xl font-bold text-stone-900 dark:text-cream-50">Översikt</h1>
-          <p className="text-stone-600 dark:text-stone-400 mt-1">
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>Översikt</h1>
+          <p style={{ color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
             Planera {timeHorizon} månad{parseInt(timeHorizon) > 1 ? 'er' : ''} framåt
           </p>
         </div>
 
         {/* Tidshoriont-väljare */}
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
           {(['1', '3', '6', '12'] as TimeHorizon[]).map((horizon) => (
             <button
               key={horizon}
               onClick={() => setTimeHorizon(horizon)}
-              className={`px-4 py-2 rounded-xl font-medium transition-colors ${
-                timeHorizon === horizon
-                  ? 'bg-copper-500 text-white shadow-soft'
-                  : 'bg-sand-100 dark:bg-charcoal-850 text-stone-700 dark:text-stone-300 hover:bg-sand-200 dark:hover:bg-charcoal-800'
-              }`}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.75rem',
+                fontWeight: '500',
+                transition: 'all 0.2s',
+                backgroundColor: timeHorizon === horizon ? 'var(--copper-500)' : 'var(--e-surface)',
+                color: timeHorizon === horizon ? 'white' : 'var(--e-text)',
+                border: timeHorizon === horizon ? 'none' : '1px solid var(--e-border)',
+                cursor: 'pointer',
+                boxShadow: timeHorizon === horizon ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+              }}
             >
               {horizon} mån
             </button>
@@ -148,13 +154,13 @@ export function OverviewView() {
       </div>
 
       {/* Filter */}
-      <div className="flex gap-3 mb-8">
-        <div className="flex items-center gap-2 bg-cream-100 dark:bg-charcoal-900 px-4 py-3 rounded-xl border border-sand-200 dark:border-charcoal-800">
-          <Filter className="h-4 w-4 text-stone-500" />
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--e-surface)', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid var(--e-border)' }}>
+          <Filter style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary)' }} />
           <select
             value={selectedClient}
             onChange={(e) => setSelectedClient(e.target.value)}
-            className="bg-transparent text-sm font-medium text-stone-700 dark:text-stone-300 focus:outline-none cursor-pointer"
+            style={{ backgroundColor: 'transparent', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', outline: 'none', cursor: 'pointer', border: 'none' }}
           >
             <option value="all">Alla klienter</option>
             {clients.map(client => (
@@ -163,12 +169,12 @@ export function OverviewView() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2 bg-cream-100 dark:bg-charcoal-900 px-4 py-3 rounded-xl border border-sand-200 dark:border-charcoal-800">
-          <Filter className="h-4 w-4 text-stone-500" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--e-surface)', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid var(--e-border)' }}>
+          <Filter style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary)' }} />
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="bg-transparent text-sm font-medium text-stone-700 dark:text-stone-300 focus:outline-none cursor-pointer"
+            style={{ backgroundColor: 'transparent', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', outline: 'none', cursor: 'pointer', border: 'none' }}
           >
             <option value="all">Alla status</option>
             <option value="active">Aktiva</option>
@@ -178,74 +184,76 @@ export function OverviewView() {
       </div>
 
       {/* Statistik-kort */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-6 bg-cream-100 dark:bg-charcoal-850 border-2 border-copper-500 dark:border-copper-400 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-5 w-5 text-copper-600 dark:text-copper-400" />
-            <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <div style={{ padding: '1.5rem', backgroundColor: 'var(--e-surface)', border: '2px solid var(--copper-500)', borderRadius: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <Sparkles style={{ height: '20px', width: '20px', color: 'var(--copper-600)' }} />
+            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
               Totalt
             </span>
           </div>
-          <p className="text-3xl font-bold text-stone-900 dark:text-cream-50">{stats.total}</p>
-          <p className="text-sm text-stone-500 dark:text-stone-400">projekt</p>
+          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>{stats.total}</p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>projekt</p>
         </div>
 
-        <div className="p-6 bg-cream-100 dark:bg-charcoal-850 border-2 border-success-500 dark:border-success-400 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="h-5 w-5 text-success-600 dark:text-success-400" />
-            <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+        <div style={{ padding: '1.5rem', backgroundColor: 'var(--e-surface)', border: '2px solid #10b981', borderRadius: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <CheckCircle2 style={{ height: '20px', width: '20px', color: '#10b981' }} />
+            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
               Klara
             </span>
           </div>
-          <p className="text-3xl font-bold text-stone-900 dark:text-cream-50">{stats.completed}</p>
-          <p className="text-sm text-stone-500 dark:text-stone-400">projekt</p>
+          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>{stats.completed}</p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>projekt</p>
         </div>
 
-        <div className="p-6 bg-cream-100 dark:bg-charcoal-850 border-2 border-warning-500 dark:border-warning-400 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-5 w-5 text-warning-600 dark:text-warning-400" />
-            <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+        <div style={{ padding: '1.5rem', backgroundColor: 'var(--e-surface)', border: '2px solid #f59e0b', borderRadius: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <Clock style={{ height: '20px', width: '20px', color: '#f59e0b' }} />
+            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
               Totalt
             </span>
           </div>
-          <p className="text-3xl font-bold text-stone-900 dark:text-cream-50">{stats.totalQuotedHours}h</p>
-          <p className="text-sm text-stone-500 dark:text-stone-400">offererat</p>
+          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>{stats.totalQuotedHours}h</p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>offererat</p>
         </div>
 
-        <div className="p-6 bg-cream-100 dark:bg-charcoal-850 border-2 border-purple-500 dark:border-purple-400 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+        <div style={{ padding: '1.5rem', backgroundColor: 'var(--e-surface)', border: '2px solid #8b5cf6', borderRadius: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <TrendingUp style={{ height: '20px', width: '20px', color: '#8b5cf6' }} />
+            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
               Budget
             </span>
           </div>
-          <p className="text-2xl font-bold text-stone-900 dark:text-cream-50">
+          <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
             {(stats.totalBudget / 1000).toFixed(0)}k
           </p>
-          <p className="text-sm text-stone-500 dark:text-stone-400">kr totalt</p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>kr totalt</p>
         </div>
       </div>
 
       {/* Varningar */}
       {(urgentProjects.length > 0 || overBudgetProjects.length > 0) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
           {urgentProjects.length > 0 && (
-            <div className="p-6 bg-warning-50 dark:bg-warning-950 border-2 border-warning-500 dark:border-warning-400 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-5 w-5 text-warning-600 dark:text-warning-400" />
-                <h3 className="font-bold text-warning-900 dark:text-warning-100">
+            <div style={{ padding: '1.5rem', backgroundColor: '#fef3c7', border: '2px solid #f59e0b', borderRadius: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <AlertTriangle style={{ height: '20px', width: '20px', color: '#d97706' }} />
+                <h3 style={{ fontWeight: 'bold', color: '#78350f', margin: 0 }}>
                   Brådskande deadlines
                 </h3>
               </div>
-              <p className="text-sm text-warning-800 dark:text-warning-200 mb-2">
+              <p style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '0.5rem' }}>
                 {urgentProjects.length} projekt med deadline inom 2 veckor
               </p>
-              <div className="space-y-1">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 {urgentProjects.slice(0, 3).map(project => (
                   <div
                     key={project.id}
                     onClick={() => navigate(`/projects/${project.id}`)}
-                    className="text-sm text-warning-900 dark:text-warning-100 hover:underline cursor-pointer"
+                    style={{ fontSize: '0.875rem', color: '#78350f', cursor: 'pointer', textDecoration: 'none' }}
+                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                    onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
                     • {project.name}
                   </div>
@@ -255,22 +263,24 @@ export function OverviewView() {
           )}
 
           {overBudgetProjects.length > 0 && (
-            <div className="p-6 bg-error-50 dark:bg-error-950 border-2 border-error-500 dark:border-error-400 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="h-5 w-5 text-error-600 dark:text-error-400" />
-                <h3 className="font-bold text-error-900 dark:text-error-100">
+            <div style={{ padding: '1.5rem', backgroundColor: '#fee2e2', border: '2px solid #ef4444', borderRadius: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <AlertTriangle style={{ height: '20px', width: '20px', color: '#dc2626' }} />
+                <h3 style={{ fontWeight: 'bold', color: '#7f1d1d', margin: 0 }}>
                   Budgetöverskridning
                 </h3>
               </div>
-              <p className="text-sm text-error-800 dark:text-error-200 mb-2">
+              <p style={{ fontSize: '0.875rem', color: '#991b1b', marginBottom: '0.5rem' }}>
                 {overBudgetProjects.length} projekt över budget
               </p>
-              <div className="space-y-1">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 {overBudgetProjects.slice(0, 3).map(project => (
                   <div
                     key={project.id}
                     onClick={() => navigate(`/projects/${project.id}`)}
-                    className="text-sm text-error-900 dark:text-error-100 hover:underline cursor-pointer"
+                    style={{ fontSize: '0.875rem', color: '#7f1d1d', cursor: 'pointer', textDecoration: 'none' }}
+                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                    onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
                     • {project.name}
                   </div>
@@ -282,20 +292,20 @@ export function OverviewView() {
       )}
 
       {/* Projekttidslinje */}
-      <div className="bg-cream-100 dark:bg-charcoal-850 rounded-xl border-2 border-sand-200 dark:border-charcoal-800 p-8">
-        <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-stone-900 dark:text-cream-50">
-          <Calendar className="h-6 w-6" />
+      <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', border: '2px solid var(--e-border)', padding: '2rem' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--e-text)' }}>
+          <Calendar style={{ height: '24px', width: '24px' }} />
           Projekttidslinje
         </h2>
 
         {filteredProjects.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-stone-500 dark:text-stone-400">
+          <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+            <p style={{ color: 'var(--e-text-secondary)' }}>
               Inga projekt i denna tidsperiod
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {filteredProjects.map(project => {
               const projectTasks = tasks.filter(t => t.project_id === project.id);
               const metrics = calculateProjectMetrics(project, projectTasks);
@@ -306,41 +316,58 @@ export function OverviewView() {
                   )
                 : null;
 
+              const getDeadlineStyle = () => {
+                if (daysUntilDeadline === null || project.status === 'completed') return null;
+                if (daysUntilDeadline < 0) return { bg: '#fee2e2', color: '#991b1b' };
+                if (daysUntilDeadline <= 14) return { bg: '#fef3c7', color: '#78350f' };
+                return { bg: '#fef3c7', color: '#78350f' };
+              };
+              const deadlineStyle = getDeadlineStyle();
+
               return (
                 <div
                   key={project.id}
                   onClick={() => navigate(`/projects/${project.id}`)}
-                  className="p-6 border-2 rounded-xl hover:shadow-soft transition-all cursor-pointer bg-cream-50 dark:bg-charcoal-900"
-                  style={{ borderColor: project.color }}
+                  style={{
+                    padding: '1.5rem',
+                    border: `2px solid ${project.color}`,
+                    borderRadius: '0.75rem',
+                    cursor: 'pointer',
+                    backgroundColor: 'var(--e-surface)',
+                    transition: 'box-shadow 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-stone-900 dark:text-cream-50">{project.name}</h3>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem', color: 'var(--e-text)', margin: 0 }}>{project.name}</h3>
                       {project.client_name && (
-                        <p className="text-sm text-stone-600 dark:text-stone-400">
+                        <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>
                           {project.client_name}
                         </p>
                       )}
                     </div>
 
                     {project.status === 'completed' && (
-                      <span className="px-3 py-1 bg-success-100 dark:bg-success-950 text-success-700 dark:text-success-300 rounded-full text-sm font-medium">
+                      <span style={{ padding: '0.25rem 0.75rem', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '500' }}>
                         Klart
                       </span>
                     )}
 
-                    {daysUntilDeadline !== null && project.status !== 'completed' && (
+                    {deadlineStyle && (
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          daysUntilDeadline < 0
-                            ? 'bg-error-100 dark:bg-error-950 text-error-700 dark:text-error-300'
-                            : daysUntilDeadline <= 14
-                            ? 'bg-warning-100 dark:bg-warning-950 text-warning-700 dark:text-warning-300'
-                            : 'bg-copper-100 dark:bg-copper-950 text-copper-700 dark:text-copper-300'
-                        }`}
+                        style={{
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          backgroundColor: deadlineStyle.bg,
+                          color: deadlineStyle.color
+                        }}
                       >
-                        {daysUntilDeadline < 0
-                          ? `${Math.abs(daysUntilDeadline)} dagar sen`
+                        {daysUntilDeadline! < 0
+                          ? `${Math.abs(daysUntilDeadline!)} dagar sen`
                           : daysUntilDeadline === 0
                           ? 'Idag!'
                           : `${daysUntilDeadline} dagar kvar`}
@@ -348,55 +375,57 @@ export function OverviewView() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-4 gap-4 mt-3">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '0.75rem' }}>
                     <div>
-                      <span className="text-xs text-stone-500 dark:text-stone-400">
+                      <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
                         Färdigt
                       </span>
-                      <p className="text-lg font-semibold text-stone-900 dark:text-cream-50">
+                      <p style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', margin: 0 }}>
                         {project.completion_percentage}%
                       </p>
                     </div>
 
                     <div>
-                      <span className="text-xs text-stone-500 dark:text-stone-400">
+                      <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
                         Loggat
                       </span>
-                      <p className="text-lg font-semibold text-stone-900 dark:text-cream-50">
+                      <p style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', margin: 0 }}>
                         {metrics.logged_hours}h
                       </p>
                     </div>
 
                     <div>
-                      <span className="text-xs text-stone-500 dark:text-stone-400">
+                      <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
                         Återstår
                       </span>
-                      <p className="text-lg font-semibold text-stone-900 dark:text-cream-50">
+                      <p style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', margin: 0 }}>
                         {metrics.estimated_remaining_hours}h
                       </p>
                     </div>
 
                     <div>
-                      <span className="text-xs text-stone-500 dark:text-stone-400">
+                      <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
                         Budget
                       </span>
-                      <p className="text-lg font-semibold text-stone-900 dark:text-cream-50">
+                      <p style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', margin: 0 }}>
                         {(project.total_budget / 1000).toFixed(0)}k
                       </p>
                     </div>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="mt-3 h-2 bg-sand-200 dark:bg-charcoal-800 rounded-full overflow-hidden">
+                  <div style={{ marginTop: '0.75rem', height: '8px', backgroundColor: 'var(--e-border)', borderRadius: '9999px', overflow: 'hidden' }}>
                     <div
-                      className={`h-full transition-all ${
-                        metrics.is_over_budget
-                          ? 'bg-error-500'
+                      style={{
+                        height: '100%',
+                        transition: 'width 0.3s',
+                        backgroundColor: metrics.is_over_budget
+                          ? '#ef4444'
                           : project.completion_percentage >= 80
-                          ? 'bg-success-500'
-                          : 'bg-copper-500'
-                      }`}
-                      style={{ width: `${Math.min(project.completion_percentage, 100)}%` }}
+                          ? '#10b981'
+                          : 'var(--copper-500)',
+                        width: `${Math.min(project.completion_percentage, 100)}%`
+                      }}
                     />
                   </div>
                 </div>
@@ -407,7 +436,7 @@ export function OverviewView() {
       </div>
 
       {/* Capacity Timeline */}
-      <div className="mt-8">
+      <div style={{ marginTop: '2rem' }}>
         <CapacityTimeline />
       </div>
     </div>

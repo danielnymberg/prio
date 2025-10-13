@@ -13,6 +13,7 @@ interface SyncButtonProps {
   loading?: boolean;
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   title?: string;
   type?: 'button' | 'submit' | 'reset';
   iconCss?: string;
@@ -45,6 +46,7 @@ export const SyncButton = forwardRef<any, SyncButtonProps>(
     loading = false,
     children,
     className = '',
+    style,
     title,
     iconCss,
     iconPosition = 'Left',
@@ -58,6 +60,7 @@ export const SyncButton = forwardRef<any, SyncButtonProps>(
         onMouseUp={onMouseUp}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
+        style={style}
       >
         <ButtonComponent
           ref={ref}

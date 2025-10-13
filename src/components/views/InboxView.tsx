@@ -121,14 +121,14 @@ export function InboxView() {
   };
 
   return (
-    <div className="h-full flex flex-col space-y-4">
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
             Inbox
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
             {inboxTasks.length} uppgifter väntar på bedömning
           </p>
         </div>
@@ -136,8 +136,8 @@ export function InboxView() {
 
       {/* Tips banner */}
       {inboxTasks.length > 0 && (
-        <div className="bg-sand-100 dark:bg-charcoal-850 border border-sand-300 dark:border-charcoal-700 rounded-lg p-4">
-          <p className="text-sm text-stone-600 dark:text-sand-200">
+        <div style={{ backgroundColor: 'var(--e-surface)', border: '1px solid var(--e-border)', borderRadius: '0.5rem', padding: '1rem' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', margin: 0 }}>
             💡 <strong>Tips:</strong> Dubbelklicka på en uppgift för att bedöma vikten, tidskänslighet och deadline.
             Uppgifter som skapats via röst eller delning hamnar här om AI:n inte kunde bedöma dem direkt.
           </p>
@@ -146,15 +146,15 @@ export function InboxView() {
 
       {/* Grid eller Empty State */}
       {inboxTasks.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <EmptyState
-            icon={<Inbox className="h-16 w-16" />}
+            icon={<Inbox style={{ height: '64px', width: '64px' }} />}
             title="Inbox är tom!"
             description="Nya uppgifter från röstassistent hamnar här för bedömning"
           />
         </div>
       ) : (
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <div style={{ flex: 1, backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
           <GridComponent
             ref={gridRef}
             dataSource={gridData}

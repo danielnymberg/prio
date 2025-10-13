@@ -130,3 +130,13 @@ h3 {
 .sidebar-tree.e-fullrow-wrap .e-text-content {
   padding: 8px 12px;
 }
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

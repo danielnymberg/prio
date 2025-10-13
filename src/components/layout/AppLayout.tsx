@@ -7,28 +7,33 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  // State för mobilnavigering
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen bg-cream-50 dark:bg-charcoal-950">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Header onMenuClick={() => setIsSidebarOpen(true)} />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
 
-        {/* Backdrop overlay för mobil - stänger sidebar när man klickar utanför */}
+        {/* Backdrop overlay för mobil */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-charcoal-950/60 z-30 lg:hidden"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(28, 25, 23, 0.6)',
+              zIndex: 30
+            }}
             onClick={() => setIsSidebarOpen(false)}
+            className="mobile-backdrop"
           />
         )}
 
-        <main className="flex-1 overflow-y-auto p-6 sm:p-8">
+        <main style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
           {children}
         </main>
       </div>
