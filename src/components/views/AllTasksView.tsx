@@ -18,6 +18,7 @@ import {
   SortSettingsModel,
   GroupSettingsModel
 } from '@syncfusion/ej2-react-grids';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { TaskForm } from '@/components/tasks/TaskForm';
@@ -274,6 +275,13 @@ export function AllTasksView() {
             {activeTasks.length} aktiva uppgifter (exkl. Snabbis)
           </p>
         </div>
+
+        <ButtonComponent
+          cssClass="e-primary"
+          iconCss="e-icons e-plus"
+          onClick={() => setIsFormOpen(true)}
+          content="Ny uppgift"
+        />
       </div>
 
       {/* Grid */}

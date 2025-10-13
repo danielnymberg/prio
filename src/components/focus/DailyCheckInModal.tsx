@@ -44,39 +44,43 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
       size="lg"
     >
       {/* Progress Indicator */}
-      <div className="flex gap-2 mb-6">
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
         {[1, 2, 3].map(s => (
           <div
             key={s}
-            className={`h-2 flex-1 rounded transition-all ${
-              s <= step ? 'bg-copper-600' : 'bg-gray-200 dark:bg-gray-700'
-            }`}
+            style={{
+              height: '8px',
+              flex: 1,
+              borderRadius: '4px',
+              transition: 'all 0.2s',
+              backgroundColor: s <= step ? 'var(--copper-600)' : 'var(--e-border)'
+            }}
           />
         ))}
       </div>
 
-      <div className="text-center mb-2 text-sm text-gray-600 dark:text-gray-400">
+      <div style={{ textAlign: 'center', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
         Steg {step} av 3
       </div>
 
       {/* Step 1: Tillgänglig tid */}
       {step === 1 && (
-        <div className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
               Hur mycket tid har du för fokusarbete idag?
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p style={{ color: 'var(--e-text-secondary)' }}>
               Detta hjälper oss föreslå rätt uppgifter
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="text-center">
-              <div className="text-5xl font-bold text-copper-600 mb-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: 'var(--copper-600)', marginBottom: '0.5rem' }}>
                 {formatTime(availableTime)}
               </div>
-              <div className="text-sm text-gray-500">
+              <div style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
                 {availableTime} minuter
               </div>
             </div>
@@ -88,10 +92,10 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               step="30"
               value={availableTime}
               onChange={(e) => setAvailableTime(Number(e.target.value))}
-              className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+              style={{ width: '100%', height: '12px', cursor: 'pointer' }}
             />
 
-            <div className="flex justify-between text-xs text-gray-500">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
               <span>0h</span>
               <span>2h</span>
               <span>4h</span>
@@ -102,7 +106,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
           <Button
             onClick={() => setStep(2)}
-            className="w-full h-12"
+            style={{ width: '100%', height: '48px' }}
             disabled={availableTime === 0}
           >
             Nästa →
@@ -112,71 +116,86 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
       {/* Step 2: Energinivå */}
       {step === 2 && (
-        <div className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
               Hur är din energinivå?
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p style={{ color: 'var(--e-text-secondary)' }}>
               Vi anpassar uppgifterna efter din energi
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
             <button
               type="button"
               onClick={() => setEnergyLevel('low')}
-              className={`p-6 rounded-xl border-2 transition-all ${
-                energyLevel === 'low'
-                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg scale-105'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-              }`}
+              style={{
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: energyLevel === 'low' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                backgroundColor: energyLevel === 'low' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
+                boxShadow: energyLevel === 'low' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
+                transform: energyLevel === 'low' ? 'scale(1.05)' : 'scale(1)',
+                transition: 'all 0.2s',
+                cursor: 'pointer'
+              }}
             >
-              <BatteryLow className="h-12 w-12 mx-auto mb-3 text-orange-500" />
-              <div className="font-semibold text-gray-900 dark:text-white">Låg</div>
-              <div className="text-xs text-gray-500 mt-1">Trött, dämpad</div>
+              <BatteryLow style={{ height: '48px', width: '48px', margin: '0 auto 12px', color: '#f97316' }} />
+              <div style={{ fontWeight: '600', color: 'var(--e-text)' }}>Låg</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '4px' }}>Trött, dämpad</div>
             </button>
 
             <button
               type="button"
               onClick={() => setEnergyLevel('medium')}
-              className={`p-6 rounded-xl border-2 transition-all ${
-                energyLevel === 'medium'
-                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg scale-105'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-              }`}
+              style={{
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: energyLevel === 'medium' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                backgroundColor: energyLevel === 'medium' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
+                boxShadow: energyLevel === 'medium' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
+                transform: energyLevel === 'medium' ? 'scale(1.05)' : 'scale(1)',
+                transition: 'all 0.2s',
+                cursor: 'pointer'
+              }}
             >
-              <BatteryMedium className="h-12 w-12 mx-auto mb-3 text-yellow-500" />
-              <div className="font-semibold text-gray-900 dark:text-white">Medel</div>
-              <div className="text-xs text-gray-500 mt-1">Normal, stabil</div>
+              <BatteryMedium style={{ height: '48px', width: '48px', margin: '0 auto 12px', color: '#eab308' }} />
+              <div style={{ fontWeight: '600', color: 'var(--e-text)' }}>Medel</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '4px' }}>Normal, stabil</div>
             </button>
 
             <button
               type="button"
               onClick={() => setEnergyLevel('high')}
-              className={`p-6 rounded-xl border-2 transition-all ${
-                energyLevel === 'high'
-                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg scale-105'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-              }`}
+              style={{
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: energyLevel === 'high' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                backgroundColor: energyLevel === 'high' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
+                boxShadow: energyLevel === 'high' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
+                transform: energyLevel === 'high' ? 'scale(1.05)' : 'scale(1)',
+                transition: 'all 0.2s',
+                cursor: 'pointer'
+              }}
             >
-              <Battery className="h-12 w-12 mx-auto mb-3 text-green-500" />
-              <div className="font-semibold text-gray-900 dark:text-white">Hög</div>
-              <div className="text-xs text-gray-500 mt-1">Energisk, fokuserad</div>
+              <Battery style={{ height: '48px', width: '48px', margin: '0 auto 12px', color: '#22c55e' }} />
+              <div style={{ fontWeight: '600', color: 'var(--e-text)' }}>Hög</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '4px' }}>Energisk, fokuserad</div>
             </button>
           </div>
 
-          <div className="flex gap-3">
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Button
               variant="ghost"
               onClick={() => setStep(1)}
-              className="flex-1"
+              style={{ flex: 1 }}
             >
               ← Tillbaka
             </Button>
             <Button
               onClick={() => setStep(3)}
-              className="flex-1"
+              style={{ flex: 1 }}
             >
               Nästa →
             </Button>
@@ -186,33 +205,39 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
       {/* Step 3: Strategi */}
       {step === 3 && (
-        <div className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
               Vad är din strategi idag?
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p style={{ color: 'var(--e-text-secondary)' }}>
               Välj hur du vill arbeta
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <button
               type="button"
               onClick={() => setStrategy('quick_wins')}
-              className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
-                strategy === 'quick_wins'
-                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-              }`}
+              style={{
+                width: '100%',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: strategy === 'quick_wins' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                backgroundColor: strategy === 'quick_wins' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
+                boxShadow: strategy === 'quick_wins' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.2s',
+                textAlign: 'left',
+                cursor: 'pointer'
+              }}
             >
-              <div className="flex items-start gap-4">
-                <Zap className="h-8 w-8 text-yellow-500 flex-shrink-0" />
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                <Zap style={{ height: '32px', width: '32px', color: '#eab308', flexShrink: 0 }} />
                 <div>
-                  <div className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
+                  <div style={{ fontWeight: '600', fontSize: '1.125rem', color: 'var(--e-text)', marginBottom: '4px' }}>
                     ⚡ Quick Wins
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
                     Många små uppgifter för att bygga momentum och känna framsteg
                   </div>
                 </div>
@@ -222,19 +247,25 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
             <button
               type="button"
               onClick={() => setStrategy('deep_work')}
-              className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
-                strategy === 'deep_work'
-                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-              }`}
+              style={{
+                width: '100%',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: strategy === 'deep_work' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                backgroundColor: strategy === 'deep_work' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
+                boxShadow: strategy === 'deep_work' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.2s',
+                textAlign: 'left',
+                cursor: 'pointer'
+              }}
             >
-              <div className="flex items-start gap-4">
-                <Target className="h-8 w-8 text-purple-500 flex-shrink-0" />
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                <Target style={{ height: '32px', width: '32px', color: '#a855f7', flexShrink: 0 }} />
                 <div>
-                  <div className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
+                  <div style={{ fontWeight: '600', fontSize: '1.125rem', color: 'var(--e-text)', marginBottom: '4px' }}>
                     🧠 Deep Work
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
                     Få stora uppgifter som kräver djupt fokus och concentration
                   </div>
                 </div>
@@ -244,20 +275,26 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
             <button
               type="button"
               onClick={() => setStrategy('balanced')}
-              className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
-                strategy === 'balanced'
-                  ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 shadow-lg'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-              }`}
+              style={{
+                width: '100%',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: strategy === 'balanced' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                backgroundColor: strategy === 'balanced' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
+                boxShadow: strategy === 'balanced' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.2s',
+                textAlign: 'left',
+                cursor: 'pointer'
+              }}
               title="Blandning av korta och långa uppgifter baserat på CPM-algoritmen"
             >
-              <div className="flex items-start gap-4">
-                <BarChart className="h-8 w-8 text-copper-500 flex-shrink-0" />
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                <BarChart style={{ height: '32px', width: '32px', color: 'var(--copper-500)', flexShrink: 0 }} />
                 <div>
-                  <div className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
+                  <div style={{ fontWeight: '600', fontSize: '1.125rem', color: 'var(--e-text)', marginBottom: '4px' }}>
                     ⚖️ Balanced
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
                     Blandning av både korta och långa uppgifter - smart balansering
                   </div>
                 </div>
@@ -265,17 +302,17 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
             </button>
           </div>
 
-          <div className="flex gap-3">
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Button
               variant="ghost"
               onClick={() => setStep(2)}
-              className="flex-1"
+              style={{ flex: 1 }}
             >
               ← Tillbaka
             </Button>
             <Button
               onClick={handleSubmit}
-              className="flex-1"
+              style={{ flex: 1 }}
             >
               Klar! 🎯
             </Button>

@@ -45,22 +45,10 @@ export function CapacityTimeline() {
     { level: 'week', label: 'Vecka' },
   ];
 
-  // Färg för status
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'under': return 'bg-gray-400';
-      case 'sweet': return 'bg-green-500';
-      case 'high': return 'bg-yellow-500';
-      case 'full': return 'bg-orange-500';
-      case 'over': return 'bg-red-500';
-      default: return 'bg-gray-400';
-    }
-  };
-
   if (absenceLoading || settingsLoading || loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-copper-600" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16rem' }}>
+        <Loader2 style={{ width: '2rem', height: '2rem', animation: 'spin 1s linear infinite', color: 'var(--copper-600)' }} />
       </div>
     );
   }
@@ -74,31 +62,35 @@ export function CapacityTimeline() {
   const totalAvailableHours = Math.round(capacityData.reduce((sum, d) => sum + d.availableHours, 0));
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
         <div>
-          <h2 className="text-2xl font-bold text-charcoal-900 dark:text-sand-50 flex items-center gap-2">
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--charcoal-900)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             📊 Kapacitetsöversikt
           </h2>
-          <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
             Din beläggning baserat på tasks, projekt och möten
           </p>
         </div>
 
         {/* Zoom-knappar */}
-        <div className="flex items-center gap-2 bg-white dark:bg-charcoal-800 rounded-lg p-1 border border-sand-200 dark:border-charcoal-700">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--e-surface)', borderRadius: '0.5rem', padding: '0.25rem', border: '1px solid var(--e-border)' }}>
           {zoomButtons.map(({ level, label }) => (
             <button
               key={level}
               onClick={() => setZoomLevel(level)}
-              className={`
-                px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${zoomLevel === level
-                  ? 'bg-copper-600 text-white'
-                  : 'text-stone-600 dark:text-stone-400 hover:bg-sand-100 dark:hover:bg-charcoal-700'
-                }
-              `}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                transition: 'colors 0.2s',
+                backgroundColor: zoomLevel === level ? 'var(--copper-600)' : 'transparent',
+                color: zoomLevel === level ? '#ffffff' : 'var(--e-text-secondary)',
+                border: 'none',
+                cursor: 'pointer'
+              }}
             >
               {label}
             </button>
@@ -107,49 +99,55 @@ export function CapacityTimeline() {
       </div>
 
       {/* Info cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
         {[
           {
             label: 'Snittbeläggning',
             value: `${avgUtilization}%`,
             icon: TrendingUp,
-            color: avgUtilization >= settings.capacity_thresholds.over ? 'text-red-600 dark:text-red-400' : avgUtilization >= settings.capacity_thresholds.sweet_start ? 'text-green-600 dark:text-green-400' : 'text-copper-600 dark:text-copper-400',
-            bgColor: avgUtilization >= settings.capacity_thresholds.over ? 'bg-red-50 dark:bg-red-900/20' : avgUtilization >= settings.capacity_thresholds.sweet_start ? 'bg-green-50 dark:bg-green-900/20' : 'bg-copper-50 dark:bg-copper-900/20',
+            color: avgUtilization >= settings.capacity_thresholds.over ? '#ef4444' : avgUtilization >= settings.capacity_thresholds.sweet_start ? '#10b981' : 'var(--copper-600)',
+            bgColor: avgUtilization >= settings.capacity_thresholds.over ? '#fef2f2' : avgUtilization >= settings.capacity_thresholds.sweet_start ? '#f0fdf4' : '#fef3e8',
           },
           {
             label: 'Överbelagda',
             value: overloadedPeriods,
             icon: AlertCircle,
-            color: 'text-red-600 dark:text-red-400',
-            bgColor: 'bg-red-50 dark:bg-red-900/20',
+            color: '#ef4444',
+            bgColor: '#fef2f2',
           },
           {
             label: 'Sweetspot',
             value: sweetspotPeriods,
             icon: Calendar,
-            color: 'text-green-600 dark:text-green-400',
-            bgColor: 'bg-green-50 dark:bg-green-900/20',
+            color: '#10b981',
+            bgColor: '#f0fdf4',
           },
           {
             label: 'Ledigt',
             value: `${totalAvailableHours}h`,
             icon: Calendar,
-            color: 'text-blue-600 dark:text-blue-400',
-            bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+            color: '#3b82f6',
+            bgColor: '#eff6ff',
           },
         ].map((stat, i) => {
           const Icon = stat.icon;
           return (
             <div
               key={i}
-              className={`${stat.bgColor} rounded-xl p-4 border-2 border-sand-200 dark:border-charcoal-700 transition-all hover:shadow-md`}
+              style={{
+                backgroundColor: stat.bgColor,
+                borderRadius: '0.75rem',
+                padding: '1rem',
+                border: '2px solid var(--e-border)',
+                transition: 'all 0.2s'
+              }}
             >
-              <div className="flex flex-col gap-2">
-                <div className={`${stat.color} flex items-center gap-2`}>
-                  <Icon className="w-4 h-4" />
-                  <p className="text-xs font-medium text-stone-600 dark:text-stone-400">{stat.label}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ color: stat.color, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Icon style={{ width: '1rem', height: '1rem' }} />
+                  <p style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>{stat.label}</p>
                 </div>
-                <p className="text-3xl font-bold text-charcoal-900 dark:text-sand-50">
+                <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)' }}>
                   {stat.value}
                 </p>
               </div>
@@ -159,73 +157,86 @@ export function CapacityTimeline() {
       </div>
 
       {/* Timeline visualization */}
-      <div className="bg-white dark:bg-charcoal-850 rounded-xl p-6 border-2 border-sand-200 dark:border-charcoal-800 shadow-sm">
-        <div className="space-y-4">
+      <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', padding: '1.5rem', border: '2px solid var(--e-border)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Timeline header */}
-          <div className="flex items-center justify-between text-sm font-semibold text-stone-600 dark:text-stone-400 pb-2 border-b border-sand-200 dark:border-charcoal-700">
-            <span className="w-20">Period</span>
-            <span className="flex-1 text-center">Beläggning</span>
-            <span className="w-16 text-right">%</span>
-            <span className="w-32 text-right">Timmar</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.875rem', fontWeight: '600', color: 'var(--e-text-secondary)', paddingBottom: '0.5rem', borderBottom: '1px solid var(--e-border)' }}>
+            <span style={{ width: '5rem' }}>Period</span>
+            <span style={{ flex: '1', textAlign: 'center' }}>Beläggning</span>
+            <span style={{ width: '4rem', textAlign: 'right' }}>%</span>
+            <span style={{ width: '8rem', textAlign: 'right' }}>Timmar</span>
           </div>
 
           {/* Timeline bars */}
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {capacityData.map((data, idx) => (
-              <div key={idx} className="group hover:bg-sand-50 dark:hover:bg-charcoal-900 rounded-lg p-2 transition-all cursor-default">
-                <div className="flex items-center gap-4">
+              <div key={idx} style={{ borderRadius: '0.5rem', padding: '0.5rem', transition: 'all 0.2s', cursor: 'default' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   {/* Period label */}
-                  <div className="w-20 text-sm font-medium text-charcoal-900 dark:text-sand-50">
+                  <div style={{ width: '5rem', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)' }}>
                     {data.periodLabel}
                   </div>
 
                   {/* Progress bar */}
-                  <div className="flex-1 relative">
-                    <div className="h-8 bg-stone-100 dark:bg-charcoal-900 rounded-full overflow-hidden">
+                  <div style={{ flex: '1', position: 'relative' }}>
+                    <div style={{ height: '2rem', backgroundColor: 'var(--e-surface)', borderRadius: '9999px', overflow: 'hidden', border: '1px solid var(--e-border)' }}>
                       <div
-                        className={`h-full ${getStatusColor(data.status)} transition-all duration-300`}
-                        style={{ width: `${Math.min(data.utilization, 100)}%` }}
+                        style={{
+                          height: '100%',
+                          width: `${Math.min(data.utilization, 100)}%`,
+                          backgroundColor: data.status === 'under' ? '#9ca3af' :
+                                          data.status === 'sweet' ? '#10b981' :
+                                          data.status === 'high' ? '#f59e0b' :
+                                          data.status === 'full' ? '#f59e0b' :
+                                          data.status === 'over' ? '#ef4444' : '#9ca3af',
+                          transition: 'all 0.3s'
+                        }}
                       />
                     </div>
                     {/* Sweetspot range indicator */}
                     <div
-                      className="absolute top-0 h-8 border-2 border-green-500 border-opacity-30 rounded-full pointer-events-none"
                       style={{
+                        position: 'absolute',
+                        top: '0',
+                        height: '2rem',
+                        border: '2px solid rgba(16, 185, 129, 0.3)',
+                        borderRadius: '9999px',
+                        pointerEvents: 'none',
                         left: `${settings.capacity_thresholds.sweet_start}%`,
-                        width: `${settings.capacity_thresholds.sweet_end - settings.capacity_thresholds.sweet_start}%`,
+                        width: `${settings.capacity_thresholds.sweet_end - settings.capacity_thresholds.sweet_start}%`
                       }}
                     />
                   </div>
 
                   {/* Percentage */}
-                  <div className="w-16 text-right text-sm font-semibold text-charcoal-900 dark:text-sand-50">
+                  <div style={{ width: '4rem', textAlign: 'right', fontSize: '0.875rem', fontWeight: '600', color: 'var(--e-text)' }}>
                     {data.utilization}%
                   </div>
 
                   {/* Hours */}
-                  <div className="w-32 text-right text-sm text-stone-600 dark:text-stone-400">
+                  <div style={{ width: '8rem', textAlign: 'right', fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
                     {data.usedHours}h / {data.totalHours}h
                   </div>
                 </div>
 
-                {/* Expanded details on hover */}
-                <div className="hidden group-hover:block mt-2 p-3 bg-sand-50 dark:bg-charcoal-900 rounded-lg text-xs space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-stone-600 dark:text-stone-400">Möten:</span>
-                    <span className="font-medium text-blue-600 dark:text-blue-400">{data.meetingHours}h</span>
+                {/* Expanded details - visible on hover via CSS or always visible, simplified for inline styles */}
+                <div style={{ marginTop: '0.5rem', padding: '0.75rem', backgroundColor: 'var(--e-surface)', borderRadius: '0.5rem', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', border: '1px solid var(--e-border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--e-text-secondary)' }}>Möten:</span>
+                    <span style={{ fontWeight: '500', color: '#3b82f6' }}>{data.meetingHours}h</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-stone-600 dark:text-stone-400">Projekt:</span>
-                    <span className="font-medium text-copper-600 dark:text-copper-400">{data.projectHours}h</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--e-text-secondary)' }}>Projekt:</span>
+                    <span style={{ fontWeight: '500', color: 'var(--copper-600)' }}>{data.projectHours}h</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-stone-600 dark:text-stone-400">Tasks:</span>
-                    <span className="font-medium text-green-600 dark:text-green-400">{data.taskHours}h</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--e-text-secondary)' }}>Tasks:</span>
+                    <span style={{ fontWeight: '500', color: '#10b981' }}>{data.taskHours}h</span>
                   </div>
                   {data.absencePercentage > 0 && (
-                    <div className="flex justify-between pt-2 border-t border-sand-200 dark:border-charcoal-800">
-                      <span className="text-stone-600 dark:text-stone-400">Frånvaro:</span>
-                      <span className="font-medium text-red-600 dark:text-red-400">{data.absencePercentage}%</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '1px solid var(--e-border)' }}>
+                      <span style={{ color: 'var(--e-text-secondary)' }}>Frånvaro:</span>
+                      <span style={{ fontWeight: '500', color: '#ef4444' }}>{data.absencePercentage}%</span>
                     </div>
                   )}
                 </div>
@@ -236,21 +247,21 @@ export function CapacityTimeline() {
       </div>
 
       {/* Legend */}
-      <div className="bg-white dark:bg-charcoal-850 rounded-xl p-4 border border-sand-200 dark:border-charcoal-800">
-        <p className="text-sm font-medium text-charcoal-900 dark:text-sand-50 mb-3">
+      <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', padding: '1rem', border: '1px solid var(--e-border)' }}>
+        <p style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.75rem' }}>
           Beläggningsnivåer:
         </p>
-        <div className="flex flex-wrap gap-4">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
           {[
-            { label: `Under ${settings.capacity_thresholds.under}%`, color: 'bg-gray-400' },
-            { label: `${settings.capacity_thresholds.sweet_start}-${settings.capacity_thresholds.sweet_end}% (Sweetspot)`, color: 'bg-green-500' },
-            { label: `${settings.capacity_thresholds.sweet_end}-${settings.capacity_thresholds.over}%`, color: 'bg-yellow-500' },
-            { label: `${settings.capacity_thresholds.over}-100%`, color: 'bg-orange-500' },
-            { label: 'Över 100%', color: 'bg-red-500' },
+            { label: `Under ${settings.capacity_thresholds.under}%`, color: '#9ca3af' },
+            { label: `${settings.capacity_thresholds.sweet_start}-${settings.capacity_thresholds.sweet_end}% (Sweetspot)`, color: '#10b981' },
+            { label: `${settings.capacity_thresholds.sweet_end}-${settings.capacity_thresholds.over}%`, color: '#f59e0b' },
+            { label: `${settings.capacity_thresholds.over}-100%`, color: '#f59e0b' },
+            { label: 'Över 100%', color: '#ef4444' },
           ].map((item, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className={`w-4 h-4 rounded ${item.color}`} />
-              <span className="text-sm text-stone-600 dark:text-stone-400">{item.label}</span>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: '1rem', height: '1rem', borderRadius: '0.25rem', backgroundColor: item.color }} />
+              <span style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>{item.label}</span>
             </div>
           ))}
         </div>

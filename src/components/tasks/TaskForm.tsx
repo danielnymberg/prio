@@ -261,7 +261,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
       title={task ? 'Redigera uppgift' : 'Ny uppgift'}
       size="md"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
           <TextBoxComponent
             value={title}
@@ -308,13 +308,13 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         </div>
 
         {/* Tidsuppskattning - FLYTTAD HIT */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Clock style={{ height: '1rem', width: '1rem', color: 'var(--e-text-secondary)' }} />
+            <label style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)' }}>
               Tidsuppskattning
               {estimatedDuration && estimatedDuration > 0 && (
-                <span className="ml-2 text-copper-500 dark:text-copper-400">
+                <span style={{ marginLeft: '0.5rem', color: 'var(--copper-500)' }}>
                   ({formatDuration(estimatedDuration)})
                 </span>
               )}
@@ -323,7 +323,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
 
           {!showCustomDuration ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
                 {DURATION_PRESETS.map((preset) => (
                   <button
                     key={preset.value}
@@ -335,28 +335,39 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                         setEstimatedDuration(preset.value);
                       }
                     }}
-                    className={`p-2 rounded-lg border text-center transition-all hover:shadow-sm ${
-                      estimatedDuration === preset.value
-                        ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
-                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                    }`}
+                    style={{
+                      padding: '0.5rem',
+                      borderRadius: '0.5rem',
+                      border: estimatedDuration === preset.value
+                        ? '2px solid var(--copper-500)'
+                        : '1px solid var(--e-border)',
+                      backgroundColor: estimatedDuration === preset.value
+                        ? 'var(--e-surface)'
+                        : 'var(--e-surface)',
+                      color: estimatedDuration === preset.value
+                        ? 'var(--copper-600)'
+                        : 'var(--e-text)',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
                     title={preset.description}
                   >
-                    <div className="text-lg">{preset.icon}</div>
-                    <div className="text-xs font-medium">{preset.label}</div>
+                    <div style={{ fontSize: '1.125rem' }}>{preset.icon}</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: '500' }}>{preset.label}</div>
                   </button>
                 ))}
               </div>
 
               {estimatedDuration && estimatedDuration > 0 && !DURATION_PRESETS.find(p => p.value === estimatedDuration) && (
-                <div className="text-center">
+                <div style={{ textAlign: 'center' }}>
                   <button
                     type="button"
                     onClick={() => {
                       setEstimatedDuration(null);
                       setCustomDurationText('');
                     }}
-                    className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}
                   >
                     Anpassad tid: {formatDuration(estimatedDuration)} • Rensa
                   </button>
@@ -364,7 +375,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               )}
             </>
           ) : (
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <TextBoxComponent
                 value={customDurationText}
                 change={(e: any) => {
@@ -380,10 +391,10 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 cssClass="e-outline"
                 showClearButton={true}
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
                 Exempel: "3v", "5 dagar", "40h", "2 veckor", "10d"
               </p>
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -392,12 +403,12 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                       setCustomDurationText('');
                     }
                   }}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}
                 >
                   ← Tillbaka till snabbval
                 </button>
                 {estimatedDuration && estimatedDuration > 0 && (
-                  <span className="text-sm text-green-600 dark:text-green-400">
+                  <span style={{ fontSize: '0.875rem', color: '#10b981' }}>
                     ✓ {formatDuration(estimatedDuration)}
                   </span>
                 )}
@@ -407,13 +418,13 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         </div>
 
         {/* Status och Slutdatum - FLYTTAT HIT */}
-        <div className="grid grid-cols-2 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           {/* Status - vänster spalt */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
               Status
             </label>
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
                 { value: 'not_started', label: 'Ej påbörjad', color: 'gray' },
                 { value: 'in_progress', label: 'Pågår', color: 'amber' },
@@ -423,15 +434,21 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                   key={value}
                   type="button"
                   onClick={() => setStatus(value as any)}
-                  className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-colors text-left ${
-                    status === value
-                      ? color === 'green'
-                        ? 'bg-green-600 text-white'
-                        : color === 'amber'
-                        ? 'bg-amber-600 text-white'
-                        : 'bg-gray-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    border: 'none',
+                    backgroundColor: status === value
+                      ? (color === 'green' ? '#10b981' : color === 'amber' ? '#f59e0b' : '#6b7280')
+                      : 'var(--e-surface)',
+                    color: status === value ? '#ffffff' : 'var(--e-text)',
+                    transition: 'colors 0.2s'
+                  }}
                 >
                   {label}
                 </button>
@@ -441,15 +458,22 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
 
           {/* Slutdatum - höger spalt */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
               Slutdatum
             </label>
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <input
                 type="date"
                 value={deadlineDate}
                 onChange={(e) => setDeadlineDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 0.75rem',
+                  border: '1px solid var(--e-border)',
+                  borderRadius: '0.5rem',
+                  backgroundColor: 'var(--e-surface)',
+                  color: 'var(--e-text)'
+                }}
               />
               <DropDownListComponent
                 dataSource={[
@@ -474,7 +498,15 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 <button
                   type="button"
                   onClick={() => setDeadlineDate('')}
-                  className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-1"
+                  style={{
+                    width: '100%',
+                    fontSize: '0.875rem',
+                    color: '#ef4444',
+                    padding: '0.25rem',
+                    cursor: 'pointer',
+                    background: 'none',
+                    border: 'none'
+                  }}
                 >
                   ❌ Ta bort slutdatum
                 </button>
@@ -485,19 +517,26 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
 
         {/* Starttid/Schemaläggning */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
             Starttid (schemalägg uppgiften)
           </label>
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <input
               type="date"
               value={scheduledStartDate}
               onChange={(e) => setScheduledStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '1px solid var(--e-border)',
+                borderRadius: '0.5rem',
+                backgroundColor: 'var(--e-surface)',
+                color: 'var(--e-text)'
+              }}
             />
             {scheduledStartDate && (
               <>
-                <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CheckBoxComponent
                     checked={scheduledStartHasTime}
                     change={(e: any) => setScheduledStartHasTime(e.checked)}
@@ -536,14 +575,22 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                     setScheduledStartDate('');
                     setScheduledStartHasTime(false);
                   }}
-                  className="w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-1"
+                  style={{
+                    width: '100%',
+                    fontSize: '0.875rem',
+                    color: '#ef4444',
+                    padding: '0.25rem',
+                    cursor: 'pointer',
+                    background: 'none',
+                    border: 'none'
+                  }}
                 >
                   ❌ Ta bort schemaläggning
                 </button>
               </>
             )}
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+          <p style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem', fontStyle: 'italic' }}>
             💡 Schemalagda uppgifter visas i kalendervyn
           </p>
         </div>
@@ -551,7 +598,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         {/* Priority Flag - visas ENDAST om ingen deadline är satt */}
         {!deadlineDate && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
               Prioritetsnivå (för uppgifter utan slutdatum)
             </label>
             <DropDownListComponent
@@ -565,23 +612,23 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               change={(e: any) => setPriorityFlag(e.value as PriorityFlag)}
               floatLabelType="Auto"
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+            <p style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem', fontStyle: 'italic' }}>
               💡 Styr hur viktiga uppgifter utan slutdatum prioriteras
             </p>
           </div>
         )}
 
         {/* CPM Parameters - FLYTTAT HIT SIST */}
-        <div className="space-y-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">CPM Prioritering</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem', borderRadius: '0.5rem', backgroundColor: 'var(--e-surface)', border: '1px solid var(--e-border)' }}>
+          <h3 style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)' }}>CPM Prioritering</h3>
 
-          <div className="select-none">
+          <div style={{ userSelect: 'none' }}>
             <Tooltip content="Bedöm objektiva konsekvenser: Vad händer om du INTE gör detta? Fokusera på mätbara effekter, inte känslor." position="TopCenter">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 cursor-help">
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem', cursor: 'help' }}>
                 Värde - Objektiva konsekvenser: {valueScore}/10
               </label>
             </Tooltip>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 italic">
+            <p style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginBottom: '0.5rem', fontStyle: 'italic' }}>
               💡 Vad händer om du INTE gör detta? (Inte hur viktigt det känns)
             </p>
             <SliderComponent
@@ -593,19 +640,19 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               tooltip={{ isVisible: true, placement: 'Before', showOn: 'Always' }}
               ticks={{ placement: 'After', largeStep: 2, smallStep: 1 }}
             />
-            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
               <span>Minimal påverkan</span>
               <span>Allvarliga konsekvenser</span>
             </div>
           </div>
 
-          <div className="select-none">
+          <div style={{ userSelect: 'none' }}>
             <Tooltip content="Bedöm kostnaden av fördröjning: Vad kostar det att vänta 1 timme eller 1 dag? Inte samma som deadline!" position="TopCenter">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 cursor-help">
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem', cursor: 'help' }}>
                 Tidskänslighet - Kostnad av fördröjning: {timeSensitivity}/10
               </label>
             </Tooltip>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 italic">
+            <p style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginBottom: '0.5rem', fontStyle: 'italic' }}>
               💡 Vad kostar det att vänta 1 timme/1 dag? (Inte när deadline är)
             </p>
             <SliderComponent
@@ -617,36 +664,36 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               tooltip={{ isVisible: true, placement: 'Before', showOn: 'Always' }}
               ticks={{ placement: 'After', largeStep: 2, smallStep: 1 }}
             />
-            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
               <span>Kan vänta (låg kostnad)</span>
               <span>Ökar kraftigt per timme</span>
             </div>
 
             {/* Stress warning */}
             {timeSensitivity > 7 && (
-              <div className="mt-4 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-500 rounded-lg p-4">
-                <h4 className="font-bold text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" />
+              <div style={{ marginTop: '1rem', backgroundColor: '#fffbeb', border: '2px solid #f59e0b', borderRadius: '0.5rem', padding: '1rem' }}>
+                <h4 style={{ fontWeight: 'bold', color: '#78350f', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <AlertTriangle style={{ height: '1.25rem', width: '1.25rem' }} />
                   ⚠️ Stress-varning!
                 </h4>
-                <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
+                <p style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '0.75rem' }}>
                   Denna uppgift känns mycket brådskande. Forskning visar att vi systematiskt
                   övervärderar brådska när vi är stressade.
                 </p>
-                <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+                <p style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '0.5rem' }}>
                   <strong>Exempel:</strong> "Måste vara klar till lunch imorgon" betyder INTE automatiskt hög tidskänslighet!
                   Fråga dig: Vad kostar det att göra det ikväll vs tidigt imorgon?
                 </p>
-                <p className="text-sm text-amber-800 dark:text-amber-200">
+                <p style={{ fontSize: '0.875rem', color: '#92400e' }}>
                   Hög tidskänslighet (8-10) = Kostnaden ÖKAR KRAFTIGT för varje timme (ex: förlorar kund om jag inte svarar nu)
                 </p>
               </div>
             )}
           </div>
 
-          <div className="select-none">
+          <div style={{ userSelect: 'none' }}>
             <Tooltip content="Hur säker är du på att resultatet blir som förväntat? Hög tillit = garanterat resultat, låg = osäkert utfall." position="TopCenter">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 cursor-help">
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem', cursor: 'help' }}>
                 Tillit/Säkerhet - Sannolikhet för resultat: {confidence}/10
               </label>
             </Tooltip>
@@ -659,15 +706,15 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               tooltip={{ isVisible: true, placement: 'Before', showOn: 'Always' }}
               ticks={{ placement: 'After', largeStep: 2, smallStep: 1 }}
             />
-            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
               <span>Osäker</span>
               <span>Garanterad</span>
             </div>
           </div>
 
-          <div className="select-none">
+          <div style={{ userSelect: 'none' }}>
             <Tooltip content="Hur mycket tid och energi krävs för att slutföra detta? 1 = snabbt och lätt, 10 = mycket krävande." position="TopCenter">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 cursor-help">
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem', cursor: 'help' }}>
                 Ansträngning - Faktisk tid/resurser: {effort}/10
               </label>
             </Tooltip>
@@ -680,18 +727,18 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               tooltip={{ isVisible: true, placement: 'Before', showOn: 'Always' }}
               ticks={{ placement: 'After', largeStep: 2, smallStep: 1 }}
             />
-            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
               <span>Lätt</span>
               <span>Mycket krävande</span>
             </div>
           </div>
 
           {/* Priority Preview */}
-          <div className="mt-4 p-3 bg-sand-100 dark:bg-charcoal-850 rounded-lg">
-            <p className="text-sm font-medium text-stone-600 dark:text-sand-100">
-              📊 Beräknad prioritet: <span className="text-lg font-bold">{priorityPreview.toFixed(1)}</span>
+          <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: 'var(--e-surface)', borderRadius: '0.5rem' }}>
+            <p style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)' }}>
+              📊 Beräknad prioritet: <span style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>{priorityPreview.toFixed(1)}</span>
             </p>
-            <p className="text-xs text-stone-600 dark:text-sand-200 mt-1">
+            <p style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
               Formel: (Värde × Tidskänslighet × Tillit) / Ansträngning
             </p>
           </div>
@@ -700,7 +747,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         {/* Priority Flag - visas ENDAST om ingen deadline är satt */}
         {!deadlineDate && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
               Prioritetsnivå (för uppgifter utan slutdatum)
             </label>
             <DropDownListComponent
@@ -714,14 +761,14 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               change={(e: any) => setPriorityFlag(e.value as PriorityFlag)}
               floatLabelType="Auto"
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
+            <p style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem', fontStyle: 'italic' }}>
               💡 Styr hur viktiga uppgifter utan slutdatum prioriteras
             </p>
           </div>
         )}
 
         {/* Action buttons */}
-        <div className="flex gap-2 pt-4">
+        <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '1rem' }}>
           {task && onDelete && (
             <button
               type="button"
@@ -732,7 +779,17 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                   toast.success('Uppgift raderad');
                 }
               }}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                backgroundColor: '#fee2e2',
+                color: '#b91c1c',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'colors 0.2s'
+              }}
             >
               Radera
             </button>
@@ -740,14 +797,36 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            style={{
+              flex: '1',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              backgroundColor: 'var(--e-surface)',
+              color: 'var(--e-text)',
+              border: '1px solid var(--e-border)',
+              cursor: 'pointer',
+              transition: 'colors 0.2s'
+            }}
           >
             Avbryt
           </button>
           <button
             type="submit"
             disabled={loading || !title.trim()}
-            className="flex-1 px-4 py-2 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            style={{
+              flex: '1',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              backgroundColor: loading || !title.trim() ? '#9ca3af' : '#10b981',
+              color: '#ffffff',
+              border: 'none',
+              cursor: loading || !title.trim() ? 'not-allowed' : 'pointer',
+              transition: 'colors 0.2s'
+            }}
           >
             {loading ? 'Sparar...' : 'Spara'}
           </button>
