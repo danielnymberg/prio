@@ -13,6 +13,10 @@ interface ConversationMessage {
 }
 
 export function VoiceInterface() {
+  // Hide on desktop (min-width: 1024px)
+  const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+  if (isDesktop) return null;
+
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [conversationLog, setConversationLog] = useState<ConversationMessage[]>([]);
@@ -20,6 +24,7 @@ export function VoiceInterface() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>(''); // Ny: visa aktuell status
+  const [closeButtonHover, setCloseButtonHover] = useState(false);
 
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
@@ -255,30 +260,73 @@ export function VoiceInterface() {
 
   if (!isInitialized) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-full p-4 shadow-2xl">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-copper-600"></div>
+      <div style={{
+        position: 'fixed',
+        bottom: '24px',
+        right: '24px',
+        zIndex: 50
+      }}>
+        <div style={{
+          background: 'var(--e-surface)',
+          borderRadius: '9999px',
+          padding: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+        }}>
+          <div style={{
+            animation: 'spin 1s linear infinite',
+            borderRadius: '9999px',
+            height: '32px',
+            width: '32px',
+            borderBottom: '2px solid var(--copper-600)'
+          }}></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div style={{
+      position: 'fixed',
+      bottom: '24px',
+      right: '24px',
+      zIndex: 50
+    }}>
       {/* Expanded Conversation View */}
       {isExpanded && (
-        <div className="mb-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-96 max-h-96 flex flex-col">
+        <div style={{
+          marginBottom: '16px',
+          background: 'var(--e-surface)',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          width: '384px',
+          maxHeight: '384px',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="font-semibold text-gray-900 dark:text-white">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px',
+            borderBottom: '1px solid var(--e-border)'
+          }}>
+            <h3 style={{
+              fontWeight: 600,
+              color: 'var(--e-text)',
+              margin: 0
+            }}>
               Prio AI-assistent
             </h3>
-            <div className="flex items-center gap-2">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={clearConversation}
-                className="text-gray-500 hover:text-gray-700"
               >
                 Rensa
               </Button>
@@ -286,58 +334,105 @@ export function VoiceInterface() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(false)}
-                className="text-gray-500 hover:text-gray-700"
               >
-                <X className="h-4 w-4" />
+                <X style={{ height: '16px', width: '16px' }} />
               </Button>
             </div>
           </div>
 
           {/* Conversation Log */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-64">
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '16px',
+            maxHeight: '256px'
+          }}>
             {conversationLog.length === 0 ? (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Säg hej för att börja prata med din AI-assistent!</p>
+              <div style={{
+                textAlign: 'center',
+                color: 'var(--e-text-secondary)',
+                padding: '32px 0'
+              }}>
+                <MessageSquare style={{
+                  height: '32px',
+                  width: '32px',
+                  margin: '0 auto 8px',
+                  opacity: 0.5
+                }} />
+                <p style={{ fontSize: '14px', margin: 0 }}>Säg hej för att börja prata med din AI-assistent!</p>
               </div>
             ) : (
-              conversationLog.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+              <>
+                {conversationLog.map((msg, i) => (
                   <div
-                    className={`max-w-[80%] px-4 py-2 rounded-2xl ${
-                      msg.role === 'user'
-                        ? 'bg-copper-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                    }`}
+                    key={i}
+                    style={{
+                      display: 'flex',
+                      justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                      marginBottom: i < conversationLog.length - 1 ? '12px' : '0'
+                    }}
                   >
-                    <p className="text-sm">{msg.text}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {msg.timestamp.toLocaleTimeString('sv-SE', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
+                    <div
+                      style={{
+                        maxWidth: '80%',
+                        padding: '8px 16px',
+                        borderRadius: '16px',
+                        background: msg.role === 'user' ? 'var(--copper-600)' : 'var(--e-surface)',
+                        color: msg.role === 'user' ? '#ffffff' : 'var(--e-text)',
+                        border: msg.role === 'assistant' ? '1px solid var(--e-border)' : 'none'
+                      }}
+                    >
+                      <p style={{ fontSize: '14px', margin: '0 0 4px 0' }}>{msg.text}</p>
+                      <p style={{
+                        fontSize: '12px',
+                        opacity: 0.7,
+                        margin: 0
+                      }}>
+                        {msg.timestamp.toLocaleTimeString('sv-SE', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </>
             )}
           </div>
 
           {/* Live Transcript */}
           {transcript && (
-            <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Du säger:</p>
-              <p className="text-sm text-gray-900 dark:text-white">{transcript}</p>
+            <div style={{
+              padding: '8px 16px',
+              borderTop: '1px solid var(--e-border)',
+              background: 'var(--e-surface)',
+              opacity: 0.9
+            }}>
+              <p style={{
+                fontSize: '12px',
+                color: 'var(--e-text-secondary)',
+                margin: '0 0 4px 0'
+              }}>Du säger:</p>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--e-text)',
+                margin: 0
+              }}>{transcript}</p>
             </div>
           )}
 
           {/* Error Display */}
           {error && (
-            <div className="px-4 py-2 border-t border-red-200 bg-red-50 dark:bg-red-900/20">
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div style={{
+              padding: '8px 16px',
+              borderTop: '2px solid #ef4444',
+              background: 'rgba(239, 68, 68, 0.1)'
+            }}>
+              <p style={{
+                fontSize: '14px',
+                color: '#ef4444',
+                margin: 0
+              }}>{error}</p>
             </div>
           )}
         </div>
@@ -345,11 +440,16 @@ export function VoiceInterface() {
 
       {/* Status/Transcript Box (when not expanded) */}
       {!isExpanded && (status || transcript || error) && (
-        <div className={`mb-4 rounded-2xl shadow-xl p-4 w-80 relative ${
-          error
-            ? 'bg-red-50 dark:bg-red-900/20 border-2 border-red-500'
-            : 'bg-white dark:bg-gray-800'
-        }`}>
+        <div style={{
+          marginBottom: '16px',
+          borderRadius: '16px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          padding: '16px',
+          width: '320px',
+          position: 'relative',
+          background: error ? 'rgba(239, 68, 68, 0.1)' : 'var(--e-surface)',
+          border: error ? '2px solid #ef4444' : 'none'
+        }}>
           {/* Close button */}
           <button
             onClick={() => {
@@ -357,33 +457,74 @@ export function VoiceInterface() {
               setStatus('');
               setError(null);
             }}
-            className="absolute top-2 right-2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+            onMouseEnter={() => setCloseButtonHover(true)}
+            onMouseLeave={() => setCloseButtonHover(false)}
+            style={{
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              padding: '4px',
+              background: closeButtonHover ? 'rgba(0, 0, 0, 0.1)' : 'transparent',
+              borderRadius: '4px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
             aria-label="Stäng"
           >
-            <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <X style={{
+              height: '16px',
+              width: '16px',
+              color: 'var(--e-text-secondary)'
+            }} />
           </button>
 
           {error ? (
             <>
-              <p className="text-sm text-red-600 dark:text-red-400 mb-1 font-semibold">Fel:</p>
-              <p className="text-red-800 dark:text-red-200 pr-6">{error}</p>
+              <p style={{
+                fontSize: '14px',
+                color: '#ef4444',
+                margin: '0 0 4px 0',
+                fontWeight: 600
+              }}>Fel:</p>
+              <p style={{
+                color: '#ef4444',
+                paddingRight: '24px',
+                margin: 0
+              }}>{error}</p>
             </>
           ) : transcript ? (
             <>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Du säger:</p>
-              <p className="text-gray-900 dark:text-white pr-6">{transcript}</p>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--e-text-secondary)',
+                margin: '0 0 4px 0'
+              }}>Du säger:</p>
+              <p style={{
+                color: 'var(--e-text)',
+                paddingRight: '24px',
+                margin: 0
+              }}>{transcript}</p>
             </>
           ) : status ? (
             <>
-              <p className="text-sm text-copper-600 dark:text-copper-400 mb-1">Status:</p>
-              <p className="text-gray-900 dark:text-white pr-6">{status}</p>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--copper-600)',
+                margin: '0 0 4px 0'
+              }}>Status:</p>
+              <p style={{
+                color: 'var(--e-text)',
+                paddingRight: '24px',
+                margin: 0
+              }}>{status}</p>
             </>
           ) : null}
         </div>
       )}
 
       {/* Voice Button */}
-      <div className="relative">
+      <div style={{ position: 'relative' }}>
         <Button
           variant={isListening ? 'secondary' : 'primary'}
           size="lg"
@@ -392,7 +533,17 @@ export function VoiceInterface() {
           onMouseUp={handleMouseUp}
           onTouchStart={handleMouseDown}
           onTouchEnd={handleMouseUp}
-          className="rounded-full w-16 h-16 shadow-2xl transition-all flex items-center justify-center p-0"
+          style={{
+            borderRadius: '9999px',
+            width: '64px',
+            height: '64px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            transition: 'all 0.3s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0
+          }}
           title={
             isListening
               ? 'Klicka för att sluta lyssna'
@@ -400,20 +551,42 @@ export function VoiceInterface() {
           }
         >
           {isListening ? (
-            <MicOff className="h-8 w-8" />
+            <MicOff style={{ height: '32px', width: '32px' }} />
           ) : (
-            <Mic className="h-8 w-8" />
+            <Mic style={{ height: '32px', width: '32px' }} />
           )}
         </Button>
 
         {/* Pulsing Animation */}
         {isListening && (
-          <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-20" />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '9999px',
+            background: '#ef4444',
+            animation: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
+            opacity: 0.2,
+            pointerEvents: 'none'
+          }} />
         )}
 
         {/* Notification Badge */}
         {conversationLog.length > 0 && !isExpanded && (
-          <div className="absolute -top-2 -right-2 bg-copper-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+          <div style={{
+            position: 'absolute',
+            top: '-8px',
+            right: '-8px',
+            background: 'var(--copper-600)',
+            color: '#ffffff',
+            fontSize: '12px',
+            borderRadius: '9999px',
+            width: '24px',
+            height: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700
+          }}>
             {conversationLog.length}
           </div>
         )}
