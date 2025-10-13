@@ -229,8 +229,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       <EmailTaskListener key="email-listener" />
       {/* Voice AI assistant */}
       <VoiceInterface key="voice-interface" />
-      {/* Quick note input */}
-      <QuickNoteInput key="quick-note" />
+      {/* Quick note input - TEMPORÄRT DISABLED: Kraschar vid expandering */}
+      {/* <QuickNoteInput key="quick-note" /> */}
       {/* Quick capture bar för mobil */}
       <QuickCaptureBar key="quick-capture" />
       {/* Onboarding modal för nya användare */}
