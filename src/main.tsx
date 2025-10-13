@@ -12,7 +12,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { logDebugInfo } from './utils/debug';
 import { registerLicense, enableRipple } from '@syncfusion/ej2-base';
 
-// Import ALL Syncfusion CSS (Material 3 theme)
+// Import Syncfusion CSS (only installed packages)
 import '@syncfusion/ej2-base/styles/material3.css';
 import '@syncfusion/ej2-buttons/styles/material3.css';
 import '@syncfusion/ej2-calendars/styles/material3.css';
@@ -22,14 +22,10 @@ import '@syncfusion/ej2-lists/styles/material3.css';
 import '@syncfusion/ej2-navigations/styles/material3.css';
 import '@syncfusion/ej2-popups/styles/material3.css';
 import '@syncfusion/ej2-splitbuttons/styles/material3.css';
-import '@syncfusion/ej2-layouts/styles/material3.css';
 import '@syncfusion/ej2-grids/styles/material3.css';
-import '@syncfusion/ej2-charts/styles/material3.css';
-import '@syncfusion/ej2-kanban/styles/material3.css';
-import '@syncfusion/ej2-schedule/styles/material3.css';
+import '@syncfusion/ej2-react-schedule/styles/material3.css';
+import '@syncfusion/ej2-react-kanban/styles/material3.css';
 import '@syncfusion/ej2-notifications/styles/material3.css';
-import '@syncfusion/ej2-progressbar/styles/material3.css';
-import '@syncfusion/ej2-treegrid/styles/material3.css';
 
 // Register Syncfusion license FIRST (before any component loads)
 const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;
