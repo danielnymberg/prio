@@ -603,37 +603,32 @@ export function SettingsView() {
               header="Arbetstider"
               iconCss="e-icons e-clock"
               expanded={true}
-            >
-              {(() => { console.log('🔍 DEBUG: Rendering Working Hours section'); return workingHoursContent(); })()}
-            </AccordionItemDirective>
+              content={workingHoursContent}
+            />
 
             <AccordionItemDirective
               header="Microsoft Calendar"
               iconCss="e-icons e-schedule"
-            >
-              {(() => { console.log('🔍 DEBUG: Rendering Microsoft Calendar section'); return microsoftCalendarContent(); })()}
-            </AccordionItemDirective>
+              content={microsoftCalendarContent}
+            />
 
             <AccordionItemDirective
               header="Automatisk mejl-processorering"
               iconCss="e-icons e-mail"
-            >
-              {(() => { console.log('🔍 DEBUG: Rendering Email Scheduler section'); return emailSchedulerContent(); })()}
-            </AccordionItemDirective>
+              content={emailSchedulerContent}
+            />
 
             <AccordionItemDirective
               header="Notifieringar"
               iconCss="e-icons e-bell"
-            >
-              {(() => { console.log('🔍 DEBUG: Rendering Notifications section'); return notificationsContent(); })()}
-            </AccordionItemDirective>
+              content={notificationsContent}
+            />
 
             <AccordionItemDirective
               header="Om Prio"
               iconCss="e-icons e-info"
-            >
-              {(() => { console.log('🔍 DEBUG: Rendering App Info section'); return appInfoContent(); })()}
-            </AccordionItemDirective>
+              content={appInfoContent}
+            />
           </AccordionItemsDirective>
         </AccordionComponent>
       </div>

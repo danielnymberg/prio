@@ -29,14 +29,6 @@
 }
 
 @layer components {
-  /* Kompakt button design */
-  button, .button {
-    @apply text-sm;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
   /* Kompakta headings */
   h1 {
     @apply text-2xl font-bold;
@@ -54,12 +46,19 @@
   .card {
     @apply text-sm;
   }
+}
 
-  /* Förhindra line-breaks i knappar med ikoner */
-  button > svg,
-  .button > svg {
-    flex-shrink: 0;
-  }
+/* Custom button styles - OUTSIDE @layer to avoid conflicting with Syncfusion */
+/* Only target our custom buttons, not Syncfusion components */
+button:not([class*="e-"]):not([class*="e-btn"]),
+.button:not([class*="e-"]) {
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+button:not([class*="e-"]) > svg,
+.button:not([class*="e-"]) > svg {
+  flex-shrink: 0;
 }
 
 /* SyncFusion TreeView anpassningar för Sidebar */
