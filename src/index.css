@@ -140,3 +140,36 @@ h3 {
     transform: rotate(360deg);
   }
 }
+
+/* Responsive utilities */
+.mobile-only {
+  display: block !important;
+}
+
+@media (min-width: 1024px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+.mobile-menu-btn {
+  display: block !important;
+}
+
+@media (min-width: 1024px) {
+  .mobile-menu-btn {
+    display: none !important;
+  }
+}
+
+/* Sidebar responsive behavior */
+.sidebar-responsive {
+  position: fixed;
+}
+
+@media (min-width: 1024px) {
+  .sidebar-responsive {
+    position: relative !important;
+    transform: translateX(0) !important;
+  }
+}

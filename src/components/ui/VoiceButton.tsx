@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, CSSProperties } from 'react';
 import { Mic, MicOff, MessageSquare } from 'lucide-react';
 import { SyncButton as Button } from './SyncButton';
 import { startSpeechRecognition, speak, parseVoiceCommand } from '@/lib/voiceControl';
@@ -72,15 +72,24 @@ export function VoiceButton({ onTranscript, size = 'sm', mode = 'simple', onComm
 
   const ButtonIcon = mode === 'smart' && !isListening ? MessageSquare : isListening ? MicOff : Mic;
 
+  const iconStyle: CSSProperties = {
+    height: '16px',
+    width: '16px',
+  };
+
+  const buttonStyle: CSSProperties = isListening ? {
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+  } : {};
+
   return (
     <Button
       variant={isListening ? 'primary' : 'ghost'}
       size={size}
       onClick={handleVoiceInput}
       title={buttonTitle}
-      className={isListening ? 'animate-pulse' : ''}
+      style={buttonStyle}
     >
-      <ButtonIcon className="h-4 w-4" />
+      <ButtonIcon style={iconStyle} />
     </Button>
   );
 }

@@ -101,105 +101,104 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="📊 Veckoöversikt" size="lg">
-      <div className="space-y-6">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {/* Header */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
             Översikt för senaste 7 dagarna
           </p>
         </div>
 
         {/* Key Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
-            <div className="flex items-center gap-2 mb-1">
-              <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <span className="text-sm text-green-800 dark:text-green-200">Slutförda</span>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+          <div style={{ backgroundColor: '#ecfdf5', borderRadius: '0.5rem', padding: '1rem', border: '1px solid #10b981' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <CheckCircle style={{ height: '16px', width: '16px', color: '#10b981' }} />
+              <span style={{ fontSize: '0.875rem', color: '#10b981' }}>Slutförda</span>
             </div>
-            <div className="text-3xl font-bold text-green-900 dark:text-green-100">
+            <div style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#10b981' }}>
               {stats.totalCompleted}
             </div>
-            <div className="text-xs text-green-700 dark:text-green-300 mt-1">
+            <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '0.25rem' }}>
               av {stats.totalCreated} skapade
             </div>
           </div>
 
-          <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4 border border-sand-300 dark:border-charcoal-700">
-            <div className="flex items-center gap-2 mb-1">
-              <Clock className="h-4 w-4 text-copper-600 dark:text-copper-400" />
-              <span className="text-sm text-stone-600 dark:text-sand-200">Total tid</span>
+          <div style={{ backgroundColor: 'var(--e-border)', borderRadius: '0.5rem', padding: '1rem', border: '1px solid var(--e-border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+              <Clock style={{ height: '16px', width: '16px', color: 'var(--copper-600)' }} />
+              <span style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>Total tid</span>
             </div>
-            <div className="text-3xl font-bold text-stone-600 dark:text-sand-100">
+            <div style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)' }}>
               {stats.totalHoursSpent}h
             </div>
-            <div className="text-xs text-stone-600 dark:text-sand-300 mt-1">
+            <div style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
               produktiv tid
             </div>
           </div>
         </div>
 
         {/* Productivity Score */}
-        <div className="bg-gradient-to-r from-purple-50 to-copper-100 dark:from-purple-900/20 dark:to-charcoal-850 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <h3 className="font-semibold text-purple-900 dark:text-purple-100">
+        <div style={{ background: 'linear-gradient(to right, #faf5ff, #fef3e2)', borderRadius: '0.75rem', padding: '1.5rem', border: '1px solid #a855f7' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <TrendingUp style={{ height: '20px', width: '20px', color: '#a855f7' }} />
+              <h3 style={{ fontWeight: '600', color: '#a855f7' }}>
                 Produktivitetspoäng
               </h3>
             </div>
-            <div className="text-3xl">
+            <div style={{ fontSize: '1.875rem' }}>
               {getProductivityEmoji(stats.productivityScore)}
             </div>
           </div>
 
-          <div className="mb-3">
-            <div className="flex justify-between items-baseline mb-2">
-              <span className="text-4xl font-bold text-purple-900 dark:text-purple-100">
+          <div style={{ marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#a855f7' }}>
                 {stats.productivityScore}%
               </span>
-              <span className="text-sm text-purple-700 dark:text-purple-300">
+              <span style={{ fontSize: '0.875rem', color: '#a855f7' }}>
                 högvärdes-tasks
               </span>
             </div>
-            <div className="w-full bg-purple-200 dark:bg-purple-900/40 rounded-full h-3">
+            <div style={{ width: '100%', backgroundColor: '#e9d5ff', borderRadius: '9999px', height: '12px' }}>
               <div
-                className="bg-purple-600 dark:bg-purple-500 h-3 rounded-full transition-all"
-                style={{ width: `${stats.productivityScore}%` }}
+                style={{ backgroundColor: '#a855f7', height: '12px', borderRadius: '9999px', transition: 'width 0.3s', width: `${stats.productivityScore}%` }}
               />
             </div>
           </div>
 
-          <p className="text-sm text-purple-800 dark:text-purple-200 italic">
+          <p style={{ fontSize: '0.875rem', color: '#7c3aed', fontStyle: 'italic' }}>
             {getProductivityLabel(stats.productivityScore)}
           </p>
         </div>
 
         {/* Pareto Analysis */}
-        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
-          <div className="flex items-center gap-2 mb-3">
-            <Target className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            <h3 className="font-semibold text-amber-900 dark:text-amber-100">
+        <div style={{ backgroundColor: '#fef3c7', borderRadius: '0.5rem', padding: '1rem', border: '1px solid #f59e0b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <Target style={{ height: '20px', width: '20px', color: '#f59e0b' }} />
+            <h3 style={{ fontWeight: '600', color: '#f59e0b' }}>
               Pareto-analys (80/20-regeln)
             </h3>
           </div>
 
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-amber-800 dark:text-amber-200">Högt värde (7-10):</span>
-              <span className="font-semibold text-amber-900 dark:text-amber-100">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#f59e0b' }}>Högt värde (7-10):</span>
+              <span style={{ fontWeight: '600', color: '#f59e0b' }}>
                 {stats.paretoAnalysis.high_value_count} tasks
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-amber-800 dark:text-amber-200">Lågt värde (1-6):</span>
-              <span className="font-semibold text-amber-900 dark:text-amber-100">
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: '#f59e0b' }}>Lågt värde (1-6):</span>
+              <span style={{ fontWeight: '600', color: '#f59e0b' }}>
                 {stats.paretoAnalysis.low_value_count} tasks
               </span>
             </div>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-amber-200 dark:border-amber-700">
-            <p className="text-xs text-amber-700 dark:text-amber-300">
+          <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #fbbf24' }}>
+            <p style={{ fontSize: '0.75rem', color: '#d97706' }}>
               💡 <strong>Insight:</strong> {stats.paretoAnalysis.high_value_percentage >= 80
                 ? 'Perfekt! Du följer 80/20-regeln - fokuserar på det viktigaste.'
                 : stats.paretoAnalysis.high_value_percentage >= 60
@@ -212,31 +211,31 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         {/* Top Completed Tasks */}
         {stats.topCompletedTasks.length > 0 && (
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+            <h3 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <CheckCircle style={{ height: '20px', width: '20px', color: '#10b981' }} />
               Veckans toppresterare
             </h3>
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {stats.topCompletedTasks.map((task, index) => (
                 <div
                   key={task.id}
-                  className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', backgroundColor: 'var(--e-border)', borderRadius: '0.5rem' }}
                 >
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                    <span className="text-xs font-bold text-green-700 dark:text-green-300">
+                  <div style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '9999px', backgroundColor: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#10b981' }}>
                       {index + 1}
                     </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {task.title}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs px-2 py-0.5 rounded bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
+                      <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.5rem', borderRadius: '0.25rem', backgroundColor: 'var(--e-border)', color: 'var(--copper-600)' }}>
                         Värde: {task.value_score}/10
                       </span>
                       {task.estimated_duration && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
                           {Math.round(task.estimated_duration / 60)}h
                         </span>
                       )}
@@ -250,14 +249,14 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
 
         {/* Overdue Warning */}
         {stats.overdueCount > 0 && (
-          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div style={{ backgroundColor: '#fee2e2', borderRadius: '0.5rem', padding: '1rem', border: '1px solid #ef4444' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <AlertTriangle style={{ height: '20px', width: '20px', color: '#ef4444', flexShrink: 0, marginTop: '0.125rem' }} />
               <div>
-                <p className="font-semibold text-red-900 dark:text-red-100 mb-1">
+                <p style={{ fontWeight: '600', color: '#ef4444', marginBottom: '0.25rem' }}>
                   ⚠️ {stats.overdueCount} försenade uppgifter
                 </p>
-                <p className="text-sm text-red-800 dark:text-red-200">
+                <p style={{ fontSize: '0.875rem', color: '#ef4444' }}>
                   Planera nästa vecka för att komma ikapp med försenade deadlines.
                 </p>
               </div>
@@ -266,13 +265,13 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         )}
 
         {/* Actions */}
-        <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button onClick={onClose} className="flex-1" variant="primary">
+        <div style={{ display: 'flex', gap: '0.75rem', paddingTop: '1rem', borderTop: '1px solid var(--e-border)' }}>
+          <Button onClick={onClose} style={{ flex: 1 }} variant="primary">
             Stäng översikt
           </Button>
         </div>
 
-        <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+        <p style={{ fontSize: '0.75rem', textAlign: 'center', color: 'var(--e-text-secondary)' }}>
           💡 Tips: Gör denna review varje måndag för bästa resultat (GTD-metoden)
         </p>
       </div>

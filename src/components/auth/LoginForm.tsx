@@ -29,7 +29,16 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm">
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        width: '100%',
+        maxWidth: '24rem'
+      }}
+    >
       <Input
         type="email"
         label="E-post"
@@ -54,7 +63,7 @@ export function LoginForm() {
         type="submit"
         variant="primary"
         size="lg"
-        className="w-full"
+        style={{ width: '100%' }}
         disabled={loading}
       >
         {loading ? 'Loggar in...' : 'Logga in'}

@@ -44,20 +44,20 @@ export function BreakView() {
 
   if (phase === 'done') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center">
-          <div className="text-6xl mb-6">🎉</div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #ecfdf5, #d1fae5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '3rem', maxWidth: '42rem', width: '100%', textAlign: 'center' }}>
+          <div style={{ fontSize: '3.75rem', marginBottom: '1.5rem' }}>🎉</div>
+          <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
             Pausen är klar!
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+          <p style={{ fontSize: '1.25rem', color: 'var(--e-text-secondary)', marginBottom: '2rem' }}>
             {isShortBreak ? 'Nu är du redo igen!' : 'Dags för nästa session'}
           </p>
           <Button
             onClick={handleContinue}
-            className="h-16 px-12 text-lg"
+            style={{ height: '64px', padding: '0 3rem', fontSize: '1.125rem' }}
           >
-            <ArrowRight className="h-6 w-6 mr-2" />
+            <ArrowRight style={{ height: '24px', width: '24px', marginRight: '0.5rem' }} />
             Nästa uppgift
           </Button>
         </div>
@@ -66,21 +66,21 @@ export function BreakView() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 max-w-3xl w-full">
-        <div className="text-center mb-8">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #fef3c7, #fed7aa)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '3rem', maxWidth: '48rem', width: '100%' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           {phase === 'physical' ? (
-            <Coffee className="h-20 w-20 text-amber-500 mx-auto mb-4" />
+            <Coffee style={{ height: '80px', width: '80px', color: '#f59e0b', margin: '0 auto 1rem' }} />
           ) : (
-            <Mail className="h-20 w-20 text-copper-500 mx-auto mb-4" />
+            <Mail style={{ height: '80px', width: '80px', color: 'var(--copper-500)', margin: '0 auto 1rem' }} />
           )}
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
             {phase === 'physical' ? '🧘 Pausdags!' : '📧 Mejl-batch'}
           </h1>
-          <div className="text-5xl font-mono font-bold text-gray-900 dark:text-white mb-2">
+          <div style={{ fontSize: '3rem', fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </div>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p style={{ color: 'var(--e-text-secondary)' }}>
             {phase === 'physical'
               ? isShortBreak
                 ? 'Kort paus - sträck på benen'
@@ -90,18 +90,18 @@ export function BreakView() {
         </div>
 
         {phase === 'physical' ? (
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-6 border-2 border-green-200 dark:border-green-800">
-            <h3 className="font-bold text-green-900 dark:text-green-100 mb-4">
+          <div style={{ backgroundColor: '#ecfdf5', borderRadius: '0.75rem', padding: '1.5rem', border: '2px solid #10b981' }}>
+            <h3 style={{ fontWeight: 'bold', color: '#10b981', marginBottom: '1rem' }}>
               📚 Forskning säger:
             </h3>
-            <p className="text-green-800 dark:text-green-200 mb-4">
+            <p style={{ color: '#10b981', marginBottom: '1rem' }}>
               Din prefrontala cortex (beslutsfattande/fokus) behöver bli av med metaboliska avfallsprodukter.
               Detta sker genom blodomflöde vid rörelse, INTE fortsatt kognitiv aktivitet.
             </p>
-            <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">
+            <h3 style={{ fontWeight: '600', color: '#10b981', marginBottom: '0.5rem' }}>
               Gör något av detta:
             </h3>
-            <ul className="space-y-2 text-sm text-green-700 dark:text-green-300">
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: '#10b981' }}>
               <li>✅ Promenad (helst utomhus)</li>
               <li>✅ Stretching/lätt rörelse</li>
               <li>✅ Fika utan skärmar</li>
@@ -111,14 +111,14 @@ export function BreakView() {
             </ul>
           </div>
         ) : (
-          <div className="bg-sand-100 dark:bg-charcoal-850 rounded-xl p-6 border-2 border-sand-300 dark:border-charcoal-700">
-            <h3 className="font-bold text-stone-600 dark:text-sand-100 mb-3">
+          <div style={{ backgroundColor: 'var(--e-border)', borderRadius: '0.75rem', padding: '1.5rem', border: '2px solid var(--e-border)' }}>
+            <h3 style={{ fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.75rem' }}>
               ⏱️ Timeboxad mejl-tid
             </h3>
-            <p className="text-stone-600 dark:text-sand-200 mb-4">
+            <p style={{ color: 'var(--e-text-secondary)', marginBottom: '1rem' }}>
               Max 10 minuter för mejl och samtal. När tiden är ute, stoppa omedelbart!
             </p>
-            <ul className="space-y-2 text-sm text-stone-600 dark:text-sand-300">
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
               <li>• Svara på brådskande mejl</li>
               <li>• Ring nödvändiga samtal</li>
               <li>• Resten väntar till nästa batch</li>
@@ -129,7 +129,7 @@ export function BreakView() {
         <Button
           onClick={handleContinue}
           variant="secondary"
-          className="w-full mt-6 h-12"
+          style={{ width: '100%', marginTop: '1.5rem', height: '48px' }}
         >
           Hoppa över och fortsätt
         </Button>

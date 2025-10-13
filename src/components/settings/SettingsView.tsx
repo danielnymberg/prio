@@ -200,53 +200,87 @@ export function SettingsView() {
   const workingHoursContent = () => {
     console.log('🔍 DEBUG: workingHoursContent() called');
     return (
-      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7 }}>
-        Ange dina normala arbetstider så att appen kan beräkna deadlines korrekt baserat på faktisk arbetstid.
-      </p>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
-            Normal arbetsdag: Start
-          </label>
-          <DropDownListComponent
-            dataSource={startHourData}
-            fields={{ text: 'text', value: 'value' }}
-            value={workingHours.normalStart}
-            change={(e: any) => setWorkingHours({ ...workingHours, normalStart: e.value })}
-            cssClass="e-outline"
-            popupHeight="200px"
-          />
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
-            Normal arbetsdag: Slut
-          </label>
-          <DropDownListComponent
-            dataSource={endHourData}
-            fields={{ text: 'text', value: 'value' }}
-            value={workingHours.normalEnd}
-            change={(e: any) => setWorkingHours({ ...workingHours, normalEnd: e.value })}
-            cssClass="e-outline"
-            popupHeight="200px"
-          />
-        </div>
-      </div>
-
-      <div style={{ backgroundColor: '#eff6ff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3b82f6' }}>
-        <p style={{ fontSize: '0.875rem', color: 'var(--e-text)' }}>
-          💡 <strong>Flexibilitet:</strong> Du kan arbeta mellan {String(workingHours.flexStart).padStart(2, '0')}:00-{String(workingHours.flexEnd).padStart(2, '0')}:00
-          {' '}när det behövs, men appen räknar med {String(workingHours.normalStart).padStart(2, '0')}:00-{String(workingHours.normalEnd).padStart(2, '0')}:00 som normal arbetstid.
+      <div style={{
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <p style={{
+          fontSize: '0.875rem',
+          color: 'var(--e-text)',
+          opacity: 0.7
+        }}>
+          Ange dina normala arbetstider så att appen kan beräkna deadlines korrekt baserat på faktisk arbetstid.
         </p>
-      </div>
 
-      <CheckBoxComponent
-        label="Inkludera helger i arbetstidsberäkning"
-        checked={workingHours.includeWeekends}
-        change={(e: any) => setWorkingHours({ ...workingHours, includeWeekends: e.checked })}
-      />
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '1rem'
+        }}>
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              marginBottom: '0.5rem'
+            }}>
+              Normal arbetsdag: Start
+            </label>
+            <DropDownListComponent
+              dataSource={startHourData}
+              fields={{ text: 'text', value: 'value' }}
+              value={workingHours.normalStart}
+              change={(e: any) => setWorkingHours({ ...workingHours, normalStart: e.value })}
+              cssClass="e-outline"
+              popupHeight="200px"
+            />
+          </div>
+
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              marginBottom: '0.5rem'
+            }}>
+              Normal arbetsdag: Slut
+            </label>
+            <DropDownListComponent
+              dataSource={endHourData}
+              fields={{ text: 'text', value: 'value' }}
+              value={workingHours.normalEnd}
+              change={(e: any) => setWorkingHours({ ...workingHours, normalEnd: e.value })}
+              cssClass="e-outline"
+              popupHeight="200px"
+            />
+          </div>
+        </div>
+
+        <div style={{
+          backgroundColor: '#eff6ff',
+          padding: '0.75rem',
+          borderRadius: '8px',
+          border: '1px solid #3b82f6'
+        }}>
+          <p style={{
+            fontSize: '0.875rem',
+            color: 'var(--e-text)',
+            margin: 0
+          }}>
+            💡 <strong>Flexibilitet:</strong> Du kan arbeta mellan {String(workingHours.flexStart).padStart(2, '0')}:00-{String(workingHours.flexEnd).padStart(2, '0')}:00
+            {' '}när det behövs, men appen räknar med {String(workingHours.normalStart).padStart(2, '0')}:00-{String(workingHours.normalEnd).padStart(2, '0')}:00 som normal arbetstid.
+          </p>
+        </div>
+
+        <CheckBoxComponent
+          label="Inkludera helger i arbetstidsberäkning"
+          checked={workingHours.includeWeekends}
+          change={(e: any) => setWorkingHours({ ...workingHours, includeWeekends: e.checked })}
+        />
 
         <Button onClick={handleSaveWorkingHours} variant="primary">
           Spara arbetstider
@@ -259,66 +293,144 @@ export function SettingsView() {
   const microsoftCalendarContent = () => {
     console.log('🔍 DEBUG: microsoftCalendarContent() called');
     return (
-      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-        <div style={{ padding: '0.75rem', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-          <Calendar style={{ height: '1.5rem', width: '1.5rem', color: 'var(--copper-500)' }} />
-        </div>
+      <div style={{
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '0.75rem'
+        }}>
+          <div style={{
+            padding: '0.75rem',
+            backgroundColor: 'var(--e-surface)',
+            borderRadius: '8px'
+          }}>
+            <Calendar style={{
+              height: '1.5rem',
+              width: '1.5rem',
+              color: 'var(--copper-500)'
+            }} />
+          </div>
 
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7, marginBottom: '1rem' }}>
-            Anslut din Microsoft-kalender för smarta deadline-förslag baserat på din tillgängliga tid.
-          </p>
+          <div style={{ flex: 1 }}>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--e-text)',
+              opacity: 0.7,
+              marginBottom: '1rem'
+            }}>
+              Anslut din Microsoft-kalender för smarta deadline-förslag baserat på din tillgängliga tid.
+            </p>
 
-          <div style={{ backgroundColor: '#eff6ff', border: '1px solid #3b82f6', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Info style={{ height: '1.25rem', width: '1.25rem', color: '#3b82f6', flexShrink: 0, marginTop: '0.125rem' }} />
-              <div style={{ fontSize: '0.875rem', color: 'var(--e-text)' }}>
-                <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>Vad kan AI:n göra med din kalender?</p>
-                <ul style={{ listStyleType: 'disc', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginLeft: '0.25rem' }}>
-                  <li>Räkna ut realistiska deadlines: "Om ett uppdrag tar 32h, när kan jag leverera?"</li>
-                  <li>Visa tillgänglig tid: "Hur mycket tid har jag denna vecka?"</li>
-                  <li>Boka fokustid: "Boka in 2h för projektarbete imorgon"</li>
-                </ul>
+            <div style={{
+              backgroundColor: '#eff6ff',
+              border: '1px solid #3b82f6',
+              borderRadius: '8px',
+              padding: '1rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Info style={{
+                  height: '1.25rem',
+                  width: '1.25rem',
+                  color: '#3b82f6',
+                  flexShrink: 0,
+                  marginTop: '0.125rem'
+                }} />
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--e-text)'
+                }}>
+                  <p style={{
+                    fontWeight: '500',
+                    marginBottom: '0.25rem',
+                    marginTop: 0
+                  }}>
+                    Vad kan AI:n göra med din kalender?
+                  </p>
+                  <ul style={{
+                    listStyleType: 'disc',
+                    paddingLeft: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.25rem',
+                    marginLeft: '0.25rem',
+                    marginBottom: 0
+                  }}>
+                    <li>Räkna ut realistiska deadlines: "Om ett uppdrag tar 32h, när kan jag leverera?"</li>
+                    <li>Visa tillgänglig tid: "Hur mycket tid har jag denna vecka?"</li>
+                    <li>Boka fokustid: "Boka in 2h för projektarbete imorgon"</li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {isMicrosoftConnected ? (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981' }}>
-                  <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#10b981', borderRadius: '9999px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-                  <span style={{ fontWeight: '500' }}>Anslutet</span>
-                </div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem'
+            }}>
+              {isMicrosoftConnected ? (
+                <>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    color: '#10b981'
+                  }}>
+                    <div style={{
+                      width: '0.5rem',
+                      height: '0.5rem',
+                      backgroundColor: '#10b981',
+                      borderRadius: '9999px',
+                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    }} />
+                    <span style={{ fontWeight: '500' }}>Anslutet</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleMicrosoftLogout}
+                    disabled={isLoading}
+                  >
+                    <LogOut style={{
+                      height: '1rem',
+                      width: '1rem',
+                      marginRight: '0.25rem'
+                    }} />
+                    Koppla från
+                  </Button>
+                </>
+              ) : (
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleMicrosoftLogout}
-                  disabled={isLoading}
+                  variant="primary"
+                  size="md"
+                  onClick={handleMicrosoftLogin}
+                  disabled={isLoading || !import.meta.env.VITE_AZURE_CLIENT_ID}
                 >
-                  <LogOut style={{ height: '1rem', width: '1rem', marginRight: '0.25rem' }} />
-                  Koppla från
+                  <LogIn style={{
+                    height: '1rem',
+                    width: '1rem',
+                    marginRight: '0.5rem'
+                  }} />
+                  {isLoading ? 'Ansluter...' : 'Anslut Microsoft-konto'}
                 </Button>
-              </>
-            ) : (
-              <Button
-                variant="primary"
-                size="md"
-                onClick={handleMicrosoftLogin}
-                disabled={isLoading || !import.meta.env.VITE_AZURE_CLIENT_ID}
-              >
-                <LogIn style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
-                {isLoading ? 'Ansluter...' : 'Anslut Microsoft-konto'}
-              </Button>
-            )}
-          </div>
+              )}
+            </div>
 
-          {!import.meta.env.VITE_AZURE_CLIENT_ID && (
-            <p style={{ fontSize: '0.875rem', color: '#f59e0b', marginTop: '0.75rem' }}>
-              ⚠️ Azure Client ID saknas i miljövariabler. Kontakta administratör.
-            </p>
-          )}
+            {!import.meta.env.VITE_AZURE_CLIENT_ID && (
+              <p style={{
+                fontSize: '0.875rem',
+                color: '#f59e0b',
+                marginTop: '0.75rem'
+              }}>
+                ⚠️ Azure Client ID saknas i miljövariabler. Kontakta administratör.
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -329,134 +441,283 @@ export function SettingsView() {
   const emailSchedulerContent = () => {
     console.log('🔍 DEBUG: emailSchedulerContent() called');
     return (
-    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-        <div style={{ padding: '0.75rem', backgroundColor: '#eff6ff', borderRadius: '8px' }}>
-          <Mail style={{ height: '1.5rem', width: '1.5rem', color: '#3b82f6' }} />
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7, marginBottom: '1rem' }}>
-            Skapa automatiskt Quickies från olästa mejl vid schemalagda tider.
-          </p>
-
-          <div style={{ backgroundColor: '#eff6ff', border: '1px solid #3b82f6', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Info style={{ height: '1.25rem', width: '1.25rem', color: '#3b82f6', flexShrink: 0, marginTop: '0.125rem' }} />
-              <div style={{ fontSize: '0.875rem', color: 'var(--e-text)' }}>
-                <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>Vad händer vid schemalagd tid?</p>
-                <ul style={{ listStyleType: 'disc', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginLeft: '0.25rem' }}>
-                  <li>Kollar olästa mejl i din Microsoft-inkorg</li>
-                  <li>Visar notifikation med antal olästa mejl</li>
-                  <li>Valfritt: Skapar tasks automatiskt (annars bara notis)</li>
-                </ul>
-              </div>
-            </div>
+      <div style={{
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '0.75rem'
+        }}>
+          <div style={{
+            padding: '0.75rem',
+            backgroundColor: '#eff6ff',
+            borderRadius: '8px'
+          }}>
+            <Mail style={{
+              height: '1.5rem',
+              width: '1.5rem',
+              color: '#3b82f6'
+            }} />
           </div>
 
-          {!isMicrosoftConnected && (
-            <div style={{ backgroundColor: '#fef3c7', border: '1px solid #f59e0b', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem' }}>
-              <p style={{ fontSize: '0.875rem', color: '#92400e' }}>
-                ⚠️ Du måste ansluta ditt Microsoft-konto först för att använda email-scheduler.
-              </p>
-            </div>
-          )}
+          <div style={{ flex: 1 }}>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--e-text)',
+              opacity: 0.7,
+              marginBottom: '1rem'
+            }}>
+              Skapa automatiskt Quickies från olästa mejl vid schemalagda tider.
+            </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--e-text)' }}>Aktivera schemaläggning</span>
-              <SwitchComponent
-                checked={emailSchedule.enabled}
-                change={handleToggleEmailSchedule}
-                disabled={!isMicrosoftConnected}
-                onLabel="På"
-                offLabel="Av"
-              />
+            <div style={{
+              backgroundColor: '#eff6ff',
+              border: '1px solid #3b82f6',
+              borderRadius: '8px',
+              padding: '1rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Info style={{
+                  height: '1.25rem',
+                  width: '1.25rem',
+                  color: '#3b82f6',
+                  flexShrink: 0,
+                  marginTop: '0.125rem'
+                }} />
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--e-text)'
+                }}>
+                  <p style={{
+                    fontWeight: '500',
+                    marginBottom: '0.25rem',
+                    marginTop: 0
+                  }}>
+                    Vad händer vid schemalagd tid?
+                  </p>
+                  <ul style={{
+                    listStyleType: 'disc',
+                    paddingLeft: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.25rem',
+                    marginLeft: '0.25rem',
+                    marginBottom: 0
+                  }}>
+                    <li>Kollar olästa mejl i din Microsoft-inkorg</li>
+                    <li>Visar notifikation med antal olästa mejl</li>
+                    <li>Valfritt: Skapar tasks automatiskt (annars bara notis)</li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
-            {emailSchedule.enabled && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingLeft: '1rem', borderLeft: '2px solid var(--e-border)' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
-                    Schemalagda tider (vardagar)
-                  </label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {emailSchedule.times.map((time, index) => (
-                      <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <input
-                          type="time"
-                          value={time}
-                          onChange={(e) => {
-                            const newTimes = [...emailSchedule.times];
-                            newTimes[index] = e.target.value;
-                            handleUpdateEmailTimes(newTimes);
-                          }}
-                          style={{ padding: '0.5rem 0.75rem', border: '1px solid var(--e-border)', borderRadius: '8px', backgroundColor: 'var(--e-surface)', color: 'var(--e-text)' }}
-                        />
-                        {emailSchedule.times.length > 1 && (
-                          <button
-                            onClick={() => {
-                              const newTimes = emailSchedule.times.filter((_, i) => i !== index);
+            {!isMicrosoftConnected && (
+              <div style={{
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                borderRadius: '8px',
+                padding: '0.75rem',
+                marginBottom: '1rem'
+              }}>
+                <p style={{
+                  fontSize: '0.875rem',
+                  color: '#92400e',
+                  margin: 0
+                }}>
+                  ⚠️ Du måste ansluta ditt Microsoft-konto först för att använda email-scheduler.
+                </p>
+              </div>
+            )}
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <span style={{ color: 'var(--e-text)' }}>Aktivera schemaläggning</span>
+                <SwitchComponent
+                  checked={emailSchedule.enabled}
+                  change={handleToggleEmailSchedule}
+                  disabled={!isMicrosoftConnected}
+                  onLabel="På"
+                  offLabel="Av"
+                />
+              </div>
+
+              {emailSchedule.enabled && (
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                  paddingLeft: '1rem',
+                  borderLeft: '2px solid var(--e-border)'
+                }}>
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      color: 'var(--e-text)',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Schemalagda tider (vardagar)
+                    </label>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem'
+                    }}>
+                      {emailSchedule.times.map((time, index) => (
+                        <div key={index} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}>
+                          <input
+                            type="time"
+                            value={time}
+                            onChange={(e) => {
+                              const newTimes = [...emailSchedule.times];
+                              newTimes[index] = e.target.value;
                               handleUpdateEmailTimes(newTimes);
                             }}
-                            style={{ color: '#ef4444', cursor: 'pointer', backgroundColor: 'transparent', border: 'none', fontSize: '1rem' }}
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                    {emailSchedule.times.length < 5 && (
-                      <button
-                        onClick={() => {
-                          handleUpdateEmailTimes([...emailSchedule.times, '12:00']);
-                        }}
-                        style={{ fontSize: '0.875rem', color: '#3b82f6', cursor: 'pointer', backgroundColor: 'transparent', border: 'none', textAlign: 'left' }}
-                      >
-                        + Lägg till tid
-                      </button>
-                    )}
+                            style={{
+                              padding: '0.5rem 0.75rem',
+                              border: '1px solid var(--e-border)',
+                              borderRadius: '8px',
+                              backgroundColor: 'var(--e-surface)',
+                              color: 'var(--e-text)'
+                            }}
+                          />
+                          {emailSchedule.times.length > 1 && (
+                            <button
+                              onClick={() => {
+                                const newTimes = emailSchedule.times.filter((_, i) => i !== index);
+                                handleUpdateEmailTimes(newTimes);
+                              }}
+                              style={{
+                                color: '#ef4444',
+                                cursor: 'pointer',
+                                backgroundColor: 'transparent',
+                                border: 'none',
+                                fontSize: '1rem'
+                              }}
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      {emailSchedule.times.length < 5 && (
+                        <button
+                          onClick={() => {
+                            handleUpdateEmailTimes([...emailSchedule.times, '12:00']);
+                          }}
+                          style={{
+                            fontSize: '0.875rem',
+                            color: '#3b82f6',
+                            cursor: 'pointer',
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            textAlign: 'left'
+                          }}
+                        >
+                          + Lägg till tid
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
-                    Gruppering
-                  </label>
-                  <DropDownListComponent
-                    dataSource={groupingData}
-                    fields={{ text: 'text', value: 'value' }}
-                    value={emailSchedule.groupBy}
-                    change={handleUpdateEmailGrouping}
-                    cssClass="e-outline"
-                  />
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <span style={{ fontSize: '0.875rem', color: 'var(--e-text)' }}>Bara visa notifikation</span>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--e-text)', opacity: 0.6 }}>Om av: Skapar tasks automatiskt</p>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      color: 'var(--e-text)',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Gruppering
+                    </label>
+                    <DropDownListComponent
+                      dataSource={groupingData}
+                      fields={{ text: 'text', value: 'value' }}
+                      value={emailSchedule.groupBy}
+                      change={handleUpdateEmailGrouping}
+                      cssClass="e-outline"
+                    />
                   </div>
-                  <SwitchComponent
-                    checked={emailSchedule.notifyOnly}
-                    change={handleToggleNotifyOnly}
-                    onLabel="Ja"
-                    offLabel="Nej"
-                  />
-                </div>
-              </div>
-            )}
 
-            {emailSchedule.enabled && (
-              <div style={{ backgroundColor: '#dcfce7', border: '1px solid #10b981', borderRadius: '8px', padding: '0.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}>
-                  <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#10b981', borderRadius: '9999px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-                  <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                    Kollar mejl {emailSchedule.times.join(', ')} på vardagar
-                  </span>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <div>
+                      <span style={{
+                        fontSize: '0.875rem',
+                        color: 'var(--e-text)'
+                      }}>
+                        Bara visa notifikation
+                      </span>
+                      <p style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--e-text)',
+                        opacity: 0.6,
+                        margin: 0
+                      }}>
+                        Om av: Skapar tasks automatiskt
+                      </p>
+                    </div>
+                    <SwitchComponent
+                      checked={emailSchedule.notifyOnly}
+                      change={handleToggleNotifyOnly}
+                      onLabel="Ja"
+                      offLabel="Nej"
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {emailSchedule.enabled && (
+                <div style={{
+                  backgroundColor: '#dcfce7',
+                  border: '1px solid #10b981',
+                  borderRadius: '8px',
+                  padding: '0.75rem'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    color: '#047857'
+                  }}>
+                    <div style={{
+                      width: '0.5rem',
+                      height: '0.5rem',
+                      backgroundColor: '#10b981',
+                      borderRadius: '9999px',
+                      animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    }} />
+                    <span style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
+                    }}>
+                      Kollar mejl {emailSchedule.times.join(', ')} på vardagar
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -468,84 +729,165 @@ export function SettingsView() {
   const notificationsContent = () => {
     console.log('🔍 DEBUG: notificationsContent() called');
     return (
-      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-        <div style={{ padding: '0.75rem', backgroundColor: '#f3e8ff', borderRadius: '8px' }}>
-          <Bell style={{ height: '1.5rem', width: '1.5rem', color: '#9333ea' }} />
-        </div>
+      <div style={{
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '0.75rem'
+        }}>
+          <div style={{
+            padding: '0.75rem',
+            backgroundColor: '#f3e8ff',
+            borderRadius: '8px'
+          }}>
+            <Bell style={{
+              height: '1.5rem',
+              width: '1.5rem',
+              color: '#9333ea'
+            }} />
+          </div>
 
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7, marginBottom: '1rem' }}>
-            Få påminnelser om deadlines och försenade uppgifter.
-          </p>
+          <div style={{ flex: 1 }}>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--e-text)',
+              opacity: 0.7,
+              marginBottom: '1rem'
+            }}>
+              Få påminnelser om deadlines och försenade uppgifter.
+            </p>
 
-          {notificationPermission === 'granted' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--e-text)' }}>Aktivera notifieringar</span>
-                <SwitchComponent
-                  checked={notificationConfig.enabled}
-                  change={handleToggleNotifications}
-                  onLabel="På"
-                  offLabel="Av"
-                />
-              </div>
-
-              {notificationConfig.enabled && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingLeft: '1rem', borderLeft: '2px solid var(--e-border)' }}>
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <CheckBoxComponent
-                      label="24h före deadline"
-                      checked={notificationConfig.types['24h_before']}
-                      change={() => handleToggleNotificationType('24h_before')}
-                    />
-                  </div>
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <CheckBoxComponent
-                      label="2h före deadline"
-                      checked={notificationConfig.types['2h_before']}
-                      change={() => handleToggleNotificationType('2h_before')}
-                    />
-                  </div>
-                  <CheckBoxComponent
-                    label="Försenad uppgift"
-                    checked={notificationConfig.types.overdue}
-                    change={() => handleToggleNotificationType('overdue')}
+            {notificationPermission === 'granted' ? (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <span style={{ color: 'var(--e-text)' }}>Aktivera notifieringar</span>
+                  <SwitchComponent
+                    checked={notificationConfig.enabled}
+                    change={handleToggleNotifications}
+                    onLabel="På"
+                    offLabel="Av"
                   />
                 </div>
-              )}
 
-              <div style={{ backgroundColor: '#dcfce7', border: '1px solid #10b981', borderRadius: '8px', padding: '0.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}>
-                  <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#10b981', borderRadius: '9999px' }} />
-                  <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Notifieringar aktiverade</span>
+                {notificationConfig.enabled && (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                    paddingLeft: '1rem',
+                    borderLeft: '2px solid var(--e-border)'
+                  }}>
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <CheckBoxComponent
+                        label="24h före deadline"
+                        checked={notificationConfig.types['24h_before']}
+                        change={() => handleToggleNotificationType('24h_before')}
+                      />
+                    </div>
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <CheckBoxComponent
+                        label="2h före deadline"
+                        checked={notificationConfig.types['2h_before']}
+                        change={() => handleToggleNotificationType('2h_before')}
+                      />
+                    </div>
+                    <CheckBoxComponent
+                      label="Försenad uppgift"
+                      checked={notificationConfig.types.overdue}
+                      change={() => handleToggleNotificationType('overdue')}
+                    />
+                  </div>
+                )}
+
+                <div style={{
+                  backgroundColor: '#dcfce7',
+                  border: '1px solid #10b981',
+                  borderRadius: '8px',
+                  padding: '0.75rem'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    color: '#047857'
+                  }}>
+                    <div style={{
+                      width: '0.5rem',
+                      height: '0.5rem',
+                      backgroundColor: '#10b981',
+                      borderRadius: '9999px'
+                    }} />
+                    <span style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
+                    }}>
+                      Notifieringar aktiverade
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : notificationPermission === 'denied' ? (
-            <div style={{ backgroundColor: '#fee2e2', border: '1px solid #ef4444', borderRadius: '8px', padding: '1rem' }}>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <BellOff style={{ height: '1.25rem', width: '1.25rem', color: '#ef4444', flexShrink: 0, marginTop: '0.125rem' }} />
-                <div>
-                  <p style={{ fontSize: '0.875rem', color: '#991b1b', fontWeight: '500', marginBottom: '0.25rem' }}>
-                    Notifieringar blockerade
-                  </p>
-                  <p style={{ fontSize: '0.875rem', color: '#b91c1c' }}>
-                    Du har blockerat notifieringar. Aktivera dem i webbläsarens inställningar.
-                  </p>
+            ) : notificationPermission === 'denied' ? (
+              <div style={{
+                backgroundColor: '#fee2e2',
+                border: '1px solid #ef4444',
+                borderRadius: '8px',
+                padding: '1rem'
+              }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <BellOff style={{
+                    height: '1.25rem',
+                    width: '1.25rem',
+                    color: '#ef4444',
+                    flexShrink: 0,
+                    marginTop: '0.125rem'
+                  }} />
+                  <div>
+                    <p style={{
+                      fontSize: '0.875rem',
+                      color: '#991b1b',
+                      fontWeight: '500',
+                      marginBottom: '0.25rem',
+                      marginTop: 0
+                    }}>
+                      Notifieringar blockerade
+                    </p>
+                    <p style={{
+                      fontSize: '0.875rem',
+                      color: '#b91c1c',
+                      margin: 0
+                    }}>
+                      Du har blockerat notifieringar. Aktivera dem i webbläsarens inställningar.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleRequestNotificationPermission}
-            >
-              <Bell style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
-              Aktivera notifieringar
-            </Button>
-          )}
+            ) : (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleRequestNotificationPermission}
+              >
+                <Bell style={{
+                  height: '1rem',
+                  width: '1rem',
+                  marginRight: '0.5rem'
+                }} />
+                Aktivera notifieringar
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -556,16 +898,39 @@ export function SettingsView() {
   const appInfoContent = () => {
     console.log('🔍 DEBUG: appInfoContent() called');
     return (
-    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7 }}>
-      <p><strong>Version:</strong> 1.0.0 (FAS 2)</p>
-      <p><strong>Prioriteringsmodell:</strong> CPM (Consequence Priority Method)</p>
-      <p><strong>Funktioner:</strong></p>
-      <ul style={{ listStyleType: 'disc', paddingLeft: '1.25rem', marginLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-        <li>Röstassistent med AI (Claude Sonnet 4)</li>
-        <li>Microsoft Calendar-integration</li>
-        <li>Automatisk deadline-beräkning</li>
-        <li>Fokustid-bokning i kalender</li>
-        <li>PWA med offline-stöd</li>
+      <div style={{
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.5rem',
+        fontSize: '0.875rem',
+        color: 'var(--e-text)',
+        opacity: 0.7
+      }}>
+        <p style={{ margin: 0 }}>
+          <strong>Version:</strong> 1.0.0 (FAS 2)
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>Prioriteringsmodell:</strong> CPM (Consequence Priority Method)
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>Funktioner:</strong>
+        </p>
+        <ul style={{
+          listStyleType: 'disc',
+          paddingLeft: '1.25rem',
+          marginLeft: '1rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.25rem',
+          marginTop: '0.5rem',
+          marginBottom: 0
+        }}>
+          <li>Röstassistent med AI (Claude Sonnet 4)</li>
+          <li>Microsoft Calendar-integration</li>
+          <li>Automatisk deadline-beräkning</li>
+          <li>Fokustid-bokning i kalender</li>
+          <li>PWA med offline-stöd</li>
         </ul>
       </div>
     );
@@ -587,12 +952,29 @@ export function SettingsView() {
     console.log('🔍 DEBUG: About to render AccordionComponent');
 
     return (
-      <div style={{ maxWidth: '896px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem', padding: '0 1rem' }}>
+      <div style={{
+        maxWidth: '896px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2rem',
+        padding: '0 1rem'
+      }}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
+          <h1 style={{
+            fontSize: '1.875rem',
+            fontWeight: 'bold',
+            color: 'var(--e-text)',
+            marginBottom: '0.5rem'
+          }}>
             Inställningar
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7 }}>
+          <p style={{
+            fontSize: '0.875rem',
+            color: 'var(--e-text)',
+            opacity: 0.7,
+            margin: 0
+          }}>
             Hantera integrationer och preferenser
           </p>
         </div>
@@ -636,9 +1018,28 @@ export function SettingsView() {
   } catch (error) {
     console.error('❌ DEBUG: Error in return JSX:', error);
     return (
-      <div style={{ maxWidth: '896px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '0 1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ef4444' }}>Error rendering SettingsView</h1>
-        <pre style={{ backgroundColor: '#f3f4f6', padding: '1rem', borderRadius: '8px', fontSize: '0.75rem', overflow: 'auto' }}>
+      <div style={{
+        maxWidth: '896px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
+        padding: '0 1rem'
+      }}>
+        <h1 style={{
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          color: '#ef4444'
+        }}>
+          Error rendering SettingsView
+        </h1>
+        <pre style={{
+          backgroundColor: '#f3f4f6',
+          padding: '1rem',
+          borderRadius: '8px',
+          fontSize: '0.75rem',
+          overflow: 'auto'
+        }}>
           {JSON.stringify(error, null, 2)}
         </pre>
       </div>

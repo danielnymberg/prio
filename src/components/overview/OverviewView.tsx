@@ -56,8 +56,20 @@ export function OverviewView() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: 'var(--cream-50)' }}>
-        <div style={{ animation: 'spin 1s linear infinite', borderRadius: '9999px', height: '48px', width: '48px', borderBottom: '2px solid var(--copper-500)' }} />
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        backgroundColor: 'var(--e-surface)'
+      }}>
+        <div style={{
+          animation: 'spin 1s linear infinite',
+          borderRadius: '9999px',
+          height: '48px',
+          width: '48px',
+          borderBottom: '2px solid var(--copper-500)'
+        }} />
       </div>
     );
   }
@@ -121,10 +133,25 @@ export function OverviewView() {
   return (
     <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '2rem'
+      }}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>Översikt</h1>
-          <p style={{ color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
+          <h1 style={{
+            fontSize: '1.875rem',
+            fontWeight: 'bold',
+            color: 'var(--e-text)',
+            margin: 0
+          }}>
+            Översikt
+          </h1>
+          <p style={{
+            color: 'var(--e-text-secondary)',
+            marginTop: '0.25rem'
+          }}>
             Planera {timeHorizon} månad{parseInt(timeHorizon) > 1 ? 'er' : ''} framåt
           </p>
         </div>
@@ -155,12 +182,28 @@ export function OverviewView() {
 
       {/* Filter */}
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--e-surface)', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid var(--e-border)' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          backgroundColor: 'var(--e-surface)',
+          padding: '0.75rem 1rem',
+          borderRadius: '0.75rem',
+          border: '1px solid var(--e-border)'
+        }}>
           <Filter style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary)' }} />
           <select
             value={selectedClient}
             onChange={(e) => setSelectedClient(e.target.value)}
-            style={{ backgroundColor: 'transparent', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', outline: 'none', cursor: 'pointer', border: 'none' }}
+            style={{
+              backgroundColor: 'transparent',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              outline: 'none',
+              cursor: 'pointer',
+              border: 'none'
+            }}
           >
             <option value="all">Alla klienter</option>
             {clients.map(client => (
@@ -169,12 +212,28 @@ export function OverviewView() {
           </select>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--e-surface)', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid var(--e-border)' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          backgroundColor: 'var(--e-surface)',
+          padding: '0.75rem 1rem',
+          borderRadius: '0.75rem',
+          border: '1px solid var(--e-border)'
+        }}>
           <Filter style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary)' }} />
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            style={{ backgroundColor: 'transparent', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', outline: 'none', cursor: 'pointer', border: 'none' }}
+            style={{
+              backgroundColor: 'transparent',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              outline: 'none',
+              cursor: 'pointer',
+              border: 'none'
+            }}
           >
             <option value="all">Alla status</option>
             <option value="active">Aktiva</option>
@@ -184,48 +243,120 @@ export function OverviewView() {
       </div>
 
       {/* Statistik-kort */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div style={{ padding: '1.5rem', backgroundColor: 'var(--e-surface)', border: '2px solid var(--copper-500)', borderRadius: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '1rem',
+        marginBottom: '2rem'
+      }}>
+        <div style={{
+          padding: '1.5rem',
+          backgroundColor: 'var(--e-surface)',
+          border: '2px solid var(--copper-500)',
+          borderRadius: '0.75rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.5rem'
+          }}>
             <Sparkles style={{ height: '20px', width: '20px', color: 'var(--copper-600)' }} />
-            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+            <span style={{
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: 'var(--e-text-secondary)'
+            }}>
               Totalt
             </span>
           </div>
-          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>{stats.total}</p>
+          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
+            {stats.total}
+          </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>projekt</p>
         </div>
 
-        <div style={{ padding: '1.5rem', backgroundColor: 'var(--e-surface)', border: '2px solid #10b981', borderRadius: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <div style={{
+          padding: '1.5rem',
+          backgroundColor: 'var(--e-surface)',
+          border: '2px solid #10b981',
+          borderRadius: '0.75rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.5rem'
+          }}>
             <CheckCircle2 style={{ height: '20px', width: '20px', color: '#10b981' }} />
-            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+            <span style={{
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: 'var(--e-text-secondary)'
+            }}>
               Klara
             </span>
           </div>
-          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>{stats.completed}</p>
+          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
+            {stats.completed}
+          </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>projekt</p>
         </div>
 
-        <div style={{ padding: '1.5rem', backgroundColor: 'var(--e-surface)', border: '2px solid #f59e0b', borderRadius: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <div style={{
+          padding: '1.5rem',
+          backgroundColor: 'var(--e-surface)',
+          border: '2px solid #f59e0b',
+          borderRadius: '0.75rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.5rem'
+          }}>
             <Clock style={{ height: '20px', width: '20px', color: '#f59e0b' }} />
-            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+            <span style={{
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: 'var(--e-text-secondary)'
+            }}>
               Totalt
             </span>
           </div>
-          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>{stats.totalQuotedHours}h</p>
+          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
+            {stats.totalQuotedHours}h
+          </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>offererat</p>
         </div>
 
-        <div style={{ padding: '1.5rem', backgroundColor: 'var(--e-surface)', border: '2px solid #8b5cf6', borderRadius: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <div style={{
+          padding: '1.5rem',
+          backgroundColor: 'var(--e-surface)',
+          border: '2px solid #8b5cf6',
+          borderRadius: '0.75rem'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.5rem'
+          }}>
             <TrendingUp style={{ height: '20px', width: '20px', color: '#8b5cf6' }} />
-            <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+            <span style={{
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: 'var(--e-text-secondary)'
+            }}>
               Budget
             </span>
           </div>
-          <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
+          <p style={{
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            color: 'var(--e-text)',
+            margin: 0
+          }}>
             {(stats.totalBudget / 1000).toFixed(0)}k
           </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>kr totalt</p>
@@ -234,16 +365,35 @@ export function OverviewView() {
 
       {/* Varningar */}
       {(urgentProjects.length > 0 || overBudgetProjects.length > 0) && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
           {urgentProjects.length > 0 && (
-            <div style={{ padding: '1.5rem', backgroundColor: '#fef3c7', border: '2px solid #f59e0b', borderRadius: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{
+              padding: '1.5rem',
+              backgroundColor: '#fef3c7',
+              border: '2px solid #f59e0b',
+              borderRadius: '0.75rem'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                marginBottom: '0.5rem'
+              }}>
                 <AlertTriangle style={{ height: '20px', width: '20px', color: '#d97706' }} />
                 <h3 style={{ fontWeight: 'bold', color: '#78350f', margin: 0 }}>
                   Brådskande deadlines
                 </h3>
               </div>
-              <p style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '0.5rem' }}>
+              <p style={{
+                fontSize: '0.875rem',
+                color: '#92400e',
+                marginBottom: '0.5rem'
+              }}>
                 {urgentProjects.length} projekt med deadline inom 2 veckor
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -251,7 +401,12 @@ export function OverviewView() {
                   <div
                     key={project.id}
                     onClick={() => navigate(`/projects/${project.id}`)}
-                    style={{ fontSize: '0.875rem', color: '#78350f', cursor: 'pointer', textDecoration: 'none' }}
+                    style={{
+                      fontSize: '0.875rem',
+                      color: '#78350f',
+                      cursor: 'pointer',
+                      textDecoration: 'none'
+                    }}
                     onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
                     onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
@@ -263,14 +418,28 @@ export function OverviewView() {
           )}
 
           {overBudgetProjects.length > 0 && (
-            <div style={{ padding: '1.5rem', backgroundColor: '#fee2e2', border: '2px solid #ef4444', borderRadius: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div style={{
+              padding: '1.5rem',
+              backgroundColor: '#fee2e2',
+              border: '2px solid #ef4444',
+              borderRadius: '0.75rem'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                marginBottom: '0.5rem'
+              }}>
                 <AlertTriangle style={{ height: '20px', width: '20px', color: '#dc2626' }} />
                 <h3 style={{ fontWeight: 'bold', color: '#7f1d1d', margin: 0 }}>
                   Budgetöverskridning
                 </h3>
               </div>
-              <p style={{ fontSize: '0.875rem', color: '#991b1b', marginBottom: '0.5rem' }}>
+              <p style={{
+                fontSize: '0.875rem',
+                color: '#991b1b',
+                marginBottom: '0.5rem'
+              }}>
                 {overBudgetProjects.length} projekt över budget
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -278,7 +447,12 @@ export function OverviewView() {
                   <div
                     key={project.id}
                     onClick={() => navigate(`/projects/${project.id}`)}
-                    style={{ fontSize: '0.875rem', color: '#7f1d1d', cursor: 'pointer', textDecoration: 'none' }}
+                    style={{
+                      fontSize: '0.875rem',
+                      color: '#7f1d1d',
+                      cursor: 'pointer',
+                      textDecoration: 'none'
+                    }}
                     onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
                     onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
@@ -292,8 +466,21 @@ export function OverviewView() {
       )}
 
       {/* Projekttidslinje */}
-      <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', border: '2px solid var(--e-border)', padding: '2rem' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--e-text)' }}>
+      <div style={{
+        backgroundColor: 'var(--e-surface)',
+        borderRadius: '0.75rem',
+        border: '2px solid var(--e-border)',
+        padding: '2rem'
+      }}>
+        <h2 style={{
+          fontSize: '1.25rem',
+          fontWeight: 'bold',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          color: 'var(--e-text)'
+        }}>
           <Calendar style={{ height: '24px', width: '24px' }} />
           Projekttidslinje
         </h2>
@@ -339,18 +526,41 @@ export function OverviewView() {
                   onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    marginBottom: '0.5rem'
+                  }}>
                     <div style={{ flex: 1 }}>
-                      <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem', color: 'var(--e-text)', margin: 0 }}>{project.name}</h3>
+                      <h3 style={{
+                        fontWeight: 'bold',
+                        fontSize: '1.125rem',
+                        color: 'var(--e-text)',
+                        margin: 0
+                      }}>
+                        {project.name}
+                      </h3>
                       {project.client_name && (
-                        <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>
+                        <p style={{
+                          fontSize: '0.875rem',
+                          color: 'var(--e-text-secondary)',
+                          margin: 0
+                        }}>
                           {project.client_name}
                         </p>
                       )}
                     </div>
 
                     {project.status === 'completed' && (
-                      <span style={{ padding: '0.25rem 0.75rem', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '500' }}>
+                      <span style={{
+                        padding: '0.25rem 0.75rem',
+                        backgroundColor: '#d1fae5',
+                        color: '#065f46',
+                        borderRadius: '9999px',
+                        fontSize: '0.875rem',
+                        fontWeight: '500'
+                      }}>
                         Klart
                       </span>
                     )}
@@ -375,46 +585,89 @@ export function OverviewView() {
                     )}
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '0.75rem' }}>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: '1rem',
+                    marginTop: '0.75rem'
+                  }}>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
+                      <span style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--e-text-secondary)'
+                      }}>
                         Färdigt
                       </span>
-                      <p style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', margin: 0 }}>
+                      <p style={{
+                        fontSize: '1.125rem',
+                        fontWeight: '600',
+                        color: 'var(--e-text)',
+                        margin: 0
+                      }}>
                         {project.completion_percentage}%
                       </p>
                     </div>
 
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
+                      <span style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--e-text-secondary)'
+                      }}>
                         Loggat
                       </span>
-                      <p style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', margin: 0 }}>
+                      <p style={{
+                        fontSize: '1.125rem',
+                        fontWeight: '600',
+                        color: 'var(--e-text)',
+                        margin: 0
+                      }}>
                         {metrics.logged_hours}h
                       </p>
                     </div>
 
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
+                      <span style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--e-text-secondary)'
+                      }}>
                         Återstår
                       </span>
-                      <p style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', margin: 0 }}>
+                      <p style={{
+                        fontSize: '1.125rem',
+                        fontWeight: '600',
+                        color: 'var(--e-text)',
+                        margin: 0
+                      }}>
                         {metrics.estimated_remaining_hours}h
                       </p>
                     </div>
 
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
+                      <span style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--e-text-secondary)'
+                      }}>
                         Budget
                       </span>
-                      <p style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', margin: 0 }}>
+                      <p style={{
+                        fontSize: '1.125rem',
+                        fontWeight: '600',
+                        color: 'var(--e-text)',
+                        margin: 0
+                      }}>
                         {(project.total_budget / 1000).toFixed(0)}k
                       </p>
                     </div>
                   </div>
 
                   {/* Progress bar */}
-                  <div style={{ marginTop: '0.75rem', height: '8px', backgroundColor: 'var(--e-border)', borderRadius: '9999px', overflow: 'hidden' }}>
+                  <div style={{
+                    marginTop: '0.75rem',
+                    height: '8px',
+                    backgroundColor: 'var(--e-border)',
+                    borderRadius: '9999px',
+                    overflow: 'hidden'
+                  }}>
                     <div
                       style={{
                         height: '100%',

@@ -29,7 +29,6 @@ export function AppLayout({ children }: AppLayoutProps) {
               zIndex: 30
             }}
             onClick={() => setIsSidebarOpen(false)}
-            className="mobile-backdrop"
           />
         )}
 

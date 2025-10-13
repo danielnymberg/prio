@@ -163,12 +163,34 @@ VIKTIGT:
 
   if (isProcessing) {
     return (
-      <div className="p-8 border-2 border-dashed border-amber-300 dark:border-amber-700 rounded-xl bg-amber-50 dark:bg-amber-900/10 text-center">
-        <Loader2 className="h-12 w-12 text-amber-600 dark:text-amber-400 animate-spin mx-auto mb-4" />
-        <p className="text-lg font-semibold text-amber-900 dark:text-amber-100 mb-2">
+      <div style={{
+        padding: '32px',
+        border: '2px dashed #f59e0b',
+        borderRadius: '12px',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        textAlign: 'center'
+      }}>
+        <Loader2 style={{
+          height: '48px',
+          width: '48px',
+          color: '#f59e0b',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px'
+        }} />
+        <p style={{
+          fontSize: '18px',
+          fontWeight: '600',
+          color: '#f59e0b',
+          marginBottom: '8px',
+          marginTop: 0
+        }}>
           Analyserar PDF med AI...
         </p>
-        <p className="text-sm text-amber-700 dark:text-amber-300">
+        <p style={{
+          fontSize: '14px',
+          color: '#f59e0b',
+          margin: 0
+        }}>
           Detta tar vanligtvis 5-15 sekunder
         </p>
       </div>
@@ -177,24 +199,62 @@ VIKTIGT:
 
   if (uploadedFile) {
     return (
-      <div className="p-6 border-2 border-amber-500 dark:border-amber-400 rounded-xl bg-amber-50 dark:bg-amber-900/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FileText className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+      <div style={{
+        padding: '24px',
+        border: '2px solid #f59e0b',
+        borderRadius: '12px',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <FileText style={{
+              height: '32px',
+              width: '32px',
+              color: '#f59e0b'
+            }} />
             <div>
-              <p className="font-semibold text-amber-900 dark:text-amber-100">
+              <p style={{
+                fontWeight: '600',
+                color: '#f59e0b',
+                margin: 0
+              }}>
                 {uploadedFile.name}
               </p>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
+              <p style={{
+                fontSize: '14px',
+                color: '#f59e0b',
+                margin: 0
+              }}>
                 {(uploadedFile.size / 1024).toFixed(0)} KB
               </p>
             </div>
           </div>
           <button
             onClick={handleRemoveFile}
-            className="p-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
+            style={{
+              padding: '8px',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <X className="h-5 w-5 text-amber-700 dark:text-amber-300" />
+            <X style={{
+              height: '20px',
+              width: '20px',
+              color: '#f59e0b'
+            }} />
           </button>
         </div>
       </div>
@@ -206,33 +266,71 @@ VIKTIGT:
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`p-8 border-2 border-dashed rounded-xl transition-colors cursor-pointer ${
-        isDragging
-          ? 'border-amber-500 dark:border-amber-400 bg-amber-50 dark:bg-amber-900/20'
-          : 'border-gray-300 dark:border-gray-600 hover:border-amber-400 dark:hover:border-amber-500 bg-gray-50 dark:bg-gray-800'
-      }`}
+      style={{
+        padding: '32px',
+        border: isDragging ? '2px dashed #f59e0b' : '2px dashed var(--e-border)',
+        borderRadius: '12px',
+        transition: 'all 0.2s',
+        cursor: 'pointer',
+        backgroundColor: isDragging ? 'rgba(245, 158, 11, 0.1)' : 'var(--e-surface-hover)'
+      }}
     >
       <input
         type="file"
         accept="application/pdf"
         onChange={handleFileInput}
-        className="hidden"
+        style={{ display: 'none' }}
         id="pdf-upload"
       />
-      <label htmlFor="pdf-upload" className="cursor-pointer">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Upload className="h-12 w-12 text-amber-600 dark:text-amber-400" />
-            <Sparkles className="h-6 w-6 text-amber-500 dark:text-amber-400 animate-pulse" />
+      <label htmlFor="pdf-upload" style={{ cursor: 'pointer' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            marginBottom: '16px'
+          }}>
+            <Upload style={{
+              height: '48px',
+              width: '48px',
+              color: '#f59e0b'
+            }} />
+            <Sparkles style={{
+              height: '24px',
+              width: '24px',
+              color: '#f59e0b',
+              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+            }} />
           </div>
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <p style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: 'var(--e-text)',
+            marginBottom: '8px',
+            marginTop: 0
+          }}>
             Dra och släpp offert-PDF här
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          <p style={{
+            fontSize: '14px',
+            color: 'var(--e-text-secondary)',
+            marginBottom: '4px',
+            marginTop: 0
+          }}>
             eller klicka för att välja fil
           </p>
-          <p className="text-xs text-amber-700 dark:text-amber-300 mt-3 flex items-center justify-center gap-1">
-            <Sparkles className="h-4 w-4" />
+          <p style={{
+            fontSize: '12px',
+            color: '#f59e0b',
+            marginTop: '12px',
+            marginBottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px'
+          }}>
+            <Sparkles style={{ height: '16px', width: '16px' }} />
             AI extraherar automatiskt timmar, pris och deadline
           </p>
         </div>

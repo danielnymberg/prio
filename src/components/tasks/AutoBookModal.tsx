@@ -126,22 +126,51 @@ export function AutoBookModal({
       title={useMultipleSessions ? "📅 Planera projekt-sessioner" : "📅 Boka tid automatiskt"}
       size="md"
     >
-      <div className="space-y-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {/* Task info header */}
-        <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4 border border-sand-300 dark:border-charcoal-700">
-          <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-copper-600 dark:text-copper-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-stone-600 dark:text-sand-100 mb-1">
+        <div style={{
+          backgroundColor: 'var(--e-surface)',
+          borderRadius: '8px',
+          padding: '16px',
+          border: '1px solid var(--e-border, #e7e5e4)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <Calendar style={{
+              height: '20px',
+              width: '20px',
+              color: 'var(--copper-600)',
+              flexShrink: 0,
+              marginTop: '2px'
+            }} />
+            <div style={{ flex: '1' }}>
+              <h3 style={{
+                fontWeight: '600',
+                color: 'var(--e-text)',
+                marginBottom: '4px'
+              }}>
                 {taskTitle}
               </h3>
-              <p className="text-sm text-stone-600 dark:text-sand-200">
-                <Clock className="inline h-4 w-4 mr-1" />
+              <p style={{ fontSize: '14px', color: 'var(--e-text)' }}>
+                <Clock style={{
+                  display: 'inline',
+                  height: '16px',
+                  width: '16px',
+                  marginRight: '4px'
+                }} />
                 {Math.floor(durationMinutes / 60)}h {durationMinutes % 60}min totalt
               </p>
               {useMultipleSessions && (
-                <p className="text-xs text-stone-600 dark:text-sand-300 mt-1">
-                  <Layers className="inline h-3 w-3 mr-1" />
+                <p style={{
+                  fontSize: '12px',
+                  color: 'var(--e-text)',
+                  marginTop: '4px'
+                }}>
+                  <Layers style={{
+                    display: 'inline',
+                    height: '12px',
+                    width: '12px',
+                    marginRight: '4px'
+                  }} />
                   Delas upp i flera sessioner (max {maxSessionHours}h/session)
                 </p>
               )}
@@ -151,15 +180,33 @@ export function AutoBookModal({
 
         {/* Multi-session mode toggle for long tasks */}
         {shouldUseMultiSession && (
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px',
+            backgroundColor: 'var(--e-hover, #f9fafb)',
+            borderRadius: '8px'
+          }}>
             <input
               type="checkbox"
               id="multi-session"
               checked={useMultipleSessions}
               onChange={(e) => setUseMultipleSessions(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-copper-600 focus:ring-copper-400"
+              style={{
+                height: '16px',
+                width: '16px',
+                borderRadius: '4px',
+                border: '1px solid var(--e-border, #d1d5db)',
+                color: 'var(--copper-600)',
+                cursor: 'pointer'
+              }}
             />
-            <label htmlFor="multi-session" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+            <label htmlFor="multi-session" style={{
+              fontSize: '14px',
+              color: 'var(--e-text)',
+              cursor: 'pointer'
+            }}>
               Dela upp i flera sessioner (rekommenderat för projekt över 8h)
             </label>
           </div>
@@ -167,21 +214,42 @@ export function AutoBookModal({
 
         {/* Session length selector for multi-session mode */}
         {useMultipleSessions && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'var(--e-text)'
+            }}>
               Max tid per session:
             </label>
-            <div className="flex gap-2">
+            <div style={{ display: 'flex', gap: '8px' }}>
               {[2, 4, 6, 8].map((hours) => (
                 <button
                   key={hours}
                   type="button"
                   onClick={() => setMaxSessionHours(hours)}
-                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                    maxSessionHours === hours
-                      ? 'bg-copper-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
+                  style={{
+                    flex: '1',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'colors 0.2s',
+                    backgroundColor: maxSessionHours === hours ? 'var(--copper-600)' : 'var(--e-hover, #f3f4f6)',
+                    color: maxSessionHours === hours ? 'white' : 'var(--e-text)',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (maxSessionHours !== hours) {
+                      e.currentTarget.style.backgroundColor = 'var(--e-border, #e5e7eb)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (maxSessionHours !== hours) {
+                      e.currentTarget.style.backgroundColor = 'var(--e-hover, #f3f4f6)';
+                    }
+                  }}
                 >
                   {hours}h
                 </button>
@@ -193,95 +261,177 @@ export function AutoBookModal({
         {/* Multi-session view */}
         {useMultipleSessions && sessionPlan ? (
           sessionPlan.sessions.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-4xl mb-3">😕</div>
-              <p className="text-gray-700 dark:text-gray-300 font-medium mb-2">
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>😕</div>
+              <p style={{
+                color: 'var(--e-text)',
+                fontWeight: '500',
+                marginBottom: '8px'
+              }}>
                 Inga lediga tider hittades
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--e-text-secondary)'
+              }}>
                 Din kalender är full de närmaste dagarna. Försök manuellt eller justera deadline.
               </p>
             </div>
           ) : (
             <>
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                <h4 style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: 'var(--e-text)',
+                  marginBottom: '12px'
+                }}>
                   Förslag på {sessionPlan.sessions.length} sessioner:
                 </h4>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  maxHeight: '256px',
+                  overflowY: 'auto'
+                }}>
                   {sessionPlan.sessions.map((session, index) => (
                     <div
                       key={index}
-                      className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                      style={{
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--e-border, #e5e7eb)',
+                        backgroundColor: 'var(--e-surface)'
+                      }}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium text-copper-600 dark:text-copper-400">
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '4px'
+                      }}>
+                        <span style={{
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          color: 'var(--copper-600)'
+                        }}>
                           Session {index + 1}/{sessionPlan.sessions.length}
                         </span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                        <span style={{
+                          fontSize: '12px',
+                          color: 'var(--e-text-secondary)'
+                        }}>
                           {Math.floor(session.durationMinutes / 60)}h {session.durationMinutes % 60}min
                         </span>
                       </div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      <div style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: 'var(--e-text)'
+                      }}>
                         {session.day}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'var(--e-text-secondary)'
+                      }}>
                         {formatTime(session.start)} - {formatTime(session.end)}
                       </div>
                     </div>
                   ))}
                 </div>
                 {!sessionPlan.isComplete && (
-                  <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
-                    <p className="text-sm text-amber-800 dark:text-amber-200">
+                  <div style={{
+                    marginTop: '12px',
+                    padding: '12px',
+                    backgroundColor: '#fffbeb',
+                    border: '1px solid #fcd34d',
+                    borderRadius: '8px'
+                  }}>
+                    <p style={{ fontSize: '14px', color: '#92400e' }}>
                       ⚠️ Kunde inte hitta tillräckligt med tid för alla {Math.floor(durationMinutes / 60)}h.
                       {Math.floor(sessionPlan.remainingMinutes / 60)}h {sessionPlan.remainingMinutes % 60}min återstår obokat.
                     </p>
                   </div>
                 )}
               </div>
-              <div className="flex gap-3 pt-2">
-                <Button
-                  onClick={handleBook}
-                  disabled={isBooking}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+              <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
+                <div
+                  style={{ flex: '1' }}
+                  onMouseEnter={(e) => {
+                    const btn = e.currentTarget.querySelector('button');
+                    if (btn) btn.style.backgroundColor = '#059669';
+                  }}
+                  onMouseLeave={(e) => {
+                    const btn = e.currentTarget.querySelector('button');
+                    if (btn) btn.style.backgroundColor = '#10b981';
+                  }}
                 >
+                  <Button
+                    onClick={handleBook}
+                    disabled={isBooking}
+                    style={{
+                      width: '100%',
+                      backgroundColor: '#10b981'
+                    }}
+                  >
                   {isBooking ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      <div style={{
+                        animation: 'spin 1s linear infinite',
+                        borderRadius: '9999px',
+                        height: '16px',
+                        width: '16px',
+                        borderBottom: '2px solid white',
+                        marginRight: '8px'
+                      }} />
                       Bokar...
                     </>
                   ) : (
                     <>
-                      <Calendar className="h-4 w-4 mr-2" />
+                      <Calendar style={{ height: '16px', width: '16px', marginRight: '8px' }} />
                       Boka alla {sessionPlan.sessions.length} sessioner
                     </>
                   )}
-                </Button>
+                  </Button>
+                </div>
                 <Button variant="ghost" onClick={onClose}>
-                  <X className="h-4 w-4 mr-1" />
+                  <X style={{ height: '16px', width: '16px', marginRight: '4px' }} />
                   Avbryt
                 </Button>
               </div>
             </>
           )
         ) : !useMultipleSessions && topSlots.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-4xl mb-3">😕</div>
-            <p className="text-gray-700 dark:text-gray-300 font-medium mb-2">
+          <div style={{ textAlign: 'center', padding: '32px 0' }}>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>😕</div>
+            <p style={{
+              color: 'var(--e-text)',
+              fontWeight: '500',
+              marginBottom: '8px'
+            }}>
               Inga lediga tider hittades
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p style={{
+              fontSize: '14px',
+              color: 'var(--e-text-secondary)'
+            }}>
               Din kalender är full de närmaste dagarna. Försök manuellt eller justera deadline.
             </p>
           </div>
         ) : !useMultipleSessions ? (
           <>
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              <h4 style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: 'var(--e-text)',
+                marginBottom: '12px'
+              }}>
                 Föreslagna tider (prioriterade 08:00-16:00):
               </h4>
-              <div className="space-y-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {topSlots.map((slot, index) => {
                   const isSelected = selectedSlot === slot;
                   const isPreferredTime =
@@ -291,35 +441,85 @@ export function AutoBookModal({
                     <button
                       key={index}
                       onClick={() => setSelectedSlot(slot)}
-                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                        isSelected
-                          ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      }`}
+                      style={{
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '16px',
+                        borderRadius: '8px',
+                        border: isSelected
+                          ? '2px solid var(--copper-500)'
+                          : '2px solid var(--e-border, #e5e7eb)',
+                        backgroundColor: isSelected ? 'var(--e-surface)' : 'transparent',
+                        transition: 'all 0.2s',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'var(--e-text-secondary, #9ca3af)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = 'var(--e-border, #e5e7eb)';
+                        }
+                      }}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-gray-900 dark:text-white">
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                      }}>
+                        <div style={{ flex: '1' }}>
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            marginBottom: '4px'
+                          }}>
+                            <span style={{
+                              fontWeight: '600',
+                              color: 'var(--e-text)'
+                            }}>
                               {formatDate(slot.start)}
                             </span>
                             {isPreferredTime && (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">
+                              <span style={{
+                                fontSize: '12px',
+                                padding: '2px 8px',
+                                borderRadius: '9999px',
+                                backgroundColor: '#d1fae5',
+                                color: '#065f46',
+                                fontWeight: '500'
+                              }}>
                                 ⭐ Optimal tid
                               </span>
                             )}
                           </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                          <div style={{
+                            fontSize: '14px',
+                            color: 'var(--e-text-secondary)'
+                          }}>
                             {formatTime(slot.start)} - {formatTime(slot.end)}
-                            <span className="ml-2 text-xs">
+                            <span style={{
+                              marginLeft: '8px',
+                              fontSize: '12px'
+                            }}>
                               ({Math.floor(slot.durationMinutes / 60)}h {slot.durationMinutes % 60}min ledig)
                             </span>
                           </div>
                         </div>
                         {isSelected && (
-                          <div className="ml-3">
-                            <div className="h-6 w-6 rounded-full bg-copper-500 flex items-center justify-center">
-                              <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <div style={{ marginLeft: '12px' }}>
+                            <div style={{
+                              height: '24px',
+                              width: '24px',
+                              borderRadius: '9999px',
+                              backgroundColor: 'var(--copper-500)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <svg style={{ height: '16px', width: '16px', color: 'white' }} fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                   fillRule="evenodd"
                                   d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -336,33 +536,44 @@ export function AutoBookModal({
               </div>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
               <Button
                 onClick={handleBook}
                 disabled={!selectedSlot || isBooking}
-                className="flex-1"
+                style={{ flex: '1' }}
               >
                 {isBooking ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    <div style={{
+                      animation: 'spin 1s linear infinite',
+                      borderRadius: '9999px',
+                      height: '16px',
+                      width: '16px',
+                      borderBottom: '2px solid white',
+                      marginRight: '8px'
+                    }} />
                     Bokar...
                   </>
                 ) : (
                   <>
-                    <Calendar className="h-4 w-4 mr-2" />
+                    <Calendar style={{ height: '16px', width: '16px', marginRight: '8px' }} />
                     Boka vald tid
                   </>
                 )}
               </Button>
               <Button variant="ghost" onClick={onClose}>
-                <X className="h-4 w-4 mr-1" />
+                <X style={{ height: '16px', width: '16px', marginRight: '4px' }} />
                 Hoppa över
               </Button>
             </div>
           </>
         ) : null}
 
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+        <p style={{
+          fontSize: '12px',
+          color: 'var(--e-text-secondary, #6b7280)',
+          textAlign: 'center'
+        }}>
           💡 Tid bokas i din Microsoft 365-kalender som "🎯 Fokus: {taskTitle}"
         </p>
       </div>

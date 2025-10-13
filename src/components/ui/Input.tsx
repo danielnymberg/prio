@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { InputHTMLAttributes, forwardRef, CSSProperties } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -6,25 +6,70 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className = '', label, error, ...props }, ref) => {
+  ({ className = '', label, error, style, ...props }, ref) => {
+    const containerStyle: CSSProperties = {
+      width: '100%',
+    };
+
+    const labelStyle: CSSProperties = {
+      display: 'block',
+      fontSize: '14px',
+      fontWeight: '500',
+      color: 'var(--e-text)',
+      marginBottom: '4px',
+    };
+
+    const inputStyle: CSSProperties = {
+      width: '100%',
+      padding: '12px 16px',
+      border: error ? '1px solid #ef4444' : '1px solid var(--e-border)',
+      borderRadius: '8px',
+      outline: 'none',
+      minHeight: '44px',
+      fontSize: '16px',
+      backgroundColor: 'var(--e-surface)',
+      color: 'var(--e-text)',
+      ...style,
+    };
+
+    const errorStyle: CSSProperties = {
+      marginTop: '4px',
+      fontSize: '14px',
+      color: '#ef4444',
+    };
+
+    // Media query handling via CSS-in-JS
+    if (window.matchMedia('(min-width: 640px)').matches) {
+      inputStyle.padding = '8px 12px';
+      inputStyle.fontSize = '14px';
+    }
+
     return (
-      <div className="w-full">
+      <div style={containerStyle}>
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label style={labelStyle}>
             {label}
           </label>
         )}
         <input
           ref={ref}
-          className={`w-full px-4 py-3 sm:px-3 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-copper-400 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] text-base sm:text-sm ${
-            error
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-gray-300 dark:border-gray-600'
-          } bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${className}`}
+          style={inputStyle}
+          onFocus={(e) => {
+            e.target.style.outline = '2px solid var(--copper-400)';
+            e.target.style.outlineOffset = '2px';
+            if (error) {
+              e.target.style.outline = '2px solid #ef4444';
+            }
+            props.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            e.target.style.outline = 'none';
+            props.onBlur?.(e);
+          }}
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p style={errorStyle}>{error}</p>
         )}
       </div>
     );

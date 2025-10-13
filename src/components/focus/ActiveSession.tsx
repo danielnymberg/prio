@@ -99,7 +99,7 @@ export function ActiveSession() {
   };
 
   if (!task) {
-    return <div className="flex items-center justify-center min-h-screen">Laddar...</div>;
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Laddar...</div>;
   }
 
   const minutes = Math.floor(timeRemaining / 60);
@@ -107,67 +107,66 @@ export function ActiveSession() {
   const progress = ((sessionDuration - timeRemaining) / sessionDuration) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sand-100 to-sand-200 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-12 max-w-3xl w-full">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #f5f1ed, #ede9e5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '3rem', maxWidth: '48rem', width: '100%' }}>
         {/* Timer */}
-        <div className="text-center mb-12">
-          <div className="text-7xl font-mono font-bold text-gray-900 dark:text-white mb-4">
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <div style={{ fontSize: '4.5rem', fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </div>
-          <div className="text-lg text-gray-600 dark:text-gray-400">
+          <div style={{ fontSize: '1.125rem', color: 'var(--e-text-secondary)' }}>
             {minutes > 0 ? `${minutes} minuter kvar` : `${seconds} sekunder kvar`}
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-12">
+        <div style={{ width: '100%', backgroundColor: 'var(--e-border)', borderRadius: '9999px', height: '1rem', marginBottom: '3rem' }}>
           <div
-            className="bg-copper-500 h-4 rounded-full transition-all duration-1000"
-            style={{ width: `${progress}%` }}
+            style={{ backgroundColor: 'var(--copper-500)', height: '1rem', borderRadius: '9999px', transition: 'width 1s', width: `${progress}%` }}
           />
         </div>
 
         {/* Task Info */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
             {task.title}
           </h2>
           {task.description && (
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p style={{ color: 'var(--e-text-secondary)', lineHeight: '1.75' }}>
               {task.description}
             </p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="grid grid-cols-3 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
           <Button
             variant="primary"
             onClick={handleMarkDone}
-            className="h-16"
+            style={{ height: '64px' }}
           >
-            <CheckCircle className="h-6 w-6 mr-2" />
+            <CheckCircle style={{ height: '24px', width: '24px', marginRight: '0.5rem' }} />
             Klar
           </Button>
           <Button
             variant="secondary"
             onClick={() => setIsPaused(!isPaused)}
-            className="h-16"
+            style={{ height: '64px' }}
           >
-            <Pause className="h-6 w-6 mr-2" />
+            <Pause style={{ height: '24px', width: '24px', marginRight: '0.5rem' }} />
             {isPaused ? 'Fortsätt' : 'Paus'}
           </Button>
           <Button
             variant="ghost"
             onClick={handleCancel}
-            className="h-16"
+            style={{ height: '64px' }}
           >
-            <XCircle className="h-6 w-6 mr-2" />
+            <XCircle style={{ height: '24px', width: '24px', marginRight: '0.5rem' }} />
             Avbryt
           </Button>
         </div>
 
-        <div className="mt-8 bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4 text-sm text-stone-600 dark:text-sand-200">
+        <div style={{ marginTop: '2rem', backgroundColor: 'var(--e-border)', borderRadius: '0.5rem', padding: '1rem', fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
           💡 <strong>Tips:</strong> Stäng av notifikationer och mejl under denna session för bästa fokus.
         </div>
       </div>

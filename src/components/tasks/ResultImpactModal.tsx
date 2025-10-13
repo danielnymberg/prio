@@ -38,50 +38,79 @@ export function ResultImpactModal() {
       onClose={handleSkip}
       title="Task slutförd! 🎉"
     >
-      <div className="space-y-6">
-        <p className="text-gray-700 dark:text-gray-300">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <p style={{ color: 'var(--e-text)' }}>
           Vilken <strong>faktisk påverkan</strong> hade denna uppgift?
         </p>
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+        <p style={{
+          fontSize: '14px',
+          color: 'var(--e-text-secondary)',
+          fontStyle: 'italic'
+        }}>
           "{task.title}"
         </p>
 
-        <div className="space-y-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <label style={{
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'var(--e-text)'
+          }}>
             Faktisk påverkan (1-10):
           </label>
 
-          <div className="flex items-center gap-2">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(value => (
               <button
                 key={value}
                 onClick={() => setImpact(value)}
-                className={`w-10 h-10 rounded-lg font-semibold transition-all ${
-                  impact >= value
-                    ? 'bg-yellow-400 text-yellow-900 scale-110'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                }`}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s',
+                  backgroundColor: impact >= value ? '#fbbf24' : 'var(--e-hover, #e5e7eb)',
+                  color: impact >= value ? '#78350f' : 'var(--e-text-secondary, #6b7280)',
+                  transform: impact >= value ? 'scale(1.1)' : 'scale(1)',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
               >
                 {value}
               </button>
             ))}
           </div>
 
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div style={{
+            fontSize: '14px',
+            color: 'var(--e-text-secondary)'
+          }}>
             {impact <= 3 && '1-3: Minimal faktisk nytta'}
             {impact > 3 && impact <= 7 && '4-7: Moderat nytta'}
             {impact > 7 && '8-10: Transformativ påverkan!'}
           </div>
         </div>
 
-        <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-4 text-sm text-stone-600 dark:text-sand-200">
+        <div style={{
+          backgroundColor: 'var(--e-surface)',
+          borderRadius: '8px',
+          padding: '16px',
+          fontSize: '14px',
+          color: 'var(--e-text)'
+        }}>
           💡 Detta hjälper appen lära sig vilka uppgifter som faktiskt ger resultat (Pareto-analys)
         </div>
 
-        <div className="flex gap-3">
-          <Button onClick={handleSubmit} className="flex-1">
-            <Star className="h-4 w-4 mr-2" />
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <Button onClick={handleSubmit} style={{ flex: '1' }}>
+            <Star style={{ height: '16px', width: '16px', marginRight: '8px' }} />
             Spara bedömning
           </Button>
           <Button variant="secondary" onClick={handleSkip}>

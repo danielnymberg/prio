@@ -1,4 +1,5 @@
 import { Clock } from 'lucide-react';
+import { CSSProperties } from 'react';
 
 interface DurationPickerProps {
   value: number | null;
@@ -15,23 +16,79 @@ const presets = [
 ];
 
 export function DurationPicker({ value, onChange }: DurationPickerProps) {
+  const containerStyle: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  };
+
+  const labelStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: 'var(--e-text)',
+  };
+
+  const iconStyle: CSSProperties = {
+    height: '16px',
+    width: '16px',
+  };
+
+  const gridStyle: CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '8px',
+  };
+
+  const getButtonStyle = (isSelected: boolean): CSSProperties => ({
+    padding: '8px 16px',
+    borderRadius: '8px',
+    border: isSelected ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+    backgroundColor: isSelected ? 'var(--e-surface)' : 'transparent',
+    color: isSelected ? 'var(--copper-500)' : 'var(--e-text)',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+  });
+
+  const clearButtonStyle: CSSProperties = {
+    fontSize: '14px',
+    color: 'var(--e-text)',
+    opacity: 0.6,
+    cursor: 'pointer',
+    background: 'none',
+    border: 'none',
+    padding: 0,
+  };
+
   return (
-    <div className="space-y-3">
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-        <Clock className="h-4 w-4" />
+    <div style={containerStyle}>
+      <label style={labelStyle}>
+        <Clock style={iconStyle} />
         Uppskattad tid
       </label>
-      <div className="grid grid-cols-3 gap-2">
+      <div style={gridStyle}>
         {presets.map((preset) => (
           <button
             key={preset.minutes}
             type="button"
             onClick={() => onChange(preset.minutes)}
-            className={`px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
-              value === preset.minutes
-                ? 'border-copper-500 bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
-                : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-            }`}
+            style={getButtonStyle(value === preset.minutes)}
+            onMouseEnter={(e) => {
+              if (value !== preset.minutes) {
+                e.currentTarget.style.borderColor = 'var(--e-text)';
+                e.currentTarget.style.opacity = '0.8';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (value !== preset.minutes) {
+                e.currentTarget.style.borderColor = 'var(--e-border)';
+                e.currentTarget.style.opacity = '1';
+              }
+            }}
           >
             {preset.label}
           </button>
@@ -41,7 +98,13 @@ export function DurationPicker({ value, onChange }: DurationPickerProps) {
         <button
           type="button"
           onClick={() => onChange(null)}
-          className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          style={clearButtonStyle}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.6';
+          }}
         >
           Rensa
         </button>

@@ -42,24 +42,51 @@ export function ProjectProgressSlider({
   };
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Ekonomisk översikt */}
-      <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '16px',
+        padding: '16px',
+        backgroundColor: 'var(--e-surface-hover)',
+        borderRadius: '8px'
+      }}>
         <div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">Offererat</span>
-          <p className="text-2xl font-bold">{metrics.quoted_hours}h</p>
+          <span style={{
+            fontSize: '14px',
+            color: 'var(--e-text-secondary)'
+          }}>Offererat</span>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            color: 'var(--e-text)',
+            margin: 0
+          }}>{metrics.quoted_hours}h</p>
         </div>
         <div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">Loggat</span>
-          <p className="text-2xl font-bold">{metrics.logged_hours}h</p>
+          <span style={{
+            fontSize: '14px',
+            color: 'var(--e-text-secondary)'
+          }}>Loggat</span>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            color: 'var(--e-text)',
+            margin: 0
+          }}>{metrics.logged_hours}h</p>
         </div>
         <div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">Fakturerbara kvar</span>
-          <p className={`text-2xl font-bold ${
-            metrics.billable_hours_remaining < 0
-              ? 'text-red-600 dark:text-red-400'
-              : 'text-green-600 dark:text-green-400'
-          }`}>
+          <span style={{
+            fontSize: '14px',
+            color: 'var(--e-text-secondary)'
+          }}>Fakturerbara kvar</span>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            color: metrics.billable_hours_remaining < 0 ? '#ef4444' : '#10b981',
+            margin: 0
+          }}>
             {metrics.billable_hours_remaining}h
           </p>
         </div>
@@ -67,11 +94,24 @@ export function ProjectProgressSlider({
 
       {/* Reglage */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '8px'
+        }}>
+          <label style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: 'var(--e-text)'
+          }}>
             Uppskattat färdigt
           </label>
-          <span className="text-2xl font-bold text-copper-600 dark:text-copper-400">
+          <span style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            color: 'var(--copper-600)'
+          }}>
             {completionPercentage}%
           </span>
         </div>
@@ -83,12 +123,22 @@ export function ProjectProgressSlider({
           value={completionPercentage}
           onChange={(e) => handleUpdate(parseInt(e.target.value))}
           disabled={updating}
-          className="w-full h-3 rounded-lg appearance-none cursor-pointer bg-gray-200 dark:bg-gray-700"
           style={{
-            background: `linear-gradient(to right, #B87333 0%, #B87333 ${completionPercentage}%, #e5e7eb ${completionPercentage}%, #e5e7eb 100%)`
+            width: '100%',
+            height: '12px',
+            borderRadius: '8px',
+            appearance: 'none',
+            cursor: 'pointer',
+            background: `linear-gradient(to right, #B87333 0%, #B87333 ${completionPercentage}%, var(--e-surface-hover) ${completionPercentage}%, var(--e-surface-hover) 100%)`
           }}
         />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: '12px',
+          color: 'var(--e-text-secondary)',
+          marginTop: '4px'
+        }}>
           <span>0%</span>
           <span>50%</span>
           <span>100%</span>
@@ -96,38 +146,109 @@ export function ProjectProgressSlider({
       </div>
 
       {/* Återstående insats */}
-      <div className="p-4 border-2 border-copper-500 dark:border-copper-400 rounded-lg bg-sand-100 dark:bg-charcoal-850">
-        <div className="flex items-center gap-2 mb-2">
-          <TrendingUp className="h-5 w-5 text-copper-600 dark:text-copper-400" />
-          <h3 className="font-bold text-lg">Beräknad återstående insats</h3>
+      <div style={{
+        padding: '16px',
+        border: '2px solid var(--copper-500)',
+        borderRadius: '8px',
+        backgroundColor: 'var(--e-surface)'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '8px'
+        }}>
+          <TrendingUp style={{
+            height: '20px',
+            width: '20px',
+            color: 'var(--copper-600)'
+          }} />
+          <h3 style={{
+            fontWeight: 'bold',
+            fontSize: '18px',
+            color: 'var(--e-text)',
+            margin: 0
+          }}>Beräknad återstående insats</h3>
         </div>
-        <p className="text-3xl font-bold text-copper-600 dark:text-copper-400">
+        <p style={{
+          fontSize: '30px',
+          fontWeight: 'bold',
+          color: 'var(--copper-600)',
+          margin: 0
+        }}>
           {metrics.estimated_remaining_hours}h
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+        <p style={{
+          fontSize: '14px',
+          color: 'var(--e-text-secondary)',
+          marginTop: '4px',
+          marginBottom: 0
+        }}>
           ({100 - completionPercentage}% av {metrics.quoted_hours}h)
         </p>
       </div>
 
       {/* Varning för budgetöverskridning */}
       {metrics.is_over_budget && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-500 dark:border-red-400 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
-            <h3 className="font-bold text-red-900 dark:text-red-100">
+        <div style={{
+          padding: '16px',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          border: '2px solid #ef4444',
+          borderRadius: '8px'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '8px'
+          }}>
+            <AlertTriangle style={{
+              height: '20px',
+              width: '20px',
+              color: '#ef4444'
+            }} />
+            <h3 style={{
+              fontWeight: 'bold',
+              color: '#ef4444',
+              margin: 0
+            }}>
               Budgetöverskridning!
             </h3>
           </div>
-          <ul className="space-y-1 text-sm text-red-800 dark:text-red-200">
+          <ul style={{
+            listStyle: 'none',
+            padding: 0,
+            margin: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+            fontSize: '14px',
+            color: '#ef4444'
+          }}>
             <li>• Redan över budget: {metrics.budget_overage_hours}h</li>
             <li>• Återstår att göra: {metrics.estimated_remaining_hours}h</li>
             <li>• Total överskridning: {metrics.total_overage_hours}h
               ({Math.round((metrics.total_overage_hours / metrics.quoted_hours) * 100)}%)
             </li>
           </ul>
-          <div className="mt-3 text-sm text-red-800 dark:text-red-200">
-            <p className="font-semibold mb-1">💡 Överväg att:</p>
-            <ul className="list-disc list-inside space-y-1">
+          <div style={{
+            marginTop: '12px',
+            fontSize: '14px',
+            color: '#ef4444'
+          }}>
+            <p style={{
+              fontWeight: '600',
+              marginBottom: '4px',
+              marginTop: 0
+            }}>💡 Överväg att:</p>
+            <ul style={{
+              listStylePosition: 'inside',
+              margin: 0,
+              paddingLeft: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px'
+            }}>
               <li>Fakturera extra tid som tillägg</li>
               <li>Förhandla om utökad budget</li>
               <li>Dokumentera merarbete för framtida referens</li>
@@ -140,14 +261,36 @@ export function ProjectProgressSlider({
       {!metrics.is_over_budget &&
        metrics.estimated_remaining_hours > metrics.billable_hours_remaining &&
        metrics.billable_hours_remaining > 0 && (
-        <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-500 dark:border-yellow-400 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-            <h3 className="font-bold text-yellow-900 dark:text-yellow-100">
+        <div style={{
+          padding: '16px',
+          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          border: '2px solid #f59e0b',
+          borderRadius: '8px'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '8px'
+          }}>
+            <AlertTriangle style={{
+              height: '20px',
+              width: '20px',
+              color: '#f59e0b'
+            }} />
+            <h3 style={{
+              fontWeight: 'bold',
+              color: '#f59e0b',
+              margin: 0
+            }}>
               Tight budget!
             </h3>
           </div>
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+          <p style={{
+            fontSize: '14px',
+            color: '#f59e0b',
+            margin: 0
+          }}>
             Återstående insats ({metrics.estimated_remaining_hours}h) överstiger
             fakturerbara timmar kvar ({metrics.billable_hours_remaining}h) med{' '}
             {Math.round((metrics.estimated_remaining_hours - metrics.billable_hours_remaining) * 10) / 10}h.
@@ -161,32 +304,80 @@ export function ProjectProgressSlider({
           // TODO: Implementera kalenderbokning i Fas 3
           toast.success(`Kalenderbokning kommer i nästa fas! (${metrics.estimated_remaining_hours}h)`);
         }}
-        className="w-full py-3 bg-copper-600 hover:bg-copper-600 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+        style={{
+          width: '100%',
+          padding: '12px',
+          backgroundColor: 'var(--copper-600)',
+          color: '#ffffff',
+          borderRadius: '8px',
+          border: 'none',
+          fontWeight: '600',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          fontSize: '16px',
+          transition: 'background-color 0.2s'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-700)'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
       >
-        <Calendar className="h-5 w-5" />
+        <Calendar style={{ height: '20px', width: '20px' }} />
         Planera in {metrics.estimated_remaining_hours}h i kalendern
       </button>
 
       {/* Budget-sammanfattning */}
-      <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <h3 className="font-semibold mb-3">Ekonomi</h3>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Timkostnad:</span>
-            <span className="font-mono">
+      <div style={{
+        padding: '16px',
+        backgroundColor: 'var(--e-surface-hover)',
+        borderRadius: '8px'
+      }}>
+        <h3 style={{
+          fontWeight: '600',
+          marginBottom: '12px',
+          marginTop: 0,
+          color: 'var(--e-text)'
+        }}>Ekonomi</h3>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          fontSize: '14px'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between'
+          }}>
+            <span style={{ color: 'var(--e-text-secondary)' }}>Timkostnad:</span>
+            <span style={{ fontFamily: 'monospace', color: 'var(--e-text)' }}>
               {metrics.quoted_hours}h × {project.hourly_rate.toLocaleString('sv-SE')} kr/h = {' '}
               {(metrics.quoted_hours * project.hourly_rate).toLocaleString('sv-SE')} kr
             </span>
           </div>
           {project.external_costs > 0 && (
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Övriga kostnader:</span>
-              <span className="font-mono">{project.external_costs.toLocaleString('sv-SE')} kr</span>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}>
+              <span style={{ color: 'var(--e-text-secondary)' }}>Övriga kostnader:</span>
+              <span style={{ fontFamily: 'monospace', color: 'var(--e-text)' }}>
+                {project.external_costs.toLocaleString('sv-SE')} kr
+              </span>
             </div>
           )}
-          <div className="flex justify-between font-bold border-t border-gray-300 dark:border-gray-600 pt-2 mt-2">
-            <span>Total budget:</span>
-            <span className="font-mono">{project.total_budget.toLocaleString('sv-SE')} kr</span>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontWeight: 'bold',
+            borderTop: '1px solid var(--e-border)',
+            paddingTop: '8px',
+            marginTop: '8px'
+          }}>
+            <span style={{ color: 'var(--e-text)' }}>Total budget:</span>
+            <span style={{ fontFamily: 'monospace', color: 'var(--e-text)' }}>
+              {project.total_budget.toLocaleString('sv-SE')} kr
+            </span>
           </div>
         </div>
       </div>

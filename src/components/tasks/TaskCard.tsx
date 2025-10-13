@@ -5,7 +5,7 @@ import { isPast, isToday, isTomorrow } from 'date-fns';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Copy, Check, X, Clock, Trash2 } from 'lucide-react';
-import { formatDuration, getDurationColor, getDurationIcon } from '@/lib/utils';
+import { formatDuration, getDurationIcon } from '@/lib/utils';
 import { isEmergencyTask, isOverdueTask, formatTimeUntilDeadline } from '@/lib/priorityCalculation';
 
 interface TaskCardProps {
@@ -78,13 +78,18 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
 
   const getStatusDot = () => {
     const colors = {
-      not_started: 'bg-gray-400',
-      in_progress: 'bg-amber-400',
-      done: 'bg-green-400',
+      not_started: '#9ca3af',
+      in_progress: '#fbbf24',
+      done: '#4ade80',
     };
 
     return (
-      <div className={`w-2 h-2 rounded-full ${colors[task.status]}`} />
+      <div style={{
+        width: '8px',
+        height: '8px',
+        borderRadius: '9999px',
+        backgroundColor: colors[task.status]
+      }} />
     );
   };
 
@@ -147,24 +152,42 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        backgroundColor: 'var(--e-surface)',
+        borderRadius: '12px',
+        padding: '16px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        cursor: 'pointer',
+        position: 'relative',
+        border: isOverdue
+          ? '2px solid #ef4444'
+          : isEmergency
+          ? '2px solid #f59e0b'
+          : '1px solid var(--e-border, #e7e5e4)',
+        transition: 'all 0.2s',
+      }}
       {...attributes}
       {...listeners}
       onClick={handleCardClick}
-      className={`bg-cream-100 dark:bg-charcoal-850 rounded-xl p-4 shadow-subtle hover:shadow-soft transition-all cursor-pointer group relative ${
-        isOverdue
-          ? 'border-2 border-error-500 dark:border-error-600'
-          : isEmergency
-          ? 'border-2 border-warning-500 dark:border-warning-600'
-          : 'border border-sand-200 dark:border-charcoal-800'
-      }`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
       {/* Header med titel och priority */}
-      <div className="flex items-start justify-between gap-2 mb-2">
+      <div style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        gap: '8px',
+        marginBottom: '8px'
+      }}>
         {isEditingTitle ? (
-          <div className="flex items-center gap-2 flex-1">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            flex: '1'
+          }}>
             <input
               ref={titleInputRef}
               value={editedTitle}
@@ -172,35 +195,76 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               onKeyDown={handleTitleKeyDown}
               onBlur={handleTitleSave}
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 text-sm font-semibold bg-transparent border-b border-copper-500 focus:outline-none text-stone-900 dark:text-cream-50"
+              style={{
+                flex: '1',
+                fontSize: '14px',
+                fontWeight: '600',
+                backgroundColor: 'transparent',
+                borderBottom: '1px solid var(--copper-500)',
+                outline: 'none',
+                color: 'var(--e-text)',
+              }}
             />
             <button
               onClick={handleTitleSave}
-              className="p-1 rounded-lg hover:bg-sand-100 dark:hover:bg-charcoal-800"
+              style={{
+                padding: '4px',
+                borderRadius: '8px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
               title="Spara"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <Check className="h-3 w-3 text-success-600" />
+              <Check style={{ height: '12px', width: '12px', color: '#10b981' }} />
             </button>
             <button
               onClick={handleTitleCancel}
-              className="p-1 rounded-lg hover:bg-sand-100 dark:hover:bg-charcoal-800"
+              style={{
+                padding: '4px',
+                borderRadius: '8px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
               title="Avbryt"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <X className="h-3 w-3 text-error-600" />
+              <X style={{ height: '12px', width: '12px', color: '#ef4444' }} />
             </button>
           </div>
         ) : (
           <>
-            <h3 className="font-semibold text-sm text-stone-900 dark:text-cream-50 truncate flex-1">
+            <h3 style={{
+              fontWeight: '600',
+              fontSize: '14px',
+              color: 'var(--e-text)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              flex: '1'
+            }}>
               {task.title}
             </h3>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              flexShrink: '0'
+            }}>
               {task.estimated_duration && (
-                <span className="text-xs" title={`Uppskattad tid: ${formatDuration(task.estimated_duration)}`}>
+                <span style={{ fontSize: '12px' }} title={`Uppskattad tid: ${formatDuration(task.estimated_duration)}`}>
                   {getDurationIcon(task.estimated_duration)}
                 </span>
               )}
-              <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">
+              <span style={{
+                fontSize: '12px',
+                color: 'var(--e-text-secondary, #78716c)',
+                fontFamily: 'monospace'
+              }}>
                 {task.priority.toFixed(1)}
               </span>
             </div>
@@ -210,61 +274,125 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
 
       {/* Action buttons - flyttade till botten */}
       {!isEditingTitle && (
-        <div className={`absolute bottom-3 right-3 flex gap-1 transition-opacity ${showActions || isTouchDevice ? 'opacity-100' : 'opacity-0'}`}>
+        <div style={{
+          position: 'absolute',
+          bottom: '12px',
+          right: '12px',
+          display: 'flex',
+          gap: '4px',
+          opacity: showActions || isTouchDevice ? 1 : 0,
+          transition: 'opacity 0.2s'
+        }}>
           {onDuplicate && (
             <button
               onClick={handleDuplicate}
-              className="p-1.5 rounded-lg bg-sand-200 dark:bg-charcoal-800 hover:bg-sand-300 dark:hover:bg-charcoal-700"
+              style={{
+                padding: '6px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--e-hover, #e7e5e4)',
+                border: 'none',
+                cursor: 'pointer',
+              }}
               title="Skapa liknande task"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-border, #d6d3d1)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #e7e5e4)'}
             >
-              <Copy className="h-3 w-3 text-stone-600 dark:text-stone-300" />
+              <Copy style={{ height: '12px', width: '12px', color: 'var(--e-text-secondary, #57534e)' }} />
             </button>
           )}
           {onDelete && (
             <button
               onClick={handleDelete}
-              className="p-1.5 rounded-lg bg-error-100 dark:bg-error-950 hover:bg-error-200 dark:hover:bg-error-900"
+              style={{
+                padding: '6px',
+                borderRadius: '8px',
+                backgroundColor: '#fee2e2',
+                border: 'none',
+                cursor: 'pointer',
+              }}
               title="Radera task"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fecaca'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
             >
-              <Trash2 className="h-3 w-3 text-error-600 dark:text-error-400" />
+              <Trash2 style={{ height: '12px', width: '12px', color: '#dc2626' }} />
             </button>
           )}
         </div>
       )}
 
       {task.description && (
-        <p className={`text-xs text-stone-600 dark:text-stone-400 line-clamp-2 mb-2 transition-opacity ${
-          viewMode === 'expanded' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        }`}>
+        <p style={{
+          fontSize: '12px',
+          color: 'var(--e-text-secondary, #78716c)',
+          marginBottom: '8px',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          opacity: viewMode === 'expanded' ? 1 : 0,
+          transition: 'opacity 0.2s'
+        }}>
           {task.description}
         </p>
       )}
 
       {viewMode === 'expanded' && (
-        <div className="mb-2 space-y-2">
-          <div className="grid grid-cols-4 gap-2 text-xs">
-            <div className="bg-success-50 dark:bg-success-950 rounded-lg px-2 py-1">
-              <div className="text-stone-500 dark:text-stone-400 text-[10px]">Värde</div>
-              <div className="font-semibold text-success-700 dark:text-success-400">{task.value_score}/10</div>
+        <div style={{ marginBottom: '8px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '8px',
+            fontSize: '12px',
+            marginBottom: '8px'
+          }}>
+            <div style={{
+              backgroundColor: '#f0fdf4',
+              borderRadius: '8px',
+              padding: '4px 8px'
+            }}>
+              <div style={{ color: '#78716c', fontSize: '10px' }}>Värde</div>
+              <div style={{ fontWeight: '600', color: '#15803d' }}>{task.value_score}/10</div>
             </div>
-            <div className="bg-warning-50 dark:bg-warning-950 rounded-lg px-2 py-1">
-              <div className="text-stone-500 dark:text-stone-400 text-[10px]">Tidskänsl.</div>
-              <div className="font-semibold text-warning-700 dark:text-warning-400">{task.time_sensitivity}/10</div>
+            <div style={{
+              backgroundColor: '#fffbeb',
+              borderRadius: '8px',
+              padding: '4px 8px'
+            }}>
+              <div style={{ color: '#78716c', fontSize: '10px' }}>Tidskänsl.</div>
+              <div style={{ fontWeight: '600', color: '#b45309' }}>{task.time_sensitivity}/10</div>
             </div>
-            <div className="bg-copper-50 dark:bg-copper-950 rounded-lg px-2 py-1">
-              <div className="text-stone-500 dark:text-stone-400 text-[10px]">Tillit</div>
-              <div className="font-semibold text-copper-700 dark:text-copper-400">{task.confidence}/10</div>
+            <div style={{
+              backgroundColor: 'var(--copper-50, #fef3f2)',
+              borderRadius: '8px',
+              padding: '4px 8px'
+            }}>
+              <div style={{ color: '#78716c', fontSize: '10px' }}>Tillit</div>
+              <div style={{ fontWeight: '600', color: 'var(--copper-700, #b45309)' }}>{task.confidence}/10</div>
             </div>
-            <div className="bg-error-50 dark:bg-error-950 rounded-lg px-2 py-1">
-              <div className="text-stone-500 dark:text-stone-400 text-[10px]">Anstr.</div>
-              <div className="font-semibold text-error-700 dark:text-error-400">{task.effort}/10</div>
+            <div style={{
+              backgroundColor: '#fef2f2',
+              borderRadius: '8px',
+              padding: '4px 8px'
+            }}>
+              <div style={{ color: '#78716c', fontSize: '10px' }}>Anstr.</div>
+              <div style={{ fontWeight: '600', color: '#b91c1c' }}>{task.effort}/10</div>
             </div>
           </div>
           {(task.estimated_duration || task.deadline) && (
-            <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400">
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              fontSize: '12px',
+              color: 'var(--e-text-secondary, #78716c)'
+            }}>
               {task.estimated_duration && (
-                <span className={`flex items-center gap-1 ${getDurationColor(task.estimated_duration)}`}>
-                  <Clock className="h-3 w-3" />
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <Clock style={{ height: '12px', width: '12px' }} />
                   {formatDuration(task.estimated_duration)}
                 </span>
               )}
@@ -276,42 +404,117 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
           {onUpdate ? (
-            <div className="relative">
+            <div style={{ position: 'relative' }}>
               <button
                 onClick={handleStatusMenuToggle}
-                className="flex items-center gap-1 hover:bg-sand-100 dark:hover:bg-charcoal-800 rounded-lg px-2 py-1 transition-colors"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  borderRadius: '8px',
+                  padding: '4px 8px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
                 title="Klicka för att ändra status"
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 {getStatusDot()}
-                <span className="text-xs text-stone-500 dark:text-stone-400 capitalize">
+                <span style={{
+                  fontSize: '12px',
+                  color: 'var(--e-text-secondary, #78716c)',
+                  textTransform: 'capitalize'
+                }}>
                   {task.status === 'not_started' ? 'Ej påbörjad' : task.status === 'in_progress' ? 'Pågående' : 'Klar'}
                 </span>
               </button>
 
               {showStatusMenu && (
-                <div className="absolute bottom-full left-0 mb-1 bg-cream-50 dark:bg-charcoal-850 rounded-xl shadow-medium border border-sand-200 dark:border-charcoal-800 py-1 z-10 min-w-[140px]">
+                <div style={{
+                  position: 'absolute',
+                  bottom: '100%',
+                  left: '0',
+                  marginBottom: '4px',
+                  backgroundColor: 'var(--e-surface)',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  border: '1px solid var(--e-border, #e7e5e4)',
+                  padding: '4px 0',
+                  zIndex: 10,
+                  minWidth: '140px'
+                }}>
                   <button
                     onClick={() => handleStatusChange('not_started')}
-                    className="w-full px-3 py-2 text-left text-xs hover:bg-sand-100 dark:hover:bg-charcoal-800 flex items-center gap-2"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      textAlign: 'left',
+                      fontSize: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <div className="w-2 h-2 rounded-full bg-stone-400" />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#9ca3af' }} />
                     Ej påbörjad
                   </button>
                   <button
                     onClick={() => handleStatusChange('in_progress')}
-                    className="w-full px-3 py-2 text-left text-xs hover:bg-sand-100 dark:hover:bg-charcoal-800 flex items-center gap-2"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      textAlign: 'left',
+                      fontSize: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <div className="w-2 h-2 rounded-full bg-warning-400" />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#fbbf24' }} />
                     Pågående
                   </button>
                   <button
                     onClick={() => handleStatusChange('done')}
-                    className="w-full px-3 py-2 text-left text-xs hover:bg-sand-100 dark:hover:bg-charcoal-800 flex items-center gap-2"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      textAlign: 'left',
+                      fontSize: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <div className="w-2 h-2 rounded-full bg-success-400" />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#4ade80' }} />
                     Klar
                   </button>
                 </div>

@@ -285,7 +285,13 @@ export function AllTasksView() {
       </div>
 
       {/* Grid */}
-      <div style={{ flex: 1, backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+      <div style={{
+        flex: 1,
+        backgroundColor: 'var(--e-surface)',
+        borderRadius: '0.75rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        overflow: 'hidden'
+      }}>
         <GridComponent
           ref={gridRef}
           dataSource={gridData}

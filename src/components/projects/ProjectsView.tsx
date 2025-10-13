@@ -152,20 +152,39 @@ export function ProjectsView() {
   const progressTemplate = (props: any) => {
     const percentage = props.completion_percentage || 0;
     const getColor = () => {
-      if (percentage < 30) return 'bg-red-500';
-      if (percentage < 70) return 'bg-yellow-500';
-      return 'bg-green-500';
+      if (percentage < 30) return '#ef4444';
+      if (percentage < 70) return '#f59e0b';
+      return '#10b981';
     };
 
     return (
-      <div className="flex items-center gap-2">
-        <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        <div style={{
+          flex: 1,
+          backgroundColor: 'var(--e-surface-hover)',
+          borderRadius: '9999px',
+          height: '8px',
+          overflow: 'hidden'
+        }}>
           <div
-            className={`h-full ${getColor()} transition-all`}
-            style={{ width: `${percentage}%` }}
+            style={{
+              height: '100%',
+              backgroundColor: getColor(),
+              transition: 'all 0.3s',
+              width: `${percentage}%`
+            }}
           />
         </div>
-        <span className="text-xs font-medium w-10">{percentage}%</span>
+        <span style={{
+          fontSize: '12px',
+          fontWeight: '500',
+          width: '40px',
+          color: 'var(--e-text)'
+        }}>{percentage}%</span>
       </div>
     );
   };
@@ -173,7 +192,10 @@ export function ProjectsView() {
   // Budget template (formatted currency)
   const budgetTemplate = (props: any) => {
     return (
-      <span className="font-medium">
+      <span style={{
+        fontWeight: '500',
+        color: 'var(--e-text)'
+      }}>
         {props.total_budget.toLocaleString('sv-SE')} kr
       </span>
     );
@@ -183,14 +205,21 @@ export function ProjectsView() {
   const statusTemplate = (props: any) => {
     const getStatusStyle = () => {
       if (props.status === 'active')
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+        return { backgroundColor: '#10b981', color: '#ffffff' };
       if (props.status === 'completed')
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-      return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
+        return { backgroundColor: '#3b82f6', color: '#ffffff' };
+      return { backgroundColor: 'var(--e-surface-hover)', color: 'var(--e-text)' };
     };
 
+    const style = getStatusStyle();
+
     return (
-      <span className={`px-2 py-1 rounded-full text-xs ${getStatusStyle()}`}>
+      <span style={{
+        padding: '4px 8px',
+        borderRadius: '9999px',
+        fontSize: '12px',
+        ...style
+      }}>
         {props.status_display}
       </span>
     );
@@ -203,40 +232,95 @@ export function ProjectsView() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-copper-600" />
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh'
+      }}>
+        <div style={{
+          animation: 'spin 1s linear infinite',
+          borderRadius: '9999px',
+          height: '48px',
+          width: '48px',
+          borderBottom: '2px solid var(--copper-600)',
+        }} />
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col space-y-4 p-6">
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      padding: '24px'
+    }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            color: 'var(--e-text)',
+            marginBottom: '4px'
+          }}>
             Projekt
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p style={{
+            color: 'var(--e-text-secondary)',
+            fontSize: '14px'
+          }}>
             {projects.length} projekt totalt
           </p>
         </div>
       </div>
 
       {projects.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-500 mb-4">Inga projekt än</p>
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{
+              color: 'var(--e-text-secondary)',
+              marginBottom: '16px'
+            }}>Inga projekt än</p>
             <button
               onClick={() => navigate('/projects/new')}
-              className="px-6 py-3 bg-copper-600 text-white rounded-lg hover:bg-copper-700"
+              style={{
+                padding: '12px 24px',
+                backgroundColor: 'var(--copper-600)',
+                color: '#ffffff',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '500',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-700)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
             >
               Skapa ditt första projekt
             </button>
           </div>
         </div>
       ) : (
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <div style={{
+          flex: 1,
+          backgroundColor: 'var(--e-surface)',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          overflow: 'hidden'
+        }}>
           <GridComponent
             ref={gridRef}
             dataSource={gridData}

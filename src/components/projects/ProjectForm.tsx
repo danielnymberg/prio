@@ -70,17 +70,41 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* PDF Upload sektion */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Skapa från offert</h3>
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '16px'
+        }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: 'var(--e-text)'
+          }}>Skapa från offert</h3>
           <button
             type="button"
             onClick={() => setShowPDFUpload(!showPDFUpload)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#f59e0b',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <FileText className="h-4 w-4" />
+            <FileText style={{ height: '16px', width: '16px' }} />
             {showPDFUpload ? 'Dölj' : 'Ladda upp'} PDF
           </button>
         </div>
@@ -90,46 +114,124 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         )}
 
         {extractedFromPDF && (
-          <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border-2 border-green-500 dark:border-green-400 rounded-xl">
-            <p className="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
+          <div style={{
+            marginTop: '16px',
+            padding: '16px',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            border: '2px solid #10b981',
+            borderRadius: '12px'
+          }}>
+            <p style={{
+              fontSize: '14px',
+              color: '#10b981',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
               ✓ Data extraherad från PDF. Granska fälten nedan och justera vid behov.
             </p>
           </div>
         )}
       </div>
 
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold mb-4">Projektinformation</h3>
+      <div style={{
+        borderTop: '1px solid var(--e-border)',
+        paddingTop: '24px'
+      }}>
+        <h3 style={{
+          fontSize: '18px',
+          fontWeight: '600',
+          marginBottom: '16px',
+          color: 'var(--e-text)'
+        }}>Projektinformation</h3>
 
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              marginBottom: '8px'
+            }}>
               Projektnamn *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                border: '1px solid var(--e-border)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--e-surface)',
+                color: 'var(--e-text)',
+                fontSize: '16px',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--copper-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--e-border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              marginBottom: '8px'
+            }}>
               Klient/Beställare
             </label>
             <input
               type="text"
               value={formData.client_name || ''}
               onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                border: '1px solid var(--e-border)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--e-surface)',
+                color: 'var(--e-text)',
+                fontSize: '16px',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--copper-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--e-border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '16px'
+          }}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: 'var(--e-text)',
+                marginBottom: '8px'
+              }}>
                 Offererade timmar *
               </label>
               <input
@@ -137,13 +239,37 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 step="0.5"
                 value={formData.quoted_hours}
                 onChange={(e) => setFormData({ ...formData, quoted_hours: parseFloat(e.target.value) || 0 })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
+                style={{
+                  width: '100%',
+                  padding: '8px 16px',
+                  border: '1px solid var(--e-border)',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--e-surface)',
+                  color: 'var(--e-text)',
+                  fontSize: '16px',
+                  outline: 'none',
+                  transition: 'border-color 0.2s, box-shadow 0.2s'
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--copper-400)';
+                  e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--e-border)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                color: 'var(--e-text)',
+                marginBottom: '8px'
+              }}>
                 Timpris (kr) *
               </label>
               <input
@@ -151,14 +277,38 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 step="50"
                 value={formData.hourly_rate}
                 onChange={(e) => setFormData({ ...formData, hourly_rate: parseFloat(e.target.value) || 0 })}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
+                style={{
+                  width: '100%',
+                  padding: '8px 16px',
+                  border: '1px solid var(--e-border)',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--e-surface)',
+                  color: 'var(--e-text)',
+                  fontSize: '16px',
+                  outline: 'none',
+                  transition: 'border-color 0.2s, box-shadow 0.2s'
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--copper-400)';
+                  e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--e-border)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              marginBottom: '8px'
+            }}>
               Övriga kostnader (resor, externa tjänster, kr)
             </label>
             <input
@@ -166,52 +316,150 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               step="100"
               value={formData.external_costs || 0}
               onChange={(e) => setFormData({ ...formData, external_costs: parseFloat(e.target.value) || 0 })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                border: '1px solid var(--e-border)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--e-surface)',
+                color: 'var(--e-text)',
+                fontSize: '16px',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--copper-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--e-border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
-          <div className="p-4 bg-sand-100 dark:bg-charcoal-850 rounded-lg">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+          <div style={{
+            padding: '16px',
+            backgroundColor: 'var(--e-surface-hover)',
+            borderRadius: '8px'
+          }}>
+            <div style={{
+              fontSize: '14px',
+              color: 'var(--e-text-secondary)',
+              marginBottom: '4px'
+            }}>
               Beräknad total budget
             </div>
-            <div className="text-2xl font-bold text-copper-600 dark:text-copper-400">
+            <div style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: 'var(--copper-600)'
+            }}>
               {calculatedBudget.toLocaleString('sv-SE')} kr
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div style={{
+              fontSize: '12px',
+              color: 'var(--e-text-secondary)',
+              marginTop: '4px'
+            }}>
               {formData.quoted_hours}h × {formData.hourly_rate} kr/h
               {(formData.external_costs || 0) > 0 && ` + ${formData.external_costs} kr övriga`}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              marginBottom: '8px'
+            }}>
               Deadline
             </label>
             <input
               type="date"
               value={formData.project_deadline || ''}
               onChange={(e) => setFormData({ ...formData, project_deadline: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                border: '1px solid var(--e-border)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--e-surface)',
+                color: 'var(--e-text)',
+                fontSize: '16px',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--copper-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--e-border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: 'var(--e-text)',
+              marginBottom: '8px'
+            }}>
               Beskrivning
             </label>
             <textarea
               value={formData.description || ''}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-copper-400 dark:focus:ring-copper-400"
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                border: '1px solid var(--e-border)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--e-surface)',
+                color: 'var(--e-text)',
+                fontSize: '16px',
+                outline: 'none',
+                resize: 'vertical',
+                minHeight: '72px',
+                transition: 'border-color 0.2s, box-shadow 0.2s'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--copper-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--e-border)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               rows={3}
             />
           </div>
 
-          <div className="flex gap-3">
+          <div style={{ display: 'flex', gap: '12px' }}>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 bg-copper-600 text-white rounded-lg font-semibold hover:bg-copper-600 disabled:opacity-50"
+              style={{
+                flex: 1,
+                padding: '12px',
+                backgroundColor: 'var(--copper-600)',
+                color: '#ffffff',
+                borderRadius: '8px',
+                border: 'none',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.5 : 1,
+                fontSize: '16px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--copper-700)')}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--copper-600)')}
             >
               {loading ? 'Skapar...' : 'Skapa projekt'}
             </button>
@@ -219,7 +467,18 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-6 py-3 border rounded-lg hover:bg-gray-50"
+                style={{
+                  padding: '12px 24px',
+                  border: '1px solid var(--e-border)',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--e-surface)',
+                  color: 'var(--e-text)',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}
               >
                 Avbryt
               </button>

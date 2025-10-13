@@ -225,40 +225,110 @@ export function QuickNoteInput() {
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="fixed bottom-6 right-24 z-50 bg-gradient-to-r from-copper-600 to-copper-600 hover:from-copper-600 hover:to-copper-600 text-white rounded-full p-4 shadow-2xl transition-all active:scale-95 min-h-[56px] min-w-[56px] flex items-center justify-center"
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '96px',
+          zIndex: 50,
+          background: 'linear-gradient(to right, var(--copper-600), var(--copper-600))',
+          color: 'white',
+          borderRadius: '9999px',
+          padding: '16px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          transition: 'all 0.2s',
+          border: 'none',
+          cursor: 'pointer',
+          minHeight: '56px',
+          minWidth: '56px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
         title="Snabb anteckning eller AI-chat"
         aria-label="Öppna quick actions"
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
-        <Zap className="h-6 w-6" />
+        <Zap style={{ height: '24px', width: '24px' }} />
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-24 z-50 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-2 border-copper-500 dark:border-copper-600 w-96 max-w-[calc(100vw-3rem)] flex flex-col max-h-[600px]">
+    <div style={{
+      position: 'fixed',
+      bottom: '24px',
+      right: '96px',
+      zIndex: 50,
+      backgroundColor: 'var(--e-surface)',
+      borderRadius: '16px',
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      border: '2px solid var(--copper-500)',
+      width: '384px',
+      maxWidth: 'calc(100vw - 3rem)',
+      display: 'flex',
+      flexDirection: 'column',
+      maxHeight: '600px'
+    }}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-2">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '16px',
+        borderBottom: '1px solid var(--e-border, #e5e7eb)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={() => setMode('ai')}
-            className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-              mode === 'ai'
-                ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '4px 12px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'colors 0.2s',
+              backgroundColor: mode === 'ai' ? '#f3e8ff' : 'transparent',
+              color: mode === 'ai' ? '#7e22ce' : 'var(--e-text-secondary, #6b7280)',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              if (mode !== 'ai') e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)';
+            }}
+            onMouseLeave={(e) => {
+              if (mode !== 'ai') e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
-            <Sparkles className="h-4 w-4" />
+            <Sparkles style={{ height: '16px', width: '16px' }} />
             AI
           </button>
           <button
             onClick={() => setMode('note')}
-            className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-              mode === 'note'
-                ? 'bg-sand-100 dark:bg-charcoal-850 text-copper-600 dark:text-sand-200'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '4px 12px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'colors 0.2s',
+              backgroundColor: mode === 'note' ? 'var(--e-surface)' : 'transparent',
+              color: mode === 'note' ? 'var(--copper-600)' : 'var(--e-text-secondary, #6b7280)',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              if (mode !== 'note') e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)';
+            }}
+            onMouseLeave={(e) => {
+              if (mode !== 'note') e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
-            <Plus className="h-4 w-4" />
+            <Plus style={{ height: '16px', width: '16px' }} />
             Anteckning
           </button>
         </div>
@@ -267,30 +337,53 @@ export function QuickNoteInput() {
             setNote('');
             setIsExpanded(false);
           }}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+          style={{
+            padding: '4px',
+            borderRadius: '8px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s'
+          }}
           aria-label="Stäng"
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
-          <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <X style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary, #6b7280)' }} />
         </button>
       </div>
 
       {/* AI Chat History */}
       {mode === 'ai' && chatHistory.length > 0 && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[400px]">
+        <div style={{
+          flex: '1',
+          overflowY: 'auto',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          minHeight: '200px',
+          maxHeight: '400px'
+        }}>
           {chatHistory.map((msg, i) => (
             <div
               key={i}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              style={{
+                display: 'flex',
+                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
+              }}
             >
               <div
-                className={`max-w-[85%] px-4 py-2 rounded-2xl ${
-                  msg.role === 'user'
-                    ? 'bg-copper-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                }`}
+                style={{
+                  maxWidth: '85%',
+                  padding: '8px 16px',
+                  borderRadius: '16px',
+                  backgroundColor: msg.role === 'user' ? 'var(--copper-600)' : 'var(--e-hover, #f3f4f6)',
+                  color: msg.role === 'user' ? 'white' : 'var(--e-text)'
+                }}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-                <p className="text-xs opacity-70 mt-1">
+                <p style={{ fontSize: '14px', whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+                <p style={{ fontSize: '12px', opacity: 0.7, marginTop: '4px' }}>
                   {msg.timestamp.toLocaleTimeString('sv-SE', {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -305,11 +398,18 @@ export function QuickNoteInput() {
 
       {/* Empty State for AI */}
       {mode === 'ai' && chatHistory.length === 0 && (
-        <div className="flex-1 flex items-center justify-center p-8 min-h-[200px]">
-          <div className="text-center text-gray-500 dark:text-gray-400">
-            <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm font-medium mb-1">Fråga AI-assistenten</p>
-            <p className="text-xs">
+        <div style={{
+          flex: '1',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px',
+          minHeight: '200px'
+        }}>
+          <div style={{ textAlign: 'center', color: 'var(--e-text-secondary, #6b7280)' }}>
+            <Sparkles style={{ height: '48px', width: '48px', margin: '0 auto 12px', opacity: 0.5 }} />
+            <p style={{ fontSize: '14px', fontWeight: '500', marginBottom: '4px' }}>Fråga AI-assistenten</p>
+            <p style={{ fontSize: '12px' }}>
               Skapa uppgifter, få hjälp med prioritering,<br />eller fråga vad som helst!
             </p>
           </div>
@@ -317,22 +417,28 @@ export function QuickNoteInput() {
       )}
 
       {/* Input Area */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div style={{
+        padding: '16px',
+        borderTop: '1px solid var(--e-border, #e5e7eb)'
+      }}>
         {mode === 'ai' && chatHistory.length > 0 && (
-          <div className="mb-3 flex justify-end">
+          <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'flex-end' }}>
             <Button
               variant="ghost"
               size="sm"
               onClick={clearChat}
-              className="text-gray-500 hover:text-gray-700 text-xs"
+              style={{
+                color: 'var(--e-text-secondary, #6b7280)',
+                fontSize: '12px'
+              }}
             >
-              <Trash2 className="h-3 w-3 mr-1" />
+              <Trash2 style={{ height: '12px', width: '12px', marginRight: '4px' }} />
               Rensa chat
             </Button>
           </div>
         )}
 
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <Textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -352,31 +458,38 @@ export function QuickNoteInput() {
               }
             }}
             autoFocus
-            className="w-full max-h-32"
+            style={{ width: '100%', maxHeight: '128px' }}
             rows={3}
             disabled={isProcessing}
           />
 
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: '8px' }}>
             <Button
               onClick={handleSubmit}
               disabled={!note.trim() || isProcessing}
-              className="flex-1"
+              style={{ flex: '1' }}
               size="md"
             >
               {isProcessing ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  <div style={{
+                    animation: 'spin 1s linear infinite',
+                    borderRadius: '9999px',
+                    height: '16px',
+                    width: '16px',
+                    borderBottom: '2px solid white',
+                    marginRight: '8px'
+                  }} />
                   AI tänker...
                 </>
               ) : mode === 'note' ? (
                 <>
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus style={{ height: '16px', width: '16px', marginRight: '4px' }} />
                   {isProcessing ? 'Lägger till...' : 'Lägg till'}
                 </>
               ) : (
                 <>
-                  <MessageSquare className="h-4 w-4 mr-1" />
+                  <MessageSquare style={{ height: '16px', width: '16px', marginRight: '4px' }} />
                   Skicka
                 </>
               )}
@@ -394,7 +507,11 @@ export function QuickNoteInput() {
           </div>
         </div>
 
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        <p style={{
+          fontSize: '12px',
+          color: 'var(--e-text-secondary, #6b7280)',
+          marginTop: '8px'
+        }}>
           {mode === 'note' ? (
             <>💡 Enter = lägg till, Shift+Enter = ny rad, Esc = avbryt</>
           ) : (

@@ -141,29 +141,53 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
       <aside
-        className={`
-          fixed lg:relative inset-y-0 left-0 z-40
-          w-64 bg-cream-50 dark:bg-charcoal-900
-          border-r border-sand-200 dark:border-charcoal-800
-          flex flex-col
-          transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0
-        `}
+        className="sidebar-responsive"
+        style={{
+          position: 'fixed',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          zIndex: 40,
+          width: '16rem',
+          backgroundColor: 'var(--e-surface)',
+          borderRight: '1px solid var(--e-border)',
+          display: 'flex',
+          flexDirection: 'column',
+          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 300ms ease-in-out'
+        }}
       >
         {/* Header med stängknapp för mobil */}
-        <div className="p-4 border-b border-sand-200 dark:border-charcoal-800 lg:hidden">
+        <div
+          style={{
+            padding: '1rem',
+            borderBottom: '1px solid var(--e-border)',
+            display: 'none'
+          }}
+          className="mobile-only"
+        >
           <button
             onClick={onClose}
-            className="p-2 hover:bg-sand-100 dark:hover:bg-charcoal-800 rounded-lg transition-colors ml-auto block"
+            style={{
+              padding: '0.5rem',
+              borderRadius: '0.5rem',
+              transition: 'background-color 200ms',
+              marginLeft: 'auto',
+              display: 'block',
+              backgroundColor: 'transparent',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-secondary)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             aria-label="Stäng meny"
           >
-            <X className="h-5 w-5 text-stone-600 dark:text-stone-400" />
+            <X style={{ width: '1.25rem', height: '1.25rem', color: 'var(--e-text-secondary)' }} />
           </button>
         </div>
 
         {/* Ny uppgift-knapp */}
-        <div className="p-4">
+        <div style={{ padding: '1rem' }}>
           <Button
             variant="primary"
             size="md"
@@ -172,15 +196,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               setIsFormOpen(true);
               onClose();
             }}
-            className="w-full"
+            style={{ width: '100%' }}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
             Ny uppgift
           </Button>
         </div>
 
         {/* TreeView Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        <nav style={{ flex: 1, overflowY: 'auto', paddingLeft: '0.75rem', paddingRight: '0.75rem', paddingBottom: '1rem' }}>
           <TreeViewComponent
             ref={treeRef}
             fields={{

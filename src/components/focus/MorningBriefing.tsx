@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Task } from '@/lib/types';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { formatDuration } from '@/lib/utils';
@@ -79,45 +80,48 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
     }
   }
 
+  const [hoverStartDay, setHoverStartDay] = useState(false);
+  const [hoverDismiss, setHoverDismiss] = useState(false);
+
   return (
-    <div className="bg-gradient-to-r from-copper-600 to-copper-600 text-white rounded-2xl p-6 mb-6 shadow-xl">
-      <h2 className="text-2xl font-bold mb-4">{greeting}</h2>
+    <div style={{ background: 'linear-gradient(to right, var(--copper-600), var(--copper-600))', color: 'white', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>{greeting}</h2>
 
       {/* Statistik-grid */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-white/10 backdrop-blur rounded-lg p-3">
-          <div className="text-sm opacity-90">Deadline idag</div>
-          <div className="text-3xl font-bold">{todayTasks.length}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
+        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', borderRadius: '0.5rem', padding: '0.75rem' }}>
+          <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>Deadline idag</div>
+          <div style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>{todayTasks.length}</div>
         </div>
-        <div className="bg-white/10 backdrop-blur rounded-lg p-3">
-          <div className="text-sm opacity-90">Försenade</div>
-          <div className="text-3xl font-bold">{overdueTasks.length}</div>
+        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', borderRadius: '0.5rem', padding: '0.75rem' }}>
+          <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>Försenade</div>
+          <div style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>{overdueTasks.length}</div>
         </div>
       </div>
 
       {/* Extra info */}
       {blockedTasks.length > 0 && (
-        <p className="mb-3 opacity-90 text-sm">
+        <p style={{ marginBottom: '0.75rem', opacity: 0.9, fontSize: '0.875rem' }}>
           🔒 {blockedTasks.length} uppgifter är blockerade av andra tasks
         </p>
       )}
 
       {availableTime && (
-        <p className="mb-4 opacity-90">
+        <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
           ⏰ Du har {formatDuration(availableTime)} ledig tid idag
         </p>
       )}
 
       {/* Top 3 tasks */}
       {scoredTasks.length > 0 && (
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2">🎯 Rekommenderade tasks:</h3>
-          <ol className="list-decimal list-inside space-y-1 text-sm">
+        <div style={{ marginBottom: '1rem' }}>
+          <h3 style={{ fontWeight: '600', marginBottom: '0.5rem' }}>🎯 Rekommenderade tasks:</h3>
+          <ol style={{ listStyleType: 'decimal', paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.875rem' }}>
             {scoredTasks.map(({ task }) => (
-              <li key={task.id} className="opacity-90">
+              <li key={task.id} style={{ opacity: 0.9 }}>
                 {task.title}
                 {task.deadline && (
-                  <span className="text-xs ml-2 opacity-75">
+                  <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', opacity: 0.75 }}>
                     (deadline: {new Date(task.deadline).toLocaleDateString('sv-SE')})
                   </span>
                 )}
@@ -129,26 +133,48 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
 
       {/* Om inga tasks */}
       {activeTasks.length === 0 && (
-        <p className="mb-4 opacity-90">
+        <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
           🎉 Du har inga aktiva tasks! Skapa din första uppgift för att komma igång.
         </p>
       )}
 
       {/* Actions */}
-      <div className="flex gap-3">
-        <Button
-          onClick={onStartDay}
-          className="flex-1 bg-white text-copper-600 hover:bg-sand-100 font-semibold"
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div
+          style={{ flex: 1 }}
+          onMouseEnter={() => setHoverStartDay(true)}
+          onMouseLeave={() => setHoverStartDay(false)}
         >
-          Starta dagen
-        </Button>
-        <Button
-          onClick={onDismiss}
-          variant="ghost"
-          className="text-white border border-white/30 hover:bg-white/10"
+          <Button
+            onClick={onStartDay}
+            style={{
+              width: '100%',
+              backgroundColor: hoverStartDay ? '#f5f1ed' : 'white',
+              color: 'var(--copper-600)',
+              fontWeight: '600',
+              transition: 'background-color 0.2s'
+            }}
+          >
+            Starta dagen
+          </Button>
+        </div>
+        <div
+          onMouseEnter={() => setHoverDismiss(true)}
+          onMouseLeave={() => setHoverDismiss(false)}
         >
-          Hoppa över
-        </Button>
+          <Button
+            onClick={onDismiss}
+            variant="ghost"
+            style={{
+              color: 'white',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              backgroundColor: hoverDismiss ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              transition: 'background-color 0.2s'
+            }}
+          >
+            Hoppa över
+          </Button>
+        </div>
       </div>
     </div>
   );
