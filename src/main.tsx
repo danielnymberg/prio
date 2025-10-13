@@ -26,13 +26,7 @@ import '@syncfusion/ej2-react-schedule/styles/material.css';
 import '@syncfusion/ej2-react-kanban/styles/material.css';
 import '@syncfusion/ej2-notifications/styles/material.css';
 
-// Load Swedish localization
-import { L10n } from '@syncfusion/ej2-base';
-import svSELocale from './locales/sv-SE.json';
-
-L10n.load(svSELocale);
-
-// Register Syncfusion license
+// Register Syncfusion license FIRST (before any component loads)
 const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;
 if (syncfusionLicense) {
   registerLicense(syncfusionLicense);
@@ -43,8 +37,15 @@ if (syncfusionLicense) {
 // Enable ripple effect globally for Material design
 enableRipple(true);
 
-// Set Swedish culture globally
-setCulture('sv');
+// Load Swedish localization
+import { L10n, setCulture as setSyncfusionCulture } from '@syncfusion/ej2-base';
+import svSELocale from './locales/sv-SE.json';
+
+// Load locale BEFORE setting culture
+L10n.load(svSELocale);
+
+// Set Swedish culture globally - use 'sv-SE' to match locale key
+setSyncfusionCulture('sv-SE');
 
 // Initialize Syncfusion theme system
 import { initializeSyncfusionTheme } from './services/syncfusion-theme';
