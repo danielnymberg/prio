@@ -22,91 +22,96 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   // Exkludera Snabbis (≤2 min) från räknare - de visas endast i FocusView
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
 
-  // TreeView data structure
+  // TreeView data structure with navigateUrl (Syncfusion's standard)
   const menuData: any[] = [
     {
       id: '1',
-      name: 'Just nu',
+      text: 'Just nu',
       iconCss: 'e-icons e-target',
-      url: '/focus',
+      navigateUrl: '/focus',
       expanded: true,
       highlight: true,
     },
     {
       id: '2',
-      name: 'Översikt',
+      text: 'Översikt',
       iconCss: 'e-icons e-bar-chart',
-      url: '/overview',
+      navigateUrl: '/overview',
     },
     {
       id: '3',
-      name: 'Kalender',
+      text: 'Kalender',
       iconCss: 'e-icons e-schedule',
-      url: '/calendar',
+      navigateUrl: '/calendar',
     },
     {
       id: '4',
-      name: `Alla uppgifter (${activeTasks.length})`,
+      text: `Alla uppgifter (${activeTasks.length})`,
       iconCss: 'e-icons e-list-unordered',
-      url: '/all',
+      navigateUrl: '/all',
     },
     {
       id: '5',
-      name: 'Eisenhower Matrix',
+      text: 'Eisenhower Matrix',
       iconCss: 'e-icons e-grid-layout',
-      url: '/matrix',
+      navigateUrl: '/matrix',
     },
     {
       id: '6',
-      name: 'Inställningar',
+      text: 'Inställningar',
       iconCss: 'e-icons e-settings',
-      url: '/settings',
+      navigateUrl: '/settings',
     },
     {
       id: '7',
-      name: 'Avancerat',
+      text: 'Avancerat',
       iconCss: 'e-icons e-more-horizontal-1',
       expanded: false,
       hasChild: true,
       child: [
         {
           id: '7-1',
-          name: 'Projekt',
+          text: 'Projekt',
           iconCss: 'e-icons e-folder',
-          url: '/projects',
+          navigateUrl: '/projects',
         },
         {
           id: '7-2',
-          name: 'Importera',
+          text: 'Importera',
           iconCss: 'e-icons e-upload-1',
-          url: '/import',
+          navigateUrl: '/import',
         },
         {
           id: '7-3',
-          name: 'Arkiv',
+          text: 'Arkiv',
           iconCss: 'e-icons e-archive',
-          url: '/archive',
+          navigateUrl: '/archive',
         },
       ],
     },
   ];
 
-  // Handle node selection
-  const handleNodeSelect = (args: any) => {
-    console.log('🔥 TreeView nodeSelected triggered!', args);
-    const nodeData = args.nodeData;
-    if (nodeData.url) {
-      console.log('📍 Navigating to:', nodeData.url);
-      navigate(nodeData.url);
+  // Handle node selecting (before selection) - Syncfusion's way for custom navigation
+  const handleNodeSelecting = (args: any) => {
+    console.log('🔥 TreeView nodeSelecting triggered!', args);
+
+    // Prevent default link navigation
+    args.cancel = true;
+
+    // Use React Router instead for SPA behavior
+    const url = args.nodeData.navigateUrl;
+    if (url) {
+      console.log('📍 Navigating to:', url);
+      navigate(url);
       onClose(); // Close sidebar on mobile after navigation
     } else {
-      console.log('⚠️ No URL found in nodeData:', nodeData);
+      console.log('⚠️ No navigateUrl found in nodeData:', args.nodeData);
     }
   };
 
   // Custom template for highlighting current route
   const nodeTemplate = (data: any) => {
-    const isActive = location.pathname === data.url;
+    const isActive = location.pathname === data.navigateUrl;
     const isHighlight = data.highlight;
 
     return (
@@ -122,7 +127,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         }`}
       >
         <span className={data.iconCss} />
-        <span className="font-medium">{data.name}</span>
+        <span className="font-medium">{data.text}</span>
       </div>
     );
   };
@@ -168,14 +173,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             fields={{
               dataSource: menuData,
               id: 'id',
-              text: 'name',
+              text: 'text',
               child: 'child',
               iconCss: 'iconCss',
+              navigateUrl: 'navigateUrl', // Syncfusion's standard for navigation
               expanded: 'expanded',
               hasChildren: 'hasChild',
             }}
-            nodeSelected={handleNodeSelect}
-            nodeClicked={(args: any) => console.log('👆 Node clicked:', args)}
+            nodeSelecting={handleNodeSelecting} // Before selection - intercept navigation
             nodeTemplate={nodeTemplate}
             cssClass="sidebar-treeview"
             expandOn="Click"
