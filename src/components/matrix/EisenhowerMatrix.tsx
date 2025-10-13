@@ -162,7 +162,6 @@ export function EisenhowerMatrix() {
           cardClick={handleCardClick}
           dragStop={handleDragStop}
           height="100%"
-          cssClass="eisenhower-kanban"
         >
           <ColumnsDirective>
             <ColumnDirective

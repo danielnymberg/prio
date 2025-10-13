@@ -17,7 +17,6 @@ export function Tooltip({ content, children, position = 'TopCenter' }: TooltipPr
         open: { effect: 'FadeIn', duration: 150 },
         close: { effect: 'FadeOut', duration: 150 },
       }}
-      cssClass="custom-tooltip"
     >
       {children}
     </TooltipComponent>

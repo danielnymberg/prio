@@ -49,7 +49,7 @@ export const SyncButton = forwardRef<any, SyncButtonProps>(
     iconCss,
     iconPosition = 'Left',
   }, ref) => {
-    const cssClass = `prio-button ${variantMap[variant]} ${sizeMap[size]} ${className}`;
+    const cssClass = `${variantMap[variant]} ${sizeMap[size]} ${className}`.trim();
 
     return (
       <div

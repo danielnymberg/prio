@@ -246,7 +246,6 @@ export function SettingsView() {
         label="Inkludera helger i arbetstidsberäkning"
         checked={workingHours.includeWeekends}
         change={(e: any) => setWorkingHours({ ...workingHours, includeWeekends: e.checked })}
-        cssClass="e-custom-checkbox"
       />
 
         <Button onClick={handleSaveWorkingHours} variant="primary">
@@ -494,23 +493,24 @@ export function SettingsView() {
 
               {notificationConfig.enabled && (
                 <div className="space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
-                  <CheckBoxComponent
-                    label="24h före deadline"
-                    checked={notificationConfig.types['24h_before']}
-                    change={() => handleToggleNotificationType('24h_before')}
-                    cssClass="e-custom-checkbox mb-2"
-                  />
-                  <CheckBoxComponent
-                    label="2h före deadline"
-                    checked={notificationConfig.types['2h_before']}
-                    change={() => handleToggleNotificationType('2h_before')}
-                    cssClass="e-custom-checkbox mb-2"
-                  />
+                  <div className="mb-2">
+                    <CheckBoxComponent
+                      label="24h före deadline"
+                      checked={notificationConfig.types['24h_before']}
+                      change={() => handleToggleNotificationType('24h_before')}
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <CheckBoxComponent
+                      label="2h före deadline"
+                      checked={notificationConfig.types['2h_before']}
+                      change={() => handleToggleNotificationType('2h_before')}
+                    />
+                  </div>
                   <CheckBoxComponent
                     label="Försenad uppgift"
                     checked={notificationConfig.types.overdue}
                     change={() => handleToggleNotificationType('overdue')}
-                    cssClass="e-custom-checkbox"
                   />
                 </div>
               )}

@@ -182,7 +182,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             }}
             nodeSelecting={handleNodeSelecting} // Before selection - intercept navigation
             nodeTemplate={nodeTemplate}
-            cssClass="sidebar-treeview"
             expandOn="Click"
             allowEditing={false}
             allowDragAndDrop={false}

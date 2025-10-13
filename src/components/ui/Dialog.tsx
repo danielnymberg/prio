@@ -31,16 +31,13 @@ export function Dialog({ isOpen, onClose, title, children, size = 'md' }: Dialog
       isModal={true}
       close={onClose}
       animationSettings={animationSettings}
-      cssClass="e-dlg-custom prio-dialog"
       enableResize={false}
       allowDragging={false}
       closeOnEscape={true}
       target="body"
       zIndex={1000}
     >
-      <div className="prio-dialog-content">
-        {children}
-      </div>
+      {children}
     </DialogComponent>
   );
 }

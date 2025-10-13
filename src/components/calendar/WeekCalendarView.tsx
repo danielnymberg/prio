@@ -425,7 +425,6 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
       <div className="schedule-container">
         <ScheduleComponent
           ref={scheduleRef}
-          cssClass="prio-schedule"
           height="550px"
           width="100%"
           locale="sv"
