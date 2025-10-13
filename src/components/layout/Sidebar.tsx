@@ -181,7 +181,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               hasChildren: 'hasChild',
             }}
             nodeSelecting={handleNodeSelecting} // Before selection - intercept navigation
-            nodeTemplate={nodeTemplate}
             expandOn="Click"
             allowEditing={false}
             allowDragAndDrop={false}
