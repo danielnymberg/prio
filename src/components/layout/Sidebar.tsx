@@ -24,6 +24,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
 
   // TreeView data med SyncFusion standard fields + custom 'url' field
+  // useMemo för att undvika onödiga re-creations, men tillåt uppdatering när activeTasks ändras
   const treeData: { [key: string]: any }[] = [
     {
       id: '1',
@@ -90,6 +91,22 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
   ];
 
+  // Uppdatera TreeView dataSource när tasks ändras
+  useEffect(() => {
+    if (treeRef.current) {
+      // Syncfusion TreeView: Uppdatera dataSource och refreshera
+      treeRef.current.fields = {
+        dataSource: treeData,
+        id: 'id',
+        text: 'name',
+        iconCss: 'iconCss',
+        child: 'subChild',
+        expanded: 'expanded'
+      };
+      treeRef.current.refresh();
+    }
+  }, [activeTasks.length]); // Re-render när antalet tasks ändras
+
   // SyncFusion nodeSelected event handler
   const handleNodeSelected = (args: any) => {
     // Hämta full node data med getTreeData
@@ -105,7 +122,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   // Markera aktiv nod baserat på current route
   useEffect(() => {
-    if (treeRef.current) {
+    if (treeRef.current && treeRef.current.element) {
       // Hitta noden som matchar current path
       const findNodeByUrl = (nodes: any[], url: string): string | null => {
         for (const node of nodes) {
@@ -124,7 +141,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         treeRef.current.selectedNodes = [activeNodeId];
       }
     }
-  }, [location.pathname]);
+  }, [location.pathname, treeData]);
 
   return (
     <>
