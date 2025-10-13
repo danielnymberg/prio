@@ -53,6 +53,13 @@ export const SyncButton = forwardRef<any, SyncButtonProps>(
   }, ref) => {
     const cssClass = `${variantMap[variant]} ${sizeMap[size]} ${className}`.trim();
 
+    // Handle click on wrapper div to ensure it always works
+    const handleClick = (e: any) => {
+      if (!disabled && !loading && onClick) {
+        onClick(e);
+      }
+    };
+
     return (
       <div
         title={title}
@@ -60,13 +67,17 @@ export const SyncButton = forwardRef<any, SyncButtonProps>(
         onMouseUp={onMouseUp}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
-        style={style}
+        onClick={handleClick}
+        style={{
+          display: 'inline-block',
+          cursor: disabled || loading ? 'not-allowed' : 'pointer',
+          ...style
+        }}
       >
         <ButtonComponent
           ref={ref}
           cssClass={cssClass}
           disabled={disabled || loading}
-          onClick={onClick}
           enableRtl={false}
           isPrimary={variant === 'primary'}
           iconCss={iconCss}
