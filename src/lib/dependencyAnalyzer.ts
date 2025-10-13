@@ -181,13 +181,13 @@ export function getCriticalityLevel(score: number): {
     return {
       level: 'high',
       label: 'Hög',
-      color: 'text-orange-600 dark:text-orange-400',
+      color: 'text-warning-600 dark:text-warning-400',
     };
   } else if (score >= 40) {
     return {
       level: 'medium',
       label: 'Medel',
-      color: 'text-amber-600 dark:text-amber-400',
+      color: 'text-warning-600 dark:text-warning-400',
     };
   } else {
     return {

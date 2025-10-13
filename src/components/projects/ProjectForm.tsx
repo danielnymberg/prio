@@ -316,15 +316,21 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div className="e-flex e-gap-12">
-            <Button
-              onClick={handleSubmit}
-              disabled={loading}
-              variant="primary"
-              loading={loading}
-              style={{ flex: 1 }}
-            >
-              {loading ? 'Skapar...' : 'Skapa projekt'}
-            </Button>
+            <div style={{ flex: 1 }} onClick={(e) => {
+              e.preventDefault();
+              if (!loading) {
+                handleSubmit(e as any);
+              }
+            }}>
+              <Button
+                disabled={loading}
+                variant="primary"
+                loading={loading}
+                style={{ width: '100%' }}
+              >
+                {loading ? 'Skapar...' : 'Skapa projekt'}
+              </Button>
+            </div>
             {onCancel && (
               <Button
                 onClick={onCancel}

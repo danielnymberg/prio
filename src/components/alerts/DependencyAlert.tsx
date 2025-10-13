@@ -13,8 +13,8 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
 
   const getBorderColor = () => {
     if (level === 'critical') return '#ef4444';
-    if (level === 'high') return '#f59e0b';
-    if (level === 'medium') return '#f59e0b';
+    if (level === 'high') return 'var(--warning-500)';
+    if (level === 'medium') return 'var(--warning-500)';
     return 'var(--e-border, #d1d5db)';
   };
 
@@ -58,7 +58,7 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
                   borderRadius: '4px',
                   fontSize: '12px',
                   fontWeight: 'bold',
-                  backgroundColor: level === 'critical' ? '#dc2626' : level === 'high' ? '#ea580c' : level === 'medium' ? '#d97706' : '#4b5563',
+                  backgroundColor: level === 'critical' ? '#dc2626' : level === 'high' ? 'var(--warning-600)' : level === 'medium' ? 'var(--warning-600)' : '#4b5563',
                   color: '#ffffff'
                 }}
               >

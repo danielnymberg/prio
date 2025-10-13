@@ -137,7 +137,7 @@ export function ArchiveView() {
       if (props.result_impact && props.result_impact >= 8)
         return { backgroundColor: '#10b981', color: '#fff' };
       if (props.result_impact && props.result_impact >= 5)
-        return { backgroundColor: '#f59e0b', color: '#fff' };
+        return { backgroundColor: 'var(--warning-500)', color: '#fff' };
       if (props.result_impact && props.result_impact < 5)
         return { backgroundColor: '#6b7280', color: '#fff' };
       return { backgroundColor: 'var(--e-border)', color: 'var(--e-text)' };

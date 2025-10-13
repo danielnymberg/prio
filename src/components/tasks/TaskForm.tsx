@@ -784,15 +784,21 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           >
             Avbryt
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={loading || !title.trim()}
-            variant="primary"
-            size="sm"
-            style={{ flex: 1 }}
-          >
-            {loading ? 'Sparar...' : 'Spara'}
-          </Button>
+          <div style={{ flex: 1 }} onClick={(e) => {
+            e.preventDefault();
+            if (!loading && title.trim()) {
+              handleSubmit(e as any);
+            }
+          }}>
+            <Button
+              disabled={loading || !title.trim()}
+              variant="primary"
+              size="sm"
+              style={{ width: '100%' }}
+            >
+              {loading ? 'Sparar...' : 'Spara'}
+            </Button>
+          </div>
         </div>
       </form>
 

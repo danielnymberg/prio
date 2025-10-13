@@ -5,10 +5,10 @@
 
 // Prio brand colors mapped to Syncfusion CSS variables
 export const prioThemeConfig = {
-  // Primary colors (Copper/Amber)
-  primary: '#f59e0b',
-  primaryLighter: '#fbbf24',
-  primaryDarker: '#d97706',
+  // Primary colors (Charcoal - monochrome design)
+  primary: '#424242',
+  primaryLighter: '#616161',
+  primaryDarker: '#212121',
 
   // Surface colors (Light mode)
   surface: '#fafaf9', // cream-50

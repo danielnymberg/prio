@@ -14,7 +14,7 @@ const variantConfig = {
   },
   warning: {
     icon: AlertTriangle,
-    iconColor: '#f59e0b',
+    iconColor: 'var(--warning-500)',
   },
   success: {
     icon: CheckCircle,
