@@ -17,7 +17,7 @@ import { useTasks } from './hooks/useTasks';
 import { checkAndSendNotifications } from './services/notifications';
 import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
 import { initEmailScheduler } from './services/email-scheduler';
-import { EmailTaskListener } from './components/email/EmailTaskListener';
+// import { EmailTaskListener } from './components/email/EmailTaskListener'; // TEMPORÄRT DISABLED
 import { VoiceInterface } from './components/voice/VoiceInterface';
 import { GlobalSearch } from './components/search/GlobalSearch';
 
