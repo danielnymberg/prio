@@ -1,8 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, X } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { Task, CreateTaskInput } from '@/lib/types';
 import { TreeViewComponent } from '@syncfusion/ej2-react-navigations';
@@ -15,151 +15,174 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { tasks, createTask, updateTask } = useTasks();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
+  const treeRef = useRef<TreeViewComponent>(null);
 
-  // Exkludera Snabbis (≤2 min) från räknare - de visas endast i FocusView
+  // Exkludera Snabbis (≤2 min) från räknare
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
 
-  // TreeView data structure with navigateUrl (Syncfusion's standard)
-  const menuData: any[] = [
+  // TreeView data med SyncFusion standard fields + custom 'url' field
+  const treeData: { [key: string]: any }[] = [
     {
       id: '1',
-      text: 'Just nu',
-      iconCss: 'e-icons e-target',
-      navigateUrl: '/focus',
-      expanded: true,
-      highlight: true,
+      name: 'Just nu',
+      iconCss: 'e-icons e-home',
+      url: '/focus',
+      cssClass: 'focus-item'
     },
     {
       id: '2',
-      text: 'Översikt',
-      iconCss: 'e-icons e-bar-chart',
-      navigateUrl: '/overview',
+      name: 'Översikt',
+      iconCss: 'e-icons e-chart',
+      url: '/overview'
     },
     {
       id: '3',
-      text: 'Kalender',
+      name: 'Kalender',
       iconCss: 'e-icons e-schedule',
-      navigateUrl: '/calendar',
+      url: '/calendar'
     },
     {
       id: '4',
-      text: `Alla uppgifter (${activeTasks.length})`,
+      name: `Alla uppgifter (${activeTasks.length})`,
       iconCss: 'e-icons e-list-unordered',
-      navigateUrl: '/all',
+      url: '/all'
     },
     {
       id: '5',
-      text: 'Eisenhower Matrix',
-      iconCss: 'e-icons e-grid-layout',
-      navigateUrl: '/matrix',
+      name: 'Eisenhower Matrix',
+      iconCss: 'e-icons e-grid',
+      url: '/matrix'
     },
     {
       id: '6',
-      text: 'Inställningar',
+      name: 'Inställningar',
       iconCss: 'e-icons e-settings',
-      navigateUrl: '/settings',
+      url: '/settings'
     },
     {
       id: '7',
-      text: 'Avancerat',
-      iconCss: 'e-icons e-more-horizontal-1',
+      name: 'Avancerat',
+      iconCss: 'e-icons e-folder',
       expanded: false,
-      hasChild: true,
-      child: [
+      subChild: [
         {
           id: '7-1',
-          text: 'Projekt',
-          iconCss: 'e-icons e-folder',
-          navigateUrl: '/projects',
+          name: 'Projekt',
+          iconCss: 'e-icons e-folder-open',
+          url: '/projects'
         },
         {
           id: '7-2',
-          text: 'Importera',
-          iconCss: 'e-icons e-upload-1',
-          navigateUrl: '/import',
+          name: 'Importera',
+          iconCss: 'e-icons e-upload',
+          url: '/import'
         },
         {
           id: '7-3',
-          text: 'Arkiv',
+          name: 'Arkiv',
           iconCss: 'e-icons e-archive',
-          navigateUrl: '/archive',
+          url: '/archive'
         },
       ],
     },
   ];
 
-  // Handle node selecting (before selection) - Syncfusion's way for custom navigation
-  const handleNodeSelecting = (args: any) => {
-    console.log('🔥 TreeView nodeSelecting triggered!', args);
+  // SyncFusion nodeSelected event handler
+  const handleNodeSelected = (args: any) => {
+    // Hämta full node data med getTreeData
+    if (treeRef.current && args.node) {
+      const nodeData = treeRef.current.getTreeData(args.node);
 
-    // Prevent default link navigation
-    args.cancel = true;
-
-    // Use React Router instead for SPA behavior
-    const url = args.nodeData.navigateUrl;
-    if (url) {
-      console.log('📍 Navigating to:', url);
-      navigate(url);
-      onClose(); // Close sidebar on mobile after navigation
-    } else {
-      console.log('⚠️ No navigateUrl found in nodeData:', args.nodeData);
+      if (nodeData && nodeData[0] && nodeData[0].url) {
+        navigate(nodeData[0].url);
+        onClose(); // Stäng sidebar på mobil
+      }
     }
   };
+
+  // Markera aktiv nod baserat på current route
+  useEffect(() => {
+    if (treeRef.current) {
+      // Hitta noden som matchar current path
+      const findNodeByUrl = (nodes: any[], url: string): string | null => {
+        for (const node of nodes) {
+          if (node.url === url) return node.id;
+          if (node.subChild) {
+            const found = findNodeByUrl(node.subChild, url);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      const activeNodeId = findNodeByUrl(treeData, location.pathname);
+      if (activeNodeId) {
+        // Sätt selected node programmatiskt
+        treeRef.current.selectedNodes = [activeNodeId];
+      }
+    }
+  }, [location.pathname]);
 
   return (
     <>
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-40
-          w-64 bg-cream-50 dark:bg-charcoal-900 border-r border-sand-200 dark:border-charcoal-800
-          p-6 flex flex-col
+          fixed lg:relative inset-y-0 left-0 z-40
+          w-64 bg-cream-50 dark:bg-charcoal-900
+          border-r border-sand-200 dark:border-charcoal-800
+          flex flex-col
           transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0
         `}
       >
-        {/* Stäng-knapp för mobil */}
-        <div className="lg:hidden flex justify-end mb-4">
+        {/* Header med stängknapp för mobil */}
+        <div className="p-4 border-b border-sand-200 dark:border-charcoal-800 lg:hidden">
           <button
             onClick={onClose}
-            className="p-2 hover:bg-sand-100 dark:hover:bg-charcoal-800 rounded-xl transition-colors"
+            className="p-2 hover:bg-sand-100 dark:hover:bg-charcoal-800 rounded-lg transition-colors ml-auto block"
             aria-label="Stäng meny"
           >
-            <X className="h-6 w-6 text-stone-600 dark:text-stone-400" />
+            <X className="h-5 w-5 text-stone-600 dark:text-stone-400" />
           </button>
         </div>
 
-        <Button
-          variant="primary"
-          size="md"
-          onClick={() => {
-            setSelectedTask(undefined); // Reset för ny uppgift
-            setIsFormOpen(true);
-            onClose(); // Stäng sidebar på mobil efter klick
-          }}
-          className="w-full mb-6 min-h-[44px]"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Ny uppgift
-        </Button>
-
-        <nav className="space-y-1 flex-1 overflow-y-auto">
-          <TreeViewComponent
-            fields={{
-              dataSource: menuData,
-              id: 'id',
-              text: 'text',
-              child: 'child',
-              iconCss: 'iconCss',
-              navigateUrl: 'navigateUrl', // Syncfusion's standard for navigation
-              expanded: 'expanded',
-              hasChildren: 'hasChild',
+        {/* Ny uppgift-knapp */}
+        <div className="p-4">
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => {
+              setSelectedTask(undefined);
+              setIsFormOpen(true);
+              onClose();
             }}
-            nodeSelecting={handleNodeSelecting} // Before selection - intercept navigation
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Ny uppgift
+          </Button>
+        </div>
+
+        {/* TreeView Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+          <TreeViewComponent
+            ref={treeRef}
+            fields={{
+              dataSource: treeData,
+              id: 'id',
+              text: 'name',
+              iconCss: 'iconCss',
+              child: 'subChild',
+              expanded: 'expanded'
+            }}
+            nodeSelected={handleNodeSelected}
             expandOn="Click"
-            allowEditing={false}
-            allowDragAndDrop={false}
+            cssClass="sidebar-tree"
+            fullRowNavigable={true}
           />
         </nav>
       </aside>
