@@ -338,8 +338,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* Global Toast Component */}
-      <ToastComponent
+      {/* Global Toast Component - TEMPORÄRT DISABLED: Testing crash */}
+      {/* <ToastComponent
         ref={globalToastRef}
         id="toast_global"
         position={{ X: 'Right', Y: 'Top' }}
@@ -351,10 +351,10 @@ function App() {
           show: { effect: 'SlideRightIn', duration: 300 },
           hide: { effect: 'SlideRightOut', duration: 300 }
         }}
-      />
+      /> */}
       <VersionBanner />
       <OfflineBanner />
-      <GlobalSearch isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} />
+      {/* <GlobalSearch isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} /> */}
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route
