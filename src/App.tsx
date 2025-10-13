@@ -225,8 +225,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return (
     <AppLayout>
       {children}
-      {/* Email task listener (realtime) */}
-      <EmailTaskListener key="email-listener" />
+      {/* Email task listener - TEMPORÄRT DISABLED: Kraschar vid mount */}
+      {/* <EmailTaskListener key="email-listener" /> */}
       {/* Voice AI assistant */}
       <VoiceInterface key="voice-interface" />
       {/* Quick note input - TEMPORÄRT DISABLED: Kraschar vid expandering */}
