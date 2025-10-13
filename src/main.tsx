@@ -1,10 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
-import './index.css';
-import './styles/app.css';
-import './styles/syncfusion-dark.css';
-import './styles/syncfusion-theme-variables.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'react-hot-toast';
@@ -12,7 +8,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { logDebugInfo } from './utils/debug';
 import { registerLicense, enableRipple } from '@syncfusion/ej2-base';
 
-// Import Syncfusion CSS - Fluent2 theme (clean, modern, monochrome-friendly)
+// Import Syncfusion CSS FIRST - Fluent2 theme (clean, modern, monochrome-friendly)
 import '@syncfusion/ej2-base/styles/fluent2.css';
 import '@syncfusion/ej2-buttons/styles/fluent2.css';
 import '@syncfusion/ej2-calendars/styles/fluent2.css';
@@ -26,6 +22,12 @@ import '@syncfusion/ej2-grids/styles/fluent2.css';
 import '@syncfusion/ej2-react-schedule/styles/fluent2.css';
 import '@syncfusion/ej2-react-kanban/styles/fluent2.css';
 import '@syncfusion/ej2-notifications/styles/fluent2.css';
+
+// Then import our custom CSS to override Syncfusion defaults
+import './index.css';
+import './styles/app.css';
+import './styles/syncfusion-dark.css';
+import './styles/syncfusion-theme-variables.css';
 
 // Register Syncfusion license FIRST (before any component loads)
 const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;
