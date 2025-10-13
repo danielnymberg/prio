@@ -11,15 +11,15 @@ import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding';
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
-import { ToastComponent } from '@syncfusion/ej2-react-notifications';
-import { globalToastRef, showToast } from './services/toast';
+// import { ToastComponent } from '@syncfusion/ej2-react-notifications'; // TEMPORÄRT DISABLED
+// import { globalToastRef, showToast } from './services/toast'; // TEMPORÄRT DISABLED
 import { useTasks } from './hooks/useTasks';
 import { checkAndSendNotifications } from './services/notifications';
 import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
 import { initEmailScheduler } from './services/email-scheduler';
 // import { EmailTaskListener } from './components/email/EmailTaskListener'; // TEMPORÄRT DISABLED
 // import { VoiceInterface } from './components/voice/VoiceInterface'; // TEMPORÄRT DISABLED
-import { GlobalSearch } from './components/search/GlobalSearch';
+// import { GlobalSearch } from './components/search/GlobalSearch'; // TEMPORÄRT DISABLED
 
 // Lazy load routes för bättre initial load performance
 const ArchiveView = lazy(() => import('./components/views/ArchiveView').then(m => ({ default: m.ArchiveView })));
@@ -304,7 +304,8 @@ function HomePage() {
 }
 
 function App() {
-  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
+  // TEMPORÄRT DISABLED: GlobalSearch component disabled
+  // const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
 
   // Track app version for update notifications
   useEffect(() => {
@@ -312,29 +313,32 @@ function App() {
     const storedVersion = localStorage.getItem('prio_app_version');
 
     if (storedVersion && storedVersion !== currentVersion) {
-      showToast.custom({
-        title: '🎉 Uppdaterad!',
-        content: `Appen har uppdaterats till v${currentVersion}`,
-        cssClass: 'e-toast-success',
-        timeOut: 5000,
-      });
+      // TEMPORÄRT DISABLED: Toast component disabled
+      // showToast.custom({
+      //   title: '🎉 Uppdaterad!',
+      //   content: `Appen har uppdaterats till v${currentVersion}`,
+      //   cssClass: 'e-toast-success',
+      //   timeOut: 5000,
+      // });
+      console.log(`🎉 Uppdaterad till v${currentVersion}`);
     }
 
     localStorage.setItem('prio_app_version', currentVersion);
   }, []);
 
-  // Global Search keyboard shortcut (Cmd/Ctrl+K)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsGlobalSearchOpen(true);
-      }
-    };
+  // TEMPORÄRT DISABLED: GlobalSearch keyboard shortcut
+  // // Global Search keyboard shortcut (Cmd/Ctrl+K)
+  // useEffect(() => {
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+  //       e.preventDefault();
+  //       setIsGlobalSearchOpen(true);
+  //     }
+  //   };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   return () => window.removeEventListener('keydown', handleKeyDown);
+  // }, []);
 
   return (
     <BrowserRouter>
