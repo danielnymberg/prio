@@ -200,14 +200,14 @@ export function SettingsView() {
   const workingHoursContent = () => {
     console.log('🔍 DEBUG: workingHoursContent() called');
     return (
-      <div className="p-4 space-y-4">
-      <p className="text-sm text-gray-600 dark:text-gray-400">
+      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7 }}>
         Ange dina normala arbetstider så att appen kan beräkna deadlines korrekt baserat på faktisk arbetstid.
       </p>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
             Normal arbetsdag: Start
           </label>
           <DropDownListComponent
@@ -221,7 +221,7 @@ export function SettingsView() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
             Normal arbetsdag: Slut
           </label>
           <DropDownListComponent
@@ -235,8 +235,8 @@ export function SettingsView() {
         </div>
       </div>
 
-      <div className="bg-sand-100 dark:bg-charcoal-850 rounded-lg p-3">
-        <p className="text-sm text-stone-600 dark:text-sand-200">
+      <div style={{ backgroundColor: '#eff6ff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+        <p style={{ fontSize: '0.875rem', color: 'var(--e-text)' }}>
           💡 <strong>Flexibilitet:</strong> Du kan arbeta mellan {String(workingHours.flexStart).padStart(2, '0')}:00-{String(workingHours.flexEnd).padStart(2, '0')}:00
           {' '}när det behövs, men appen räknar med {String(workingHours.normalStart).padStart(2, '0')}:00-{String(workingHours.normalEnd).padStart(2, '0')}:00 som normal arbetstid.
         </p>
@@ -259,23 +259,23 @@ export function SettingsView() {
   const microsoftCalendarContent = () => {
     console.log('🔍 DEBUG: microsoftCalendarContent() called');
     return (
-      <div className="p-4 space-y-4">
-      <div className="flex items-start gap-3">
-        <div className="p-3 bg-sand-100 dark:bg-charcoal-850 rounded-lg">
-          <Calendar className="h-6 w-6 text-copper-600 dark:text-copper-400" />
+      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+        <div style={{ padding: '0.75rem', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
+          <Calendar style={{ height: '1.5rem', width: '1.5rem', color: 'var(--copper-500)' }} />
         </div>
 
-        <div className="flex-1">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7, marginBottom: '1rem' }}>
             Anslut din Microsoft-kalender för smarta deadline-förslag baserat på din tillgängliga tid.
           </p>
 
-          <div className="bg-sand-100 dark:bg-charcoal-850 border border-sand-300 dark:border-charcoal-700 rounded-lg p-4 mb-4">
-            <div className="flex gap-2">
-              <Info className="h-5 w-5 text-copper-600 dark:text-copper-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-stone-600 dark:text-sand-200">
-                <p className="font-medium mb-1">Vad kan AI:n göra med din kalender?</p>
-                <ul className="list-disc list-inside space-y-1 ml-1">
+          <div style={{ backgroundColor: '#eff6ff', border: '1px solid #3b82f6', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Info style={{ height: '1.25rem', width: '1.25rem', color: '#3b82f6', flexShrink: 0, marginTop: '0.125rem' }} />
+              <div style={{ fontSize: '0.875rem', color: 'var(--e-text)' }}>
+                <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>Vad kan AI:n göra med din kalender?</p>
+                <ul style={{ listStyleType: 'disc', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginLeft: '0.25rem' }}>
                   <li>Räkna ut realistiska deadlines: "Om ett uppdrag tar 32h, när kan jag leverera?"</li>
                   <li>Visa tillgänglig tid: "Hur mycket tid har jag denna vecka?"</li>
                   <li>Boka fokustid: "Boka in 2h för projektarbete imorgon"</li>
@@ -284,12 +284,12 @@ export function SettingsView() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             {isMicrosoftConnected ? (
               <>
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="font-medium">Anslutet</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981' }}>
+                  <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#10b981', borderRadius: '9999px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
+                  <span style={{ fontWeight: '500' }}>Anslutet</span>
                 </div>
                 <Button
                   variant="ghost"
@@ -297,7 +297,7 @@ export function SettingsView() {
                   onClick={handleMicrosoftLogout}
                   disabled={isLoading}
                 >
-                  <LogOut className="h-4 w-4 mr-1" />
+                  <LogOut style={{ height: '1rem', width: '1rem', marginRight: '0.25rem' }} />
                   Koppla från
                 </Button>
               </>
@@ -308,14 +308,14 @@ export function SettingsView() {
                 onClick={handleMicrosoftLogin}
                 disabled={isLoading || !import.meta.env.VITE_AZURE_CLIENT_ID}
               >
-                <LogIn className="h-4 w-4 mr-2" />
+                <LogIn style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
                 {isLoading ? 'Ansluter...' : 'Anslut Microsoft-konto'}
               </Button>
             )}
           </div>
 
           {!import.meta.env.VITE_AZURE_CLIENT_ID && (
-            <p className="text-sm text-amber-600 dark:text-amber-400 mt-3">
+            <p style={{ fontSize: '0.875rem', color: '#f59e0b', marginTop: '0.75rem' }}>
               ⚠️ Azure Client ID saknas i miljövariabler. Kontakta administratör.
             </p>
           )}
@@ -329,23 +329,23 @@ export function SettingsView() {
   const emailSchedulerContent = () => {
     console.log('🔍 DEBUG: emailSchedulerContent() called');
     return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-start gap-3">
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <Mail className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+        <div style={{ padding: '0.75rem', backgroundColor: '#eff6ff', borderRadius: '8px' }}>
+          <Mail style={{ height: '1.5rem', width: '1.5rem', color: '#3b82f6' }} />
         </div>
 
-        <div className="flex-1">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7, marginBottom: '1rem' }}>
             Skapa automatiskt Quickies från olästa mejl vid schemalagda tider.
           </p>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-            <div className="flex gap-2">
-              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900 dark:text-blue-100">
-                <p className="font-medium mb-1">Vad händer vid schemalagd tid?</p>
-                <ul className="list-disc list-inside space-y-1 ml-1">
+          <div style={{ backgroundColor: '#eff6ff', border: '1px solid #3b82f6', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Info style={{ height: '1.25rem', width: '1.25rem', color: '#3b82f6', flexShrink: 0, marginTop: '0.125rem' }} />
+              <div style={{ fontSize: '0.875rem', color: 'var(--e-text)' }}>
+                <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>Vad händer vid schemalagd tid?</p>
+                <ul style={{ listStyleType: 'disc', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', marginLeft: '0.25rem' }}>
                   <li>Kollar olästa mejl i din Microsoft-inkorg</li>
                   <li>Visar notifikation med antal olästa mejl</li>
                   <li>Valfritt: Skapar tasks automatiskt (annars bara notis)</li>
@@ -355,16 +355,16 @@ export function SettingsView() {
           </div>
 
           {!isMicrosoftConnected && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
-              <p className="text-sm text-amber-800 dark:text-amber-200">
+            <div style={{ backgroundColor: '#fef3c7', border: '1px solid #f59e0b', borderRadius: '8px', padding: '0.75rem', marginBottom: '1rem' }}>
+              <p style={{ fontSize: '0.875rem', color: '#92400e' }}>
                 ⚠️ Du måste ansluta ditt Microsoft-konto först för att använda email-scheduler.
               </p>
             </div>
           )}
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Aktivera schemaläggning</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ color: 'var(--e-text)' }}>Aktivera schemaläggning</span>
               <SwitchComponent
                 checked={emailSchedule.enabled}
                 change={handleToggleEmailSchedule}
@@ -375,14 +375,14 @@ export function SettingsView() {
             </div>
 
             {emailSchedule.enabled && (
-              <div className="space-y-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingLeft: '1rem', borderLeft: '2px solid var(--e-border)' }}>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
                     Schemalagda tider (vardagar)
                   </label>
-                  <div className="space-y-2">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {emailSchedule.times.map((time, index) => (
-                      <div key={index} className="flex items-center gap-2">
+                      <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <input
                           type="time"
                           value={time}
@@ -391,7 +391,7 @@ export function SettingsView() {
                             newTimes[index] = e.target.value;
                             handleUpdateEmailTimes(newTimes);
                           }}
-                          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          style={{ padding: '0.5rem 0.75rem', border: '1px solid var(--e-border)', borderRadius: '8px', backgroundColor: 'var(--e-surface)', color: 'var(--e-text)' }}
                         />
                         {emailSchedule.times.length > 1 && (
                           <button
@@ -399,7 +399,7 @@ export function SettingsView() {
                               const newTimes = emailSchedule.times.filter((_, i) => i !== index);
                               handleUpdateEmailTimes(newTimes);
                             }}
-                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            style={{ color: '#ef4444', cursor: 'pointer', backgroundColor: 'transparent', border: 'none', fontSize: '1rem' }}
                           >
                             ✕
                           </button>
@@ -411,7 +411,7 @@ export function SettingsView() {
                         onClick={() => {
                           handleUpdateEmailTimes([...emailSchedule.times, '12:00']);
                         }}
-                        className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        style={{ fontSize: '0.875rem', color: '#3b82f6', cursor: 'pointer', backgroundColor: 'transparent', border: 'none', textAlign: 'left' }}
                       >
                         + Lägg till tid
                       </button>
@@ -420,7 +420,7 @@ export function SettingsView() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
                     Gruppering
                   </label>
                   <DropDownListComponent
@@ -432,10 +432,10 @@ export function SettingsView() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Bara visa notifikation</span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Om av: Skapar tasks automatiskt</p>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--e-text)' }}>Bara visa notifikation</span>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--e-text)', opacity: 0.6 }}>Om av: Skapar tasks automatiskt</p>
                   </div>
                   <SwitchComponent
                     checked={emailSchedule.notifyOnly}
@@ -448,10 +448,10 @@ export function SettingsView() {
             )}
 
             {emailSchedule.enabled && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-medium">
+              <div style={{ backgroundColor: '#dcfce7', border: '1px solid #10b981', borderRadius: '8px', padding: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}>
+                  <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#10b981', borderRadius: '9999px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
+                  <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>
                     Kollar mejl {emailSchedule.times.join(', ')} på vardagar
                   </span>
                 </div>
@@ -468,21 +468,21 @@ export function SettingsView() {
   const notificationsContent = () => {
     console.log('🔍 DEBUG: notificationsContent() called');
     return (
-      <div className="p-4 space-y-4">
-      <div className="flex items-start gap-3">
-        <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-          <Bell className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+        <div style={{ padding: '0.75rem', backgroundColor: '#f3e8ff', borderRadius: '8px' }}>
+          <Bell style={{ height: '1.5rem', width: '1.5rem', color: '#9333ea' }} />
         </div>
 
-        <div className="flex-1">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7, marginBottom: '1rem' }}>
             Få påminnelser om deadlines och försenade uppgifter.
           </p>
 
           {notificationPermission === 'granted' ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700 dark:text-gray-300">Aktivera notifieringar</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--e-text)' }}>Aktivera notifieringar</span>
                 <SwitchComponent
                   checked={notificationConfig.enabled}
                   change={handleToggleNotifications}
@@ -492,15 +492,15 @@ export function SettingsView() {
               </div>
 
               {notificationConfig.enabled && (
-                <div className="space-y-2 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
-                  <div className="mb-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingLeft: '1rem', borderLeft: '2px solid var(--e-border)' }}>
+                  <div style={{ marginBottom: '0.5rem' }}>
                     <CheckBoxComponent
                       label="24h före deadline"
                       checked={notificationConfig.types['24h_before']}
                       change={() => handleToggleNotificationType('24h_before')}
                     />
                   </div>
-                  <div className="mb-2">
+                  <div style={{ marginBottom: '0.5rem' }}>
                     <CheckBoxComponent
                       label="2h före deadline"
                       checked={notificationConfig.types['2h_before']}
@@ -515,22 +515,22 @@ export function SettingsView() {
                 </div>
               )}
 
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  <span className="text-sm font-medium">Notifieringar aktiverade</span>
+              <div style={{ backgroundColor: '#dcfce7', border: '1px solid #10b981', borderRadius: '8px', padding: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#047857' }}>
+                  <div style={{ width: '0.5rem', height: '0.5rem', backgroundColor: '#10b981', borderRadius: '9999px' }} />
+                  <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Notifieringar aktiverade</span>
                 </div>
               </div>
             </div>
           ) : notificationPermission === 'denied' ? (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-              <div className="flex gap-2">
-                <BellOff className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div style={{ backgroundColor: '#fee2e2', border: '1px solid #ef4444', borderRadius: '8px', padding: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <BellOff style={{ height: '1.25rem', width: '1.25rem', color: '#ef4444', flexShrink: 0, marginTop: '0.125rem' }} />
                 <div>
-                  <p className="text-sm text-red-800 dark:text-red-200 font-medium mb-1">
+                  <p style={{ fontSize: '0.875rem', color: '#991b1b', fontWeight: '500', marginBottom: '0.25rem' }}>
                     Notifieringar blockerade
                   </p>
-                  <p className="text-sm text-red-700 dark:text-red-300">
+                  <p style={{ fontSize: '0.875rem', color: '#b91c1c' }}>
                     Du har blockerat notifieringar. Aktivera dem i webbläsarens inställningar.
                   </p>
                 </div>
@@ -542,7 +542,7 @@ export function SettingsView() {
               size="md"
               onClick={handleRequestNotificationPermission}
             >
-              <Bell className="h-4 w-4 mr-2" />
+              <Bell style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
               Aktivera notifieringar
             </Button>
           )}
@@ -556,11 +556,11 @@ export function SettingsView() {
   const appInfoContent = () => {
     console.log('🔍 DEBUG: appInfoContent() called');
     return (
-    <div className="p-4 space-y-2 text-sm text-gray-600 dark:text-gray-400">
+    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7 }}>
       <p><strong>Version:</strong> 1.0.0 (FAS 2)</p>
       <p><strong>Prioriteringsmodell:</strong> CPM (Consequence Priority Method)</p>
       <p><strong>Funktioner:</strong></p>
-      <ul className="list-disc list-inside ml-4 space-y-1">
+      <ul style={{ listStyleType: 'disc', paddingLeft: '1.25rem', marginLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
         <li>Röstassistent med AI (Claude Sonnet 4)</li>
         <li>Microsoft Calendar-integration</li>
         <li>Automatisk deadline-beräkning</li>
@@ -587,12 +587,12 @@ export function SettingsView() {
     console.log('🔍 DEBUG: About to render AccordionComponent');
 
     return (
-      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
+      <div style={{ maxWidth: '896px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem', padding: '0 1rem' }}>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
             Inställningar
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', opacity: 0.7 }}>
             Hantera integrationer och preferenser
           </p>
         </div>
@@ -636,9 +636,9 @@ export function SettingsView() {
   } catch (error) {
     console.error('❌ DEBUG: Error in return JSX:', error);
     return (
-      <div className="max-w-4xl mx-auto space-y-6 px-4">
-        <h1 className="text-2xl font-bold text-red-600">Error rendering SettingsView</h1>
-        <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto">
+      <div style={{ maxWidth: '896px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '0 1rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ef4444' }}>Error rendering SettingsView</h1>
+        <pre style={{ backgroundColor: '#f3f4f6', padding: '1rem', borderRadius: '8px', fontSize: '0.75rem', overflow: 'auto' }}>
           {JSON.stringify(error, null, 2)}
         </pre>
       </div>
