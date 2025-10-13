@@ -1,51 +1,51 @@
 /**
  * Syncfusion Theme Variables
- * Based on Prio brand colors (Copper/Amber primary)
- * Generated with Material 3 base theme
+ * Based on Prio clean monochrome design (Charcoal/Black)
+ * Generated with Fluent2 base theme
  */
 
 :root {
-  /* Primary colors - Copper/Amber */
-  --e-primary: #f59e0b;
-  --e-primary-lighter: #fbbf24;
-  --e-primary-darker: #d97706;
-  --e-primary-rgb: 245, 158, 11;
+  /* Primary colors - Charcoal/Black */
+  --e-primary: #424242;
+  --e-primary-lighter: #616161;
+  --e-primary-darker: #2E2E2E;
+  --e-primary-rgb: 66, 66, 66;
 
   /* Surface colors - Light mode */
-  --e-surface: #fafaf9;
-  --e-surface-alt: #f5f5f4;
-  --e-surface-variant: #e7e5e4;
+  --e-surface: #FFFFFF;
+  --e-surface-alt: #FAFAFA;
+  --e-surface-variant: #F5F5F5;
 
   /* Text colors - Light mode */
-  --e-text-primary: #44403c;
-  --e-text-secondary: #78716c;
+  --e-text-primary: #1A1A1A;
+  --e-text-secondary: #424242;
 
   /* Border colors - Light mode */
-  --e-border: #e7e5e4;
-  --e-border-variant: #d6d3d1;
+  --e-border: #EEEEEE;
+  --e-border-variant: #E0E0E0;
 
   /* Success, Warning, Error, Info */
-  --e-success: #22c55e;
-  --e-warning: #f59e0b;
-  --e-error: #ef4444;
-  --e-info: #3b82f6;
+  --e-success: #66BB6A;
+  --e-warning: #FFA726;
+  --e-error: #EF5350;
+  --e-info: #42A5F5;
 }
 
 /* Dark mode theme variables */
-[data-theme='prio-dark'],
+[data-theme='dark'],
 .e-dark-mode {
   /* Surface colors - Dark mode */
-  --e-surface: #1c1917;
-  --e-surface-alt: #292524;
-  --e-surface-variant: #44403c;
+  --e-surface: #1A1A1A;
+  --e-surface-alt: #262626;
+  --e-surface-variant: #2E2E2E;
 
   /* Text colors - Dark mode */
-  --e-text-primary: #e7e5e4;
-  --e-text-secondary: #a8a29e;
+  --e-text-primary: #FAFAFA;
+  --e-text-secondary: #BDBDBD;
 
   /* Border colors - Dark mode */
-  --e-border: #44403c;
-  --e-border-variant: #57534e;
+  --e-border: #2E2E2E;
+  --e-border-variant: #3A3A3A;
 }
 
 /* Apply theme variables to Syncfusion components */
