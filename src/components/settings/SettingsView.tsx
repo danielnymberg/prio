@@ -32,6 +32,7 @@ import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 
 export function SettingsView() {
+  console.log("🔍 SettingsView rendering");
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [notificationConfig, setNotificationConfig] = useState<NotificationConfig>(getNotificationConfig());
@@ -539,6 +540,8 @@ export function SettingsView() {
     </div>
   );
 
+  console.log("🔍 About to return JSX");
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
       <div>
@@ -550,6 +553,7 @@ export function SettingsView() {
         </p>
       </div>
 
+      {console.log("🔍 Rendering Accordion")}
       <AccordionComponent expandMode="Multiple">
         <AccordionItemsDirective>
           <AccordionItemDirective
