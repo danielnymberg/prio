@@ -18,7 +18,7 @@ import { checkAndSendNotifications } from './services/notifications';
 import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
 import { initEmailScheduler } from './services/email-scheduler';
 // import { EmailTaskListener } from './components/email/EmailTaskListener'; // TEMPORÄRT DISABLED
-import { VoiceInterface } from './components/voice/VoiceInterface';
+// import { VoiceInterface } from './components/voice/VoiceInterface'; // TEMPORÄRT DISABLED
 import { GlobalSearch } from './components/search/GlobalSearch';
 
 // Lazy load routes för bättre initial load performance
@@ -227,8 +227,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {children}
       {/* Email task listener - TEMPORÄRT DISABLED: Kraschar vid mount */}
       {/* <EmailTaskListener key="email-listener" /> */}
-      {/* Voice AI assistant */}
-      <VoiceInterface key="voice-interface" />
+      {/* Voice AI assistant - TEMPORÄRT DISABLED: Kraschar vid mount */}
+      {/* <VoiceInterface key="voice-interface" /> */}
       {/* Quick note input - TEMPORÄRT DISABLED: Kraschar vid expandering */}
       {/* <QuickNoteInput key="quick-note" /> */}
       {/* Quick capture bar för mobil */}
