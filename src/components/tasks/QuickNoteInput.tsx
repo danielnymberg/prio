@@ -39,21 +39,37 @@ export function QuickNoteInput() {
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Save chat history to localStorage whenever it changes
+  // Save chat history to localStorage with debounce (500ms)
   useEffect(() => {
-    try {
-      localStorage.setItem('prio_chat_history', JSON.stringify(chatHistory));
-
-      // Also save in Claude's format for conversation continuity
-      const claudeFormat = chatHistory.map(msg => ({
-        role: msg.role,
-        content: msg.text,
-      }));
-      localStorage.setItem('prio_claude_conversation', JSON.stringify(claudeFormat));
-    } catch (error) {
-      console.error('Failed to save chat history:', error);
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
+
+    // Set new timeout
+    saveTimeoutRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem('prio_chat_history', JSON.stringify(chatHistory));
+
+        // Also save in Claude's format for conversation continuity
+        const claudeFormat = chatHistory.map(msg => ({
+          role: msg.role,
+          content: msg.text,
+        }));
+        localStorage.setItem('prio_claude_conversation', JSON.stringify(claudeFormat));
+      } catch (error) {
+        console.error('Failed to save chat history:', error);
+      }
+    }, 500);
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
   }, [chatHistory]);
 
   // Initialize Claude

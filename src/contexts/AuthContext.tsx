@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { loginToMicrosoft, logoutFromMicrosoft, isMicrosoftLoggedIn } from '@/services/microsoft-graph';
@@ -25,17 +25,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const INACTIVITY_TIMEOUT = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 
-  // Reset inactivity timer
-  const resetInactivityTimer = useRef(() => {
+  // Forward declare signOut
+  const signOutRef = useRef<() => Promise<void>>();
+
+  // Reset inactivity timer with useCallback for stable reference
+  const resetInactivityTimer = useCallback(() => {
     if (inactivityTimeoutRef.current) {
       clearTimeout(inactivityTimeoutRef.current);
     }
 
     inactivityTimeoutRef.current = setTimeout(async () => {
       toast.error('Utloggad efter 6 timmars inaktivitet');
-      await signOut();
+      if (signOutRef.current) {
+        await signOutRef.current();
+      }
     }, INACTIVITY_TIMEOUT);
-  });
+  }, [INACTIVITY_TIMEOUT]);
 
   useEffect(() => {
     // Check active session
@@ -46,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Start inactivity timer if logged in
       if (session?.user) {
-        resetInactivityTimer.current();
+        resetInactivityTimer();
       }
     });
 
@@ -93,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Start inactivity timer
-        resetInactivityTimer.current();
+        resetInactivityTimer();
       }
 
       // Clear timer on logout
@@ -116,20 +121,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
-    const handleActivity = () => {
-      resetInactivityTimer.current();
-    };
-
     events.forEach(event => {
-      window.addEventListener(event, handleActivity);
+      window.addEventListener(event, resetInactivityTimer);
     });
 
     return () => {
       events.forEach(event => {
-        window.removeEventListener(event, handleActivity);
+        window.removeEventListener(event, resetInactivityTimer);
       });
     };
-  }, [user]);
+  }, [user, resetInactivityTimer]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -147,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     // Logout from Microsoft first
     try {
       await logoutFromMicrosoft();
@@ -156,7 +157,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     // Then logout from Prio
     await supabase.auth.signOut({ scope: 'local' });
-  };
+  }, []);
+
+  // Store signOut ref for inactivity timer
+  signOutRef.current = signOut;
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {

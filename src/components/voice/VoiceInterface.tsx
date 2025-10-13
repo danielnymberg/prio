@@ -206,23 +206,31 @@ export function VoiceInterface() {
     setTimeout(() => setStatus(''), 2000); // Clear status after 2s
   }, []);
 
+  // Initialize services once when user logs in
   useEffect(() => {
-    if (user) {
-      initializeServices();
-    }
+    if (!user) return;
+
+    initializeServices();
 
     // Proper cleanup function
     return () => {
       // Stop active services
       if (sttRef.current) {
-        sttRef.current.stopListening();
+        sttRef.current.stopListening(false);
       }
 
       // Clear references to allow garbage collection
       sttRef.current = null;
       claudeRef.current = null;
     };
-  }, [user, tasks]);
+  }, [user]); // Removed tasks from dependency array
+
+  // Update Claude context when tasks change
+  useEffect(() => {
+    if (claudeRef.current && tasks) {
+      claudeRef.current.updateContext({ tasks });
+    }
+  }, [tasks]);
 
   // Listen for voice trigger events
   useEffect(() => {

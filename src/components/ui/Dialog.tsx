@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useRef, useEffect } from 'react';
 import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
 
 interface DialogProps {
@@ -22,8 +22,27 @@ const animationSettings: AnimationSettingsModel = {
 };
 
 export function Dialog({ isOpen, onClose, title, children, size = 'md' }: DialogProps) {
+  const dialogRef = useRef<DialogComponent>(null);
+
+  // Proper cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (dialogRef.current) {
+        try {
+          dialogRef.current.hide();
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
+      }
+    };
+  }, []);
+
+  // Don't render if not open (prevents Portal issues)
+  if (!isOpen) return null;
+
   return (
     <DialogComponent
+      ref={dialogRef}
       visible={isOpen}
       header={title}
       showCloseIcon={true}
