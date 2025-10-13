@@ -5,6 +5,7 @@ import { CreateProjectInput } from '@/lib/types';
 import toast from 'react-hot-toast';
 import { PDFUpload } from './PDFUpload';
 import { FileText } from 'lucide-react';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 
 interface ProjectFormProps {
   onSuccess?: () => void;
@@ -315,36 +316,22 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div className="e-flex e-gap-12">
-            <button
-              type="submit"
+            <Button
+              onClick={handleSubmit}
               disabled={loading}
-              className="e-flex-1 e-p-12 e-rounded-lg e-font-semibold e-text-base e-transition"
-              style={{
-                backgroundColor: 'var(--primary-600)',
-                color: '#ffffff',
-                border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.5 : 1
-              }}
-              onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--primary-700)')}
-              onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--primary-600)')}
+              variant="primary"
+              loading={loading}
+              style={{ flex: 1 }}
             >
               {loading ? 'Skapar...' : 'Skapa projekt'}
-            </button>
+            </Button>
             {onCancel && (
-              <button
-                type="button"
+              <Button
                 onClick={onCancel}
-                className="e-px-24 e-py-12 e-border e-rounded-lg e-text-base e-transition e-cursor-pointer"
-                style={{
-                  backgroundColor: 'var(--e-surface)',
-                  color: 'var(--e-text)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}
+                variant="ghost"
               >
                 Avbryt
-              </button>
+              </Button>
             )}
           </div>
         </div>

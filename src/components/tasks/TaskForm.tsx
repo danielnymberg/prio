@@ -1,6 +1,7 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { Task, CreateTaskInput, UpdateTaskInput, Project, PriorityFlag } from '@/lib/types';
 import { Dialog } from '@/components/ui/Dialog';
+import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
@@ -426,32 +427,23 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             </label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
-                { value: 'not_started', label: 'Ej påbörjad', color: 'gray' },
-                { value: 'in_progress', label: 'Pågår', color: 'amber' },
-                { value: 'done', label: 'Klar', color: 'green' },
-              ].map(({ value, label, color }) => (
-                <button
+                { value: 'not_started', label: 'Ej påbörjad' },
+                { value: 'in_progress', label: 'Pågår' },
+                { value: 'done', label: 'Klar' },
+              ].map(({ value, label }) => (
+                <Button
                   key={value}
-                  type="button"
                   onClick={() => setStatus(value as any)}
+                  variant={status === value ? 'primary' : 'secondary'}
+                  size="sm"
                   style={{
                     width: '100%',
-                    padding: '0.5rem 0.75rem',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
                     textAlign: 'left',
-                    cursor: 'pointer',
-                    border: 'none',
-                    backgroundColor: status === value
-                      ? (color === 'green' ? 'var(--e-success, #10b981)' : color === 'amber' ? 'var(--e-warning, #f59e0b)' : 'var(--e-text-secondary, #6b7280)')
-                      : 'var(--e-surface)',
-                    color: status === value ? 'var(--e-surface, #ffffff)' : 'var(--e-text)',
-                    transition: 'colors 0.2s'
+                    justifyContent: 'flex-start'
                   }}
                 >
                   {label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -770,8 +762,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         {/* Action buttons */}
         <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '1rem' }}>
           {task && onDelete && (
-            <button
-              type="button"
+            <Button
               onClick={async () => {
                 if (confirm(`Är du säker på att du vill radera "${task.title}"?`)) {
                   await onDelete(task.id);
@@ -779,57 +770,29 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                   toast.success('Uppgift raderad');
                 }
               }}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                backgroundColor: 'var(--e-error-light, #fee2e2)',
-                color: 'var(--e-error, #b91c1c)',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'colors 0.2s'
-              }}
+              variant="danger"
+              size="sm"
             >
               Radera
-            </button>
+            </Button>
           )}
-          <button
-            type="button"
+          <Button
             onClick={onClose}
-            style={{
-              flex: '1',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              backgroundColor: 'var(--e-surface)',
-              color: 'var(--e-text)',
-              border: '1px solid var(--e-border)',
-              cursor: 'pointer',
-              transition: 'colors 0.2s'
-            }}
+            variant="ghost"
+            size="sm"
+            style={{ flex: 1 }}
           >
             Avbryt
-          </button>
-          <button
-            type="submit"
+          </Button>
+          <Button
+            onClick={handleSubmit}
             disabled={loading || !title.trim()}
-            style={{
-              flex: '1',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              backgroundColor: loading || !title.trim() ? 'var(--e-text-secondary, #9ca3af)' : 'var(--e-success, #10b981)',
-              color: 'var(--e-surface, #ffffff)',
-              border: 'none',
-              cursor: loading || !title.trim() ? 'not-allowed' : 'pointer',
-              transition: 'colors 0.2s'
-            }}
+            variant="primary"
+            size="sm"
+            style={{ flex: 1 }}
           >
             {loading ? 'Sparar...' : 'Spara'}
-          </button>
+          </Button>
         </div>
       </form>
 
