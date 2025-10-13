@@ -148,7 +148,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           content=""
         />
 
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
           <ButtonComponent
             cssClass="e-outline"
             iconCss="e-icons e-refresh"
@@ -156,26 +156,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             content="Avstämning"
           />
           {needsCheckIn && (
-            <span
-              style={{
-                position: 'absolute',
-                top: '-4px',
-                right: '-4px',
-                width: '18px',
-                height: '18px',
-                borderRadius: '50%',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-              }}
-            >
-              !
-            </span>
+            <span className="e-badge e-badge-danger e-badge-notification e-badge-overlap">!</span>
           )}
         </div>
 
