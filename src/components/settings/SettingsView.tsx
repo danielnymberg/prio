@@ -22,17 +22,11 @@ import {
   requestNotificationPermission as requestEmailNotificationPermission,
 } from '@/services/email-scheduler';
 import { showToast } from '@/services/toast';
-import {
-  AccordionComponent,
-  AccordionItemDirective,
-  AccordionItemsDirective,
-} from '@syncfusion/ej2-react-navigations';
 import { SwitchComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 
 export function SettingsView() {
-  console.log("🔍 SettingsView rendering");
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [notificationConfig, setNotificationConfig] = useState<NotificationConfig>(getNotificationConfig());
@@ -540,8 +534,6 @@ export function SettingsView() {
     </div>
   );
 
-  console.log("🔍 About to return JSX");
-
   return (
     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
       <div>
@@ -553,57 +545,52 @@ export function SettingsView() {
         </p>
       </div>
 
-      {console.log("🔍 Rendering Accordion")}
-      <AccordionComponent expandMode="Multiple">
-        <AccordionItemsDirective>
-          <AccordionItemDirective
-            header={
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                <span>Arbetstider</span>
-              </div>
-            }
-            expanded={true}
-            content={workingHoursContent}
-          />
-          <AccordionItemDirective
-            header={
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                <span>Microsoft Calendar</span>
-              </div>
-            }
-            content={microsoftCalendarContent}
-          />
-          <AccordionItemDirective
-            header={
-              <div className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                <span>Automatisk mejl-processorering</span>
-              </div>
-            }
-            content={emailSchedulerContent}
-          />
-          <AccordionItemDirective
-            header={
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                <span>Notifieringar</span>
-              </div>
-            }
-            content={notificationsContent}
-          />
-          <AccordionItemDirective
-            header={
-              <div className="flex items-center gap-2">
-                <Info className="h-5 w-5" />
-                <span>Om Prio</span>
-              </div>
-            }
-            content={appInfoContent}
-          />
-        </AccordionItemsDirective>
-      </AccordionComponent>
+      <div className="space-y-4">
+        {/* Arbetstider */}
+        <details open className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+            <Clock className="h-5 w-5" />
+            <span className="font-semibold">Arbetstider</span>
+          </summary>
+          {workingHoursContent()}
+        </details>
+
+        {/* Microsoft Calendar */}
+        <details className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+            <Calendar className="h-5 w-5" />
+            <span className="font-semibold">Microsoft Calendar</span>
+          </summary>
+          {microsoftCalendarContent()}
+        </details>
+
+        {/* Email Scheduler */}
+        <details className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+            <Mail className="h-5 w-5" />
+            <span className="font-semibold">Automatisk mejl-processorering</span>
+          </summary>
+          {emailSchedulerContent()}
+        </details>
+
+        {/* Notifications */}
+        <details className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+            <Bell className="h-5 w-5" />
+            <span className="font-semibold">Notifieringar</span>
+          </summary>
+          {notificationsContent()}
+        </details>
+
+        {/* App Info */}
+        <details className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+            <Info className="h-5 w-5" />
+            <span className="font-semibold">Om Prio</span>
+          </summary>
+          {appInfoContent()}
+        </details>
+      </div>
     </div>
   );
 }
