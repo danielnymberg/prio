@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
 import { QuickCaptureBar } from './components/ui/QuickCaptureBar';
 // import { QuickNoteInput } from './components/tasks/QuickNoteInput'; // TEMPORÄRT DISABLED
-import { WelcomeModal } from './components/onboarding/WelcomeModal';
-import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding';
+// import { WelcomeModal } from './components/onboarding/WelcomeModal'; // TEMPORÄRT DISABLED
+// import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding'; // TEMPORÄRT DISABLED
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
@@ -15,7 +15,7 @@ import { OfflineBanner } from './components/pwa/OfflineBanner';
 // import { globalToastRef, showToast } from './services/toast'; // TEMPORÄRT DISABLED
 import { useTasks } from './hooks/useTasks';
 import { checkAndSendNotifications } from './services/notifications';
-import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal';
+// import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal'; // TEMPORÄRT DISABLED
 import { initEmailScheduler } from './services/email-scheduler';
 // import { EmailTaskListener } from './components/email/EmailTaskListener'; // TEMPORÄRT DISABLED
 // import { VoiceInterface } from './components/voice/VoiceInterface'; // TEMPORÄRT DISABLED
@@ -124,27 +124,29 @@ function LoginPage() {
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showKanbanOnboarding, setShowKanbanOnboarding] = useState(false);
-  const [showWeeklyReview, setShowWeeklyReview] = useState(false);
+  // TEMPORÄRT DISABLED: Modals disabled for testing
+  // const [showWelcome, setShowWelcome] = useState(false);
+  // const [showKanbanOnboarding, setShowKanbanOnboarding] = useState(false);
+  // const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const { tasks } = useTasks();
 
-  useEffect(() => {
-    // Kolla om användaren har slutfört onboarding
-    if (user && !loading) {
-      const completed = localStorage.getItem('prio_onboarding_completed');
-      const kanbanCompleted = localStorage.getItem('prio_kanban_onboarding_completed');
+  // TEMPORÄRT DISABLED: Onboarding modals disabled
+  // useEffect(() => {
+  //   // Kolla om användaren har slutfört onboarding
+  //   if (user && !loading) {
+  //     const completed = localStorage.getItem('prio_onboarding_completed');
+  //     const kanbanCompleted = localStorage.getItem('prio_kanban_onboarding_completed');
 
-      if (!completed) {
-        setShowWelcome(true);
-      } else if (!kanbanCompleted) {
-        // Visa Kanban onboarding efter 2 sekunder om huvudonboarding är klar
-        setTimeout(() => {
-          setShowKanbanOnboarding(true);
-        }, 2000);
-      }
-    }
-  }, [user, loading]);
+  //     if (!completed) {
+  //       setShowWelcome(true);
+  //     } else if (!kanbanCompleted) {
+  //       // Visa Kanban onboarding efter 2 sekunder om huvudonboarding är klar
+  //       setTimeout(() => {
+  //         setShowKanbanOnboarding(true);
+  //       }, 2000);
+  //     }
+  //   }
+  // }, [user, loading]);
 
   // Initialize notifications and check every 5 minutes
   useEffect(() => {
@@ -168,36 +170,37 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     initEmailScheduler();
   }, [user, loading]);
 
-  // Weekly review trigger (Monday 06:00)
-  useEffect(() => {
-    if (!user || loading) return;
+  // TEMPORÄRT DISABLED: Weekly review modal disabled
+  // // Weekly review trigger (Monday 06:00)
+  // useEffect(() => {
+  //   if (!user || loading) return;
 
-    const checkWeeklyReview = () => {
-      const now = new Date();
-      const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday
-      const hour = now.getHours();
+  //   const checkWeeklyReview = () => {
+  //     const now = new Date();
+  //     const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday
+  //     const hour = now.getHours();
 
-      // Check if it's Monday 06:00
-      if (dayOfWeek === 1 && hour === 6) {
-        const lastReview = localStorage.getItem('prio-last-weekly-review');
-        const today = now.toISOString().split('T')[0];
+  //     // Check if it's Monday 06:00
+  //     if (dayOfWeek === 1 && hour === 6) {
+  //       const lastReview = localStorage.getItem('prio-last-weekly-review');
+  //       const today = now.toISOString().split('T')[0];
 
-        // Only show if not already shown today
-        if (lastReview !== today) {
-          setShowWeeklyReview(true);
-          localStorage.setItem('prio-last-weekly-review', today);
-        }
-      }
-    };
+  //       // Only show if not already shown today
+  //       if (lastReview !== today) {
+  //         setShowWeeklyReview(true);
+  //         localStorage.setItem('prio-last-weekly-review', today);
+  //       }
+  //     }
+  //   };
 
-    // Initial check
-    checkWeeklyReview();
+  //   // Initial check
+  //   checkWeeklyReview();
 
-    // Check every hour
-    const intervalId = setInterval(checkWeeklyReview, 60 * 60 * 1000);
+  //   // Check every hour
+  //   const intervalId = setInterval(checkWeeklyReview, 60 * 60 * 1000);
 
-    return () => clearInterval(intervalId);
-  }, [user, loading]);
+  //   return () => clearInterval(intervalId);
+  // }, [user, loading]);
 
   if (loading) {
     return <div style={{
@@ -233,25 +236,25 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {/* <QuickNoteInput key="quick-note" /> */}
       {/* Quick capture bar för mobil */}
       <QuickCaptureBar key="quick-capture" />
-      {/* Onboarding modal för nya användare */}
-      <WelcomeModal
+      {/* Onboarding modal för nya användare - TEMPORÄRT DISABLED: Testing crash */}
+      {/* <WelcomeModal
         key="welcome-modal"
         isOpen={showWelcome}
         onComplete={() => setShowWelcome(false)}
-      />
-      {/* Kanban onboarding för befintliga användare */}
-      <KanbanOnboarding
+      /> */}
+      {/* Kanban onboarding för befintliga användare - TEMPORÄRT DISABLED: Testing crash */}
+      {/* <KanbanOnboarding
         key="kanban-onboarding"
         isOpen={showKanbanOnboarding}
         onComplete={() => setShowKanbanOnboarding(false)}
-      />
-      {/* Weekly review modal */}
-      <WeeklyReviewModal
+      /> */}
+      {/* Weekly review modal - TEMPORÄRT DISABLED: Testing crash */}
+      {/* <WeeklyReviewModal
         key="weekly-review"
         isOpen={showWeeklyReview}
         onClose={() => setShowWeeklyReview(false)}
         tasks={tasks}
-      />
+      /> */}
       {/* PWA install prompt */}
       <InstallPrompt key="install-prompt" />
     </AppLayout>
