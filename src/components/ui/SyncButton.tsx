@@ -74,18 +74,20 @@ export const SyncButton = forwardRef<any, SyncButtonProps>(
           ...style
         }}
       >
-        <ButtonComponent
-          ref={ref}
-          cssClass={cssClass}
-          disabled={disabled || loading}
-          enableRtl={false}
-          isPrimary={variant === 'primary'}
-          iconCss={iconCss}
-          iconPosition={iconPosition}
-        >
-          {loading && <span className="e-spinner-pane e-spin-show"></span>}
-          {children}
-        </ButtonComponent>
+        <div style={{ pointerEvents: 'none' }}>
+          <ButtonComponent
+            ref={ref}
+            cssClass={cssClass}
+            disabled={disabled || loading}
+            enableRtl={false}
+            isPrimary={variant === 'primary'}
+            iconCss={iconCss}
+            iconPosition={iconPosition}
+          >
+            {loading && <span className="e-spinner-pane e-spin-show"></span>}
+            {children}
+          </ButtonComponent>
+        </div>
       </div>
     );
   }

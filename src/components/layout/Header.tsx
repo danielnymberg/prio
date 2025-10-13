@@ -88,11 +88,21 @@ export function Header({ onMenuClick }: HeaderProps) {
     <>
       <AppBarComponent colorMode="Light">
         {/* Left: Menu + Logo */}
-        <ButtonComponent
-          cssClass="e-inherit mobile-menu-btn"
-          iconCss="e-icons e-menu"
+        <button
+          className="e-btn e-inherit mobile-menu-btn"
           onClick={onMenuClick}
-        />
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <span className="e-icons e-menu" style={{ fontSize: '20px' }}></span>
+        </button>
 
         <div className="e-appbar-separator"></div>
 
