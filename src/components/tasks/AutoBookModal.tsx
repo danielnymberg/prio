@@ -138,7 +138,7 @@ export function AutoBookModal({
             <Calendar style={{
               height: '20px',
               width: '20px',
-              color: 'var(--copper-600)',
+              color: 'var(--primary-600)',
               flexShrink: 0,
               marginTop: '2px'
             }} />
@@ -198,7 +198,7 @@ export function AutoBookModal({
                 width: '16px',
                 borderRadius: '4px',
                 border: '1px solid var(--e-border, #d1d5db)',
-                color: 'var(--copper-600)',
+                color: 'var(--primary-600)',
                 cursor: 'pointer'
               }}
             />
@@ -235,7 +235,7 @@ export function AutoBookModal({
                     fontSize: '14px',
                     fontWeight: '500',
                     transition: 'colors 0.2s',
-                    backgroundColor: maxSessionHours === hours ? 'var(--copper-600)' : 'var(--e-hover, #f3f4f6)',
+                    backgroundColor: maxSessionHours === hours ? 'var(--primary-600)' : 'var(--e-hover, #f3f4f6)',
                     color: maxSessionHours === hours ? 'var(--e-surface, white)' : 'var(--e-text)',
                     border: 'none',
                     cursor: 'pointer'
@@ -314,7 +314,7 @@ export function AutoBookModal({
                         <span style={{
                           fontSize: '12px',
                           fontWeight: '500',
-                          color: 'var(--copper-600)'
+                          color: 'var(--primary-600)'
                         }}>
                           Session {index + 1}/{sessionPlan.sessions.length}
                         </span>
@@ -447,7 +447,7 @@ export function AutoBookModal({
                         padding: '16px',
                         borderRadius: '8px',
                         border: isSelected
-                          ? '2px solid var(--copper-500)'
+                          ? '2px solid var(--primary-500)'
                           : '2px solid var(--e-border, #e5e7eb)',
                         backgroundColor: isSelected ? 'var(--e-surface)' : 'transparent',
                         transition: 'all 0.2s',
@@ -514,7 +514,7 @@ export function AutoBookModal({
                               height: '24px',
                               width: '24px',
                               borderRadius: '9999px',
-                              backgroundColor: 'var(--copper-500)',
+                              backgroundColor: 'var(--primary-500)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center'

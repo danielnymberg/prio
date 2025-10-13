@@ -53,7 +53,7 @@ function RouteLoader() {
           width: '48px',
           height: '48px',
           border: '2px solid transparent',
-          borderBottomColor: 'var(--copper-500)',
+          borderBottomColor: 'var(--primary-500)',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite',
           margin: '0 auto 16px'
@@ -98,7 +98,7 @@ function LoginPage() {
             fontSize: '36px',
             fontWeight: 'bold',
             marginBottom: '8px',
-            color: 'var(--copper-500)'
+            color: 'var(--primary-500)'
           }}>
             Prio
           </h1>
@@ -214,7 +214,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         width: '48px',
         height: '48px',
         border: '2px solid transparent',
-        borderBottomColor: 'var(--copper-500)',
+        borderBottomColor: 'var(--primary-500)',
         borderRadius: '50%',
         animation: 'spin 1s linear infinite'
       }}></div>
@@ -295,7 +295,7 @@ function HomePage() {
           width: '48px',
           height: '48px',
           border: '2px solid transparent',
-          borderBottomColor: 'var(--copper-500)',
+          borderBottomColor: 'var(--primary-500)',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite',
           margin: '0 auto 16px'

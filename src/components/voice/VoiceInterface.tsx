@@ -285,7 +285,7 @@ export function VoiceInterface() {
             borderRadius: '9999px',
             height: '32px',
             width: '32px',
-            borderBottom: '2px solid var(--copper-600)'
+            borderBottom: '2px solid var(--primary-600)'
           }}></div>
         </div>
       </div>
@@ -385,7 +385,7 @@ export function VoiceInterface() {
                         maxWidth: '80%',
                         padding: '8px 16px',
                         borderRadius: '16px',
-                        background: msg.role === 'user' ? 'var(--copper-600)' : 'var(--e-surface)',
+                        background: msg.role === 'user' ? 'var(--primary-600)' : 'var(--e-surface)',
                         color: msg.role === 'user' ? '#ffffff' : 'var(--e-text)',
                         border: msg.role === 'assistant' ? '1px solid var(--e-border)' : 'none'
                       }}
@@ -518,7 +518,7 @@ export function VoiceInterface() {
             <>
               <p style={{
                 fontSize: '14px',
-                color: 'var(--copper-600)',
+                color: 'var(--primary-600)',
                 margin: '0 0 4px 0'
               }}>Status:</p>
               <p style={{
@@ -584,7 +584,7 @@ export function VoiceInterface() {
             position: 'absolute',
             top: '-8px',
             right: '-8px',
-            background: 'var(--copper-600)',
+            background: 'var(--primary-600)',
             color: '#ffffff',
             fontSize: '12px',
             borderRadius: '9999px',

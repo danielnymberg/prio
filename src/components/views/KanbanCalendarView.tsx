@@ -57,7 +57,7 @@ export function KanbanCalendarView() {
             </span>
           )}
           {props.Priority && (
-            <span className="e-rounded e-font-semibold" style={{ padding: '4px 8px', backgroundColor: 'var(--copper-500)', color: '#fff' }}>
+            <span className="e-rounded e-font-semibold" style={{ padding: '4px 8px', backgroundColor: 'var(--primary-500)', color: '#fff' }}>
               {Math.round(props.Priority)}
             </span>
           )}

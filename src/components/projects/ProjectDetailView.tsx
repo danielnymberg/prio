@@ -51,7 +51,7 @@ export function ProjectDetailView() {
         <div className="e-animate-spin e-rounded-full" style={{
           height: '48px',
           width: '48px',
-          borderBottom: '2px solid var(--copper-600)',
+          borderBottom: '2px solid var(--primary-600)',
         }} />
       </div>
     );
@@ -189,12 +189,12 @@ export function ProjectDetailView() {
             onClick={() => navigate('/focus')}
             className="e-px-16 e-py-8 e-rounded-lg e-text-base e-font-medium e-transition e-cursor-pointer"
             style={{
-              backgroundColor: 'var(--copper-600)',
+              backgroundColor: 'var(--primary-600)',
               color: '#ffffff',
               border: 'none'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-700)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-700)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
           >
             Skapa task och koppla till projekt
           </button>

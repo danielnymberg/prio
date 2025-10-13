@@ -35,12 +35,12 @@ export function EmptyState({ title, description, icon, action }: EmptyStateProps
           onClick={action.onClick}
           className="e-inline-flex e-align-center e-gap-8 e-text-sm e-font-medium e-cursor-pointer e-transition-colors"
           style={{
-            color: 'var(--copper-600)',
+            color: 'var(--primary-600)',
             background: 'none',
             border: 'none',
           }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--copper-500)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--copper-600)'}
+          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-500)'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--primary-600)'}
         >
           <Plus style={{ height: '16px', width: '16px' }} />
           {action.label}

@@ -45,9 +45,9 @@ export function DurationPicker({ value, onChange }: DurationPickerProps) {
   const getButtonStyle = (isSelected: boolean): CSSProperties => ({
     padding: '8px 16px',
     borderRadius: '8px',
-    border: isSelected ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+    border: isSelected ? '2px solid var(--primary-500)' : '2px solid var(--e-border)',
     backgroundColor: isSelected ? 'var(--e-surface)' : 'transparent',
-    color: isSelected ? 'var(--copper-500)' : 'var(--e-text)',
+    color: isSelected ? 'var(--primary-500)' : 'var(--e-text)',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',

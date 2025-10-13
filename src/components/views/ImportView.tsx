@@ -167,7 +167,7 @@ export function ImportView() {
           <FileJson style={{
             width: '20px',
             height: '20px',
-            color: 'var(--copper-500)',
+            color: 'var(--primary-500)',
             marginTop: '2px'
           }} />
           <div>

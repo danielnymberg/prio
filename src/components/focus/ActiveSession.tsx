@@ -123,7 +123,7 @@ export function ActiveSession() {
         <div className="e-w-full e-rounded-full e-mb-32" style={{ backgroundColor: 'var(--e-border)', height: '16px' }}>
           <div
             className="e-rounded-full e-transition"
-            style={{ backgroundColor: 'var(--copper-500)', height: '16px', transitionDuration: '1s', width: `${progress}%` }}
+            style={{ backgroundColor: 'var(--primary-500)', height: '16px', transitionDuration: '1s', width: `${progress}%` }}
           />
         </div>
 

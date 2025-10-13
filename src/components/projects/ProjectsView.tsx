@@ -219,7 +219,7 @@ export function ProjectsView() {
         <div className="e-animate-spin e-rounded-full" style={{
           height: '48px',
           width: '48px',
-          borderBottom: '2px solid var(--copper-600)',
+          borderBottom: '2px solid var(--primary-600)',
         }} />
       </div>
     );
@@ -247,13 +247,13 @@ export function ProjectsView() {
               onClick={() => navigate('/projects/new')}
               className="e-px-24 e-py-12 e-rounded-lg e-text-base e-font-medium e-transition"
               style={{
-                backgroundColor: 'var(--copper-600)',
+                backgroundColor: 'var(--primary-600)',
                 color: '#ffffff',
                 border: 'none',
                 cursor: 'pointer'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-700)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-700)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
             >
               Skapa ditt första projekt
             </button>

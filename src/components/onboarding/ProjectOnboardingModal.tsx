@@ -105,7 +105,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </p>
           </div>
 
-          <div style={{ background: 'linear-gradient(to right, var(--e-primary, #9333ea), var(--copper-100))', opacity: 0.1, border: '2px solid var(--e-primary, #9333ea)', borderRadius: '12px', padding: '24px' }}>
+          <div style={{ background: 'linear-gradient(to right, var(--e-primary, #9333ea), var(--primary-100))', opacity: 0.1, border: '2px solid var(--e-primary, #9333ea)', borderRadius: '12px', padding: '24px' }}>
             <h3 style={{ fontWeight: 'bold', color: 'var(--e-primary, #9333ea)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles style={{ height: '24px', width: '24px' }} />
               Så här fungerar det:
@@ -406,7 +406,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', background: 'linear-gradient(to right, var(--e-surface), var(--e-surface))', borderRadius: '8px', border: '2px solid var(--e-border)' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--primary-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 3
               </div>
               <div>

@@ -246,7 +246,7 @@ export function QuickNoteInput() {
           bottom: '24px',
           right: '96px',
           zIndex: 50,
-          background: 'linear-gradient(to right, var(--copper-600), var(--copper-600))',
+          background: 'linear-gradient(to right, var(--primary-600), var(--primary-600))',
           color: 'white',
           borderRadius: '9999px',
           padding: '16px',
@@ -279,7 +279,7 @@ export function QuickNoteInput() {
       backgroundColor: 'var(--e-surface)',
       borderRadius: '16px',
       boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-      border: '2px solid var(--copper-500)',
+      border: '2px solid var(--primary-500)',
       width: '384px',
       maxWidth: 'calc(100vw - 3rem)',
       display: 'flex',
@@ -333,7 +333,7 @@ export function QuickNoteInput() {
               fontWeight: '500',
               transition: 'colors 0.2s',
               backgroundColor: mode === 'note' ? 'var(--e-surface)' : 'transparent',
-              color: mode === 'note' ? 'var(--copper-600)' : 'var(--e-text-secondary, #6b7280)',
+              color: mode === 'note' ? 'var(--primary-600)' : 'var(--e-text-secondary, #6b7280)',
               border: 'none',
               cursor: 'pointer'
             }}
@@ -394,7 +394,7 @@ export function QuickNoteInput() {
                   maxWidth: '85%',
                   padding: '8px 16px',
                   borderRadius: '16px',
-                  backgroundColor: msg.role === 'user' ? 'var(--copper-600)' : 'var(--e-hover, #f3f4f6)',
+                  backgroundColor: msg.role === 'user' ? 'var(--primary-600)' : 'var(--e-hover, #f3f4f6)',
                   color: msg.role === 'user' ? 'white' : 'var(--e-text)'
                 }}
               >

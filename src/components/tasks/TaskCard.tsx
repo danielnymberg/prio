@@ -200,7 +200,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
                 fontSize: '14px',
                 fontWeight: '600',
                 backgroundColor: 'transparent',
-                borderBottom: '1px solid var(--copper-500)',
+                borderBottom: '1px solid var(--primary-500)',
                 outline: 'none',
                 color: 'var(--e-text)',
               }}
@@ -362,12 +362,12 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               <div style={{ fontWeight: '600', color: 'var(--e-warning, #b45309)' }}>{task.time_sensitivity}/10</div>
             </div>
             <div style={{
-              backgroundColor: 'var(--copper-50, #fef3f2)',
+              backgroundColor: 'var(--primary-50)',
               borderRadius: '8px',
               padding: '4px 8px'
             }}>
               <div style={{ color: 'var(--e-text-secondary, #78716c)', fontSize: '10px' }}>Tillit</div>
-              <div style={{ fontWeight: '600', color: 'var(--copper-700, #b45309)' }}>{task.confidence}/10</div>
+              <div style={{ fontWeight: '600', color: 'var(--primary-700)' }}>{task.confidence}/10</div>
             </div>
             <div style={{
               backgroundColor: 'var(--e-error-light, #fef2f2)',

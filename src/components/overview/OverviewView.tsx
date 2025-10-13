@@ -63,7 +63,7 @@ export function OverviewView() {
         <div className="e-animate-spin e-rounded-full" style={{
           height: '48px',
           width: '48px',
-          borderBottom: '2px solid var(--copper-500)'
+          borderBottom: '2px solid var(--primary-500)'
         }} />
       </div>
     );
@@ -154,7 +154,7 @@ export function OverviewView() {
               style={{
                 padding: '0.5rem 1rem',
                 borderRadius: '0.75rem',
-                backgroundColor: timeHorizon === horizon ? 'var(--copper-500)' : 'var(--e-surface)',
+                backgroundColor: timeHorizon === horizon ? 'var(--primary-500)' : 'var(--e-surface)',
                 color: timeHorizon === horizon ? 'white' : 'var(--e-text)',
                 border: timeHorizon === horizon ? 'none' : '1px solid var(--e-border)',
                 boxShadow: timeHorizon === horizon ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
@@ -225,7 +225,7 @@ export function OverviewView() {
         <div style={{
           padding: '1.5rem',
           backgroundColor: 'var(--e-surface)',
-          border: '2px solid var(--copper-500)',
+          border: '2px solid var(--primary-500)',
           borderRadius: '0.75rem'
         }}>
           <div style={{
@@ -234,7 +234,7 @@ export function OverviewView() {
             gap: '0.5rem',
             marginBottom: '0.5rem'
           }}>
-            <Sparkles style={{ height: '20px', width: '20px', color: 'var(--copper-600)' }} />
+            <Sparkles style={{ height: '20px', width: '20px', color: 'var(--primary-600)' }} />
             <span style={{
               fontSize: '0.875rem',
               fontWeight: '500',
@@ -649,7 +649,7 @@ export function OverviewView() {
                           ? '#ef4444'
                           : project.completion_percentage >= 80
                           ? '#10b981'
-                          : 'var(--copper-500)',
+                          : 'var(--primary-500)',
                         width: `${Math.min(project.completion_percentage, 100)}%`
                       }}
                     />

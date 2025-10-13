@@ -28,7 +28,7 @@ export function VersionBanner() {
   if (!showBanner) return null;
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, backgroundColor: 'var(--copper-600)', color: 'white', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, backgroundColor: 'var(--primary-600)', color: 'white', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '12px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -44,7 +44,7 @@ export function VersionBanner() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               onClick={handleUpdate}
-              style={{ padding: '8px 16px', backgroundColor: 'white', color: 'var(--copper-600)', fontWeight: '500', borderRadius: '8px', border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
+              style={{ padding: '8px 16px', backgroundColor: 'white', color: 'var(--primary-600)', fontWeight: '500', borderRadius: '8px', border: 'none', cursor: 'pointer', transition: 'background-color 0.2s' }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--sand-100)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
             >
@@ -53,7 +53,7 @@ export function VersionBanner() {
             <button
               onClick={handleDismiss}
               style={{ padding: '8px', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'background-color 0.2s' }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               aria-label="Stäng"
             >

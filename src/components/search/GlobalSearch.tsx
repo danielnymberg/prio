@@ -190,7 +190,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                   padding: '16px',
                   textAlign: 'left',
                   transition: 'colors 0.2s',
-                  backgroundColor: index === selectedIndex ? 'var(--copper-50)' : 'transparent',
+                  backgroundColor: index === selectedIndex ? 'var(--primary-50)' : 'transparent',
                   border: 'none',
                   cursor: 'pointer'
                 }}

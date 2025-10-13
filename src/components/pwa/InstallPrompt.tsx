@@ -29,7 +29,7 @@ export function InstallPrompt() {
       <div style={{ position: 'fixed', bottom: '80px', left: '16px', right: '16px', width: 'auto', maxWidth: '384px', backgroundColor: 'var(--e-surface)', borderRadius: '8px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '16px', zIndex: 40, border: '1px solid var(--e-border)', marginLeft: 'auto', marginRight: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
           <div style={{ flexShrink: 0, width: '40px', height: '40px', backgroundColor: 'var(--e-surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Download style={{ width: '20px', height: '20px', color: 'var(--copper-600)' }} />
+            <Download style={{ width: '20px', height: '20px', color: 'var(--primary-600)' }} />
           </div>
           <div style={{ flex: 1 }}>
             <h3 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '4px' }}>
@@ -58,7 +58,7 @@ export function InstallPrompt() {
       <div style={{ position: 'fixed', bottom: '80px', left: '16px', right: '16px', width: 'auto', maxWidth: '384px', backgroundColor: 'var(--e-surface)', borderRadius: '8px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '16px', zIndex: 40, border: '1px solid var(--e-border)', marginLeft: 'auto', marginRight: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
           <div style={{ flexShrink: 0, width: '40px', height: '40px', backgroundColor: 'var(--e-surface)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Download style={{ width: '20px', height: '20px', color: 'var(--copper-600)' }} />
+            <Download style={{ width: '20px', height: '20px', color: 'var(--primary-600)' }} />
           </div>
           <div style={{ flex: 1 }}>
             <h3 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '4px' }}>

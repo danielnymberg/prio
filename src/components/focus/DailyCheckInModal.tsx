@@ -49,7 +49,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
           <div
             key={s}
             className="e-flex-1 e-rounded e-transition"
-            style={{ height: '8px', backgroundColor: s <= step ? 'var(--copper-600)' : 'var(--e-border)' }}
+            style={{ height: '8px', backgroundColor: s <= step ? 'var(--primary-600)' : 'var(--e-border)' }}
           />
         ))}
       </div>
@@ -72,7 +72,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
           <div className="e-flex e-flex-column e-gap-16">
             <div className="e-text-center">
-              <div className="e-font-bold e-mb-8" style={{ fontSize: '48px', color: 'var(--copper-600)' }}>
+              <div className="e-font-bold e-mb-8" style={{ fontSize: '48px', color: 'var(--primary-600)' }}>
                 {formatTime(availableTime)}
               </div>
               <div className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
@@ -128,7 +128,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setEnergyLevel('low')}
               className="e-p-24 e-rounded-lg e-border e-transition e-cursor-pointer"
               style={{
-                borderColor: energyLevel === 'low' ? 'var(--copper-500)' : 'var(--e-border)',
+                borderColor: energyLevel === 'low' ? 'var(--primary-500)' : 'var(--e-border)',
                 borderWidth: '2px',
                 backgroundColor: energyLevel === 'low' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: energyLevel === 'low' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
@@ -145,7 +145,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setEnergyLevel('medium')}
               className="e-p-24 e-rounded-lg e-border e-transition e-cursor-pointer"
               style={{
-                borderColor: energyLevel === 'medium' ? 'var(--copper-500)' : 'var(--e-border)',
+                borderColor: energyLevel === 'medium' ? 'var(--primary-500)' : 'var(--e-border)',
                 borderWidth: '2px',
                 backgroundColor: energyLevel === 'medium' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: energyLevel === 'medium' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
@@ -162,7 +162,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setEnergyLevel('high')}
               className="e-p-24 e-rounded-lg e-border e-transition e-cursor-pointer"
               style={{
-                borderColor: energyLevel === 'high' ? 'var(--copper-500)' : 'var(--e-border)',
+                borderColor: energyLevel === 'high' ? 'var(--primary-500)' : 'var(--e-border)',
                 borderWidth: '2px',
                 backgroundColor: energyLevel === 'high' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: energyLevel === 'high' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
@@ -211,7 +211,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               onClick={() => setStrategy('quick_wins')}
               className="e-w-full e-p-24 e-rounded-lg e-border e-text-left e-transition e-cursor-pointer"
               style={{
-                borderColor: strategy === 'quick_wins' ? 'var(--copper-500)' : 'var(--e-border)',
+                borderColor: strategy === 'quick_wins' ? 'var(--primary-500)' : 'var(--e-border)',
                 borderWidth: '2px',
                 backgroundColor: strategy === 'quick_wins' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: strategy === 'quick_wins' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none'
@@ -237,7 +237,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
                 width: '100%',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: strategy === 'deep_work' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                border: strategy === 'deep_work' ? '2px solid var(--primary-500)' : '2px solid var(--e-border)',
                 backgroundColor: strategy === 'deep_work' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: strategy === 'deep_work' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
                 transition: 'all 0.2s',
@@ -265,7 +265,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
                 width: '100%',
                 padding: '1.5rem',
                 borderRadius: '12px',
-                border: strategy === 'balanced' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                border: strategy === 'balanced' ? '2px solid var(--primary-500)' : '2px solid var(--e-border)',
                 backgroundColor: strategy === 'balanced' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: strategy === 'balanced' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
                 transition: 'all 0.2s',
@@ -275,7 +275,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               title="Blandning av korta och långa uppgifter baserat på CPM-algoritmen"
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                <BarChart style={{ height: '32px', width: '32px', color: 'var(--copper-500)', flexShrink: 0 }} />
+                <BarChart style={{ height: '32px', width: '32px', color: 'var(--primary-500)', flexShrink: 0 }} />
                 <div>
                   <div style={{ fontWeight: '600', fontSize: '1.125rem', color: 'var(--e-text)', marginBottom: '4px' }}>
                     ⚖️ Balanced

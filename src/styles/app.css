@@ -1,5 +1,99 @@
 /* Prio App - Custom CSS (replaces Tailwind) */
 /* Uses SyncFusion Material 3 theme as base */
+/* Color Scheme: Clean Minimalist Monochrome (Charcoal & Black) */
+
+/* ===== Color Palette: Monochrome ===== */
+:root {
+  /* Primary - Charcoal Scale */
+  --primary-50: #FAFAFA;
+  --primary-100: #F5F5F5;
+  --primary-200: #EEEEEE;
+  --primary-300: #E0E0E0;
+  --primary-400: #BDBDBD;
+  --primary-500: #424242;  /* Main charcoal */
+  --primary-600: #3A3A3A;
+  --primary-700: #2E2E2E;
+  --primary-800: #262626;
+  --primary-900: #1A1A1A;  /* Deep black */
+
+  /* Success - Muted Green (minimal accent) */
+  --success-50: #F1F8F4;
+  --success-100: #C8E6C9;
+  --success-500: #66BB6A;
+  --success-700: #388E3C;
+  --success-900: #1B5E20;
+
+  /* Warning - Muted Amber (minimal accent) */
+  --warning-50: #FFF8E1;
+  --warning-100: #FFECB3;
+  --warning-500: #FFA726;
+  --warning-700: #F57C00;
+  --warning-900: #E65100;
+
+  /* Error - Muted Red (minimal accent) */
+  --error-50: #FFEBEE;
+  --error-100: #FFCDD2;
+  --error-500: #EF5350;
+  --error-700: #D32F2F;
+  --error-900: #B71C1C;
+
+  /* Semantic Design Tokens */
+  --e-primary: var(--primary-500);
+  --e-primary-light: var(--primary-100);
+  --e-primary-dark: var(--primary-700);
+
+  --e-surface: #FFFFFF;
+  --e-surface-secondary: var(--primary-50);
+  --e-surface-hover: var(--primary-100);
+
+  --e-text: var(--primary-900);
+  --e-text-secondary: var(--primary-500);
+  --e-text-tertiary: var(--primary-400);
+  --e-border: var(--primary-200);
+  --e-border-strong: var(--primary-300);
+  --e-content-bg: var(--primary-50);
+
+  --e-success: var(--success-500);
+  --e-success-light: var(--success-50);
+  --e-success-bg: var(--success-100);
+
+  --e-warning: var(--warning-500);
+  --e-warning-light: var(--warning-50);
+  --e-warning-bg: var(--warning-100);
+
+  --e-error: var(--error-500);
+  --e-error-light: var(--error-50);
+  --e-error-bg: var(--error-100);
+
+  /* Shadows */
+  --e-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --e-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --e-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --e-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode - Inverted Charcoal */
+[data-theme="dark"] {
+  --e-surface: var(--primary-900);
+  --e-surface-secondary: var(--primary-800);
+  --e-surface-hover: var(--primary-700);
+
+  --e-text: var(--primary-50);
+  --e-text-secondary: var(--primary-300);
+  --e-text-tertiary: var(--primary-400);
+  --e-border: var(--primary-700);
+  --e-border-strong: var(--primary-600);
+  --e-content-bg: #0D0D0D;
+
+  --e-primary: var(--primary-300);
+  --e-primary-light: var(--primary-800);
+  --e-primary-dark: var(--primary-200);
+
+  --e-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --e-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --e-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --e-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6);
+}
 
 /* ===== Base Styles ===== */
 * {
@@ -270,71 +364,64 @@ html, body, #root {
 
 /* ===== Badge Variants ===== */
 .badge-default {
-  background-color: var(--sand-200, #e7e5e4);
-  color: var(--stone-700, #44403c);
+  background-color: var(--primary-100);
+  color: var(--primary-700);
+  border: 1px solid var(--primary-200);
 }
 
 .badge-success {
-  background-color: var(--success-100, #dcfce7);
-  color: var(--success-700, #15803d);
+  background-color: var(--success-bg);
+  color: var(--success-700);
+  border: 1px solid var(--success-500);
 }
 
 .badge-warning {
-  background-color: var(--warning-100, #fef3c7);
-  color: var(--warning-700, #a16207);
+  background-color: var(--warning-bg);
+  color: var(--warning-700);
+  border: 1px solid var(--warning-500);
 }
 
 .badge-danger {
-  background-color: var(--error-100, #fee2e2);
-  color: var(--error-700, #b91c1c);
+  background-color: var(--error-bg);
+  color: var(--error-700);
+  border: 1px solid var(--error-500);
 }
 
 .badge-info {
-  background-color: var(--copper-100, #fef2f2);
-  color: var(--copper-700, #b45309);
+  background-color: var(--primary-100);
+  color: var(--primary-600);
+  border: 1px solid var(--primary-300);
 }
 
-/* ===== Dark Mode ===== */
-[data-theme="dark"] {
-  --e-content-bg: #1a1a1a;
-  --e-text-primary: #ffffff;
-  --e-text-secondary: #b0b0b0;
-  --e-border: #3a3a3a;
-}
-
-[data-theme="dark"] .e-card {
-  background: #2a2a2a;
-  color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-[data-theme="dark"] .e-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-}
-
+/* ===== Dark Mode - Badge Overrides ===== */
 [data-theme="dark"] .badge-default {
-  background-color: var(--charcoal-800, #292524);
-  color: var(--stone-300, #d6d3d1);
+  background-color: var(--primary-800);
+  color: var(--primary-200);
+  border-color: var(--primary-700);
 }
 
 [data-theme="dark"] .badge-success {
-  background-color: var(--success-950, #052e16);
-  color: var(--success-400, #4ade80);
+  background-color: var(--success-900);
+  color: var(--success-100);
+  border-color: var(--success-700);
 }
 
 [data-theme="dark"] .badge-warning {
-  background-color: var(--warning-950, #422006);
-  color: var(--warning-400, #fbbf24);
+  background-color: var(--warning-900);
+  color: var(--warning-100);
+  border-color: var(--warning-700);
 }
 
 [data-theme="dark"] .badge-danger {
-  background-color: var(--error-950, #450a0a);
-  color: var(--error-400, #f87171);
+  background-color: var(--error-900);
+  color: var(--error-100);
+  border-color: var(--error-700);
 }
 
 [data-theme="dark"] .badge-info {
-  background-color: var(--copper-950, #431407);
-  color: var(--copper-400, #fb923c);
+  background-color: var(--primary-800);
+  color: var(--primary-200);
+  border-color: var(--primary-600);
 }
 
 /* ===== Responsive Breakpoints ===== */

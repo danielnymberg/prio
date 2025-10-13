@@ -412,7 +412,7 @@ export function FocusView() {
 
       {/* Main Focus Card */}
       <div className="e-mx-auto e-p-32" style={{ maxWidth: '64rem', padding: '48px 24px' }}>
-        <div className="e-rounded-xl e-p-32" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '4px solid var(--copper-500)' }}>
+        <div className="e-rounded-xl e-p-32" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '4px solid var(--primary-500)' }}>
           {/* Deadline Warnings */}
           {nextTask.deadline && (() => {
             const deadline = new Date(nextTask.deadline);

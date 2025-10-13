@@ -48,7 +48,7 @@ export function CapacityTimeline() {
   if (absenceLoading || settingsLoading || loading) {
     return (
       <div className="e-flex e-align-center e-justify-center" style={{ height: '16rem' }}>
-        <Loader2 className="e-animate-spin" style={{ width: '2rem', height: '2rem', color: 'var(--copper-600)' }} />
+        <Loader2 className="e-animate-spin" style={{ width: '2rem', height: '2rem', color: 'var(--primary-600)' }} />
       </div>
     );
   }
@@ -66,7 +66,7 @@ export function CapacityTimeline() {
       {/* Header */}
       <div className="e-flex e-flex-column e-align-start e-justify-between" style={{ gap: '1rem' }}>
         <div>
-          <h2 className="e-text-xl e-font-bold e-flex e-align-center" style={{ color: 'var(--charcoal-900)', gap: '0.5rem' }}>
+          <h2 className="e-text-xl e-font-bold e-flex e-align-center" style={{ color: 'var(--primary-900)', gap: '0.5rem' }}>
             📊 Kapacitetsöversikt
           </h2>
           <p className="e-text-sm e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
@@ -82,7 +82,7 @@ export function CapacityTimeline() {
               onClick={() => setZoomLevel(level)}
               className="e-px-16 e-py-8 e-rounded e-text-sm e-font-medium e-transition e-cursor-pointer"
               style={{
-                backgroundColor: zoomLevel === level ? 'var(--copper-600)' : 'transparent',
+                backgroundColor: zoomLevel === level ? 'var(--primary-600)' : 'transparent',
                 color: zoomLevel === level ? '#ffffff' : 'var(--e-text-secondary)',
                 border: 'none'
               }}
@@ -100,7 +100,7 @@ export function CapacityTimeline() {
             label: 'Snittbeläggning',
             value: `${avgUtilization}%`,
             icon: TrendingUp,
-            color: avgUtilization >= settings.capacity_thresholds.over ? '#ef4444' : avgUtilization >= settings.capacity_thresholds.sweet_start ? '#10b981' : 'var(--copper-600)',
+            color: avgUtilization >= settings.capacity_thresholds.over ? '#ef4444' : avgUtilization >= settings.capacity_thresholds.sweet_start ? '#10b981' : 'var(--primary-600)',
             bgColor: avgUtilization >= settings.capacity_thresholds.over ? '#fef2f2' : avgUtilization >= settings.capacity_thresholds.sweet_start ? '#f0fdf4' : '#fef3e8',
           },
           {
@@ -222,7 +222,7 @@ export function CapacityTimeline() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--e-text-secondary)' }}>Projekt:</span>
-                    <span style={{ fontWeight: '500', color: 'var(--copper-600)' }}>{data.projectHours}h</span>
+                    <span style={{ fontWeight: '500', color: 'var(--primary-600)' }}>{data.projectHours}h</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--e-text-secondary)' }}>Tasks:</span>

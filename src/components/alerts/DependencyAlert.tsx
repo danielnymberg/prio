@@ -107,7 +107,7 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
               gap: '4px',
               fontSize: '14px',
               fontWeight: '500',
-              color: 'var(--copper-600, #d4764e)',
+              color: 'var(--primary-600)',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
@@ -159,7 +159,7 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
                             padding: '2px 8px',
                             borderRadius: '4px',
                             backgroundColor: 'var(--e-surface-secondary, #f5f5f4)',
-                            color: 'var(--copper-600, #d4764e)'
+                            color: 'var(--primary-600)'
                           }}>
                             {formatDuration(task.estimated_duration)}
                           </span>

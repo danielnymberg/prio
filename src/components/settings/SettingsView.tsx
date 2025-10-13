@@ -261,10 +261,10 @@ export function SettingsView() {
         </div>
 
         <div style={{
-          backgroundColor: 'var(--copper-100)',
+          backgroundColor: 'var(--primary-100)',
           padding: '0.75rem',
           borderRadius: '8px',
-          border: '1px solid var(--copper-500)'
+          border: '1px solid var(--primary-500)'
         }}>
           <p style={{
             fontSize: '0.875rem',
@@ -312,7 +312,7 @@ export function SettingsView() {
             <Calendar style={{
               height: '1.5rem',
               width: '1.5rem',
-              color: 'var(--copper-500)'
+              color: 'var(--primary-500)'
             }} />
           </div>
 
@@ -327,8 +327,8 @@ export function SettingsView() {
             </p>
 
             <div style={{
-              backgroundColor: 'var(--copper-100)',
-              border: '1px solid var(--copper-500)',
+              backgroundColor: 'var(--primary-100)',
+              border: '1px solid var(--primary-500)',
               borderRadius: '8px',
               padding: '1rem',
               marginBottom: '1rem'
@@ -337,7 +337,7 @@ export function SettingsView() {
                 <Info style={{
                   height: '1.25rem',
                   width: '1.25rem',
-                  color: 'var(--copper-600)',
+                  color: 'var(--primary-600)',
                   flexShrink: 0,
                   marginTop: '0.125rem'
                 }} />
@@ -454,13 +454,13 @@ export function SettingsView() {
         }}>
           <div style={{
             padding: '0.75rem',
-            backgroundColor: 'var(--copper-100)',
+            backgroundColor: 'var(--primary-100)',
             borderRadius: '8px'
           }}>
             <Mail style={{
               height: '1.5rem',
               width: '1.5rem',
-              color: 'var(--copper-600)'
+              color: 'var(--primary-600)'
             }} />
           </div>
 
@@ -475,8 +475,8 @@ export function SettingsView() {
             </p>
 
             <div style={{
-              backgroundColor: 'var(--copper-100)',
-              border: '1px solid var(--copper-500)',
+              backgroundColor: 'var(--primary-100)',
+              border: '1px solid var(--primary-500)',
               borderRadius: '8px',
               padding: '1rem',
               marginBottom: '1rem'
@@ -485,7 +485,7 @@ export function SettingsView() {
                 <Info style={{
                   height: '1.25rem',
                   width: '1.25rem',
-                  color: 'var(--copper-600)',
+                  color: 'var(--primary-600)',
                   flexShrink: 0,
                   marginTop: '0.125rem'
                 }} />
@@ -626,7 +626,7 @@ export function SettingsView() {
                           }}
                           style={{
                             fontSize: '0.875rem',
-                            color: 'var(--copper-600)',
+                            color: 'var(--primary-600)',
                             cursor: 'pointer',
                             backgroundColor: 'transparent',
                             border: 'none',
@@ -742,13 +742,13 @@ export function SettingsView() {
         }}>
           <div style={{
             padding: '0.75rem',
-            backgroundColor: 'var(--purple-100, #f3e8ff)',
+            backgroundColor: 'var(--primary-100)',
             borderRadius: '8px'
           }}>
             <Bell style={{
               height: '1.5rem',
               width: '1.5rem',
-              color: 'var(--purple-600, #9333ea)'
+              color: 'var(--primary-600)'
             }} />
           </div>
 

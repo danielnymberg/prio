@@ -154,7 +154,7 @@ export function ApiUsageView() {
   const getTierColor = (tier: string) => {
     switch (tier) {
       case 'free': return { bg: 'var(--e-surface-secondary, #f5f5f4)', color: 'var(--e-text, #44403c)' };
-      case 'pro': return { bg: 'var(--copper-100, #fef3ee)', color: 'var(--copper-700, #c2410c)' };
+      case 'pro': return { bg: 'var(--primary-100)', color: 'var(--primary-700)' };
       case 'business': return { bg: 'rgba(220, 252, 231, 0.5)', color: 'var(--success-700, #15803d)' };
       default: return { bg: 'var(--e-surface-secondary, #f5f5f4)', color: 'var(--e-text, #44403c)' };
     }
@@ -175,7 +175,7 @@ export function ApiUsageView() {
           height: '32px',
           width: '32px',
           border: '2px solid transparent',
-          borderBottomColor: 'var(--copper-600, #d4764e)'
+          borderBottomColor: 'var(--primary-600)'
         }} />
       </div>
     );
@@ -212,7 +212,7 @@ export function ApiUsageView() {
           {settings.use_own_api_keys && (
             <span className="e-flex e-align-center e-gap-4 e-px-12 e-py-4 e-rounded-full e-text-sm e-font-medium" style={{
               backgroundColor: 'rgba(233, 213, 255, 0.5)',
-              color: 'var(--purple-700, #7c3aed)'
+              color: 'var(--primary-700)'
             }}>
               <Key style={{ height: '12px', width: '12px' }} />
               Egen API-nyckel
@@ -235,8 +235,8 @@ export function ApiUsageView() {
           border: '1px solid var(--e-border, #e7e5e4)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <div style={{ padding: '8px', backgroundColor: 'var(--copper-100, #fef3ee)', borderRadius: '8px' }}>
-              <Zap style={{ height: '20px', width: '20px', color: 'var(--copper-600, #d4764e)' }} />
+            <div style={{ padding: '8px', backgroundColor: 'var(--primary-100)', borderRadius: '8px' }}>
+              <Zap style={{ height: '20px', width: '20px', color: 'var(--primary-600)' }} />
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Idag
@@ -251,7 +251,7 @@ export function ApiUsageView() {
           <div style={{ marginTop: '12px', backgroundColor: 'var(--e-border, #e5e7eb)', borderRadius: '9999px', height: '8px' }}>
             <div
               style={{
-                backgroundColor: 'var(--copper-600, #d4764e)',
+                backgroundColor: 'var(--primary-600)',
                 height: '8px',
                 borderRadius: '9999px',
                 transition: 'width 0.3s',
@@ -508,7 +508,7 @@ export function ApiUsageView() {
                 </div>
                 <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #57534e)' }}>
                   <strong>Hur får jag en API-nyckel?</strong><br />
-                  1. Gå till <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--copper-600, #d4764e)', textDecoration: 'underline' }}>console.anthropic.com</a><br />
+                  1. Gå till <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-600)', textDecoration: 'underline' }}>console.anthropic.com</a><br />
                   2. Skapa konto och gå till Settings → API Keys<br />
                   3. Klicka "Create Key" och kopiera nyckeln hit
                 </p>
@@ -521,10 +521,10 @@ export function ApiUsageView() {
       {/* Pricing Tiers */}
       {settings?.pricing_tier === 'free' && (
         <div style={{
-          background: 'linear-gradient(to right, var(--copper-50, #fef3ee), var(--sand-50, #fafaf9))',
+          background: 'linear-gradient(to right, var(--primary-50), var(--sand-50, #fafaf9))',
           borderRadius: '12px',
           padding: '24px',
-          border: '1px solid var(--copper-200, #fed7aa)'
+          border: '1px solid var(--primary-200)'
         }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '16px' }}>
             Uppgradera för mer kapacitet
@@ -535,10 +535,10 @@ export function ApiUsageView() {
               backgroundColor: 'var(--e-surface, #ffffff)',
               borderRadius: '8px',
               padding: '16px',
-              border: '2px solid var(--copper-600, #d4764e)'
+              border: '2px solid var(--primary-600)'
             }}>
               <h4 style={{ fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '8px' }}>Free</h4>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--copper-600, #d4764e)', marginBottom: '12px' }}>$0</div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary-600)', marginBottom: '12px' }}>$0</div>
               <ul style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>• 50 requests/dag</li>
                 <li>• 1,500 requests/månad</li>
@@ -554,7 +554,7 @@ export function ApiUsageView() {
               border: '1px solid var(--e-border, #e7e5e4)'
             }}>
               <h4 style={{ fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '8px' }}>Pro</h4>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--copper-600, #d4764e)', marginBottom: '12px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary-600)', marginBottom: '12px' }}>
                 $9<span style={{ fontSize: '14px', color: 'var(--e-text-tertiary, #78716c)' }}>/månad</span>
               </div>
               <ul style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -572,7 +572,7 @@ export function ApiUsageView() {
               border: '1px solid var(--e-border, #e7e5e4)'
             }}>
               <h4 style={{ fontWeight: '600', color: 'var(--e-text, #1c1917)', marginBottom: '8px' }}>Business</h4>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--copper-600, #d4764e)', marginBottom: '12px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary-600)', marginBottom: '12px' }}>
                 $29<span style={{ fontSize: '14px', color: 'var(--e-text-tertiary, #78716c)' }}>/månad</span>
               </div>
               <ul style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -583,7 +583,7 @@ export function ApiUsageView() {
             </div>
           </div>
           <div style={{ marginTop: '16px', textAlign: 'center' }}>
-            <Button style={{ backgroundColor: 'var(--copper-600, #d4764e)', color: '#ffffff' }}>
+            <Button style={{ backgroundColor: 'var(--primary-600)', color: '#ffffff' }}>
               Uppgradera nu
             </Button>
           </div>

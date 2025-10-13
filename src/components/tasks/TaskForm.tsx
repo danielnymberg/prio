@@ -314,7 +314,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
             <label style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--e-text)' }}>
               Tidsuppskattning
               {estimatedDuration && estimatedDuration > 0 && (
-                <span style={{ marginLeft: '0.5rem', color: 'var(--copper-500)' }}>
+                <span style={{ marginLeft: '0.5rem', color: 'var(--primary-500)' }}>
                   ({formatDuration(estimatedDuration)})
                 </span>
               )}
@@ -339,13 +339,13 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                       padding: '0.5rem',
                       borderRadius: '0.5rem',
                       border: estimatedDuration === preset.value
-                        ? '2px solid var(--copper-500)'
+                        ? '2px solid var(--primary-500)'
                         : '1px solid var(--e-border)',
                       backgroundColor: estimatedDuration === preset.value
                         ? 'var(--e-surface)'
                         : 'var(--e-surface)',
                       color: estimatedDuration === preset.value
-                        ? 'var(--copper-600)'
+                        ? 'var(--primary-600)'
                         : 'var(--e-text)',
                       textAlign: 'center',
                       cursor: 'pointer',

@@ -84,7 +84,7 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
   const [hoverDismiss, setHoverDismiss] = useState(false);
 
   return (
-    <div className="e-rounded-lg e-p-24 e-mb-24" style={{ background: 'linear-gradient(to right, var(--copper-600), var(--copper-600))', color: 'white', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }}>
+    <div className="e-rounded-lg e-p-24 e-mb-24" style={{ background: 'linear-gradient(to right, var(--primary-600), var(--primary-600))', color: 'white', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }}>
       <h2 className="e-text-xl e-font-bold e-mb-16">{greeting}</h2>
 
       {/* Statistik-grid */}
@@ -150,7 +150,7 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
             className="e-w-full e-font-semibold e-transition"
             style={{
               backgroundColor: hoverStartDay ? '#f5f1ed' : 'white',
-              color: 'var(--copper-600)'
+              color: 'var(--primary-600)'
             }}
           >
             Starta dagen

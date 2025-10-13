@@ -33,7 +33,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
               flex: 1,
               borderRadius: '4px',
               transition: 'all 0.3s',
-              backgroundColor: s <= step ? 'var(--copper-600)' : 'var(--e-border)'
+              backgroundColor: s <= step ? 'var(--primary-600)' : 'var(--e-border)'
             }}
           />
         ))}
@@ -174,7 +174,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--primary-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 1
               </div>
               <div>
@@ -188,7 +188,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--primary-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 2
               </div>
               <div>
@@ -202,7 +202,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--primary-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 3
               </div>
               <div>

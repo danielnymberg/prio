@@ -22,7 +22,7 @@ export function TaskDragOverlay() {
         style={{
           backgroundColor: 'var(--e-surface, #ffffff)',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-          border: '2px solid var(--copper-600, #d4764e)',
+          border: '2px solid var(--primary-600)',
           width: '256px'
         }}>
         <div className="e-font-semibold e-text-sm e-mb-4"

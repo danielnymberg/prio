@@ -56,7 +56,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           style={textareaStyle}
           onFocus={(e) => {
-            e.target.style.outline = '2px solid var(--copper-400)';
+            e.target.style.outline = '2px solid var(--primary-400)';
             e.target.style.outlineOffset = '2px';
             if (error) {
               e.target.style.outline = '2px solid #ef4444';

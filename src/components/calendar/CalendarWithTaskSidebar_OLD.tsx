@@ -315,8 +315,8 @@ export function CalendarWithTaskSidebar() {
                           fontWeight: '600',
                           padding: '2px 8px',
                           borderRadius: '4px',
-                          backgroundColor: 'var(--copper-100, #fef3ee)',
-                          color: 'var(--copper-700, #c2410c)',
+                          backgroundColor: 'var(--primary-100)',
+                          color: 'var(--primary-700)',
                           flexShrink: 0
                         }}>
                           {data.Priority}

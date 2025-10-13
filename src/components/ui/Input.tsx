@@ -55,7 +55,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           style={inputStyle}
           onFocus={(e) => {
-            e.target.style.outline = '2px solid var(--copper-400)';
+            e.target.style.outline = '2px solid var(--primary-400)';
             e.target.style.outlineOffset = '2px';
             if (error) {
               e.target.style.outline = '2px solid #ef4444';

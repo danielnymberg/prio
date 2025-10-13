@@ -85,7 +85,7 @@ export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplic
         border: `2px solid var(--e-border, ${config.borderColor})`,
         backgroundColor: `var(--e-surface, ${config.bgColor})`,
         ...(isOver && {
-          boxShadow: '0 0 0 2px var(--copper-500, #d4764e)',
+          boxShadow: '0 0 0 2px var(--primary-500)',
           transform: 'scale(1.02)',
         }),
       }}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { AppBarComponent } from '@syncfusion/ej2-react-navigations';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownButtonComponent, ItemModel } from '@syncfusion/ej2-react-splitbuttons';
 import { TaskForm } from '@/components/tasks/TaskForm';
@@ -84,26 +85,36 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="e-border-b e-px-32 e-py-16 e-flex e-align-center e-justify-between" style={{ backgroundColor: 'var(--e-surface)' }}>
-      <div className="e-flex e-align-center e-gap-16">
-        {/* Mobile menu button */}
+    <>
+      <AppBarComponent colorMode="Light">
+        {/* Left: Menu + Logo */}
         <ButtonComponent
-          cssClass="e-flat mobile-menu-btn"
+          cssClass="e-inherit mobile-menu-btn"
           iconCss="e-icons e-menu"
           onClick={onMenuClick}
-          style={{ display: 'none' }}
         />
 
-        <h1 className="e-text-2xl e-font-bold e-m-0" style={{ color: 'var(--copper-500)' }}>
+        <div className="e-appbar-separator"></div>
+
+        <span style={{
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          color: 'var(--e-text)',
+          marginRight: '0.5rem'
+        }}>
           Prio
-        </h1>
-        <span className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+        </span>
+
+        <span style={{
+          fontSize: '0.875rem',
+          color: 'var(--e-text-secondary)'
+        }}>
           Håll fokus på det som är viktigt
         </span>
-      </div>
 
-      <div className="e-flex e-align-center e-gap-12">
-        {/* Microsoft status */}
+        <div className="e-appbar-spacer"></div>
+
+        {/* Right: Status + Actions */}
         <div
           onClick={() => navigate('/settings')}
           className="e-flex e-align-center e-gap-8 e-px-12 e-py-8 e-rounded e-cursor-pointer"
@@ -113,16 +124,15 @@ export function Header({ onMenuClick }: HeaderProps) {
           <div className="e-rounded-full" style={{
             width: '8px',
             height: '8px',
-            backgroundColor: isMicrosoftConnected ? '#10b981' : '#ef4444'
+            backgroundColor: isMicrosoftConnected ? 'var(--success-500)' : 'var(--error-500)'
           }} />
           <span className="e-text-xs">MSFT</span>
         </div>
 
         <ButtonComponent
-          cssClass="e-flat"
+          cssClass="e-inherit"
           iconCss="e-icons e-settings"
           onClick={() => navigate('/settings')}
-          content=""
         />
 
         <div className="e-relative e-inline-block">
@@ -154,7 +164,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             cssClass="e-caret-hide"
           />
         )}
-      </div>
+      </AppBarComponent>
 
       <TaskForm
         isOpen={isQuickAddOpen}
@@ -169,6 +179,6 @@ export function Header({ onMenuClick }: HeaderProps) {
         onClose={() => setIsCheckInOpen(false)}
         onComplete={handleCheckInComplete}
       />
-    </header>
+    </>
   );
 }

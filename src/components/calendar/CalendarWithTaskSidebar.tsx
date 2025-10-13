@@ -292,8 +292,8 @@ export function CalendarWithTaskSidebar() {
                         <div className="e-text-xs e-font-semibold e-rounded e-flex-none"
                           style={{
                             padding: '0.125rem 0.5rem',
-                            backgroundColor: 'var(--copper-400)',
-                            color: 'var(--charcoal-900)'
+                            backgroundColor: 'var(--primary-400)',
+                            color: 'var(--primary-900)'
                           }}>
                           {data.Priority}
                         </div>

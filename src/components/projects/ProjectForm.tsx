@@ -131,8 +131,8 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 outline: 'none'
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--copper-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                e.currentTarget.style.borderColor = 'var(--primary-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = 'var(--e-border)';
@@ -157,8 +157,8 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 outline: 'none'
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--copper-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                e.currentTarget.style.borderColor = 'var(--primary-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = 'var(--e-border)';
@@ -184,8 +184,8 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                   outline: 'none'
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--copper-400)';
-                  e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                  e.currentTarget.style.borderColor = 'var(--primary-400)';
+                  e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = 'var(--e-border)';
@@ -211,8 +211,8 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                   outline: 'none'
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--copper-400)';
-                  e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                  e.currentTarget.style.borderColor = 'var(--primary-400)';
+                  e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = 'var(--e-border)';
@@ -239,8 +239,8 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 outline: 'none'
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--copper-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                e.currentTarget.style.borderColor = 'var(--primary-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = 'var(--e-border)';
@@ -253,7 +253,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             <div className="e-text-sm e-mb-4" style={{ color: 'var(--e-text-secondary)' }}>
               Beräknad total budget
             </div>
-            <div className="e-text-2xl e-font-bold" style={{ color: 'var(--copper-600)' }}>
+            <div className="e-text-2xl e-font-bold" style={{ color: 'var(--primary-600)' }}>
               {calculatedBudget.toLocaleString('sv-SE')} kr
             </div>
             <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
@@ -277,8 +277,8 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 outline: 'none'
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--copper-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                e.currentTarget.style.borderColor = 'var(--primary-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = 'var(--e-border)';
@@ -303,8 +303,8 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 minHeight: '72px'
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--copper-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--copper-400)';
+                e.currentTarget.style.borderColor = 'var(--primary-400)';
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = 'var(--e-border)';
@@ -320,14 +320,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               disabled={loading}
               className="e-flex-1 e-p-12 e-rounded-lg e-font-semibold e-text-base e-transition"
               style={{
-                backgroundColor: 'var(--copper-600)',
+                backgroundColor: 'var(--primary-600)',
                 color: '#ffffff',
                 border: 'none',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.5 : 1
               }}
-              onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--copper-700)')}
-              onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--copper-600)')}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--primary-700)')}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--primary-600)')}
             >
               {loading ? 'Skapar...' : 'Skapa projekt'}
             </button>

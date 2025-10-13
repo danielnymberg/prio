@@ -130,7 +130,7 @@ export function ShareHandler() {
               <Loader2 style={{
                 width: '64px',
                 height: '64px',
-                color: 'var(--copper-500)',
+                color: 'var(--primary-500)',
                 animation: 'spin 1s linear infinite',
                 margin: '0 auto 16px'
               }} />

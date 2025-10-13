@@ -10,7 +10,7 @@ interface AlertProps {
 const variantConfig = {
   info: {
     icon: Info,
-    iconColor: 'var(--copper-500)',
+    iconColor: 'var(--primary-500)',
   },
   warning: {
     icon: AlertTriangle,

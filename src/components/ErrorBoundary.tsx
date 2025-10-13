@@ -101,9 +101,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <button
               onClick={this.handleReloadApp}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 16px', backgroundColor: 'var(--copper-600)', color: 'white', fontWeight: '500', borderRadius: '8px', transition: 'background-color 0.2s', border: 'none', cursor: 'pointer' }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 16px', backgroundColor: 'var(--primary-600)', color: 'white', fontWeight: '500', borderRadius: '8px', transition: 'background-color 0.2s', border: 'none', cursor: 'pointer' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
             >
               <RefreshCw style={{ width: '20px', height: '20px' }} />
               Ladda om appen

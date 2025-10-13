@@ -73,7 +73,7 @@ export function ProjectProgressSlider({
           <label className="e-text-sm e-font-medium" style={{ color: 'var(--e-text)' }}>
             Uppskattat färdigt
           </label>
-          <span className="e-text-2xl e-font-bold" style={{ color: 'var(--copper-600)' }}>
+          <span className="e-text-2xl e-font-bold" style={{ color: 'var(--primary-600)' }}>
             {completionPercentage}%
           </span>
         </div>
@@ -101,14 +101,14 @@ export function ProjectProgressSlider({
 
       {/* Återstående insats */}
       <div className="e-p-16 e-rounded-lg" style={{
-        border: '2px solid var(--copper-500)',
+        border: '2px solid var(--primary-500)',
         backgroundColor: 'var(--e-surface)'
       }}>
         <div className="e-flex e-align-center e-gap-8 e-mb-8">
           <TrendingUp style={{
             height: '20px',
             width: '20px',
-            color: 'var(--copper-600)'
+            color: 'var(--primary-600)'
           }} />
           <h3 className="e-font-bold e-text-lg e-m-0" style={{ color: 'var(--e-text)' }}>
             Beräknad återstående insats
@@ -116,7 +116,7 @@ export function ProjectProgressSlider({
         </div>
         <p className="e-m-0 e-font-bold" style={{
           fontSize: '30px',
-          color: 'var(--copper-600)'
+          color: 'var(--primary-600)'
         }}>
           {metrics.estimated_remaining_hours}h
         </p>
@@ -196,12 +196,12 @@ export function ProjectProgressSlider({
         }}
         className="e-w-full e-p-12 e-rounded-lg e-font-semibold e-cursor-pointer e-flex e-align-center e-justify-center e-gap-8 e-text-base e-transition"
         style={{
-          backgroundColor: 'var(--copper-600)',
+          backgroundColor: 'var(--primary-600)',
           color: '#ffffff',
           border: 'none'
         }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-700)'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-700)'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
       >
         <Calendar style={{ height: '20px', width: '20px' }} />
         Planera in {metrics.estimated_remaining_hours}h i kalendern

@@ -340,7 +340,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
               width: '48px',
               height: '48px',
               border: '2px solid transparent',
-              borderBottomColor: 'var(--copper-500)'
+              borderBottomColor: 'var(--primary-500)'
             }}></div>
           <p style={{ color: 'var(--e-text)' }}>Laddar kalender...</p>
         </div>
@@ -360,7 +360,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
             style={{
               width: '48px',
               height: '48px',
-              color: 'var(--copper-500)'
+              color: 'var(--primary-500)'
             }} />
           <h3 className="e-text-xl e-font-bold e-mb-8"
             style={{ color: 'var(--e-text)' }}>

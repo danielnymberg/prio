@@ -1,10 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { useState, useRef, useEffect } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { Task, CreateTaskInput } from '@/lib/types';
+import { SidebarComponent } from '@syncfusion/ej2-react-navigations';
 import { TreeViewComponent } from '@syncfusion/ej2-react-navigations';
 
 interface SidebarProps {
@@ -19,11 +20,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const treeRef = useRef<TreeViewComponent>(null);
+  const sidebarRef = useRef<SidebarComponent>(null);
 
   // Exkludera Snabbis (≤2 min) från räknare
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
 
-  // TreeView data - React kommer automatiskt re-rendera när activeTasks.length ändras
+  // TreeView data
   const treeData: { [key: string]: any }[] = [
     {
       id: '1',
@@ -90,32 +92,26 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
   ];
 
-  // Track if we're programmatically selecting to prevent navigation loop
   const isSelectingProgrammatically = useRef(false);
 
-  // SyncFusion nodeSelected event handler
   const handleNodeSelected = (args: any) => {
-    // Skip if this is a programmatic selection
     if (isSelectingProgrammatically.current) {
       isSelectingProgrammatically.current = false;
       return;
     }
 
-    // Hämta full node data med getTreeData
     if (treeRef.current && args.node) {
       const nodeData = treeRef.current.getTreeData(args.node);
 
       if (nodeData && nodeData[0] && nodeData[0].url) {
         navigate(nodeData[0].url);
-        onClose(); // Stäng sidebar på mobil
+        onClose();
       }
     }
   };
 
-  // Markera aktiv nod baserat på current route (endast vid route change, inte vid TreeView update)
   useEffect(() => {
     if (treeRef.current && treeRef.current.element) {
-      // Hitta noden som matchar current path
       const findNodeByUrl = (nodes: any[], url: string): string | null => {
         for (const node of nodes) {
           if (node.url === url) return node.id;
@@ -130,48 +126,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       const activeNodeId = findNodeByUrl(treeData, location.pathname);
       const currentlySelected = treeRef.current.selectedNodes[0];
 
-      // Only update if the selection actually needs to change
       if (activeNodeId && activeNodeId !== currentlySelected) {
         isSelectingProgrammatically.current = true;
         treeRef.current.selectedNodes = [activeNodeId];
       }
     }
-  }, [location.pathname]); // REMOVED treeData dependency to prevent loop
+  }, [location.pathname]);
 
   return (
     <>
-      <aside
-        className="sidebar-responsive e-fixed e-z-40 e-flex e-flex-column e-border-r"
-        style={{
-          top: 0,
-          bottom: 0,
-          left: 0,
-          width: '16rem',
-          backgroundColor: 'var(--e-surface)',
-          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 300ms ease-in-out'
-        }}
+      <SidebarComponent
+        ref={sidebarRef}
+        width="280px"
+        type="Push"
+        showBackdrop={true}
+        isOpen={isOpen}
+        close={onClose}
+        position="Left"
       >
-        {/* Header med stängknapp för mobil */}
-        <div
-          className="mobile-only e-p-16 e-border-b e-hidden"
-        >
-          <button
-            onClick={onClose}
-            className="e-p-8 e-rounded-md e-transition-colors e-ml-auto e-block e-cursor-pointer"
-            style={{
-              backgroundColor: 'transparent',
-              border: 'none',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-secondary)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            aria-label="Stäng meny"
-          >
-            <X style={{ width: '1.25rem', height: '1.25rem', color: 'var(--e-text-secondary)' }} />
-          </button>
-        </div>
-
-        {/* Ny uppgift-knapp */}
         <div className="e-p-16">
           <Button
             variant="primary"
@@ -188,7 +160,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </Button>
         </div>
 
-        {/* TreeView Navigation */}
         <nav className="e-flex-1 e-overflow-y-auto e-px-12 e-pb-16">
           <TreeViewComponent
             ref={treeRef}
@@ -206,7 +177,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             fullRowNavigable={true}
           />
         </nav>
-      </aside>
+      </SidebarComponent>
 
       <TaskForm
         isOpen={isFormOpen}

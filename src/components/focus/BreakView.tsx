@@ -72,7 +72,7 @@ export function BreakView() {
           {phase === 'physical' ? (
             <Coffee className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: '#f59e0b' }} />
           ) : (
-            <Mail className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: 'var(--copper-500)' }} />
+            <Mail className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: 'var(--primary-500)' }} />
           )}
           <h1 className="e-text-2xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
             {phase === 'physical' ? '🧘 Pausdags!' : '📧 Mejl-batch'}
