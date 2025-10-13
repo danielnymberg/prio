@@ -1,12 +1,11 @@
 import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 import { format, isToday, isThisWeek, isPast } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import type { Task, Quadrant } from './types';
 
-// Tailwind class merger
+// Class merger (no Tailwind - just clsx)
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return clsx(inputs);
 }
 
 // Date formatting

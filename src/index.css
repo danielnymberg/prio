@@ -1,64 +1,60 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Prio - Vanilla CSS (NO Tailwind) */
+/* Syncfusion Material theme is the primary styling framework */
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-  }
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222.2, 84%, 4.9%);
+  --border-color: hsl(214.3, 31.8%, 91.4%);
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-  }
+  /* Prio brand colors */
+  --copper-600: #d97706;
+  --copper-500: #f59e0b;
+  --copper-400: #fbbf24;
 
-  * {
-    border-color: hsl(214.3 31.8% 91.4%);
-  }
-
-  .dark * {
-    border-color: hsl(217.2 32.6% 17.5%);
-  }
-
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
+  --cream-50: #fafaf9;
+  --charcoal-900: #1c1917;
+  --sand-200: #e7e5e4;
 }
 
-@layer components {
-  /* Kompakta headings */
-  h1 {
-    @apply text-2xl font-bold;
-  }
-
-  h2 {
-    @apply text-xl font-semibold;
-  }
-
-  h3 {
-    @apply text-lg font-semibold;
-  }
-
-  /* Kompakta cards och containers */
-  .card {
-    @apply text-sm;
-  }
+.dark {
+  --background: hsl(222.2, 84%, 4.9%);
+  --foreground: hsl(210, 40%, 98%);
+  --border-color: hsl(217.2, 32.6%, 17.5%);
 }
 
-/* Custom button styles - OUTSIDE @layer to avoid conflicting with Syncfusion */
-/* Only target our custom buttons, not Syncfusion components */
-button:not([class*="e-"]):not([class*="e-btn"]),
-.button:not([class*="e-"]) {
-  font-size: 0.875rem;
-  white-space: nowrap;
+* {
+  box-sizing: border-box;
 }
 
-button:not([class*="e-"]) > svg,
-.button:not([class*="e-"]) > svg {
-  flex-shrink: 0;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Basic Typography */
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
 }
 
 /* SyncFusion TreeView anpassningar för Sidebar */
@@ -74,11 +70,11 @@ button:not([class*="e-"]) > svg,
 }
 
 .sidebar-tree .e-list-item:hover {
-  background-color: rgb(245 243 239 / 50%);
+  background-color: rgba(245, 243, 239, 0.5);
 }
 
 .dark .sidebar-tree .e-list-item:hover {
-  background-color: rgb(42 37 32 / 50%);
+  background-color: rgba(42, 37, 32, 0.5);
 }
 
 /* Aktiv nod */
