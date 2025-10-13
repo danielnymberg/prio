@@ -9,7 +9,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { logDebugInfo } from './utils/debug';
-import { registerLicense, enableRipple, setCulture } from '@syncfusion/ej2-base';
+import { registerLicense, enableRipple } from '@syncfusion/ej2-base';
 
 // Import Syncfusion CSS
 import '@syncfusion/ej2-base/styles/material.css';
