@@ -25,6 +25,12 @@ import '@syncfusion/ej2-react-schedule/styles/material.css';
 import '@syncfusion/ej2-react-kanban/styles/material.css';
 import '@syncfusion/ej2-notifications/styles/material.css';
 
+// Load Swedish localization
+import { L10n } from '@syncfusion/ej2-base';
+import svSELocale from './locales/sv-SE.json';
+
+L10n.load(svSELocale);
+
 // Register Syncfusion license
 const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;
 if (syncfusionLicense) {
