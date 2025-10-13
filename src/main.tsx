@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import './styles/app.css';
 import './styles/syncfusion-dark.css';
 import './styles/syncfusion-theme-variables.css';
 import { AuthProvider } from './contexts/AuthContext';
@@ -11,20 +12,24 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { logDebugInfo } from './utils/debug';
 import { registerLicense, enableRipple } from '@syncfusion/ej2-base';
 
-// Import Syncfusion CSS
-import '@syncfusion/ej2-base/styles/material.css';
-import '@syncfusion/ej2-buttons/styles/material.css';
-import '@syncfusion/ej2-calendars/styles/material.css';
-import '@syncfusion/ej2-dropdowns/styles/material.css';
-import '@syncfusion/ej2-inputs/styles/material.css';
-import '@syncfusion/ej2-lists/styles/material.css';
-import '@syncfusion/ej2-navigations/styles/material.css';
-import '@syncfusion/ej2-popups/styles/material.css';
-import '@syncfusion/ej2-splitbuttons/styles/material.css';
-import '@syncfusion/ej2-grids/styles/material.css';
-import '@syncfusion/ej2-react-schedule/styles/material.css';
-import '@syncfusion/ej2-react-kanban/styles/material.css';
-import '@syncfusion/ej2-notifications/styles/material.css';
+// Import ALL Syncfusion CSS (Material 3 theme)
+import '@syncfusion/ej2-base/styles/material3.css';
+import '@syncfusion/ej2-buttons/styles/material3.css';
+import '@syncfusion/ej2-calendars/styles/material3.css';
+import '@syncfusion/ej2-dropdowns/styles/material3.css';
+import '@syncfusion/ej2-inputs/styles/material3.css';
+import '@syncfusion/ej2-lists/styles/material3.css';
+import '@syncfusion/ej2-navigations/styles/material3.css';
+import '@syncfusion/ej2-popups/styles/material3.css';
+import '@syncfusion/ej2-splitbuttons/styles/material3.css';
+import '@syncfusion/ej2-layouts/styles/material3.css';
+import '@syncfusion/ej2-grids/styles/material3.css';
+import '@syncfusion/ej2-charts/styles/material3.css';
+import '@syncfusion/ej2-kanban/styles/material3.css';
+import '@syncfusion/ej2-schedule/styles/material3.css';
+import '@syncfusion/ej2-notifications/styles/material3.css';
+import '@syncfusion/ej2-progressbar/styles/material3.css';
+import '@syncfusion/ej2-treegrid/styles/material3.css';
 
 // Register Syncfusion license FIRST (before any component loads)
 const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;
