@@ -12,20 +12,20 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { logDebugInfo } from './utils/debug';
 import { registerLicense, enableRipple } from '@syncfusion/ej2-base';
 
-// Import Syncfusion CSS (only installed packages)
-import '@syncfusion/ej2-base/styles/material3.css';
-import '@syncfusion/ej2-buttons/styles/material3.css';
-import '@syncfusion/ej2-calendars/styles/material3.css';
-import '@syncfusion/ej2-dropdowns/styles/material3.css';
-import '@syncfusion/ej2-inputs/styles/material3.css';
-import '@syncfusion/ej2-lists/styles/material3.css';
-import '@syncfusion/ej2-navigations/styles/material3.css';
-import '@syncfusion/ej2-popups/styles/material3.css';
-import '@syncfusion/ej2-splitbuttons/styles/material3.css';
-import '@syncfusion/ej2-grids/styles/material3.css';
-import '@syncfusion/ej2-react-schedule/styles/material3.css';
-import '@syncfusion/ej2-react-kanban/styles/material3.css';
-import '@syncfusion/ej2-notifications/styles/material3.css';
+// Import Syncfusion CSS - Fluent2 theme (clean, modern, monochrome-friendly)
+import '@syncfusion/ej2-base/styles/fluent2.css';
+import '@syncfusion/ej2-buttons/styles/fluent2.css';
+import '@syncfusion/ej2-calendars/styles/fluent2.css';
+import '@syncfusion/ej2-dropdowns/styles/fluent2.css';
+import '@syncfusion/ej2-inputs/styles/fluent2.css';
+import '@syncfusion/ej2-lists/styles/fluent2.css';
+import '@syncfusion/ej2-navigations/styles/fluent2.css';
+import '@syncfusion/ej2-popups/styles/fluent2.css';
+import '@syncfusion/ej2-splitbuttons/styles/fluent2.css';
+import '@syncfusion/ej2-grids/styles/fluent2.css';
+import '@syncfusion/ej2-react-schedule/styles/fluent2.css';
+import '@syncfusion/ej2-react-kanban/styles/fluent2.css';
+import '@syncfusion/ej2-notifications/styles/fluent2.css';
 
 // Register Syncfusion license FIRST (before any component loads)
 const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;
