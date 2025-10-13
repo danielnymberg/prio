@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { applySyncfusionTheme } from '@/services/syncfusion-theme';
 
 type Theme = 'light' | 'dark';
 
@@ -17,8 +18,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const root = window.document.documentElement;
+    const isDark = theme === 'dark';
+
+    // Update Tailwind dark mode class
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
+
+    // Sync with Syncfusion theme system
+    applySyncfusionTheme(isDark);
+
+    // Save to localStorage
     localStorage.setItem('prio-theme', theme);
   }, [theme]);
 

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import './styles/syncfusion-dark.css';
+import './styles/syncfusion-theme-variables.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Toaster } from 'react-hot-toast';
@@ -37,6 +38,10 @@ enableRipple(true);
 
 // Set Swedish culture globally
 setCulture('sv');
+
+// Initialize Syncfusion theme system
+import { initializeSyncfusionTheme } from './services/syncfusion-theme';
+initializeSyncfusionTheme();
 
 // Conditional StrictMode - endast i development
 const AppWrapper = import.meta.env.DEV ? React.StrictMode : React.Fragment;

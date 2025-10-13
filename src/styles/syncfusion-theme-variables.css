@@ -1,0 +1,141 @@
+/**
+ * Syncfusion Theme Variables
+ * Based on Prio brand colors (Copper/Amber primary)
+ * Generated with Material 3 base theme
+ */
+
+:root {
+  /* Primary colors - Copper/Amber */
+  --e-primary: #f59e0b;
+  --e-primary-lighter: #fbbf24;
+  --e-primary-darker: #d97706;
+  --e-primary-rgb: 245, 158, 11;
+
+  /* Surface colors - Light mode */
+  --e-surface: #fafaf9;
+  --e-surface-alt: #f5f5f4;
+  --e-surface-variant: #e7e5e4;
+
+  /* Text colors - Light mode */
+  --e-text-primary: #44403c;
+  --e-text-secondary: #78716c;
+
+  /* Border colors - Light mode */
+  --e-border: #e7e5e4;
+  --e-border-variant: #d6d3d1;
+
+  /* Success, Warning, Error, Info */
+  --e-success: #22c55e;
+  --e-warning: #f59e0b;
+  --e-error: #ef4444;
+  --e-info: #3b82f6;
+}
+
+/* Dark mode theme variables */
+[data-theme='prio-dark'],
+.e-dark-mode {
+  /* Surface colors - Dark mode */
+  --e-surface: #1c1917;
+  --e-surface-alt: #292524;
+  --e-surface-variant: #44403c;
+
+  /* Text colors - Dark mode */
+  --e-text-primary: #e7e5e4;
+  --e-text-secondary: #a8a29e;
+
+  /* Border colors - Dark mode */
+  --e-border: #44403c;
+  --e-border-variant: #57534e;
+}
+
+/* Apply theme variables to Syncfusion components */
+.e-control {
+  --primary-color: var(--e-primary);
+  --primary-lighter: var(--e-primary-lighter);
+  --primary-darker: var(--e-primary-darker);
+}
+
+/* Button primary color */
+.e-btn.e-primary {
+  background-color: var(--e-primary);
+  border-color: var(--e-primary);
+}
+
+.e-btn.e-primary:hover {
+  background-color: var(--e-primary-darker);
+  border-color: var(--e-primary-darker);
+}
+
+.e-btn.e-primary:focus {
+  background-color: var(--e-primary-darker);
+  border-color: var(--e-primary-darker);
+}
+
+/* TreeView active item */
+.e-treeview .e-active {
+  background-color: rgba(var(--e-primary-rgb), 0.12);
+  color: var(--e-primary);
+}
+
+.e-treeview .e-active .e-icons {
+  color: var(--e-primary);
+}
+
+/* Schedule current time indicator */
+.e-schedule .e-current-time {
+  background-color: var(--e-primary);
+}
+
+/* Schedule today button */
+.e-schedule .e-today.e-btn {
+  color: var(--e-primary);
+}
+
+/* Kanban card hover effect */
+.e-kanban .e-card:hover {
+  border-color: var(--e-primary);
+}
+
+/* Calendar selected date */
+.e-calendar .e-selected span.e-day {
+  background-color: var(--e-primary);
+  border-color: var(--e-primary);
+}
+
+/* Dialog header */
+.e-dialog .e-dlg-header {
+  background-color: var(--e-surface-alt);
+  color: var(--e-text-primary);
+}
+
+/* Switch component */
+.e-switch-wrapper .e-switch-on {
+  background-color: var(--e-primary);
+  border-color: var(--e-primary);
+}
+
+/* Checkbox checked state */
+.e-checkbox-wrapper .e-frame.e-check {
+  background-color: var(--e-primary);
+  border-color: var(--e-primary);
+}
+
+/* Toast success */
+.e-toast.e-toast-success {
+  background-color: var(--e-success);
+}
+
+/* Toast warning */
+.e-toast.e-toast-warning {
+  background-color: var(--e-warning);
+}
+
+/* Toast error */
+.e-toast.e-toast-danger {
+  background-color: var(--e-error);
+}
+
+/* Toast info */
+.e-toast.e-toast-info {
+  background-color: var(--e-info);
+}
