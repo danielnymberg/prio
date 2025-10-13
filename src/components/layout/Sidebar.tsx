@@ -23,8 +23,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   // Exkludera Snabbis (≤2 min) från räknare
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
 
-  // TreeView data med SyncFusion standard fields + custom 'url' field
-  // useMemo för att undvika onödiga re-creations, men tillåt uppdatering när activeTasks ändras
+  // TreeView data - React kommer automatiskt re-rendera när activeTasks.length ändras
   const treeData: { [key: string]: any }[] = [
     {
       id: '1',
@@ -91,24 +90,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
   ];
 
-  // Uppdatera TreeView dataSource när tasks ändras
-  useEffect(() => {
-    if (treeRef.current) {
-      // Syncfusion TreeView: Uppdatera dataSource och refreshera
-      treeRef.current.fields = {
-        dataSource: treeData,
-        id: 'id',
-        text: 'name',
-        iconCss: 'iconCss',
-        child: 'subChild',
-        expanded: 'expanded'
-      };
-      treeRef.current.refresh();
-    }
-  }, [activeTasks.length]); // Re-render när antalet tasks ändras
+  // Track if we're programmatically selecting to prevent navigation loop
+  const isSelectingProgrammatically = useRef(false);
 
   // SyncFusion nodeSelected event handler
   const handleNodeSelected = (args: any) => {
+    // Skip if this is a programmatic selection
+    if (isSelectingProgrammatically.current) {
+      isSelectingProgrammatically.current = false;
+      return;
+    }
+
     // Hämta full node data med getTreeData
     if (treeRef.current && args.node) {
       const nodeData = treeRef.current.getTreeData(args.node);
@@ -120,7 +112,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     }
   };
 
-  // Markera aktiv nod baserat på current route
+  // Markera aktiv nod baserat på current route (endast vid route change, inte vid TreeView update)
   useEffect(() => {
     if (treeRef.current && treeRef.current.element) {
       // Hitta noden som matchar current path
@@ -136,12 +128,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       };
 
       const activeNodeId = findNodeByUrl(treeData, location.pathname);
-      if (activeNodeId) {
-        // Sätt selected node programmatiskt
+      const currentlySelected = treeRef.current.selectedNodes[0];
+
+      // Only update if the selection actually needs to change
+      if (activeNodeId && activeNodeId !== currentlySelected) {
+        isSelectingProgrammatically.current = true;
         treeRef.current.selectedNodes = [activeNodeId];
       }
     }
-  }, [location.pathname, treeData]);
+  }, [location.pathname]); // REMOVED treeData dependency to prevent loop
 
   return (
     <>
