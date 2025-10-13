@@ -32,16 +32,33 @@ import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 
 export function SettingsView() {
-  const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [notificationConfig, setNotificationConfig] = useState<NotificationConfig>(getNotificationConfig());
-  const [notificationPermission, setNotificationPermission] = useState(
-    typeof Notification !== 'undefined' ? Notification.permission : 'denied'
-  );
-  const [workingHours, setWorkingHours] = useState<WorkingHoursConfig>(getWorkingHoursConfig());
-  const [emailSchedule, setEmailSchedule] = useState<EmailScheduleConfig>(getScheduleConfig());
+  console.log('🔍 DEBUG: SettingsView mounting');
+
+  let isMicrosoftConnected, setIsMicrosoftConnected;
+  let isLoading, setIsLoading;
+  let notificationConfig, setNotificationConfig;
+  let notificationPermission, setNotificationPermission;
+  let workingHours, setWorkingHours;
+  let emailSchedule, setEmailSchedule;
+
+  try {
+    console.log('🔍 DEBUG: Initializing state hooks...');
+    [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
+    [isLoading, setIsLoading] = useState(false);
+    [notificationConfig, setNotificationConfig] = useState<NotificationConfig>(getNotificationConfig());
+    [notificationPermission, setNotificationPermission] = useState(
+      typeof Notification !== 'undefined' ? Notification.permission : 'denied'
+    );
+    [workingHours, setWorkingHours] = useState<WorkingHoursConfig>(getWorkingHoursConfig());
+    [emailSchedule, setEmailSchedule] = useState<EmailScheduleConfig>(getScheduleConfig());
+    console.log('✅ DEBUG: All state hooks initialized successfully');
+  } catch (error) {
+    console.error('❌ DEBUG: Error initializing state hooks:', error);
+    throw error;
+  }
 
   useEffect(() => {
+    console.log('🔍 DEBUG: useEffect running - checkMicrosoftConnection');
     checkMicrosoftConnection();
   }, []);
 
@@ -180,8 +197,10 @@ export function SettingsView() {
   ];
 
   // Working Hours Content
-  const workingHoursContent = () => (
-    <div className="p-4 space-y-4">
+  const workingHoursContent = () => {
+    console.log('🔍 DEBUG: workingHoursContent() called');
+    return (
+      <div className="p-4 space-y-4">
       <p className="text-sm text-gray-600 dark:text-gray-400">
         Ange dina normala arbetstider så att appen kan beräkna deadlines korrekt baserat på faktisk arbetstid.
       </p>
@@ -230,15 +249,18 @@ export function SettingsView() {
         cssClass="e-custom-checkbox"
       />
 
-      <Button onClick={handleSaveWorkingHours} variant="primary">
-        Spara arbetstider
-      </Button>
-    </div>
-  );
+        <Button onClick={handleSaveWorkingHours} variant="primary">
+          Spara arbetstider
+        </Button>
+      </div>
+    );
+  };
 
   // Microsoft Calendar Content
-  const microsoftCalendarContent = () => (
-    <div className="p-4 space-y-4">
+  const microsoftCalendarContent = () => {
+    console.log('🔍 DEBUG: microsoftCalendarContent() called');
+    return (
+      <div className="p-4 space-y-4">
       <div className="flex items-start gap-3">
         <div className="p-3 bg-sand-100 dark:bg-charcoal-850 rounded-lg">
           <Calendar className="h-6 w-6 text-copper-600 dark:text-copper-400" />
@@ -298,13 +320,16 @@ export function SettingsView() {
               ⚠️ Azure Client ID saknas i miljövariabler. Kontakta administratör.
             </p>
           )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Email Scheduler Content
-  const emailSchedulerContent = () => (
+  const emailSchedulerContent = () => {
+    console.log('🔍 DEBUG: emailSchedulerContent() called');
+    return (
     <div className="p-4 space-y-4">
       <div className="flex items-start gap-3">
         <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -433,15 +458,18 @@ export function SettingsView() {
                 </div>
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Notifications Content
-  const notificationsContent = () => (
-    <div className="p-4 space-y-4">
+  const notificationsContent = () => {
+    console.log('🔍 DEBUG: notificationsContent() called');
+    return (
+      <div className="p-4 space-y-4">
       <div className="flex items-start gap-3">
         <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
           <Bell className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -518,13 +546,16 @@ export function SettingsView() {
               Aktivera notifieringar
             </Button>
           )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // App Information Content
-  const appInfoContent = () => (
+  const appInfoContent = () => {
+    console.log('🔍 DEBUG: appInfoContent() called');
+    return (
     <div className="p-4 space-y-2 text-sm text-gray-600 dark:text-gray-400">
       <p><strong>Version:</strong> 1.0.0 (FAS 2)</p>
       <p><strong>Prioriteringsmodell:</strong> CPM (Consequence Priority Method)</p>
@@ -535,60 +566,92 @@ export function SettingsView() {
         <li>Automatisk deadline-beräkning</li>
         <li>Fokustid-bokning i kalender</li>
         <li>PWA med offline-stöd</li>
-      </ul>
-    </div>
-  );
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">
-          Inställningar
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-          Hantera integrationer och preferenser
-        </p>
+        </ul>
       </div>
+    );
+  };
 
-      <AccordionComponent expandMode="Multiple">
-        <AccordionItemsDirective>
-          <AccordionItemDirective
-            header="Arbetstider"
-            iconCss="e-icons e-clock"
-            expanded={true}
-          >
-            {workingHoursContent()}
-          </AccordionItemDirective>
+  console.log('🔍 DEBUG: Before return statement');
+  console.log('🔍 DEBUG: State values:', {
+    isMicrosoftConnected,
+    isLoading,
+    workingHours,
+    emailSchedule,
+    notificationPermission
+  });
 
-          <AccordionItemDirective
-            header="Microsoft Calendar"
-            iconCss="e-icons e-schedule"
-          >
-            {microsoftCalendarContent()}
-          </AccordionItemDirective>
+  try {
+    console.log('🔍 DEBUG: Starting return JSX');
 
-          <AccordionItemDirective
-            header="Automatisk mejl-processorering"
-            iconCss="e-icons e-mail"
-          >
-            {emailSchedulerContent()}
-          </AccordionItemDirective>
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
+        {console.log('🔍 DEBUG: Rendering header section')}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">
+            Inställningar
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+            Hantera integrationer och preferenser
+          </p>
+        </div>
 
-          <AccordionItemDirective
-            header="Notifieringar"
-            iconCss="e-icons e-bell"
-          >
-            {notificationsContent()}
-          </AccordionItemDirective>
+        {console.log('🔍 DEBUG: About to render AccordionComponent')}
+        <AccordionComponent expandMode="Multiple">
+          <AccordionItemsDirective>
+            {console.log('🔍 DEBUG: Rendering Working Hours section')}
+            <AccordionItemDirective
+              header="Arbetstider"
+              iconCss="e-icons e-clock"
+              expanded={true}
+            >
+              {workingHoursContent()}
+            </AccordionItemDirective>
 
-          <AccordionItemDirective
-            header="Om Prio"
-            iconCss="e-icons e-info"
-          >
-            {appInfoContent()}
-          </AccordionItemDirective>
-        </AccordionItemsDirective>
-      </AccordionComponent>
-    </div>
-  );
+            {console.log('🔍 DEBUG: Rendering Microsoft Calendar section')}
+            <AccordionItemDirective
+              header="Microsoft Calendar"
+              iconCss="e-icons e-schedule"
+            >
+              {microsoftCalendarContent()}
+            </AccordionItemDirective>
+
+            {console.log('🔍 DEBUG: Rendering Email Scheduler section')}
+            <AccordionItemDirective
+              header="Automatisk mejl-processorering"
+              iconCss="e-icons e-mail"
+            >
+              {emailSchedulerContent()}
+            </AccordionItemDirective>
+
+            {console.log('🔍 DEBUG: Rendering Notifications section')}
+            <AccordionItemDirective
+              header="Notifieringar"
+              iconCss="e-icons e-bell"
+            >
+              {notificationsContent()}
+            </AccordionItemDirective>
+
+            {console.log('🔍 DEBUG: Rendering App Info section')}
+            <AccordionItemDirective
+              header="Om Prio"
+              iconCss="e-icons e-info"
+            >
+              {appInfoContent()}
+            </AccordionItemDirective>
+          </AccordionItemsDirective>
+        </AccordionComponent>
+        {console.log('🔍 DEBUG: AccordionComponent rendered successfully')}
+      </div>
+    );
+  } catch (error) {
+    console.error('❌ DEBUG: Error in return JSX:', error);
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 px-4">
+        <h1 className="text-2xl font-bold text-red-600">Error rendering SettingsView</h1>
+        <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto">
+          {JSON.stringify(error, null, 2)}
+        </pre>
+      </div>
+    );
+  }
 }
