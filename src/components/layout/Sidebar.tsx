@@ -48,13 +48,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
     {
       id: '4',
-      name: `Alla uppgifter (${activeTasks.length})`,
+      name: `Uppgifter (${activeTasks.length})`,
       iconCss: 'e-icons e-list-unordered',
       url: '/all'
     },
     {
       id: '5',
-      name: 'Eisenhower Matrix',
+      name: 'Kanban',
       iconCss: 'e-icons e-grid',
       url: '/matrix'
     },
@@ -105,7 +105,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       if (nodeData && nodeData[0] && nodeData[0].url) {
         navigate(nodeData[0].url);
-        onClose();
+
+        // Close sidebar only on mobile (<768px)
+        const isMobile = window.matchMedia('(max-width: 767px)').matches;
+        if (isMobile) {
+          onClose();
+        }
       }
     }
   };
@@ -137,7 +142,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     <>
       <SidebarComponent
         ref={sidebarRef}
-        width="280px"
+        width="240px"
         type="Push"
         showBackdrop={true}
         isOpen={isOpen}

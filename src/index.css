@@ -152,12 +152,6 @@ h3 {
   display: block !important;
 }
 
-@media (min-width: 1024px) {
-  .mobile-menu-btn {
-    display: none !important;
-  }
-}
-
 /* Sidebar responsive behavior */
 .sidebar-responsive {
   position: fixed;
