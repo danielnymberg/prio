@@ -101,10 +101,10 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
           <ButtonComponent
             onClick={() => setStep(2)}
-            cssClass="e-primary e-round e-w-full"
+            cssClass="e-primary e-round e-flex-1"
             disabled={availableTime === 0}
             isPrimary={true}
-            content="Nästa →"
+            iconCss="e-icons e-arrow-right"
           />
         </div>
       )}

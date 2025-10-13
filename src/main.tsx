@@ -23,11 +23,9 @@ import '@syncfusion/ej2-react-schedule/styles/fluent2.css';
 import '@syncfusion/ej2-react-kanban/styles/fluent2.css';
 import '@syncfusion/ej2-notifications/styles/fluent2.css';
 
-// Then import our custom CSS to override Syncfusion defaults
+// Then import our custom CSS
 import './index.css';
 import './styles/app.css';
-import './styles/syncfusion-dark.css';
-import './styles/syncfusion-theme-variables.css';
 
 // Register Syncfusion license FIRST (before any component loads)
 const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;
