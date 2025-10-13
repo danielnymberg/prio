@@ -583,9 +583,11 @@ export function SettingsView() {
   try {
     console.log('🔍 DEBUG: Starting return JSX');
 
+    console.log('🔍 DEBUG: Rendering header section');
+    console.log('🔍 DEBUG: About to render AccordionComponent');
+
     return (
       <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
-        {console.log('🔍 DEBUG: Rendering header section')}
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">
             Inställningar
@@ -595,52 +597,45 @@ export function SettingsView() {
           </p>
         </div>
 
-        {console.log('🔍 DEBUG: About to render AccordionComponent')}
         <AccordionComponent expandMode="Multiple">
           <AccordionItemsDirective>
-            {console.log('🔍 DEBUG: Rendering Working Hours section')}
             <AccordionItemDirective
               header="Arbetstider"
               iconCss="e-icons e-clock"
               expanded={true}
             >
-              {workingHoursContent()}
+              {(() => { console.log('🔍 DEBUG: Rendering Working Hours section'); return workingHoursContent(); })()}
             </AccordionItemDirective>
 
-            {console.log('🔍 DEBUG: Rendering Microsoft Calendar section')}
             <AccordionItemDirective
               header="Microsoft Calendar"
               iconCss="e-icons e-schedule"
             >
-              {microsoftCalendarContent()}
+              {(() => { console.log('🔍 DEBUG: Rendering Microsoft Calendar section'); return microsoftCalendarContent(); })()}
             </AccordionItemDirective>
 
-            {console.log('🔍 DEBUG: Rendering Email Scheduler section')}
             <AccordionItemDirective
               header="Automatisk mejl-processorering"
               iconCss="e-icons e-mail"
             >
-              {emailSchedulerContent()}
+              {(() => { console.log('🔍 DEBUG: Rendering Email Scheduler section'); return emailSchedulerContent(); })()}
             </AccordionItemDirective>
 
-            {console.log('🔍 DEBUG: Rendering Notifications section')}
             <AccordionItemDirective
               header="Notifieringar"
               iconCss="e-icons e-bell"
             >
-              {notificationsContent()}
+              {(() => { console.log('🔍 DEBUG: Rendering Notifications section'); return notificationsContent(); })()}
             </AccordionItemDirective>
 
-            {console.log('🔍 DEBUG: Rendering App Info section')}
             <AccordionItemDirective
               header="Om Prio"
               iconCss="e-icons e-info"
             >
-              {appInfoContent()}
+              {(() => { console.log('🔍 DEBUG: Rendering App Info section'); return appInfoContent(); })()}
             </AccordionItemDirective>
           </AccordionItemsDirective>
         </AccordionComponent>
-        {console.log('🔍 DEBUG: AccordionComponent rendered successfully')}
       </div>
     );
   } catch (error) {
