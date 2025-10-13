@@ -103,6 +103,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
             onClick={() => setStep(2)}
             cssClass="e-primary e-round e-w-full"
             disabled={availableTime === 0}
+            isPrimary={true}
             content="Nästa →"
           />
         </div>
