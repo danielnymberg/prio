@@ -5,7 +5,7 @@ import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
 import { QuickCaptureBar } from './components/ui/QuickCaptureBar';
-import { QuickNoteInput } from './components/tasks/QuickNoteInput';
+// import { QuickNoteInput } from './components/tasks/QuickNoteInput'; // TEMPORÄRT DISABLED
 import { WelcomeModal } from './components/onboarding/WelcomeModal';
 import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding';
 import { VersionBanner } from './components/VersionBanner';
