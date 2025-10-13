@@ -121,11 +121,11 @@ export function InboxView() {
   };
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="e-h-full e-flex e-flex-column e-gap-16">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="e-flex e-align-center e-justify-between">
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
+          <h1 className="e-text-2xl e-font-bold" style={{ color: 'var(--e-text)', margin: 0 }}>
             Inbox
           </h1>
           <p style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
@@ -136,8 +136,8 @@ export function InboxView() {
 
       {/* Tips banner */}
       {inboxTasks.length > 0 && (
-        <div style={{ backgroundColor: 'var(--e-surface)', border: '1px solid var(--e-border)', borderRadius: '0.5rem', padding: '1rem' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text)', margin: 0 }}>
+        <div className="e-border e-rounded-md e-p-16" style={{ backgroundColor: 'var(--e-surface)' }}>
+          <p className="e-text-sm" style={{ color: 'var(--e-text)', margin: 0 }}>
             💡 <strong>Tips:</strong> Dubbelklicka på en uppgift för att bedöma vikten, tidskänslighet och deadline.
             Uppgifter som skapats via röst eller delning hamnar här om AI:n inte kunde bedöma dem direkt.
           </p>
@@ -146,7 +146,7 @@ export function InboxView() {
 
       {/* Grid eller Empty State */}
       {inboxTasks.length === 0 ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="e-flex-1 e-flex e-align-center e-justify-center">
           <EmptyState
             icon={<Inbox style={{ height: '64px', width: '64px' }} />}
             title="Inbox är tom!"
@@ -154,7 +154,7 @@ export function InboxView() {
           />
         </div>
       ) : (
-        <div style={{ flex: 1, backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+        <div className="e-flex-1 e-rounded-lg e-overflow-hidden" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
           <GridComponent
             ref={gridRef}
             dataSource={gridData}

@@ -77,17 +77,13 @@ export function VoiceButton({ onTranscript, size = 'sm', mode = 'simple', onComm
     width: '16px',
   };
 
-  const buttonStyle: CSSProperties = isListening ? {
-    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-  } : {};
-
   return (
     <Button
       variant={isListening ? 'primary' : 'ghost'}
       size={size}
       onClick={handleVoiceInput}
       title={buttonTitle}
-      style={buttonStyle}
+      className={isListening ? 'e-animate-pulse' : ''}
     >
       <ButtonIcon style={iconStyle} />
     </Button>

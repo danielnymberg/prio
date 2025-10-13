@@ -236,7 +236,7 @@ export function AutoBookModal({
                     fontWeight: '500',
                     transition: 'colors 0.2s',
                     backgroundColor: maxSessionHours === hours ? 'var(--copper-600)' : 'var(--e-hover, #f3f4f6)',
-                    color: maxSessionHours === hours ? 'white' : 'var(--e-text)',
+                    color: maxSessionHours === hours ? 'var(--e-surface, white)' : 'var(--e-text)',
                     border: 'none',
                     cursor: 'pointer'
                   }}
@@ -345,11 +345,11 @@ export function AutoBookModal({
                   <div style={{
                     marginTop: '12px',
                     padding: '12px',
-                    backgroundColor: '#fffbeb',
-                    border: '1px solid #fcd34d',
+                    backgroundColor: 'var(--e-warning-light, #fffbeb)',
+                    border: '1px solid var(--e-warning, #fcd34d)',
                     borderRadius: '8px'
                   }}>
-                    <p style={{ fontSize: '14px', color: '#92400e' }}>
+                    <p style={{ fontSize: '14px', color: 'var(--e-warning-dark, #92400e)' }}>
                       ⚠️ Kunde inte hitta tillräckligt med tid för alla {Math.floor(durationMinutes / 60)}h.
                       {Math.floor(sessionPlan.remainingMinutes / 60)}h {sessionPlan.remainingMinutes % 60}min återstår obokat.
                     </p>
@@ -361,11 +361,11 @@ export function AutoBookModal({
                   style={{ flex: '1' }}
                   onMouseEnter={(e) => {
                     const btn = e.currentTarget.querySelector('button');
-                    if (btn) btn.style.backgroundColor = '#059669';
+                    if (btn) btn.style.backgroundColor = 'var(--e-success-dark, #059669)';
                   }}
                   onMouseLeave={(e) => {
                     const btn = e.currentTarget.querySelector('button');
-                    if (btn) btn.style.backgroundColor = '#10b981';
+                    if (btn) btn.style.backgroundColor = 'var(--e-success, #10b981)';
                   }}
                 >
                   <Button
@@ -373,7 +373,7 @@ export function AutoBookModal({
                     disabled={isBooking}
                     style={{
                       width: '100%',
-                      backgroundColor: '#10b981'
+                      backgroundColor: 'var(--e-success, #10b981)'
                     }}
                   >
                   {isBooking ? (
@@ -487,8 +487,8 @@ export function AutoBookModal({
                                 fontSize: '12px',
                                 padding: '2px 8px',
                                 borderRadius: '9999px',
-                                backgroundColor: '#d1fae5',
-                                color: '#065f46',
+                                backgroundColor: 'var(--e-success-light, #d1fae5)',
+                                color: 'var(--e-success-dark, #065f46)',
                                 fontWeight: '500'
                               }}>
                                 ⭐ Optimal tid
@@ -519,7 +519,7 @@ export function AutoBookModal({
                               alignItems: 'center',
                               justifyContent: 'center'
                             }}>
-                              <svg style={{ height: '16px', width: '16px', color: 'white' }} fill="currentColor" viewBox="0 0 20 20">
+                              <svg style={{ height: '16px', width: '16px', color: 'var(--e-surface, white)' }} fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                   fillRule="evenodd"
                                   d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -549,7 +549,7 @@ export function AutoBookModal({
                       borderRadius: '9999px',
                       height: '16px',
                       width: '16px',
-                      borderBottom: '2px solid white',
+                      borderBottom: '2px solid var(--e-surface, white)',
                       marginRight: '8px'
                     }} />
                     Bokar...

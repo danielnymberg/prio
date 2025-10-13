@@ -152,8 +152,8 @@ export function FocusView() {
   if (showMorningBriefing) {
     return (
       <>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'linear-gradient(to bottom right, #f9fafb, #e5e7eb)', padding: '1rem' }}>
-          <div style={{ maxWidth: '42rem', width: '100%' }}>
+        <div className="e-flex e-align-center e-justify-center e-h-screen e-p-16" style={{ background: 'linear-gradient(to bottom right, #f9fafb, #e5e7eb)' }}>
+          <div className="e-w-full" style={{ maxWidth: '42rem' }}>
             <MorningBriefing
               tasks={tasks}
               onStartDay={() => {
@@ -182,13 +182,13 @@ export function FocusView() {
   if (!context) {
     return (
       <>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
-          <div style={{ maxWidth: '28rem', textAlign: 'center', padding: '0 1.5rem' }}>
-            <div style={{ fontSize: '3.75rem', marginBottom: '1rem' }}>☀️</div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+        <div className="e-flex e-align-center e-justify-center e-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
+          <div className="e-text-center" style={{ maxWidth: '28rem', padding: '0 24px' }}>
+            <div className="e-text-2xl e-mb-16" style={{ fontSize: '60px' }}>☀️</div>
+            <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
               Börja din dag!
             </h2>
-            <p style={{ color: 'var(--e-text-secondary)', marginBottom: '1.5rem' }}>
+            <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
               Gör din dagliga avstämning för att få din första uppgift.
             </p>
             <Button onClick={() => setIsCheckInOpen(true)} size="lg">
@@ -210,8 +210,8 @@ export function FocusView() {
   if (!nextTask) {
     return (
       <>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
-          <div style={{ maxWidth: '28rem', textAlign: 'center', padding: '0 1.5rem' }}>
+        <div className="e-flex e-align-center e-justify-center e-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
+          <div className="e-text-center" style={{ maxWidth: '28rem', padding: '0 24px' }}>
             {(() => {
               const activeTasks = tasks.filter(t => t.status !== 'done');
               const blockedTasks = activeTasks.filter(t =>
@@ -228,11 +228,11 @@ export function FocusView() {
               if (tasks.length === 0) {
                 return (
                   <>
-                    <div style={{ fontSize: '3.75rem', marginBottom: '1rem' }}>📝</div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+                    <div className="e-mb-16" style={{ fontSize: '60px' }}>📝</div>
+                    <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
                       Inga uppgifter ännu!
                     </h2>
-                    <p style={{ color: 'var(--e-text-secondary)', marginBottom: '1.5rem' }}>
+                    <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
                       Skapa din första uppgift för att komma igång med smart prioritering.
                     </p>
                     <Button onClick={() => navigate('/all')} size="lg">
@@ -246,11 +246,11 @@ export function FocusView() {
               if (blockedTasks.length === activeTasks.length) {
                 return (
                   <>
-                    <div style={{ fontSize: '3.75rem', marginBottom: '1rem' }}>🔒</div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+                    <div className="e-mb-16" style={{ fontSize: '60px' }}>🔒</div>
+                    <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
                       Alla uppgifter är blockerade
                     </h2>
-                    <p style={{ color: 'var(--e-text-secondary)', marginBottom: '1.5rem' }}>
+                    <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
                       {blockedTasks.length} uppgifter väntar på att andra uppgifter ska bli klara.
                     </p>
                     <Button onClick={() => navigate('/all')} variant="primary">
@@ -263,14 +263,14 @@ export function FocusView() {
               if (activeTasks.length > 0 && tooLongTasks.length === activeTasks.length && context) {
                 return (
                   <>
-                    <div style={{ fontSize: '3.75rem', marginBottom: '1rem' }}>⏰</div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+                    <div className="e-mb-16" style={{ fontSize: '60px' }}>⏰</div>
+                    <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
                       Alla uppgifter tar för lång tid
                     </h2>
-                    <p style={{ color: 'var(--e-text-secondary)', marginBottom: '1.5rem' }}>
+                    <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
                       Du har {activeTasks.length} uppgifter men alla kräver mer än {Math.floor(context.availableTime / 60)}h.
                     </p>
-                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                    <div className="e-flex e-gap-12 e-justify-center">
                       <Button onClick={() => setIsCheckInOpen(true)} variant="primary">
                         Uppdatera tillgänglig tid
                       </Button>
@@ -284,14 +284,14 @@ export function FocusView() {
 
               return (
                 <>
-                  <div style={{ fontSize: '3.75rem', marginBottom: '1rem' }}>🤷</div>
-                  <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+                  <div className="e-mb-16" style={{ fontSize: '60px' }}>🤷</div>
+                  <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
                     Inga uppgifter tillgängliga just nu
                   </h2>
-                  <p style={{ color: 'var(--e-text-secondary)', marginBottom: '1.5rem' }}>
+                  <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
                     Det finns uppgifter men ingen passar dina nuvarande filter.
                   </p>
-                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                  <div className="e-flex e-gap-12 e-justify-center">
                     <Button onClick={() => setIsCheckInOpen(true)} variant="primary">
                       Uppdatera avstämning
                     </Button>
@@ -316,20 +316,20 @@ export function FocusView() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
+    <div className="e-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
       {/* Emergency Banner */}
       {isEmergency && (
-        <div style={{ backgroundColor: '#ef4444', color: 'white', padding: '0.75rem 1.5rem', textAlign: 'center', fontWeight: '600' }}>
-          <AlertTriangle style={{ display: 'inline', height: '20px', width: '20px', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+        <div className="e-text-center e-font-semibold" style={{ backgroundColor: '#ef4444', color: 'white', padding: '12px 24px' }}>
+          <AlertTriangle style={{ display: 'inline', height: '20px', width: '20px', marginRight: '8px', verticalAlign: 'middle' }} />
           Du har uppgifter med deadline inom 24 timmar!
         </div>
       )}
 
       {/* Dependency Alerts */}
       {criticalChains.length > 0 && (
-        <div style={{ backgroundColor: 'var(--e-surface)', borderBottom: '1px solid var(--e-border)', padding: '1rem 1.5rem' }}>
-          <div style={{ maxWidth: '64rem', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--e-text)', marginBottom: '0.75rem' }}>
+        <div className="e-border-b e-p-16" style={{ backgroundColor: 'var(--e-surface)' }}>
+          <div className="e-mx-auto" style={{ maxWidth: '64rem' }}>
+            <h2 className="e-text-lg e-font-semibold e-mb-12" style={{ color: 'var(--e-text)' }}>
               ⚠️ Kritiska blockeringskedjor ({criticalChains.length})
             </h2>
             {criticalChains.map((chain, index) => (
@@ -340,13 +340,13 @@ export function FocusView() {
       )}
 
       {/* Header */}
-      <div style={{ backgroundColor: 'var(--e-surface)', borderBottom: '1px solid var(--e-border)', padding: '1rem 1.5rem' }}>
-        <div style={{ maxWidth: '64rem', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="e-border-b e-p-16" style={{ backgroundColor: 'var(--e-surface)' }}>
+        <div className="e-mx-auto e-flex e-justify-between e-align-center" style={{ maxWidth: '64rem' }}>
           <div>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
+            <h1 className="e-text-xl e-font-bold" style={{ color: 'var(--e-text)', margin: 0 }}>
               🎯 Just Nu
             </h1>
-            <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>
+            <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
               {context.availableTime} min kvar idag • {context.energyLevel === 'low' ? '🔋' : context.energyLevel === 'medium' ? '🔋🔋' : '🔋🔋🔋'}
               {checkInData?.strategy === 'quick_wins' && ' • ⚡ Quick Wins'}
               {checkInData?.strategy === 'deep_work' && ' • 🧠 Deep Work'}
@@ -374,38 +374,30 @@ export function FocusView() {
         if (snabbis.length === 0) return null;
 
         return (
-          <div style={{ maxWidth: '64rem', margin: '0 auto', padding: '1.5rem 1.5rem 0' }}>
-            <div style={{ backgroundColor: '#ecfdf5', border: '2px solid #10b981', borderRadius: '0.75rem', padding: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '1.5rem' }}>⚡</span>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#064e3b', margin: 0 }}>
+          <div className="e-mx-auto e-p-24 e-pt-24" style={{ maxWidth: '64rem', paddingBottom: 0 }}>
+            <div className="e-border e-rounded-lg e-p-16" style={{ backgroundColor: '#ecfdf5', borderColor: '#10b981', borderWidth: '2px' }}>
+              <div className="e-flex e-align-center e-gap-8 e-mb-12">
+                <span className="e-text-xl">⚡</span>
+                <h3 className="e-text-lg e-font-bold" style={{ color: '#064e3b', margin: 0 }}>
                   Snabbis ({snabbis.length}) - Gör direkt!
                 </h3>
               </div>
-              <p style={{ fontSize: '0.875rem', color: '#065f46', marginBottom: '0.75rem' }}>
+              <p className="e-text-sm e-mb-12" style={{ color: '#065f46' }}>
                 💡 Uppgifter som tar ≤ 2 min - klara av dem först!
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div className="e-flex e-flex-column e-gap-8">
                 {snabbis.map(task => (
                   <div
                     key={task.id}
-                    style={{
-                      backgroundColor: 'var(--e-surface)',
-                      borderRadius: '0.5rem',
-                      padding: '0.75rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer',
-                      transition: 'box-shadow 0.2s'
-                    }}
+                    className="e-rounded-md e-p-12 e-flex e-align-center e-justify-between e-cursor-pointer e-transition"
+                    style={{ backgroundColor: 'var(--e-surface)' }}
                     onClick={() => navigate(`/session/${task.id}`)}
                     onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
                     onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                   >
                     <div>
-                      <p style={{ fontWeight: '500', color: 'var(--e-text)', margin: 0 }}>{task.title}</p>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', margin: 0 }}>
+                      <p className="e-font-medium" style={{ color: 'var(--e-text)', margin: 0 }}>{task.title}</p>
+                      <p className="e-text-xs" style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
                         {formatDuration(task.estimated_duration)}
                       </p>
                     </div>
@@ -419,8 +411,8 @@ export function FocusView() {
       })()}
 
       {/* Main Focus Card */}
-      <div style={{ maxWidth: '64rem', margin: '0 auto', padding: '3rem 1.5rem' }}>
-        <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '3rem', border: '4px solid var(--copper-500)' }}>
+      <div className="e-mx-auto e-p-32" style={{ maxWidth: '64rem', padding: '48px 24px' }}>
+        <div className="e-rounded-xl e-p-32" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '4px solid var(--copper-500)' }}>
           {/* Deadline Warnings */}
           {nextTask.deadline && (() => {
             const deadline = new Date(nextTask.deadline);

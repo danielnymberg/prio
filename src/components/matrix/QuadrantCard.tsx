@@ -80,46 +80,41 @@ export function QuadrantCard({ quadrant, tasks, onTaskClick, onAddTask, onDuplic
   return (
     <div
       ref={setNodeRef}
+      className="e-rounded-lg e-p-16 e-flex e-flex-column e-h-full e-transition"
       style={{
-        borderRadius: '12px',
         border: `2px solid var(--e-border, ${config.borderColor})`,
         backgroundColor: `var(--e-surface, ${config.bgColor})`,
-        padding: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        transition: 'all 0.2s',
         ...(isOver && {
           boxShadow: '0 0 0 2px var(--copper-500, #d4764e)',
           transform: 'scale(1.02)',
         }),
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="e-flex e-align-center e-justify-between e-mb-16">
+        <div className="e-flex e-align-center e-gap-8">
           <Icon style={{ height: '20px', width: '20px', color: `var(--e-text, ${config.textColor})` }} />
           <div>
-            <h3 style={{ fontWeight: 'bold', fontSize: '14px', color: `var(--e-text, ${config.textColor})` }}>
+            <h3 className="e-font-bold e-text-sm"
+              style={{ color: `var(--e-text, ${config.textColor})` }}>
               {quadrant}: {config.title}
             </h3>
-            <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}>
+            <p className="e-text-xs"
+              style={{ color: 'var(--e-text-secondary, #6b7280)' }}>
               {config.action}
             </p>
           </div>
         </div>
-        <div style={{
-          padding: '4px 8px',
-          borderRadius: '9999px',
-          backgroundColor: `var(--e-surface, ${config.bgColor})`,
-          color: `var(--e-text, ${config.textColor})`,
-          fontSize: '12px',
-          fontWeight: 'bold'
-        }}>
+        <div className="e-py-4 e-px-8 e-rounded-full e-text-xs e-font-bold"
+          style={{
+            backgroundColor: `var(--e-surface, ${config.bgColor})`,
+            color: `var(--e-text, ${config.textColor})`
+          }}>
           {tasks.length}
         </div>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', maxHeight: '500px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="e-flex-1 e-overflow-y-auto e-flex e-flex-column e-gap-8"
+        style={{ maxHeight: '500px' }}>
         {sortedTasks.length === 0 ? (
           <EmptyState
             title="Inga tasks"

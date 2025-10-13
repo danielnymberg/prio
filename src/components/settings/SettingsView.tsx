@@ -261,10 +261,10 @@ export function SettingsView() {
         </div>
 
         <div style={{
-          backgroundColor: '#eff6ff',
+          backgroundColor: 'var(--copper-100)',
           padding: '0.75rem',
           borderRadius: '8px',
-          border: '1px solid #3b82f6'
+          border: '1px solid var(--copper-500)'
         }}>
           <p style={{
             fontSize: '0.875rem',
@@ -327,8 +327,8 @@ export function SettingsView() {
             </p>
 
             <div style={{
-              backgroundColor: '#eff6ff',
-              border: '1px solid #3b82f6',
+              backgroundColor: 'var(--copper-100)',
+              border: '1px solid var(--copper-500)',
               borderRadius: '8px',
               padding: '1rem',
               marginBottom: '1rem'
@@ -337,7 +337,7 @@ export function SettingsView() {
                 <Info style={{
                   height: '1.25rem',
                   width: '1.25rem',
-                  color: '#3b82f6',
+                  color: 'var(--copper-600)',
                   flexShrink: 0,
                   marginTop: '0.125rem'
                 }} />
@@ -380,12 +380,12 @@ export function SettingsView() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    color: '#10b981'
+                    color: 'var(--success-500, #10b981)'
                   }}>
                     <div style={{
                       width: '0.5rem',
                       height: '0.5rem',
-                      backgroundColor: '#10b981',
+                      backgroundColor: 'var(--success-500, #10b981)',
                       borderRadius: '9999px',
                       animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                     }} />
@@ -425,7 +425,7 @@ export function SettingsView() {
             {!import.meta.env.VITE_AZURE_CLIENT_ID && (
               <p style={{
                 fontSize: '0.875rem',
-                color: '#f59e0b',
+                color: 'var(--warning-500, #f59e0b)',
                 marginTop: '0.75rem'
               }}>
                 ⚠️ Azure Client ID saknas i miljövariabler. Kontakta administratör.
@@ -454,13 +454,13 @@ export function SettingsView() {
         }}>
           <div style={{
             padding: '0.75rem',
-            backgroundColor: '#eff6ff',
+            backgroundColor: 'var(--copper-100)',
             borderRadius: '8px'
           }}>
             <Mail style={{
               height: '1.5rem',
               width: '1.5rem',
-              color: '#3b82f6'
+              color: 'var(--copper-600)'
             }} />
           </div>
 
@@ -475,8 +475,8 @@ export function SettingsView() {
             </p>
 
             <div style={{
-              backgroundColor: '#eff6ff',
-              border: '1px solid #3b82f6',
+              backgroundColor: 'var(--copper-100)',
+              border: '1px solid var(--copper-500)',
               borderRadius: '8px',
               padding: '1rem',
               marginBottom: '1rem'
@@ -485,7 +485,7 @@ export function SettingsView() {
                 <Info style={{
                   height: '1.25rem',
                   width: '1.25rem',
-                  color: '#3b82f6',
+                  color: 'var(--copper-600)',
                   flexShrink: 0,
                   marginTop: '0.125rem'
                 }} />
@@ -519,15 +519,15 @@ export function SettingsView() {
 
             {!isMicrosoftConnected && (
               <div style={{
-                backgroundColor: '#fef3c7',
-                border: '1px solid #f59e0b',
+                backgroundColor: 'var(--warning-100, #fef3c7)',
+                border: '1px solid var(--warning-500, #f59e0b)',
                 borderRadius: '8px',
                 padding: '0.75rem',
                 marginBottom: '1rem'
               }}>
                 <p style={{
                   fontSize: '0.875rem',
-                  color: '#92400e',
+                  color: 'var(--warning-800, #92400e)',
                   margin: 0
                 }}>
                   ⚠️ Du måste ansluta ditt Microsoft-konto först för att använda email-scheduler.
@@ -607,7 +607,7 @@ export function SettingsView() {
                                 handleUpdateEmailTimes(newTimes);
                               }}
                               style={{
-                                color: '#ef4444',
+                                color: 'var(--error-500, #ef4444)',
                                 cursor: 'pointer',
                                 backgroundColor: 'transparent',
                                 border: 'none',
@@ -626,7 +626,7 @@ export function SettingsView() {
                           }}
                           style={{
                             fontSize: '0.875rem',
-                            color: '#3b82f6',
+                            color: 'var(--copper-600)',
                             cursor: 'pointer',
                             backgroundColor: 'transparent',
                             border: 'none',
@@ -691,8 +691,8 @@ export function SettingsView() {
 
               {emailSchedule.enabled && (
                 <div style={{
-                  backgroundColor: '#dcfce7',
-                  border: '1px solid #10b981',
+                  backgroundColor: 'var(--success-100, #dcfce7)',
+                  border: '1px solid var(--success-500, #10b981)',
                   borderRadius: '8px',
                   padding: '0.75rem'
                 }}>
@@ -700,12 +700,12 @@ export function SettingsView() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    color: '#047857'
+                    color: 'var(--success-700, #047857)'
                   }}>
                     <div style={{
                       width: '0.5rem',
                       height: '0.5rem',
-                      backgroundColor: '#10b981',
+                      backgroundColor: 'var(--success-500, #10b981)',
                       borderRadius: '9999px',
                       animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                     }} />
@@ -742,13 +742,13 @@ export function SettingsView() {
         }}>
           <div style={{
             padding: '0.75rem',
-            backgroundColor: '#f3e8ff',
+            backgroundColor: 'var(--purple-100, #f3e8ff)',
             borderRadius: '8px'
           }}>
             <Bell style={{
               height: '1.5rem',
               width: '1.5rem',
-              color: '#9333ea'
+              color: 'var(--purple-600, #9333ea)'
             }} />
           </div>
 
@@ -813,8 +813,8 @@ export function SettingsView() {
                 )}
 
                 <div style={{
-                  backgroundColor: '#dcfce7',
-                  border: '1px solid #10b981',
+                  backgroundColor: 'var(--success-100, #dcfce7)',
+                  border: '1px solid var(--success-500, #10b981)',
                   borderRadius: '8px',
                   padding: '0.75rem'
                 }}>
@@ -822,12 +822,12 @@ export function SettingsView() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    color: '#047857'
+                    color: 'var(--success-700, #047857)'
                   }}>
                     <div style={{
                       width: '0.5rem',
                       height: '0.5rem',
-                      backgroundColor: '#10b981',
+                      backgroundColor: 'var(--success-500, #10b981)',
                       borderRadius: '9999px'
                     }} />
                     <span style={{
@@ -841,8 +841,8 @@ export function SettingsView() {
               </div>
             ) : notificationPermission === 'denied' ? (
               <div style={{
-                backgroundColor: '#fee2e2',
-                border: '1px solid #ef4444',
+                backgroundColor: 'var(--error-100, #fee2e2)',
+                border: '1px solid var(--error-500, #ef4444)',
                 borderRadius: '8px',
                 padding: '1rem'
               }}>
@@ -850,14 +850,14 @@ export function SettingsView() {
                   <BellOff style={{
                     height: '1.25rem',
                     width: '1.25rem',
-                    color: '#ef4444',
+                    color: 'var(--error-500, #ef4444)',
                     flexShrink: 0,
                     marginTop: '0.125rem'
                   }} />
                   <div>
                     <p style={{
                       fontSize: '0.875rem',
-                      color: '#991b1b',
+                      color: 'var(--error-800, #991b1b)',
                       fontWeight: '500',
                       marginBottom: '0.25rem',
                       marginTop: 0
@@ -866,7 +866,7 @@ export function SettingsView() {
                     </p>
                     <p style={{
                       fontSize: '0.875rem',
-                      color: '#b91c1c',
+                      color: 'var(--error-700, #b91c1c)',
                       margin: 0
                     }}>
                       Du har blockerat notifieringar. Aktivera dem i webbläsarens inställningar.
@@ -1029,7 +1029,7 @@ export function SettingsView() {
         <h1 style={{
           fontSize: '1.5rem',
           fontWeight: 'bold',
-          color: '#ef4444'
+          color: 'var(--error-500, #ef4444)'
         }}>
           Error rendering SettingsView
         </h1>

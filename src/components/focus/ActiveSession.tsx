@@ -107,28 +107,29 @@ export function ActiveSession() {
   const progress = ((sessionDuration - timeRemaining) / sessionDuration) * 100;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #f5f1ed, #ede9e5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '3rem', maxWidth: '48rem', width: '100%' }}>
+    <div className="e-h-screen e-flex e-align-center e-justify-center e-p-16" style={{ background: 'linear-gradient(to bottom right, #f5f1ed, #ede9e5)' }}>
+      <div className="e-rounded-xl e-p-32 e-w-full" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', maxWidth: '48rem' }}>
         {/* Timer */}
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <div style={{ fontSize: '4.5rem', fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+        <div className="e-text-center e-mb-32">
+          <div className="e-font-bold e-mb-16" style={{ fontSize: '72px', fontFamily: 'monospace', color: 'var(--e-text)' }}>
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </div>
-          <div style={{ fontSize: '1.125rem', color: 'var(--e-text-secondary)' }}>
+          <div className="e-text-lg" style={{ color: 'var(--e-text-secondary)' }}>
             {minutes > 0 ? `${minutes} minuter kvar` : `${seconds} sekunder kvar`}
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div style={{ width: '100%', backgroundColor: 'var(--e-border)', borderRadius: '9999px', height: '1rem', marginBottom: '3rem' }}>
+        <div className="e-w-full e-rounded-full e-mb-32" style={{ backgroundColor: 'var(--e-border)', height: '16px' }}>
           <div
-            style={{ backgroundColor: 'var(--copper-500)', height: '1rem', borderRadius: '9999px', transition: 'width 1s', width: `${progress}%` }}
+            className="e-rounded-full e-transition"
+            style={{ backgroundColor: 'var(--copper-500)', height: '16px', transitionDuration: '1s', width: `${progress}%` }}
           />
         </div>
 
         {/* Task Info */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+        <div className="e-mb-16">
+          <h2 className="e-text-2xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
             {task.title}
           </h2>
           {task.description && (
@@ -139,13 +140,13 @@ export function ActiveSession() {
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+        <div className="e-grid e-grid-cols-3 e-gap-16">
           <Button
             variant="primary"
             onClick={handleMarkDone}
             style={{ height: '64px' }}
           >
-            <CheckCircle style={{ height: '24px', width: '24px', marginRight: '0.5rem' }} />
+            <CheckCircle style={{ height: '24px', width: '24px', marginRight: '8px' }} />
             Klar
           </Button>
           <Button
@@ -153,7 +154,7 @@ export function ActiveSession() {
             onClick={() => setIsPaused(!isPaused)}
             style={{ height: '64px' }}
           >
-            <Pause style={{ height: '24px', width: '24px', marginRight: '0.5rem' }} />
+            <Pause style={{ height: '24px', width: '24px', marginRight: '8px' }} />
             {isPaused ? 'Fortsätt' : 'Paus'}
           </Button>
           <Button
@@ -161,12 +162,12 @@ export function ActiveSession() {
             onClick={handleCancel}
             style={{ height: '64px' }}
           >
-            <XCircle style={{ height: '24px', width: '24px', marginRight: '0.5rem' }} />
+            <XCircle style={{ height: '24px', width: '24px', marginRight: '8px' }} />
             Avbryt
           </Button>
         </div>
 
-        <div style={{ marginTop: '2rem', backgroundColor: 'var(--e-border)', borderRadius: '0.5rem', padding: '1rem', fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
+        <div className="e-mt-16 e-rounded-md e-p-16 e-text-sm" style={{ backgroundColor: 'var(--e-border)', color: 'var(--e-text-secondary)' }}>
           💡 <strong>Tips:</strong> Stäng av notifikationer och mejl under denna session för bästa fokus.
         </div>
       </div>

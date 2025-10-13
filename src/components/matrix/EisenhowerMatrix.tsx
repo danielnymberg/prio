@@ -46,64 +46,48 @@ export function EisenhowerMatrix() {
     const task = props as Task & { projectName: string; projectColor: string; quadrant: string };
 
     return (
-      <div style={{ padding: '12px' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          marginBottom: '8px'
-        }}>
-          <h4 style={{
-            fontWeight: '600',
-            fontSize: '14px',
-            color: 'var(--e-text)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical'
-          }}>
+      <div className="e-p-12">
+        <div className="e-flex e-align-start e-justify-between e-mb-8">
+          <h4 className="e-font-semibold e-text-sm e-truncate"
+            style={{
+              color: 'var(--e-text)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical'
+            }}>
             {task.title}
           </h4>
         </div>
 
         {task.description && (
-          <p style={{
-            fontSize: '12px',
-            color: 'var(--e-text)',
-            opacity: 0.7,
-            marginBottom: '8px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical'
-          }}>
+          <p className="e-text-xs e-mb-8 e-opacity-75 e-truncate"
+            style={{
+              color: 'var(--e-text)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical'
+            }}>
             {task.description}
           </p>
         )}
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          fontSize: '12px'
-        }}>
-          <div style={{
-            padding: '4px 8px',
-            borderRadius: '16px',
-            backgroundColor: `${task.projectColor}20`,
-            color: task.projectColor,
-            border: `1px solid ${task.projectColor}40`
-          }}>
+        <div className="e-flex e-align-center e-justify-between e-text-xs">
+          <div className="e-py-4 e-px-8 e-rounded-full"
+            style={{
+              backgroundColor: `${task.projectColor}20`,
+              color: task.projectColor,
+              border: `1px solid ${task.projectColor}40`
+            }}>
             {task.projectName}
           </div>
 
           {task.estimated_duration && (
-            <span style={{
-              color: 'var(--e-text)',
-              opacity: 0.7
-            }}>
+            <span className="e-opacity-75"
+              style={{ color: 'var(--e-text)' }}>
               {task.estimated_duration >= 60
                 ? `${Math.round(task.estimated_duration / 60)}h`
                 : `${task.estimated_duration}m`}
@@ -111,18 +95,11 @@ export function EisenhowerMatrix() {
           )}
         </div>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          marginTop: '8px',
-          fontSize: '12px',
-          color: 'var(--e-text)',
-          opacity: 0.7
-        }}>
+        <div className="e-flex e-align-center e-gap-8 e-mt-8 e-text-xs e-opacity-75"
+          style={{ color: 'var(--e-text)' }}>
           <span>V: {task.value_score || task.importance || 5}</span>
           <span>T: {task.time_sensitivity || task.urgency || 5}</span>
-          <span style={{ marginLeft: 'auto', fontWeight: '500' }}>
+          <span className="e-ml-auto e-font-medium">
             P: {((task.value_score || 5) * (task.time_sensitivity || 5) * (task.confidence || 7) / (task.effort || 5)).toFixed(1)}
           </span>
         </div>
@@ -168,53 +145,40 @@ export function EisenhowerMatrix() {
   };
 
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      padding: '24px'
-    }}>
+    <div className="e-h-full e-flex e-flex-column e-gap-16 e-p-24">
       {/* Header */}
       <div>
-        <h1 style={{
-          fontSize: 'clamp(24px, 5vw, 30px)',
-          fontWeight: 'bold',
-          color: 'var(--e-text)',
-          marginBottom: '8px'
-        }}>
+        <h1 className="e-font-bold e-mb-8"
+          style={{
+            fontSize: 'clamp(24px, 5vw, 30px)',
+            color: 'var(--e-text)'
+          }}>
           Eisenhower Matrix
         </h1>
-        <p style={{ color: 'var(--e-text)', opacity: 0.7 }}>
+        <p className="e-opacity-75" style={{ color: 'var(--e-text)' }}>
           Prioritera uppgifter baserat på viktighet och brådska
         </p>
       </div>
 
       {/* Tips */}
-      <div style={{
-        background: '#3b82f6',
-        opacity: 0.1,
-        border: '1px solid #3b82f6',
-        borderRadius: '8px',
-        padding: '16px'
-      }}>
-        <p style={{
-          fontSize: '14px',
-          color: 'var(--e-text)'
+      <div className="e-border e-rounded-lg e-p-16 e-opacity-75"
+        style={{
+          backgroundColor: '#3b82f6',
+          borderColor: '#3b82f6'
         }}>
+        <p className="e-text-sm"
+          style={{ color: 'var(--e-text)' }}>
           <strong>💡 Tips:</strong> Dra och släpp uppgifter mellan kvadranter för att ändra prioritering.
           Q1 = Gör nu, Q2 = Schemalägg, Q3 = Delegera, Q4 = Eliminera
         </p>
       </div>
 
       {/* Kanban Board */}
-      <div style={{
-        flex: 1,
-        background: 'var(--e-surface)',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        overflow: 'hidden'
-      }}>
+      <div className="e-flex-1 e-rounded-lg e-overflow-hidden"
+        style={{
+          backgroundColor: 'var(--e-surface)',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+        }}>
         <KanbanComponent
           dataSource={kanbanData}
           keyField="quadrant"

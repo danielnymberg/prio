@@ -10,10 +10,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <div className="e-flex e-flex-column e-h-screen">
       <Header onMenuClick={() => setIsSidebarOpen(true)} />
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="e-flex e-flex-1 e-overflow-hidden">
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
@@ -22,17 +22,16 @@ export function AppLayout({ children }: AppLayoutProps) {
         {/* Backdrop overlay för mobil */}
         {isSidebarOpen && (
           <div
+            className="e-fixed e-z-30"
             style={{
-              position: 'fixed',
               inset: 0,
               backgroundColor: 'rgba(28, 25, 23, 0.6)',
-              zIndex: 30
             }}
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
 
-        <main style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
+        <main className="e-flex-1 e-overflow-y-auto e-p-32">
           {children}
         </main>
       </div>

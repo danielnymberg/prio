@@ -163,34 +163,19 @@ VIKTIGT:
 
   if (isProcessing) {
     return (
-      <div style={{
-        padding: '32px',
+      <div className="e-p-32 e-rounded-xl e-text-center" style={{
         border: '2px dashed #f59e0b',
-        borderRadius: '12px',
-        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-        textAlign: 'center'
+        backgroundColor: 'rgba(245, 158, 11, 0.1)'
       }}>
-        <Loader2 style={{
+        <Loader2 className="e-animate-spin e-mx-auto e-mb-16" style={{
           height: '48px',
           width: '48px',
-          color: '#f59e0b',
-          animation: 'spin 1s linear infinite',
-          margin: '0 auto 16px'
+          color: '#f59e0b'
         }} />
-        <p style={{
-          fontSize: '18px',
-          fontWeight: '600',
-          color: '#f59e0b',
-          marginBottom: '8px',
-          marginTop: 0
-        }}>
+        <p className="e-text-lg e-font-semibold e-mb-8 e-mt-0" style={{ color: '#f59e0b' }}>
           Analyserar PDF med AI...
         </p>
-        <p style={{
-          fontSize: '14px',
-          color: '#f59e0b',
-          margin: 0
-        }}>
+        <p className="e-text-sm e-m-0" style={{ color: '#f59e0b' }}>
           Detta tar vanligtvis 5-15 sekunder
         </p>
       </div>
@@ -199,53 +184,32 @@ VIKTIGT:
 
   if (uploadedFile) {
     return (
-      <div style={{
-        padding: '24px',
+      <div className="e-p-24 e-rounded-xl" style={{
         border: '2px solid #f59e0b',
-        borderRadius: '12px',
         backgroundColor: 'rgba(245, 158, 11, 0.1)'
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
+        <div className="e-flex e-align-center e-justify-between">
+          <div className="e-flex e-align-center e-gap-12">
             <FileText style={{
               height: '32px',
               width: '32px',
               color: '#f59e0b'
             }} />
             <div>
-              <p style={{
-                fontWeight: '600',
-                color: '#f59e0b',
-                margin: 0
-              }}>
+              <p className="e-font-semibold e-m-0" style={{ color: '#f59e0b' }}>
                 {uploadedFile.name}
               </p>
-              <p style={{
-                fontSize: '14px',
-                color: '#f59e0b',
-                margin: 0
-              }}>
+              <p className="e-text-sm e-m-0" style={{ color: '#f59e0b' }}>
                 {(uploadedFile.size / 1024).toFixed(0)} KB
               </p>
             </div>
           </div>
           <button
             onClick={handleRemoveFile}
+            className="e-p-8 e-rounded-lg e-cursor-pointer e-transition"
             style={{
-              padding: '8px',
               backgroundColor: 'transparent',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s'
+              border: 'none'
             }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -266,12 +230,9 @@ VIKTIGT:
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      className="e-p-32 e-rounded-xl e-transition e-cursor-pointer"
       style={{
-        padding: '32px',
         border: isDragging ? '2px dashed #f59e0b' : '2px dashed var(--e-border)',
-        borderRadius: '12px',
-        transition: 'all 0.2s',
-        cursor: 'pointer',
         backgroundColor: isDragging ? 'rgba(245, 158, 11, 0.1)' : 'var(--e-surface-hover)'
       }}
     >
@@ -279,57 +240,30 @@ VIKTIGT:
         type="file"
         accept="application/pdf"
         onChange={handleFileInput}
-        style={{ display: 'none' }}
+        className="e-hidden"
         id="pdf-upload"
       />
-      <label htmlFor="pdf-upload" style={{ cursor: 'pointer' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            marginBottom: '16px'
-          }}>
+      <label htmlFor="pdf-upload" className="e-cursor-pointer">
+        <div className="e-text-center">
+          <div className="e-flex e-align-center e-justify-center e-gap-8 e-mb-16">
             <Upload style={{
               height: '48px',
               width: '48px',
               color: '#f59e0b'
             }} />
-            <Sparkles style={{
+            <Sparkles className="e-animate-pulse" style={{
               height: '24px',
               width: '24px',
-              color: '#f59e0b',
-              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+              color: '#f59e0b'
             }} />
           </div>
-          <p style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            color: 'var(--e-text)',
-            marginBottom: '8px',
-            marginTop: 0
-          }}>
+          <p className="e-text-lg e-font-semibold e-mb-8 e-mt-0" style={{ color: 'var(--e-text)' }}>
             Dra och släpp offert-PDF här
           </p>
-          <p style={{
-            fontSize: '14px',
-            color: 'var(--e-text-secondary)',
-            marginBottom: '4px',
-            marginTop: 0
-          }}>
+          <p className="e-text-sm e-mb-4 e-mt-0" style={{ color: 'var(--e-text-secondary)' }}>
             eller klicka för att välja fil
           </p>
-          <p style={{
-            fontSize: '12px',
-            color: '#f59e0b',
-            marginTop: '12px',
-            marginBottom: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px'
-          }}>
+          <p className="e-text-xs e-mt-12 e-mb-0 e-flex e-align-center e-justify-center e-gap-4" style={{ color: '#f59e0b' }}>
             <Sparkles style={{ height: '16px', width: '16px' }} />
             AI extraherar automatiskt timmar, pris och deadline
           </p>

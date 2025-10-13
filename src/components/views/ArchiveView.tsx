@@ -144,39 +144,21 @@ export function ArchiveView() {
     };
 
     return (
-      <span style={{
-        padding: '4px 8px',
-        borderRadius: '16px',
-        fontSize: '12px',
-        ...getImpactStyle()
-      }}>
+      <span className="e-rounded-xl e-text-xs" style={{ padding: '4px 8px', ...getImpactStyle() }}>
         {props.impactLabel}
       </span>
     );
   };
 
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px'
-    }}>
+    <div className="e-h-full e-flex e-flex-column e-gap-16">
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
+      <div className="e-flex e-align-center e-justify-between">
         <div>
-          <h1 style={{
-            fontSize: 'clamp(24px, 5vw, 30px)',
-            fontWeight: 'bold',
-            color: 'var(--e-text)'
-          }}>
+          <h1 className="e-font-bold" style={{ fontSize: 'clamp(24px, 5vw, 30px)', color: 'var(--e-text)' }}>
             Arkiv
           </h1>
-          <p style={{ color: 'var(--e-text)', opacity: 0.7 }}>
+          <p className="e-opacity-75" style={{ color: 'var(--e-text)' }}>
             {completedTasks.length} slutförda uppgifter
           </p>
         </div>
@@ -184,12 +166,7 @@ export function ArchiveView() {
 
       {/* Grid eller Empty State */}
       {completedTasks.length === 0 ? (
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
+        <div className="e-flex-1 e-flex e-align-center e-justify-center">
           <EmptyState
             icon={<Archive style={{ width: '64px', height: '64px' }} />}
             title="Inget i arkivet"
@@ -197,13 +174,7 @@ export function ArchiveView() {
           />
         </div>
       ) : (
-        <div style={{
-          flex: 1,
-          background: 'var(--e-surface)',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden'
-        }}>
+        <div className="e-flex-1 e-rounded-lg e-overflow-hidden" style={{ background: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
           <GridComponent
             ref={gridRef}
             dataSource={gridData}

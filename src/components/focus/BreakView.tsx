@@ -44,13 +44,13 @@ export function BreakView() {
 
   if (phase === 'done') {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #ecfdf5, #d1fae5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '3rem', maxWidth: '42rem', width: '100%', textAlign: 'center' }}>
-          <div style={{ fontSize: '3.75rem', marginBottom: '1.5rem' }}>🎉</div>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+      <div className="e-h-screen e-flex e-align-center e-justify-center e-p-16" style={{ background: 'linear-gradient(to bottom right, #ecfdf5, #d1fae5)' }}>
+        <div className="e-rounded-xl e-p-32 e-w-full e-text-center" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', maxWidth: '42rem' }}>
+          <div className="e-mb-24" style={{ fontSize: '60px' }}>🎉</div>
+          <h1 className="e-text-2xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
             Pausen är klar!
           </h1>
-          <p style={{ fontSize: '1.25rem', color: 'var(--e-text-secondary)', marginBottom: '2rem' }}>
+          <p className="e-text-lg e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>
             {isShortBreak ? 'Nu är du redo igen!' : 'Dags för nästa session'}
           </p>
           <Button
@@ -66,18 +66,18 @@ export function BreakView() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #fef3c7, #fed7aa)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', padding: '3rem', maxWidth: '48rem', width: '100%' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+    <div className="e-h-screen e-flex e-align-center e-justify-center e-p-16" style={{ background: 'linear-gradient(to bottom right, #fef3c7, #fed7aa)' }}>
+      <div className="e-rounded-xl e-p-32 e-w-full" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', maxWidth: '48rem' }}>
+        <div className="e-text-center e-mb-16">
           {phase === 'physical' ? (
-            <Coffee style={{ height: '80px', width: '80px', color: '#f59e0b', margin: '0 auto 1rem' }} />
+            <Coffee className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: '#f59e0b' }} />
           ) : (
-            <Mail style={{ height: '80px', width: '80px', color: 'var(--copper-500)', margin: '0 auto 1rem' }} />
+            <Mail className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: 'var(--copper-500)' }} />
           )}
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1rem' }}>
+          <h1 className="e-text-2xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
             {phase === 'physical' ? '🧘 Pausdags!' : '📧 Mejl-batch'}
           </h1>
-          <div style={{ fontSize: '3rem', fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
+          <div className="e-font-bold e-mb-8" style={{ fontSize: '48px', fontFamily: 'monospace', color: 'var(--e-text)' }}>
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </div>
           <p style={{ color: 'var(--e-text-secondary)' }}>
@@ -90,18 +90,18 @@ export function BreakView() {
         </div>
 
         {phase === 'physical' ? (
-          <div style={{ backgroundColor: '#ecfdf5', borderRadius: '0.75rem', padding: '1.5rem', border: '2px solid #10b981' }}>
-            <h3 style={{ fontWeight: 'bold', color: '#10b981', marginBottom: '1rem' }}>
+          <div className="e-rounded-lg e-p-24" style={{ backgroundColor: '#ecfdf5', border: '2px solid #10b981' }}>
+            <h3 className="e-font-bold e-mb-16" style={{ color: '#10b981' }}>
               📚 Forskning säger:
             </h3>
-            <p style={{ color: '#10b981', marginBottom: '1rem' }}>
+            <p className="e-mb-16" style={{ color: '#10b981' }}>
               Din prefrontala cortex (beslutsfattande/fokus) behöver bli av med metaboliska avfallsprodukter.
               Detta sker genom blodomflöde vid rörelse, INTE fortsatt kognitiv aktivitet.
             </p>
-            <h3 style={{ fontWeight: '600', color: '#10b981', marginBottom: '0.5rem' }}>
+            <h3 className="e-font-semibold e-mb-8" style={{ color: '#10b981' }}>
               Gör något av detta:
             </h3>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: '#10b981' }}>
+            <ul className="e-flex e-flex-column e-gap-8 e-text-sm" style={{ color: '#10b981' }}>
               <li>✅ Promenad (helst utomhus)</li>
               <li>✅ Stretching/lätt rörelse</li>
               <li>✅ Fika utan skärmar</li>
@@ -111,14 +111,14 @@ export function BreakView() {
             </ul>
           </div>
         ) : (
-          <div style={{ backgroundColor: 'var(--e-border)', borderRadius: '0.75rem', padding: '1.5rem', border: '2px solid var(--e-border)' }}>
-            <h3 style={{ fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.75rem' }}>
+          <div className="e-rounded-lg e-p-24" style={{ backgroundColor: 'var(--e-border)', border: '2px solid var(--e-border)' }}>
+            <h3 className="e-font-bold e-mb-12" style={{ color: 'var(--e-text)' }}>
               ⏱️ Timeboxad mejl-tid
             </h3>
-            <p style={{ color: 'var(--e-text-secondary)', marginBottom: '1rem' }}>
+            <p className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>
               Max 10 minuter för mejl och samtal. När tiden är ute, stoppa omedelbart!
             </p>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
+            <ul className="e-flex e-flex-column e-gap-8 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
               <li>• Svara på brådskande mejl</li>
               <li>• Ring nödvändiga samtal</li>
               <li>• Resten väntar till nästa batch</li>
@@ -129,7 +129,8 @@ export function BreakView() {
         <Button
           onClick={handleContinue}
           variant="secondary"
-          style={{ width: '100%', marginTop: '1.5rem', height: '48px' }}
+          className="e-w-full e-mt-24"
+          style={{ height: '48px' }}
         >
           Hoppa över och fortsätt
         </Button>

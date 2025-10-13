@@ -47,15 +47,8 @@ export function ProjectDetailView() {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh'
-      }}>
-        <div style={{
-          animation: 'spin 1s linear infinite',
-          borderRadius: '9999px',
+      <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '100vh' }}>
+        <div className="e-animate-spin e-rounded-full" style={{
           height: '48px',
           width: '48px',
           borderBottom: '2px solid var(--copper-600)',
@@ -66,16 +59,8 @@ export function ProjectDetailView() {
 
   if (!project) {
     return (
-      <div style={{
-        maxWidth: '896px',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        padding: '24px'
-      }}>
-        <p style={{
-          textAlign: 'center',
-          color: 'var(--e-text-secondary)'
-        }}>Projekt hittades inte</p>
+      <div className="e-mx-auto e-p-24" style={{ maxWidth: '896px' }}>
+        <p className="e-text-center" style={{ color: 'var(--e-text-secondary)' }}>Projekt hittades inte</p>
       </div>
     );
   }
@@ -84,27 +69,15 @@ export function ProjectDetailView() {
   const metrics = calculateProjectMetrics(project, tasks);
 
   return (
-    <div style={{
-      maxWidth: '896px',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      padding: '24px'
-    }}>
+    <div className="e-mx-auto e-p-24" style={{ maxWidth: '896px' }}>
       {/* Header */}
       <button
         onClick={() => navigate('/projects')}
+        className="e-flex e-align-center e-gap-8 e-mb-24 e-p-0 e-text-base e-transition-colors e-cursor-pointer"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
           color: 'var(--e-text-secondary)',
           background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          marginBottom: '24px',
-          padding: 0,
-          fontSize: '16px',
-          transition: 'color 0.2s'
+          border: 'none'
         }}
         onMouseEnter={(e) => e.currentTarget.style.color = 'var(--e-text)'}
         onMouseLeave={(e) => e.currentTarget.style.color = 'var(--e-text-secondary)'}
@@ -113,38 +86,22 @@ export function ProjectDetailView() {
         Tillbaka till projekt
       </button>
 
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{
+      <div className="e-mb-24">
+        <h1 className="e-mb-8 e-font-bold" style={{
           fontSize: '30px',
-          fontWeight: 'bold',
-          marginBottom: '8px',
           color: 'var(--e-text)'
         }}>{project.name}</h1>
 
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '16px',
-          fontSize: '14px',
-          color: 'var(--e-text-secondary)'
-        }}>
+        <div className="e-flex e-flex-wrap e-gap-16 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
           {project.client_name && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
+            <div className="e-flex e-align-center e-gap-8">
               <User style={{ height: '16px', width: '16px' }} />
               <span>{project.client_name}</span>
             </div>
           )}
 
           {project.project_deadline && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
+            <div className="e-flex e-align-center e-gap-8">
               <Calendar style={{ height: '16px', width: '16px' }} />
               <span>
                 Deadline: {new Date(project.project_deadline).toLocaleDateString('sv-SE')}
@@ -152,21 +109,14 @@ export function ProjectDetailView() {
             </div>
           )}
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+          <div className="e-flex e-align-center e-gap-8">
             <Clock style={{ height: '16px', width: '16px' }} />
             <span>{projectTasks.length} tasks kopplade</span>
           </div>
         </div>
 
         {project.description && (
-          <p style={{
-            marginTop: '16px',
-            color: 'var(--e-text-secondary)'
-          }}>
+          <p className="e-mt-16" style={{ color: 'var(--e-text-secondary)' }}>
             {project.description}
           </p>
         )}
@@ -181,57 +131,31 @@ export function ProjectDetailView() {
 
       {/* Kopplade tasks */}
       {projectTasks.length > 0 && (
-        <div style={{ marginTop: '32px' }}>
-          <h2 style={{
-            fontSize: '20px',
-            fontWeight: 'bold',
-            marginBottom: '16px',
-            color: 'var(--e-text)'
-          }}>Kopplade tasks</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="e-mt-32">
+          <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
+            Kopplade tasks
+          </h2>
+          <div className="e-flex e-flex-column e-gap-8">
             {projectTasks.map(task => (
               <div
                 key={task.id}
-                style={{
-                  padding: '16px',
-                  border: '1px solid var(--e-border)',
-                  borderRadius: '8px',
-                  background: 'var(--e-surface)',
-                  transition: 'background-color 0.2s'
-                }}
+                className="e-p-16 e-border e-rounded-lg e-transition"
+                style={{ background: 'var(--e-surface)' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}
               >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  justifyContent: 'space-between'
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{
-                      fontWeight: '600',
-                      color: 'var(--e-text)'
-                    }}>{task.title}</h3>
+                <div className="e-flex e-align-start e-justify-between">
+                  <div className="e-flex-1">
+                    <h3 className="e-font-semibold" style={{ color: 'var(--e-text)' }}>
+                      {task.title}
+                    </h3>
                     {task.description && (
-                      <p style={{
-                        fontSize: '14px',
-                        color: 'var(--e-text-secondary)',
-                        marginTop: '4px'
-                      }}>
+                      <p className="e-text-sm e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
                         {task.description}
                       </p>
                     )}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      marginTop: '8px',
-                      fontSize: '14px',
-                      color: 'var(--e-text-secondary)'
-                    }}>
-                      <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
+                    <div className="e-flex e-align-center e-gap-16 e-mt-8 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+                      <span className="e-px-8 e-py-4 e-rounded" style={{
                         backgroundColor: task.status === 'done'
                           ? '#10b981'
                           : task.status === 'in_progress'
@@ -257,31 +181,17 @@ export function ProjectDetailView() {
       )}
 
       {projectTasks.length === 0 && (
-        <div style={{
-          marginTop: '32px',
-          padding: '32px',
-          border: '2px dashed var(--e-border)',
-          borderRadius: '8px',
-          textAlign: 'center'
-        }}>
-          <p style={{
-            color: 'var(--e-text-secondary)',
-            marginBottom: '16px'
-          }}>
+        <div className="e-mt-32 e-p-32 e-rounded-lg e-text-center" style={{ border: '2px dashed var(--e-border)' }}>
+          <p className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>
             Inga tasks kopplade till detta projekt än
           </p>
           <button
             onClick={() => navigate('/focus')}
+            className="e-px-16 e-py-8 e-rounded-lg e-text-base e-font-medium e-transition e-cursor-pointer"
             style={{
-              padding: '8px 16px',
               backgroundColor: 'var(--copper-600)',
               color: '#ffffff',
-              borderRadius: '8px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: '500',
-              transition: 'background-color 0.2s'
+              border: 'none'
             }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-700)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}

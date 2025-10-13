@@ -38,49 +38,36 @@ export function ResultImpactModal() {
       onClose={handleSkip}
       title="Task slutförd! 🎉"
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="e-flex e-flex-column e-gap-24">
         <p style={{ color: 'var(--e-text)' }}>
           Vilken <strong>faktisk påverkan</strong> hade denna uppgift?
         </p>
 
-        <p style={{
-          fontSize: '14px',
+        <p className="e-text-sm" style={{
           color: 'var(--e-text-secondary)',
           fontStyle: 'italic'
         }}>
           "{task.title}"
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <label style={{
-            display: 'block',
-            fontSize: '14px',
-            fontWeight: '500',
-            color: 'var(--e-text)'
-          }}>
+        <div className="e-flex e-flex-column e-gap-16">
+          <label className="e-block e-text-sm e-font-medium" style={{ color: 'var(--e-text)' }}>
             Faktisk påverkan (1-10):
           </label>
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+          <div className="e-flex e-align-center e-gap-8">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(value => (
               <button
                 key={value}
                 onClick={() => setImpact(value)}
+                className="e-rounded-md e-font-semibold e-transition e-cursor-pointer"
                 style={{
                   width: '40px',
                   height: '40px',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s',
-                  backgroundColor: impact >= value ? '#fbbf24' : 'var(--e-hover, #e5e7eb)',
-                  color: impact >= value ? '#78350f' : 'var(--e-text-secondary, #6b7280)',
+                  backgroundColor: impact >= value ? 'var(--warning-500, #fbbf24)' : 'var(--e-hover, #e5e7eb)',
+                  color: impact >= value ? 'var(--warning-900, #78350f)' : 'var(--e-text-secondary, #6b7280)',
                   transform: impact >= value ? 'scale(1.1)' : 'scale(1)',
-                  border: 'none',
-                  cursor: 'pointer'
+                  border: 'none'
                 }}
               >
                 {value}
@@ -88,28 +75,22 @@ export function ResultImpactModal() {
             ))}
           </div>
 
-          <div style={{
-            fontSize: '14px',
-            color: 'var(--e-text-secondary)'
-          }}>
+          <div className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
             {impact <= 3 && '1-3: Minimal faktisk nytta'}
             {impact > 3 && impact <= 7 && '4-7: Moderat nytta'}
             {impact > 7 && '8-10: Transformativ påverkan!'}
           </div>
         </div>
 
-        <div style={{
+        <div className="e-rounded-md e-p-16 e-text-sm" style={{
           backgroundColor: 'var(--e-surface)',
-          borderRadius: '8px',
-          padding: '16px',
-          fontSize: '14px',
           color: 'var(--e-text)'
         }}>
           💡 Detta hjälper appen lära sig vilka uppgifter som faktiskt ger resultat (Pareto-analys)
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Button onClick={handleSubmit} style={{ flex: '1' }}>
+        <div className="e-flex e-gap-12">
+          <Button onClick={handleSubmit} className="e-flex-1">
             <Star style={{ height: '16px', width: '16px', marginRight: '8px' }} />
             Spara bedömning
           </Button>

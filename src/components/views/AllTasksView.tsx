@@ -207,18 +207,8 @@ export function AllTasksView() {
     const colors = getColor();
 
     return (
-      <div style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0.25rem 0.5rem',
-        borderRadius: '9999px',
-        fontSize: '0.75rem',
-        fontWeight: '500',
-        backgroundColor: colors.bg,
-        color: colors.color
-      }}>
-        <span style={{ fontWeight: 'bold' }}>{Math.round(props.priority)}</span>
+      <div className="e-flex e-align-center e-gap-8 e-rounded-full e-text-xs e-font-medium" style={{ display: 'inline-flex', padding: '4px 8px', backgroundColor: colors.bg, color: colors.color }}>
+        <span className="e-font-bold">{Math.round(props.priority)}</span>
         <span>{props.priorityCategory}</span>
       </div>
     );
@@ -233,13 +223,7 @@ export function AllTasksView() {
     const colors = getStatusStyle();
 
     return (
-      <span style={{
-        padding: '0.25rem 0.5rem',
-        borderRadius: '9999px',
-        fontSize: '0.75rem',
-        backgroundColor: colors.bg,
-        color: colors.color
-      }}>
+      <span className="e-rounded-full e-text-xs" style={{ padding: '4px 8px', backgroundColor: colors.bg, color: colors.color }}>
         {props.statusLabel}
       </span>
     );
@@ -252,23 +236,19 @@ export function AllTasksView() {
     const isOverdue = isPast(deadline) && !isToday(deadline);
 
     return (
-      <div style={{
-        fontSize: '0.875rem',
-        color: isOverdue ? '#dc2626' : 'var(--e-text)',
-        fontWeight: isOverdue ? '600' : 'normal'
-      }}>
+      <div className="e-text-sm" style={{ color: isOverdue ? '#dc2626' : 'var(--e-text)', fontWeight: isOverdue ? '600' : 'normal' }}>
         <div>{props.deadlineFormatted}</div>
-        <div style={{ fontSize: '0.75rem', opacity: 0.75 }}>{props.deadlineDistance}</div>
+        <div className="e-text-xs e-opacity-75">{props.deadlineDistance}</div>
       </div>
     );
   };
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="e-h-full e-flex e-flex-column e-gap-16">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="e-flex e-align-center e-justify-between">
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
+          <h1 className="e-text-2xl e-font-bold" style={{ color: 'var(--e-text)', margin: 0 }}>
             Alla uppgifter
           </h1>
           <p style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
@@ -285,13 +265,7 @@ export function AllTasksView() {
       </div>
 
       {/* Grid */}
-      <div style={{
-        flex: 1,
-        backgroundColor: 'var(--e-surface)',
-        borderRadius: '0.75rem',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        overflow: 'hidden'
-      }}>
+      <div className="e-flex-1 e-rounded-lg e-overflow-hidden" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <GridComponent
           ref={gridRef}
           dataSource={gridData}

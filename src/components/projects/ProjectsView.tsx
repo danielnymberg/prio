@@ -158,30 +158,21 @@ export function ProjectsView() {
     };
 
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px'
-      }}>
-        <div style={{
-          flex: 1,
+      <div className="e-flex e-align-center e-gap-8">
+        <div className="e-flex-1 e-rounded-full e-overflow-hidden" style={{
           backgroundColor: 'var(--e-surface-hover)',
-          borderRadius: '9999px',
-          height: '8px',
-          overflow: 'hidden'
+          height: '8px'
         }}>
           <div
+            className="e-transition"
             style={{
               height: '100%',
               backgroundColor: getColor(),
-              transition: 'all 0.3s',
               width: `${percentage}%`
             }}
           />
         </div>
-        <span style={{
-          fontSize: '12px',
-          fontWeight: '500',
+        <span className="e-text-xs e-font-medium" style={{
           width: '40px',
           color: 'var(--e-text)'
         }}>{percentage}%</span>
@@ -192,10 +183,7 @@ export function ProjectsView() {
   // Budget template (formatted currency)
   const budgetTemplate = (props: any) => {
     return (
-      <span style={{
-        fontWeight: '500',
-        color: 'var(--e-text)'
-      }}>
+      <span className="e-font-medium" style={{ color: 'var(--e-text)' }}>
         {props.total_budget.toLocaleString('sv-SE')} kr
       </span>
     );
@@ -214,12 +202,7 @@ export function ProjectsView() {
     const style = getStatusStyle();
 
     return (
-      <span style={{
-        padding: '4px 8px',
-        borderRadius: '9999px',
-        fontSize: '12px',
-        ...style
-      }}>
+      <span className="e-px-8 e-py-4 e-rounded-full e-text-xs" style={style}>
         {props.status_display}
       </span>
     );
@@ -232,15 +215,8 @@ export function ProjectsView() {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh'
-      }}>
-        <div style={{
-          animation: 'spin 1s linear infinite',
-          borderRadius: '9999px',
+      <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '100vh' }}>
+        <div className="e-animate-spin e-rounded-full" style={{
           height: '48px',
           width: '48px',
           borderBottom: '2px solid var(--copper-600)',
@@ -250,61 +226,31 @@ export function ProjectsView() {
   }
 
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      padding: '24px'
-    }}>
+    <div className="e-h-full e-flex e-flex-column e-gap-16 e-p-24">
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
+      <div className="e-flex e-align-center e-justify-between">
         <div>
-          <h1 style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            color: 'var(--e-text)',
-            marginBottom: '4px'
-          }}>
+          <h1 className="e-text-2xl e-font-bold e-mb-4" style={{ color: 'var(--e-text)' }}>
             Projekt
           </h1>
-          <p style={{
-            color: 'var(--e-text-secondary)',
-            fontSize: '14px'
-          }}>
+          <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
             {projects.length} projekt totalt
           </p>
         </div>
       </div>
 
       {projects.length === 0 ? (
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{
-              color: 'var(--e-text-secondary)',
-              marginBottom: '16px'
-            }}>Inga projekt än</p>
+        <div className="e-flex-1 e-flex e-align-center e-justify-center">
+          <div className="e-text-center">
+            <p className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>Inga projekt än</p>
             <button
               onClick={() => navigate('/projects/new')}
+              className="e-px-24 e-py-12 e-rounded-lg e-text-base e-font-medium e-transition"
               style={{
-                padding: '12px 24px',
                 backgroundColor: 'var(--copper-600)',
                 color: '#ffffff',
-                borderRadius: '8px',
                 border: 'none',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '500',
-                transition: 'background-color 0.2s'
+                cursor: 'pointer'
               }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-700)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--copper-600)'}
@@ -314,12 +260,9 @@ export function ProjectsView() {
           </div>
         </div>
       ) : (
-        <div style={{
-          flex: 1,
+        <div className="e-flex-1 e-rounded-xl e-overflow-hidden" style={{
           backgroundColor: 'var(--e-surface)',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden'
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
         }}>
           <GridComponent
             ref={gridRef}

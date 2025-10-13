@@ -97,20 +97,20 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ backgroundColor: '#10b981', opacity: 0.1, border: '1px solid #10b981', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: '#10b981', marginBottom: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-success, #10b981)', opacity: 0.1, border: '1px solid var(--e-success, #10b981)', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-success, #10b981)', marginBottom: '8px' }}>
                 💎 Värde (Value)
               </h4>
-              <p style={{ fontSize: '14px', color: '#10b981' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-success, #10b981)' }}>
                 Hur stora är de <strong>objektiva konsekvenserna</strong> om du gör/inte gör detta?
               </p>
             </div>
 
-            <div style={{ backgroundColor: '#f59e0b', opacity: 0.1, border: '1px solid #f59e0b', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: '#f59e0b', marginBottom: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-warning, #f59e0b)', opacity: 0.1, border: '1px solid var(--e-warning, #f59e0b)', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-warning, #f59e0b)', marginBottom: '8px' }}>
                 ⏱️ Tidskänslighet (Time-Sensitivity)
               </h4>
-              <p style={{ fontSize: '14px', color: '#f59e0b' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-warning, #f59e0b)' }}>
                 Hur mycket <strong>kostar det att vänta</strong>? (Inte hur stressad du känner dig!)
               </p>
             </div>
@@ -124,11 +124,11 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
               </p>
             </div>
 
-            <div style={{ backgroundColor: '#ef4444', opacity: 0.1, border: '1px solid #ef4444', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: '#ef4444', marginBottom: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-error, #ef4444)', opacity: 0.1, border: '1px solid var(--e-error, #ef4444)', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-error, #ef4444)', marginBottom: '8px' }}>
                 💪 Ansträngning (Effort)
               </h4>
-              <p style={{ fontSize: '14px', color: '#ef4444' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-error, #ef4444)' }}>
                 Hur mycket <strong>faktisk tid och energi</strong> krävs?
               </p>
             </div>
@@ -149,7 +149,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
       {step === 3 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <AlertTriangle style={{ height: '64px', width: '64px', color: '#f59e0b', margin: '0 auto 16px' }} />
+            <AlertTriangle style={{ height: '64px', width: '64px', color: 'var(--e-warning, #f59e0b)', margin: '0 auto 16px' }} />
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               Motverka "Urgency Bias"
             </h2>
@@ -158,12 +158,12 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </p>
           </div>
 
-          <div style={{ backgroundColor: '#f59e0b', opacity: 0.1, border: '2px solid #f59e0b', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontWeight: 'bold', color: '#f59e0b', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ backgroundColor: 'var(--e-warning, #f59e0b)', opacity: 0.1, border: '2px solid var(--e-warning, #f59e0b)', borderRadius: '12px', padding: '24px' }}>
+            <h3 style={{ fontWeight: 'bold', color: 'var(--e-warning, #f59e0b)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Brain style={{ height: '24px', width: '24px' }} />
               Mere Urgency Effect
             </h3>
-            <p style={{ color: '#f59e0b', marginBottom: '16px' }}>
+            <p style={{ color: 'var(--e-warning, #f59e0b)', marginBottom: '16px' }}>
               När vi är stressade väljer vi vad som <strong>känns brådskande</strong> istället
               för vad som faktiskt <strong>är viktigt</strong>.
             </p>
@@ -199,7 +199,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
       {step === 4 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <CheckCircle style={{ height: '64px', width: '64px', color: '#10b981', margin: '0 auto 16px' }} />
+            <CheckCircle style={{ height: '64px', width: '64px', color: 'var(--e-success, #10b981)', margin: '0 auto 16px' }} />
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               Du är redo!
             </h2>
@@ -210,7 +210,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 1
               </div>
               <div>
@@ -224,7 +224,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 2
               </div>
               <div>
@@ -238,7 +238,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 3
               </div>
               <div>

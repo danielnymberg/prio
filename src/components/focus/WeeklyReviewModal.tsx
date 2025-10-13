@@ -101,38 +101,38 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="📊 Veckoöversikt" size="lg">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div className="e-flex e-flex-column e-gap-24">
         {/* Header */}
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
+        <div className="e-text-center">
+          <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
             Översikt för senaste 7 dagarna
           </p>
         </div>
 
         {/* Key Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-          <div style={{ backgroundColor: '#ecfdf5', borderRadius: '0.5rem', padding: '1rem', border: '1px solid #10b981' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+        <div className="e-grid e-grid-cols-2 e-gap-16">
+          <div className="e-rounded-md e-p-16 e-border" style={{ backgroundColor: '#ecfdf5', borderColor: '#10b981' }}>
+            <div className="e-flex e-align-center e-gap-8 e-mb-4">
               <CheckCircle style={{ height: '16px', width: '16px', color: '#10b981' }} />
-              <span style={{ fontSize: '0.875rem', color: '#10b981' }}>Slutförda</span>
+              <span className="e-text-sm" style={{ color: '#10b981' }}>Slutförda</span>
             </div>
-            <div style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#10b981' }}>
+            <div className="e-text-2xl e-font-bold" style={{ color: '#10b981' }}>
               {stats.totalCompleted}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '0.25rem' }}>
+            <div className="e-text-xs e-mt-4" style={{ color: '#10b981' }}>
               av {stats.totalCreated} skapade
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--e-border)', borderRadius: '0.5rem', padding: '1rem', border: '1px solid var(--e-border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+          <div className="e-rounded-md e-p-16 e-border" style={{ backgroundColor: 'var(--e-border)' }}>
+            <div className="e-flex e-align-center e-gap-8 e-mb-4">
               <Clock style={{ height: '16px', width: '16px', color: 'var(--copper-600)' }} />
-              <span style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>Total tid</span>
+              <span className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>Total tid</span>
             </div>
-            <div style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)' }}>
+            <div className="e-text-2xl e-font-bold" style={{ color: 'var(--e-text)' }}>
               {stats.totalHoursSpent}h
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
+            <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
               produktiv tid
             </div>
           </div>

@@ -30,19 +30,6 @@ export function Alert({ variant = 'info', title, children }: AlertProps) {
   const config = variantConfig[variant];
   const Icon = config.icon;
 
-  const containerStyle: CSSProperties = {
-    backgroundColor: 'var(--e-surface)',
-    border: '1px solid var(--e-border)',
-    borderRadius: '8px',
-    padding: '16px',
-  };
-
-  const contentWrapperStyle: CSSProperties = {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '12px',
-  };
-
   const iconStyle: CSSProperties = {
     height: '20px',
     width: '20px',
@@ -51,32 +38,17 @@ export function Alert({ variant = 'info', title, children }: AlertProps) {
     marginTop: '2px',
   };
 
-  const textContainerStyle: CSSProperties = {
-    flex: '1',
-  };
-
-  const titleStyle: CSSProperties = {
-    fontWeight: '600',
-    color: 'var(--e-text)',
-    marginBottom: '4px',
-  };
-
-  const textStyle: CSSProperties = {
-    fontSize: '14px',
-    color: 'var(--e-text)',
-  };
-
   return (
-    <div style={containerStyle}>
-      <div style={contentWrapperStyle}>
+    <div className="e-border e-rounded-lg e-p-16" style={{ backgroundColor: 'var(--e-surface)' }}>
+      <div className="e-flex e-align-start e-gap-12">
         <Icon style={iconStyle} />
-        <div style={textContainerStyle}>
+        <div className="e-flex-1">
           {title && (
-            <h3 style={titleStyle}>
+            <h3 className="e-font-semibold e-mb-4" style={{ color: 'var(--e-text)' }}>
               {title}
             </h3>
           )}
-          <div style={textStyle}>
+          <div className="e-text-sm" style={{ color: 'var(--e-text)' }}>
             {children}
           </div>
         </div>

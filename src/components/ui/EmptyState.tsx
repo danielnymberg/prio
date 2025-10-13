@@ -13,19 +13,19 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, icon, action }: EmptyStateProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
+    <div className="e-flex e-flex-column e-align-center e-justify-center e-p-32 e-text-center">
       {icon && (
-        <div style={{ marginBottom: '1rem', color: 'var(--e-text-secondary)' }}>
+        <div className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>
           {icon}
         </div>
       )}
 
-      <h3 style={{ fontSize: '1.125rem', fontWeight: '500', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
+      <h3 className="e-text-lg e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
         {title}
       </h3>
 
       {description && (
-        <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', marginBottom: '1rem', maxWidth: '24rem' }}>
+        <p className="e-text-sm e-mb-16 e-max-w-lg" style={{ color: 'var(--e-text-secondary)' }}>
           {description}
         </p>
       )}
@@ -33,17 +33,11 @@ export function EmptyState({ title, description, icon, action }: EmptyStateProps
       {action && (
         <button
           onClick={action.onClick}
+          className="e-inline-flex e-align-center e-gap-8 e-text-sm e-font-medium e-cursor-pointer e-transition-colors"
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.875rem',
             color: 'var(--copper-600)',
-            fontWeight: '500',
             background: 'none',
             border: 'none',
-            cursor: 'pointer',
-            transition: 'color 0.2s'
           }}
           onMouseEnter={(e) => e.currentTarget.style.color = 'var(--copper-500)'}
           onMouseLeave={(e) => e.currentTarget.style.color = 'var(--copper-600)'}

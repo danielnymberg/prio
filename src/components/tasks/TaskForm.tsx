@@ -408,7 +408,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                   ← Tillbaka till snabbval
                 </button>
                 {estimatedDuration && estimatedDuration > 0 && (
-                  <span style={{ fontSize: '0.875rem', color: '#10b981' }}>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--e-success, #10b981)' }}>
                     ✓ {formatDuration(estimatedDuration)}
                   </span>
                 )}
@@ -444,9 +444,9 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                     cursor: 'pointer',
                     border: 'none',
                     backgroundColor: status === value
-                      ? (color === 'green' ? '#10b981' : color === 'amber' ? '#f59e0b' : '#6b7280')
+                      ? (color === 'green' ? 'var(--e-success, #10b981)' : color === 'amber' ? 'var(--e-warning, #f59e0b)' : 'var(--e-text-secondary, #6b7280)')
                       : 'var(--e-surface)',
-                    color: status === value ? '#ffffff' : 'var(--e-text)',
+                    color: status === value ? 'var(--e-surface, #ffffff)' : 'var(--e-text)',
                     transition: 'colors 0.2s'
                   }}
                 >
@@ -501,7 +501,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                   style={{
                     width: '100%',
                     fontSize: '0.875rem',
-                    color: '#ef4444',
+                    color: 'var(--e-error, #ef4444)',
                     padding: '0.25rem',
                     cursor: 'pointer',
                     background: 'none',
@@ -578,7 +578,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                   style={{
                     width: '100%',
                     fontSize: '0.875rem',
-                    color: '#ef4444',
+                    color: 'var(--e-error, #ef4444)',
                     padding: '0.25rem',
                     cursor: 'pointer',
                     background: 'none',
@@ -671,20 +671,20 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
 
             {/* Stress warning */}
             {timeSensitivity > 7 && (
-              <div style={{ marginTop: '1rem', backgroundColor: '#fffbeb', border: '2px solid #f59e0b', borderRadius: '0.5rem', padding: '1rem' }}>
-                <h4 style={{ fontWeight: 'bold', color: '#78350f', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ marginTop: '1rem', backgroundColor: 'var(--e-warning-light, #fffbeb)', border: '2px solid var(--e-warning, #f59e0b)', borderRadius: '0.5rem', padding: '1rem' }}>
+                <h4 style={{ fontWeight: 'bold', color: 'var(--e-warning-dark, #78350f)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <AlertTriangle style={{ height: '1.25rem', width: '1.25rem' }} />
                   ⚠️ Stress-varning!
                 </h4>
-                <p style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '0.75rem' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--e-warning-dark, #92400e)', marginBottom: '0.75rem' }}>
                   Denna uppgift känns mycket brådskande. Forskning visar att vi systematiskt
                   övervärderar brådska när vi är stressade.
                 </p>
-                <p style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '0.5rem' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--e-warning-dark, #92400e)', marginBottom: '0.5rem' }}>
                   <strong>Exempel:</strong> "Måste vara klar till lunch imorgon" betyder INTE automatiskt hög tidskänslighet!
                   Fråga dig: Vad kostar det att göra det ikväll vs tidigt imorgon?
                 </p>
-                <p style={{ fontSize: '0.875rem', color: '#92400e' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--e-warning-dark, #92400e)' }}>
                   Hög tidskänslighet (8-10) = Kostnaden ÖKAR KRAFTIGT för varje timme (ex: förlorar kund om jag inte svarar nu)
                 </p>
               </div>
@@ -784,8 +784,8 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 borderRadius: '0.5rem',
                 fontSize: '0.875rem',
                 fontWeight: '500',
-                backgroundColor: '#fee2e2',
-                color: '#b91c1c',
+                backgroundColor: 'var(--e-error-light, #fee2e2)',
+                color: 'var(--e-error, #b91c1c)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'colors 0.2s'
@@ -821,8 +821,8 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
               borderRadius: '0.5rem',
               fontSize: '0.875rem',
               fontWeight: '500',
-              backgroundColor: loading || !title.trim() ? '#9ca3af' : '#10b981',
-              color: '#ffffff',
+              backgroundColor: loading || !title.trim() ? 'var(--e-text-secondary, #9ca3af)' : 'var(--e-success, #10b981)',
+              color: 'var(--e-surface, #ffffff)',
               border: 'none',
               cursor: loading || !title.trim() ? 'not-allowed' : 'pointer',
               transition: 'colors 0.2s'

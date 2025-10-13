@@ -70,36 +70,21 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <form onSubmit={handleSubmit} className="e-flex e-flex-column e-gap-24">
       {/* PDF Upload sektion */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '16px'
-        }}>
-          <h3 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            color: 'var(--e-text)'
-          }}>Skapa från offert</h3>
+      <div className="e-mb-24">
+        <div className="e-flex e-align-center e-justify-between e-mb-16">
+          <h3 className="e-text-lg e-font-semibold" style={{ color: 'var(--e-text)' }}>
+            Skapa från offert
+          </h3>
           <button
             type="button"
             onClick={() => setShowPDFUpload(!showPDFUpload)}
+            className="e-flex e-align-center e-gap-8 e-px-16 e-py-8 e-text-sm e-font-medium e-rounded-lg e-transition e-cursor-pointer"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              fontSize: '14px',
-              fontWeight: '500',
               color: '#f59e0b',
               backgroundColor: 'transparent',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s'
+              border: 'none'
             }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.1)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -114,62 +99,36 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         )}
 
         {extractedFromPDF && (
-          <div style={{
-            marginTop: '16px',
-            padding: '16px',
+          <div className="e-mt-16 e-p-16 e-rounded-xl" style={{
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            border: '2px solid #10b981',
-            borderRadius: '12px'
+            border: '2px solid #10b981'
           }}>
-            <p style={{
-              fontSize: '14px',
-              color: '#10b981',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
+            <p className="e-text-sm e-flex e-align-center e-gap-8" style={{ color: '#10b981' }}>
               ✓ Data extraherad från PDF. Granska fälten nedan och justera vid behov.
             </p>
           </div>
         )}
       </div>
 
-      <div style={{
-        borderTop: '1px solid var(--e-border)',
-        paddingTop: '24px'
-      }}>
-        <h3 style={{
-          fontSize: '18px',
-          fontWeight: '600',
-          marginBottom: '16px',
-          color: 'var(--e-text)'
-        }}>Projektinformation</h3>
+      <div className="e-border-t e-pt-24">
+        <h3 className="e-text-lg e-font-semibold e-mb-16" style={{ color: 'var(--e-text)' }}>
+          Projektinformation
+        </h3>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="e-flex e-flex-column e-gap-24">
           <div>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: 'var(--e-text)',
-              marginBottom: '8px'
-            }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
               Projektnamn *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                width: '100%',
-                padding: '8px 16px',
-                border: '1px solid var(--e-border)',
-                borderRadius: '8px',
                 backgroundColor: 'var(--e-surface)',
                 color: 'var(--e-text)',
-                fontSize: '16px',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s'
+                outline: 'none'
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = 'var(--copper-400)';
@@ -184,29 +143,18 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: 'var(--e-text)',
-              marginBottom: '8px'
-            }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
               Klient/Beställare
             </label>
             <input
               type="text"
               value={formData.client_name || ''}
               onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
+              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                width: '100%',
-                padding: '8px 16px',
-                border: '1px solid var(--e-border)',
-                borderRadius: '8px',
                 backgroundColor: 'var(--e-surface)',
                 color: 'var(--e-text)',
-                fontSize: '16px',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s'
+                outline: 'none'
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = 'var(--copper-400)';
@@ -219,19 +167,9 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             />
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '16px'
-          }}>
+          <div className="e-grid e-grid-cols-2 e-gap-16">
             <div>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: 'var(--e-text)',
-                marginBottom: '8px'
-              }}>
+              <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
                 Offererade timmar *
               </label>
               <input
@@ -239,16 +177,11 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 step="0.5"
                 value={formData.quoted_hours}
                 onChange={(e) => setFormData({ ...formData, quoted_hours: parseFloat(e.target.value) || 0 })}
+                className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
                 style={{
-                  width: '100%',
-                  padding: '8px 16px',
-                  border: '1px solid var(--e-border)',
-                  borderRadius: '8px',
                   backgroundColor: 'var(--e-surface)',
                   color: 'var(--e-text)',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'border-color 0.2s, box-shadow 0.2s'
+                  outline: 'none'
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = 'var(--copper-400)';
@@ -263,13 +196,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             </div>
 
             <div>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: 'var(--e-text)',
-                marginBottom: '8px'
-              }}>
+              <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
                 Timpris (kr) *
               </label>
               <input
@@ -277,16 +204,11 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 step="50"
                 value={formData.hourly_rate}
                 onChange={(e) => setFormData({ ...formData, hourly_rate: parseFloat(e.target.value) || 0 })}
+                className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
                 style={{
-                  width: '100%',
-                  padding: '8px 16px',
-                  border: '1px solid var(--e-border)',
-                  borderRadius: '8px',
                   backgroundColor: 'var(--e-surface)',
                   color: 'var(--e-text)',
-                  fontSize: '16px',
-                  outline: 'none',
-                  transition: 'border-color 0.2s, box-shadow 0.2s'
+                  outline: 'none'
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = 'var(--copper-400)';
@@ -302,13 +224,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: 'var(--e-text)',
-              marginBottom: '8px'
-            }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
               Övriga kostnader (resor, externa tjänster, kr)
             </label>
             <input
@@ -316,16 +232,11 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               step="100"
               value={formData.external_costs || 0}
               onChange={(e) => setFormData({ ...formData, external_costs: parseFloat(e.target.value) || 0 })}
+              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                width: '100%',
-                padding: '8px 16px',
-                border: '1px solid var(--e-border)',
-                borderRadius: '8px',
                 backgroundColor: 'var(--e-surface)',
                 color: 'var(--e-text)',
-                fontSize: '16px',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s'
+                outline: 'none'
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = 'var(--copper-400)';
@@ -338,59 +249,32 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             />
           </div>
 
-          <div style={{
-            padding: '16px',
-            backgroundColor: 'var(--e-surface-hover)',
-            borderRadius: '8px'
-          }}>
-            <div style={{
-              fontSize: '14px',
-              color: 'var(--e-text-secondary)',
-              marginBottom: '4px'
-            }}>
+          <div className="e-p-16 e-rounded-lg" style={{ backgroundColor: 'var(--e-surface-hover)' }}>
+            <div className="e-text-sm e-mb-4" style={{ color: 'var(--e-text-secondary)' }}>
               Beräknad total budget
             </div>
-            <div style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              color: 'var(--copper-600)'
-            }}>
+            <div className="e-text-2xl e-font-bold" style={{ color: 'var(--copper-600)' }}>
               {calculatedBudget.toLocaleString('sv-SE')} kr
             </div>
-            <div style={{
-              fontSize: '12px',
-              color: 'var(--e-text-secondary)',
-              marginTop: '4px'
-            }}>
+            <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
               {formData.quoted_hours}h × {formData.hourly_rate} kr/h
               {(formData.external_costs || 0) > 0 && ` + ${formData.external_costs} kr övriga`}
             </div>
           </div>
 
           <div>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: 'var(--e-text)',
-              marginBottom: '8px'
-            }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
               Deadline
             </label>
             <input
               type="date"
               value={formData.project_deadline || ''}
               onChange={(e) => setFormData({ ...formData, project_deadline: e.target.value })}
+              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                width: '100%',
-                padding: '8px 16px',
-                border: '1px solid var(--e-border)',
-                borderRadius: '8px',
                 backgroundColor: 'var(--e-surface)',
                 color: 'var(--e-text)',
-                fontSize: '16px',
-                outline: 'none',
-                transition: 'border-color 0.2s, box-shadow 0.2s'
+                outline: 'none'
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = 'var(--copper-400)';
@@ -404,30 +288,19 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: 'var(--e-text)',
-              marginBottom: '8px'
-            }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
               Beskrivning
             </label>
             <textarea
               value={formData.description || ''}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                width: '100%',
-                padding: '8px 16px',
-                border: '1px solid var(--e-border)',
-                borderRadius: '8px',
                 backgroundColor: 'var(--e-surface)',
                 color: 'var(--e-text)',
-                fontSize: '16px',
                 outline: 'none',
                 resize: 'vertical',
-                minHeight: '72px',
-                transition: 'border-color 0.2s, box-shadow 0.2s'
+                minHeight: '72px'
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = 'var(--copper-400)';
@@ -441,22 +314,17 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div className="e-flex e-gap-12">
             <button
               type="submit"
               disabled={loading}
+              className="e-flex-1 e-p-12 e-rounded-lg e-font-semibold e-text-base e-transition"
               style={{
-                flex: 1,
-                padding: '12px',
                 backgroundColor: 'var(--copper-600)',
                 color: '#ffffff',
-                borderRadius: '8px',
                 border: 'none',
-                fontWeight: '600',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.5 : 1,
-                fontSize: '16px',
-                transition: 'background-color 0.2s'
+                opacity: loading ? 0.5 : 1
               }}
               onMouseEnter={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--copper-700)')}
               onMouseLeave={(e) => !loading && (e.currentTarget.style.backgroundColor = 'var(--copper-600)')}
@@ -467,15 +335,10 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               <button
                 type="button"
                 onClick={onCancel}
+                className="e-px-24 e-py-12 e-border e-rounded-lg e-text-base e-transition e-cursor-pointer"
                 style={{
-                  padding: '12px 24px',
-                  border: '1px solid var(--e-border)',
-                  borderRadius: '8px',
                   backgroundColor: 'var(--e-surface)',
-                  color: 'var(--e-text)',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  transition: 'background-color 0.2s'
+                  color: 'var(--e-text)'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}

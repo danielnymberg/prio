@@ -80,80 +80,47 @@ export function ImportView() {
 ]`;
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '24px',
-      maxWidth: '896px',
-      margin: '0 auto'
-    }}>
+    <div className="e-flex e-flex-column e-gap-24 e-max-w-2xl e-mx-auto">
       <div>
-        <h1 style={{
+        <h1 className="e-font-bold e-mb-8" style={{
           fontSize: 'clamp(24px, 5vw, 30px)',
-          fontWeight: 'bold',
-          color: 'var(--e-text)',
-          marginBottom: '8px'
+          color: 'var(--e-text)'
         }}>
           Importera tasks
         </h1>
-        <p style={{ color: 'var(--e-text)', opacity: 0.7 }}>
+        <p className="e-opacity-75" style={{ color: 'var(--e-text)' }}>
           Importera tasks från JSON-format
         </p>
       </div>
 
-      <div style={{
-        background: 'var(--e-surface)',
-        borderRadius: '12px',
-        padding: '24px',
-        border: '1px solid var(--e-border)'
+      <div className="e-rounded-lg e-p-24 e-border" style={{
+        backgroundColor: 'var(--e-surface)',
+        borderColor: 'var(--e-border)'
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
-          marginBottom: '16px'
-        }}>
-          <label style={{ cursor: 'pointer', display: 'inline-block' }}>
+        <div className="e-flex e-align-center e-gap-16 e-mb-16">
+          <label className="e-cursor-pointer e-inline-block">
             <input
               type="file"
               accept=".json"
               onChange={handleFileUpload}
-              style={{ display: 'none' }}
+              className="e-hidden"
             />
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontWeight: '500',
-              background: 'var(--e-border)',
-              color: 'var(--e-text)',
-              cursor: 'pointer',
-              fontSize: '16px'
+            <span className="e-inline-flex e-align-center e-gap-8 e-px-16 e-py-8 e-rounded-md e-font-medium e-cursor-pointer e-text-base" style={{
+              backgroundColor: 'var(--e-border)',
+              color: 'var(--e-text)'
             }}>
               <Upload style={{ width: '16px', height: '16px' }} />
               Välj JSON-fil
             </span>
           </label>
 
-          <span style={{
-            fontSize: '14px',
-            color: 'var(--e-text)',
-            opacity: 0.7
-          }}>
+          <span className="e-text-sm e-opacity-75" style={{ color: 'var(--e-text)' }}>
             eller klistra in JSON nedan
           </span>
         </div>
 
         <div>
-          <label style={{
-            display: 'block',
-            fontSize: '14px',
-            fontWeight: '500',
-            color: 'var(--e-text)',
-            marginBottom: '8px'
-          }}>
+          <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
             JSON-data
           </label>
           <textarea
@@ -161,31 +128,24 @@ export function ImportView() {
             onChange={(e) => setJsonInput(e.target.value)}
             placeholder={exampleJson}
             rows={15}
+            className="e-w-full e-p-12 e-border e-rounded-md e-text-sm"
             style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid var(--e-border)',
-              borderRadius: '8px',
-              background: 'var(--e-surface)',
+              borderColor: 'var(--e-border)',
+              backgroundColor: 'var(--e-surface)',
               color: 'var(--e-text)',
               fontFamily: 'monospace',
-              fontSize: '14px',
               resize: 'none',
               outline: 'none'
             }}
           />
         </div>
 
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          marginTop: '16px'
-        }}>
+        <div className="e-flex e-gap-8 e-mt-16">
           <Button
             variant="primary"
             onClick={handleImport}
             disabled={loading || !jsonInput.trim()}
-            style={{ flex: 1 }}
+            className="e-flex-1"
           >
             {loading ? 'Importerar...' : 'Importera tasks'}
           </Button>
@@ -199,17 +159,11 @@ export function ImportView() {
         </div>
       </div>
 
-      <div style={{
-        background: 'var(--e-surface)',
-        border: '1px solid var(--e-border)',
-        borderRadius: '12px',
-        padding: '24px'
+      <div className="e-rounded-lg e-p-24 e-border" style={{
+        backgroundColor: 'var(--e-surface)',
+        borderColor: 'var(--e-border)'
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '12px'
-        }}>
+        <div className="e-flex e-align-start e-gap-12">
           <FileJson style={{
             width: '20px',
             height: '20px',
@@ -217,37 +171,23 @@ export function ImportView() {
             marginTop: '2px'
           }} />
           <div>
-            <h3 style={{
-              fontWeight: '600',
-              color: 'var(--e-text)',
-              marginBottom: '8px'
-            }}>
+            <h3 className="e-font-semibold e-mb-8" style={{ color: 'var(--e-text)' }}>
               JSON-format
             </h3>
-            <p style={{
-              fontSize: '14px',
-              color: 'var(--e-text)',
-              opacity: 0.8,
-              marginBottom: '8px'
-            }}>
+            <p className="e-text-sm e-opacity-75 e-mb-8" style={{ color: 'var(--e-text)' }}>
               JSON måste vara en array av tasks med följande fält:
             </p>
-            <ul style={{
-              fontSize: '14px',
+            <ul className="e-text-sm e-opacity-75 e-flex e-flex-column e-gap-4" style={{
               color: 'var(--e-text)',
-              opacity: 0.8,
               listStyleType: 'disc',
-              listStylePosition: 'inside',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px'
+              listStylePosition: 'inside'
             }}>
-              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>title</code> (required) - Titel på tasken</li>
-              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>description</code> (optional) - Beskrivning</li>
-              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>importance</code> (optional, 1-10) - Viktighet (default: 5)</li>
-              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>urgency</code> (optional, 1-10) - Brådskande (default: 5)</li>
-              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>deadline</code> (optional, YYYY-MM-DD) - Deadline</li>
-              <li><code style={{ background: 'var(--e-border)', padding: '2px 4px', borderRadius: '4px' }}>status</code> (optional) - not_started, in_progress, eller done</li>
+              <li><code className="e-px-4 e-py-4 e-rounded" style={{ backgroundColor: 'var(--e-border)' }}>title</code> (required) - Titel på tasken</li>
+              <li><code className="e-px-4 e-py-4 e-rounded" style={{ backgroundColor: 'var(--e-border)' }}>description</code> (optional) - Beskrivning</li>
+              <li><code className="e-px-4 e-py-4 e-rounded" style={{ backgroundColor: 'var(--e-border)' }}>importance</code> (optional, 1-10) - Viktighet (default: 5)</li>
+              <li><code className="e-px-4 e-py-4 e-rounded" style={{ backgroundColor: 'var(--e-border)' }}>urgency</code> (optional, 1-10) - Brådskande (default: 5)</li>
+              <li><code className="e-px-4 e-py-4 e-rounded" style={{ backgroundColor: 'var(--e-border)' }}>deadline</code> (optional, YYYY-MM-DD) - Deadline</li>
+              <li><code className="e-px-4 e-py-4 e-rounded" style={{ backgroundColor: 'var(--e-border)' }}>status</code> (optional) - not_started, in_progress, eller done</li>
             </ul>
           </div>
         </div>

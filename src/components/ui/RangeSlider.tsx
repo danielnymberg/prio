@@ -15,9 +15,9 @@ interface RangeSliderProps {
 
 const colorAccents = {
   blue: 'var(--copper-600, #d4764e)',
-  green: '#10b981',
-  amber: '#f59e0b',
-  red: '#ef4444',
+  green: 'var(--success-500, #10b981)',
+  amber: 'var(--warning-500, #f59e0b)',
+  red: 'var(--error-500, #ef4444)',
 };
 
 export function RangeSlider({
@@ -35,19 +35,19 @@ export function RangeSlider({
   const id = useId();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <label htmlFor={id} style={{ fontSize: '14px', fontWeight: '500', color: 'var(--e-text, #374151)' }}>
+    <div className="e-flex e-flex-column e-gap-8">
+      <div className="e-flex e-align-center e-justify-between">
+        <label htmlFor={id} className="e-text-sm e-font-medium" style={{ color: 'var(--e-text, #374151)' }}>
           {label}
         </label>
         {showValue && (
-          <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--e-text, #111827)' }}>
+          <span className="e-text-sm e-font-semibold" style={{ color: 'var(--e-text, #111827)' }}>
             {formatValue(value)}
           </span>
         )}
       </div>
       {description && (
-        <p style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}>{description}</p>
+        <p className="e-text-xs" style={{ color: 'var(--e-text-secondary, #6b7280)' }}>{description}</p>
       )}
       <input
         id={id}
@@ -57,17 +57,15 @@ export function RangeSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
+        className="e-w-full e-rounded-md e-cursor-pointer"
         style={{
-          width: '100%',
           height: '8px',
           backgroundColor: 'var(--e-border, #e5e7eb)',
-          borderRadius: '8px',
           appearance: 'none',
-          cursor: 'pointer',
           accentColor: colorAccents[color]
         }}
       />
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}>
+      <div className="e-flex e-justify-between e-text-xs" style={{ color: 'var(--e-text-secondary, #6b7280)' }}>
         <span>{min}</span>
         <span>{max}</span>
       </div>

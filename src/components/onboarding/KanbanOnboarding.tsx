@@ -86,8 +86,8 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
             </div>
           </div>
 
-          <div style={{ background: 'linear-gradient(to right, #3b82f6, #3b82f6)', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid #3b82f6' }}>
-            <p style={{ fontSize: '14px', color: '#3b82f6' }}>
+          <div style={{ background: 'linear-gradient(to right, var(--e-info, #3b82f6), var(--e-info, #3b82f6))', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid var(--e-info, #3b82f6)' }}>
+            <p style={{ fontSize: '14px', color: 'var(--e-info, #3b82f6)' }}>
               <FolderKanban style={{ display: 'inline', height: '16px', width: '16px', marginRight: '4px' }} />
               <strong>Swimlanes för projekt:</strong> Tasks grupperas automatiskt per projekt så du ser strukturen tydligt!
             </p>
@@ -118,12 +118,12 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ backgroundColor: '#10b981', opacity: 0.1, border: '1px solid #10b981', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-success, #10b981)', opacity: 0.1, border: '1px solid var(--e-success, #10b981)', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-success, #10b981)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Calendar style={{ height: '20px', width: '20px' }} />
                 Kanban + Kalender
               </h4>
-              <p style={{ fontSize: '14px', color: '#10b981', marginBottom: '12px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-success, #10b981)', marginBottom: '12px' }}>
                 Den nya kombinerade vyn visar Kanban och kalender sida vid sida. Dra tasks till en kalendercell för att schemalägga när du ska jobba på dem!
               </p>
               <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '8px', padding: '12px', fontSize: '12px' }}>
@@ -131,12 +131,12 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
               </div>
             </div>
 
-            <div style={{ backgroundColor: '#f59e0b', opacity: 0.1, border: '1px solid #f59e0b', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: '#f59e0b', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-warning, #f59e0b)', opacity: 0.1, border: '1px solid var(--e-warning, #f59e0b)', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-warning, #f59e0b)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Undo2 style={{ height: '20px', width: '20px' }} />
                 Ångra-funktion
               </h4>
-              <p style={{ fontSize: '14px', color: '#f59e0b' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-warning, #f59e0b)' }}>
                 När du schemalägger en task visas en notifikation med "Ångra"-knapp. Du har 5 sekunder på dig att ändra dig!
               </p>
             </div>
@@ -163,7 +163,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
       {step === 3 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <CheckCircle style={{ height: '64px', width: '64px', color: '#10b981', margin: '0 auto 16px' }} />
+            <CheckCircle style={{ height: '64px', width: '64px', color: 'var(--e-success, #10b981)', margin: '0 auto 16px' }} />
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               Prova de nya funktionerna!
             </h2>
@@ -174,7 +174,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 1
               </div>
               <div>
@@ -188,7 +188,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 2
               </div>
               <div>
@@ -202,7 +202,7 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 3
               </div>
               <div>
@@ -216,8 +216,8 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
             </div>
           </div>
 
-          <div style={{ background: 'linear-gradient(to right, #9333ea, #ec4899)', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid #9333ea' }}>
-            <p style={{ fontSize: '14px', textAlign: 'center', color: '#9333ea' }}>
+          <div style={{ background: 'linear-gradient(to right, var(--e-primary, #9333ea), var(--e-accent, #ec4899))', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid var(--e-primary, #9333ea)' }}>
+            <p style={{ fontSize: '14px', textAlign: 'center', color: 'var(--e-primary, #9333ea)' }}>
               <Sparkles style={{ display: 'inline', height: '16px', width: '16px', marginRight: '4px' }} />
               <strong>Byggt med Syncfusion:</strong> Professionella UI-komponenter för bästa möjliga UX!
             </p>

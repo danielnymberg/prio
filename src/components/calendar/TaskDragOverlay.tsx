@@ -18,31 +18,20 @@ export function TaskDragOverlay() {
 
   return (
     <DragOverlay>
-      <div style={{
-        backgroundColor: 'var(--e-surface, #ffffff)',
-        borderRadius: '8px',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        border: '2px solid var(--copper-600, #d4764e)',
-        padding: '12px',
-        width: '256px',
-        opacity: 0.9
-      }}>
-        <div style={{
-          fontWeight: '600',
-          fontSize: '14px',
-          color: 'var(--e-text, #1c1917)',
-          marginBottom: '4px'
+      <div className="e-rounded-lg e-p-12 e-opacity-75"
+        style={{
+          backgroundColor: 'var(--e-surface, #ffffff)',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          border: '2px solid var(--copper-600, #d4764e)',
+          width: '256px'
         }}>
+        <div className="e-font-semibold e-text-sm e-mb-4"
+          style={{ color: 'var(--e-text, #1c1917)' }}>
           {task.title}
         </div>
         {task.estimated_duration && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            fontSize: '12px',
-            color: 'var(--e-text-secondary, #57534e)'
-          }}>
+          <div className="e-flex e-align-center e-gap-4 e-text-xs"
+            style={{ color: 'var(--e-text-secondary, #57534e)' }}>
             <Clock style={{ height: '12px', width: '12px' }} />
             {formatDuration(task.estimated_duration)}
           </div>

@@ -9,18 +9,17 @@ interface StatsProps {
 export function Stats({ stats }: StatsProps) {
   const variantStyles = {
     default: 'var(--e-text, #111827)',
-    warning: '#f59e0b',
-    danger: '#ef4444',
+    warning: 'var(--warning-500, #f59e0b)',
+    danger: 'var(--error-500, #ef4444)',
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '24px', fontSize: '14px' }}>
+    <div className="e-flex e-align-center e-gap-24 e-text-sm">
       {stats.map((stat, index) => (
-        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div key={index} className="e-flex e-align-center e-gap-8">
           <span
+            className="e-font-bold e-text-lg"
             style={{
-              fontWeight: 'bold',
-              fontSize: '18px',
               color: variantStyles[stat.variant || 'default']
             }}
           >

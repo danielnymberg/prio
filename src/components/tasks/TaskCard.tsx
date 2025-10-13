@@ -78,9 +78,9 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
 
   const getStatusDot = () => {
     const colors = {
-      not_started: '#9ca3af',
-      in_progress: '#fbbf24',
-      done: '#4ade80',
+      not_started: 'var(--e-text-secondary, #9ca3af)',
+      in_progress: 'var(--e-warning, #fbbf24)',
+      done: 'var(--e-success, #4ade80)',
     };
 
     return (
@@ -161,9 +161,9 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
         cursor: 'pointer',
         position: 'relative',
         border: isOverdue
-          ? '2px solid #ef4444'
+          ? '2px solid var(--e-error, #ef4444)'
           : isEmergency
-          ? '2px solid #f59e0b'
+          ? '2px solid var(--e-warning, #f59e0b)'
           : '1px solid var(--e-border, #e7e5e4)',
         transition: 'all 0.2s',
       }}
@@ -218,7 +218,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <Check style={{ height: '12px', width: '12px', color: '#10b981' }} />
+              <Check style={{ height: '12px', width: '12px', color: 'var(--e-success, #10b981)' }} />
             </button>
             <button
               onClick={handleTitleCancel}
@@ -233,7 +233,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <X style={{ height: '12px', width: '12px', color: '#ef4444' }} />
+              <X style={{ height: '12px', width: '12px', color: 'var(--e-error, #ef4444)' }} />
             </button>
           </div>
         ) : (
@@ -306,15 +306,15 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               style={{
                 padding: '6px',
                 borderRadius: '8px',
-                backgroundColor: '#fee2e2',
+                backgroundColor: 'var(--e-error-light, #fee2e2)',
                 border: 'none',
                 cursor: 'pointer',
               }}
               title="Radera task"
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fecaca'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-error-lighter, #fecaca)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-error-light, #fee2e2)'}
             >
-              <Trash2 style={{ height: '12px', width: '12px', color: '#dc2626' }} />
+              <Trash2 style={{ height: '12px', width: '12px', color: 'var(--e-error, #dc2626)' }} />
             </button>
           )}
         </div>
@@ -346,36 +346,36 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
             marginBottom: '8px'
           }}>
             <div style={{
-              backgroundColor: '#f0fdf4',
+              backgroundColor: 'var(--e-success-light, #f0fdf4)',
               borderRadius: '8px',
               padding: '4px 8px'
             }}>
-              <div style={{ color: '#78716c', fontSize: '10px' }}>Värde</div>
-              <div style={{ fontWeight: '600', color: '#15803d' }}>{task.value_score}/10</div>
+              <div style={{ color: 'var(--e-text-secondary, #78716c)', fontSize: '10px' }}>Värde</div>
+              <div style={{ fontWeight: '600', color: 'var(--e-success, #15803d)' }}>{task.value_score}/10</div>
             </div>
             <div style={{
-              backgroundColor: '#fffbeb',
+              backgroundColor: 'var(--e-warning-light, #fffbeb)',
               borderRadius: '8px',
               padding: '4px 8px'
             }}>
-              <div style={{ color: '#78716c', fontSize: '10px' }}>Tidskänsl.</div>
-              <div style={{ fontWeight: '600', color: '#b45309' }}>{task.time_sensitivity}/10</div>
+              <div style={{ color: 'var(--e-text-secondary, #78716c)', fontSize: '10px' }}>Tidskänsl.</div>
+              <div style={{ fontWeight: '600', color: 'var(--e-warning, #b45309)' }}>{task.time_sensitivity}/10</div>
             </div>
             <div style={{
               backgroundColor: 'var(--copper-50, #fef3f2)',
               borderRadius: '8px',
               padding: '4px 8px'
             }}>
-              <div style={{ color: '#78716c', fontSize: '10px' }}>Tillit</div>
+              <div style={{ color: 'var(--e-text-secondary, #78716c)', fontSize: '10px' }}>Tillit</div>
               <div style={{ fontWeight: '600', color: 'var(--copper-700, #b45309)' }}>{task.confidence}/10</div>
             </div>
             <div style={{
-              backgroundColor: '#fef2f2',
+              backgroundColor: 'var(--e-error-light, #fef2f2)',
               borderRadius: '8px',
               padding: '4px 8px'
             }}>
-              <div style={{ color: '#78716c', fontSize: '10px' }}>Anstr.</div>
-              <div style={{ fontWeight: '600', color: '#b91c1c' }}>{task.effort}/10</div>
+              <div style={{ color: 'var(--e-text-secondary, #78716c)', fontSize: '10px' }}>Anstr.</div>
+              <div style={{ fontWeight: '600', color: 'var(--e-error, #b91c1c)' }}>{task.effort}/10</div>
             </div>
           </div>
           {(task.estimated_duration || task.deadline) && (
@@ -474,7 +474,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#9ca3af' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: 'var(--e-text-secondary, #9ca3af)' }} />
                     Ej påbörjad
                   </button>
                   <button
@@ -494,7 +494,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#fbbf24' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: 'var(--e-warning, #fbbf24)' }} />
                     Pågående
                   </button>
                   <button
@@ -514,7 +514,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: '#4ade80' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: 'var(--e-success, #4ade80)' }} />
                     Klar
                   </button>
                 </div>

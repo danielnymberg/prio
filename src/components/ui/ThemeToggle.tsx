@@ -6,11 +6,6 @@ import { CSSProperties } from 'react';
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
 
-  const buttonStyle: CSSProperties = {
-    borderRadius: '9999px',
-    padding: '8px',
-  };
-
   const iconStyle: CSSProperties = {
     height: '20px',
     width: '20px',
@@ -21,7 +16,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      style={buttonStyle}
+      className="e-rounded-full e-p-8"
       aria-label="Toggle theme"
     >
       {theme === 'dark' ? (

@@ -96,7 +96,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
       {step === 2 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <Sparkles style={{ height: '64px', width: '64px', color: '#9333ea', margin: '0 auto 16px' }} />
+            <Sparkles style={{ height: '64px', width: '64px', color: 'var(--e-primary, #9333ea)', margin: '0 auto 16px' }} />
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               AI-driven projektinmatning
             </h2>
@@ -105,8 +105,8 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </p>
           </div>
 
-          <div style={{ background: 'linear-gradient(to right, #9333ea, var(--copper-100))', opacity: 0.1, border: '2px solid #9333ea', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontWeight: 'bold', color: '#9333ea', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ background: 'linear-gradient(to right, var(--e-primary, #9333ea), var(--copper-100))', opacity: 0.1, border: '2px solid var(--e-primary, #9333ea)', borderRadius: '12px', padding: '24px' }}>
+            <h3 style={{ fontWeight: 'bold', color: 'var(--e-primary, #9333ea)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles style={{ height: '24px', width: '24px' }} />
               Så här fungerar det:
             </h3>
@@ -138,8 +138,8 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#f59e0b', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid #f59e0b' }}>
-            <p style={{ fontSize: '14px', color: '#f59e0b' }}>
+          <div style={{ backgroundColor: 'var(--e-warning, #f59e0b)', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid var(--e-warning, #f59e0b)' }}>
+            <p style={{ fontSize: '14px', color: 'var(--e-warning, #f59e0b)' }}>
               <strong>💡 Tips:</strong> Använd AI-chatten (högst ner till höger) eller röstkommando
               för att skapa projekt blixtnabbt!
             </p>
@@ -160,7 +160,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
       {step === 3 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <Calculator style={{ height: '64px', width: '64px', color: '#10b981', margin: '0 auto 16px' }} />
+            <Calculator style={{ height: '64px', width: '64px', color: 'var(--e-success, #10b981)', margin: '0 auto 16px' }} />
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               Auto-beräknad ekonomi
             </h2>
@@ -170,18 +170,18 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ backgroundColor: '#10b981', opacity: 0.1, border: '1px solid #10b981', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-success, #10b981)', opacity: 0.1, border: '1px solid var(--e-success, #10b981)', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-success, #10b981)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Calculator style={{ height: '20px', width: '20px' }} />
                 Total Budget
               </h4>
-              <p style={{ fontSize: '14px', color: '#10b981', marginBottom: '8px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-success, #10b981)', marginBottom: '8px' }}>
                 Beräknas automatiskt när du skapar projekt:
               </p>
               <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '4px', padding: '12px', fontFamily: 'monospace', fontSize: '14px' }}>
                 Budget = (Timmar × Timpris) + Övriga kostnader
               </div>
-              <p style={{ fontSize: '12px', color: '#10b981', marginTop: '8px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--e-success, #10b981)', marginTop: '8px' }}>
                 Exempel: (40h × 1 950 kr/h) + 2 000 kr = <strong>80 000 kr</strong>
               </p>
             </div>
@@ -201,15 +201,15 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
               </ul>
             </div>
 
-            <div style={{ backgroundColor: '#9333ea', opacity: 0.1, border: '1px solid #9333ea', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: '#9333ea', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-primary, #9333ea)', opacity: 0.1, border: '1px solid var(--e-primary, #9333ea)', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-primary, #9333ea)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FileText style={{ height: '20px', width: '20px' }} />
                 PDF-upload (tillgängligt nu!)
               </h4>
-              <p style={{ fontSize: '14px', color: '#9333ea' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-primary, #9333ea)' }}>
                 Dra in en PDF-offert så extraherar Claude automatiskt:
               </p>
-              <ul style={{ fontSize: '12px', color: '#9333ea', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px', listStyle: 'disc', paddingLeft: '20px' }}>
+              <ul style={{ fontSize: '12px', color: 'var(--e-primary, #9333ea)', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px', listStyle: 'disc', paddingLeft: '20px' }}>
                 <li>Projektnamn från offertens titel</li>
                 <li>Kund från mottagare</li>
                 <li>Timmar och timpris från prislista</li>
@@ -234,8 +234,8 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <div style={{ position: 'relative', display: 'inline-block' }}>
-              <FileText style={{ height: '64px', width: '64px', color: '#f59e0b', margin: '0 auto 16px' }} />
-              <Sparkles style={{ height: '32px', width: '32px', color: '#9333ea', position: 'absolute', top: '-8px', right: '-8px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
+              <FileText style={{ height: '64px', width: '64px', color: 'var(--e-warning, #f59e0b)', margin: '0 auto 16px' }} />
+              <Sparkles style={{ height: '32px', width: '32px', color: 'var(--e-primary, #9333ea)', position: 'absolute', top: '-8px', right: '-8px', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
             </div>
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               AI PDF-upload är här! 🎉
@@ -245,78 +245,78 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </p>
           </div>
 
-          <div style={{ background: 'linear-gradient(to right, #f59e0b, #f97316)', opacity: 0.1, border: '2px solid #f59e0b', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontWeight: 'bold', color: '#f59e0b', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ background: 'linear-gradient(to right, var(--e-warning, #f59e0b), var(--e-warning-dark, #f97316))', opacity: 0.1, border: '2px solid var(--e-warning, #f59e0b)', borderRadius: '12px', padding: '24px' }}>
+            <h3 style={{ fontWeight: 'bold', color: 'var(--e-warning, #f59e0b)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles style={{ height: '24px', width: '24px' }} />
               Så här funkar det:
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: '#f59e0b', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
+                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--e-warning, #f59e0b)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
                   1
                 </div>
                 <div>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#f59e0b' }}>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--e-warning, #f59e0b)' }}>
                     Gå till "Nytt projekt"
                   </p>
-                  <p style={{ fontSize: '12px', color: '#f59e0b' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--e-warning, #f59e0b)' }}>
                     Klicka på knappen "Ladda upp PDF"
                   </p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: '#f59e0b', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
+                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--e-warning, #f59e0b)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
                   2
                 </div>
                 <div>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#f59e0b' }}>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--e-warning, #f59e0b)' }}>
                     Dra och släpp din offert-PDF
                   </p>
-                  <p style={{ fontSize: '12px', color: '#f59e0b' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--e-warning, #f59e0b)' }}>
                     Eller klicka för att välja fil
                   </p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: '#f59e0b', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
+                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--e-warning, #f59e0b)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
                   3
                 </div>
                 <div>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#f59e0b' }}>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--e-warning, #f59e0b)' }}>
                     Vänta 5-15 sekunder medan Claude analyserar
                   </p>
-                  <p style={{ fontSize: '12px', color: '#f59e0b' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--e-warning, #f59e0b)' }}>
                     AI läser och extraherar all viktig info
                   </p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: '#f59e0b', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
+                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--e-warning, #f59e0b)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
                   4
                 </div>
                 <div>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#f59e0b' }}>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--e-warning, #f59e0b)' }}>
                     Granska och justera data om nödvändigt
                   </p>
-                  <p style={{ fontSize: '12px', color: '#f59e0b' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--e-warning, #f59e0b)' }}>
                     Formuläret fylls i automatiskt
                   </p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: '#10b981', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
+                <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--e-success, #10b981)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}>
                   ✓
                 </div>
                 <div>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#10b981' }}>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--e-success, #10b981)' }}>
                     Klicka "Skapa projekt" - klart!
                   </p>
-                  <p style={{ fontSize: '12px', color: '#10b981' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--e-success, #10b981)' }}>
                     Budget beräknas automatiskt
                   </p>
                 </div>
@@ -324,12 +324,12 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#9333ea', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid #9333ea' }}>
-            <h4 style={{ fontWeight: 'bold', color: '#9333ea', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ backgroundColor: 'var(--e-primary, #9333ea)', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid var(--e-primary, #9333ea)' }}>
+            <h4 style={{ fontWeight: 'bold', color: 'var(--e-primary, #9333ea)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles style={{ height: '20px', width: '20px' }} />
               Vad extraheras automatiskt?
             </h4>
-            <ul style={{ fontSize: '14px', color: '#9333ea', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <ul style={{ fontSize: '14px', color: 'var(--e-primary, #9333ea)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <li>✅ Projektnamn (från offertens titel)</li>
               <li>✅ Kundnamn (från mottagare/beställare)</li>
               <li>✅ Offererade timmar (summerar olika poster)</li>
@@ -340,8 +340,8 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </ul>
           </div>
 
-          <div style={{ backgroundColor: '#f59e0b', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid #f59e0b' }}>
-            <p style={{ fontSize: '14px', color: '#f59e0b' }}>
+          <div style={{ backgroundColor: 'var(--e-warning, #f59e0b)', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid var(--e-warning, #f59e0b)' }}>
+            <p style={{ fontSize: '14px', color: 'var(--e-warning, #f59e0b)' }}>
               <strong>💡 Tips:</strong> Fungerar bäst med strukturerade offerter som har tydliga rubriker
               och prisuppställning. Om något blir fel kan du enkelt justera manuellt!
             </p>
@@ -362,7 +362,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
       {step === 5 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <CheckCircle style={{ height: '64px', width: '64px', color: '#10b981', margin: '0 auto 16px' }} />
+            <CheckCircle style={{ height: '64px', width: '64px', color: 'var(--e-success, #10b981)', margin: '0 auto 16px' }} />
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               Redo att skapa ditt första projekt!
             </h2>
@@ -372,8 +372,8 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', background: 'linear-gradient(to right, #f59e0b, #f97316)', opacity: 0.1, borderRadius: '8px', border: '2px solid #f59e0b' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: '#f59e0b', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', background: 'linear-gradient(to right, var(--e-warning, #f59e0b), var(--e-warning-dark, #f97316))', opacity: 0.1, borderRadius: '8px', border: '2px solid var(--e-warning, #f59e0b)' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--e-warning, #f59e0b)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 1
               </div>
               <div>
@@ -387,8 +387,8 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', background: 'linear-gradient(to right, #9333ea, #ec4899)', opacity: 0.1, borderRadius: '8px', border: '2px solid #9333ea' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: '#9333ea', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', background: 'linear-gradient(to right, var(--e-primary, #9333ea), var(--e-accent, #ec4899))', opacity: 0.1, borderRadius: '8px', border: '2px solid var(--e-primary, #9333ea)' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--e-primary, #9333ea)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 2
               </div>
               <div>
@@ -406,7 +406,7 @@ export function ProjectOnboardingModal({ isOpen, onComplete }: ProjectOnboarding
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '16px', background: 'linear-gradient(to right, var(--e-surface), var(--e-surface))', borderRadius: '8px', border: '2px solid var(--e-border)' }}>
-              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div style={{ flexShrink: 0, width: '32px', height: '32px', backgroundColor: 'var(--copper-600)', color: 'var(--e-surface, white)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                 3
               </div>
               <div>

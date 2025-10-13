@@ -68,17 +68,17 @@ export function KanbanView() {
         )}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.75rem', fontSize: '0.75rem', gap: '0.5rem', flexWrap: 'wrap' }}>
           {props.Estimate && (
-            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: '#dbeafe', color: '#1e40af' }}>
+            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: 'var(--e-info-light, #dbeafe)', color: 'var(--e-info, #1e40af)' }}>
               ⏱️ {props.Estimate}
             </span>
           )}
           {props.Deadline && (
-            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: '#fed7aa', color: '#9a3412' }}>
+            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: 'var(--e-warning-light, #fed7aa)', color: 'var(--e-warning-dark, #9a3412)' }}>
               📅 {props.Deadline}
             </span>
           )}
           {props.Priority && (
-            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: '#fef3c7', color: '#78350f', fontWeight: '600' }}>
+            <span style={{ padding: '0.25rem 0.5rem', borderRadius: '0.25rem', backgroundColor: 'var(--e-warning-light, #fef3c7)', color: 'var(--e-warning-dark, #78350f)', fontWeight: '600' }}>
               {Math.round(props.Priority)}
             </span>
           )}

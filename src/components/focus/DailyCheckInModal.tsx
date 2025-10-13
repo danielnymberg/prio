@@ -44,30 +44,25 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
       size="lg"
     >
       {/* Progress Indicator */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+      <div className="e-flex e-gap-8 e-mb-24">
         {[1, 2, 3].map(s => (
           <div
             key={s}
-            style={{
-              height: '8px',
-              flex: 1,
-              borderRadius: '4px',
-              transition: 'all 0.2s',
-              backgroundColor: s <= step ? 'var(--copper-600)' : 'var(--e-border)'
-            }}
+            className="e-flex-1 e-rounded e-transition"
+            style={{ height: '8px', backgroundColor: s <= step ? 'var(--copper-600)' : 'var(--e-border)' }}
           />
         ))}
       </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
+      <div className="e-text-center e-mb-8 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
         Steg {step} av 3
       </div>
 
       {/* Step 1: Tillgänglig tid */}
       {step === 1 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
+        <div className="e-flex e-flex-column e-gap-24">
+          <div className="e-text-center">
+            <h3 className="e-text-xl e-font-bold e-mb-8" style={{ color: 'var(--e-text)' }}>
               Hur mycket tid har du för fokusarbete idag?
             </h3>
             <p style={{ color: 'var(--e-text-secondary)' }}>
@@ -75,12 +70,12 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: 'var(--copper-600)', marginBottom: '0.5rem' }}>
+          <div className="e-flex e-flex-column e-gap-16">
+            <div className="e-text-center">
+              <div className="e-font-bold e-mb-8" style={{ fontSize: '48px', color: 'var(--copper-600)' }}>
                 {formatTime(availableTime)}
               </div>
-              <div style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
+              <div className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
                 {availableTime} minuter
               </div>
             </div>
@@ -95,7 +90,7 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
               style={{ width: '100%', height: '12px', cursor: 'pointer' }}
             />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--e-text-secondary)' }}>
+            <div className="e-flex e-justify-between e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
               <span>0h</span>
               <span>2h</span>
               <span>4h</span>
@@ -106,7 +101,8 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
           <Button
             onClick={() => setStep(2)}
-            style={{ width: '100%', height: '48px' }}
+            className="e-w-full"
+            style={{ height: '48px' }}
             disabled={availableTime === 0}
           >
             Nästa →
@@ -116,9 +112,9 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
       {/* Step 2: Energinivå */}
       {step === 2 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
+        <div className="e-flex e-flex-column e-gap-24">
+          <div className="e-text-center">
+            <h3 className="e-text-xl e-font-bold e-mb-8" style={{ color: 'var(--e-text)' }}>
               Hur är din energinivå?
             </h3>
             <p style={{ color: 'var(--e-text-secondary)' }}>
@@ -126,76 +122,70 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+          <div className="e-grid e-grid-cols-3 e-gap-12">
             <button
               type="button"
               onClick={() => setEnergyLevel('low')}
+              className="e-p-24 e-rounded-lg e-border e-transition e-cursor-pointer"
               style={{
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: energyLevel === 'low' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                borderColor: energyLevel === 'low' ? 'var(--copper-500)' : 'var(--e-border)',
+                borderWidth: '2px',
                 backgroundColor: energyLevel === 'low' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: energyLevel === 'low' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
-                transform: energyLevel === 'low' ? 'scale(1.05)' : 'scale(1)',
-                transition: 'all 0.2s',
-                cursor: 'pointer'
+                transform: energyLevel === 'low' ? 'scale(1.05)' : 'scale(1)'
               }}
             >
-              <BatteryLow style={{ height: '48px', width: '48px', margin: '0 auto 12px', color: '#f97316' }} />
-              <div style={{ fontWeight: '600', color: 'var(--e-text)' }}>Låg</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '4px' }}>Trött, dämpad</div>
+              <BatteryLow className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: '#f97316' }} />
+              <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Låg</div>
+              <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Trött, dämpad</div>
             </button>
 
             <button
               type="button"
               onClick={() => setEnergyLevel('medium')}
+              className="e-p-24 e-rounded-lg e-border e-transition e-cursor-pointer"
               style={{
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: energyLevel === 'medium' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                borderColor: energyLevel === 'medium' ? 'var(--copper-500)' : 'var(--e-border)',
+                borderWidth: '2px',
                 backgroundColor: energyLevel === 'medium' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: energyLevel === 'medium' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
-                transform: energyLevel === 'medium' ? 'scale(1.05)' : 'scale(1)',
-                transition: 'all 0.2s',
-                cursor: 'pointer'
+                transform: energyLevel === 'medium' ? 'scale(1.05)' : 'scale(1)'
               }}
             >
-              <BatteryMedium style={{ height: '48px', width: '48px', margin: '0 auto 12px', color: '#eab308' }} />
-              <div style={{ fontWeight: '600', color: 'var(--e-text)' }}>Medel</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '4px' }}>Normal, stabil</div>
+              <BatteryMedium className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: '#eab308' }} />
+              <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Medel</div>
+              <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Normal, stabil</div>
             </button>
 
             <button
               type="button"
               onClick={() => setEnergyLevel('high')}
+              className="e-p-24 e-rounded-lg e-border e-transition e-cursor-pointer"
               style={{
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: energyLevel === 'high' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                borderColor: energyLevel === 'high' ? 'var(--copper-500)' : 'var(--e-border)',
+                borderWidth: '2px',
                 backgroundColor: energyLevel === 'high' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
                 boxShadow: energyLevel === 'high' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
-                transform: energyLevel === 'high' ? 'scale(1.05)' : 'scale(1)',
-                transition: 'all 0.2s',
-                cursor: 'pointer'
+                transform: energyLevel === 'high' ? 'scale(1.05)' : 'scale(1)'
               }}
             >
-              <Battery style={{ height: '48px', width: '48px', margin: '0 auto 12px', color: '#22c55e' }} />
-              <div style={{ fontWeight: '600', color: 'var(--e-text)' }}>Hög</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--e-text-secondary)', marginTop: '4px' }}>Energisk, fokuserad</div>
+              <Battery className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: '#22c55e' }} />
+              <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Hög</div>
+              <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Energisk, fokuserad</div>
             </button>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div className="e-flex e-gap-12">
             <Button
               variant="ghost"
               onClick={() => setStep(1)}
-              style={{ flex: 1 }}
+              className="e-flex-1"
             >
               ← Tillbaka
             </Button>
             <Button
               onClick={() => setStep(3)}
-              style={{ flex: 1 }}
+              className="e-flex-1"
             >
               Nästa →
             </Button>
@@ -205,9 +195,9 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
 
       {/* Step 3: Strategi */}
       {step === 3 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '0.5rem' }}>
+        <div className="e-flex e-flex-column e-gap-24">
+          <div className="e-text-center">
+            <h3 className="e-text-xl e-font-bold e-mb-8" style={{ color: 'var(--e-text)' }}>
               Vad är din strategi idag?
             </h3>
             <p style={{ color: 'var(--e-text-secondary)' }}>
@@ -215,29 +205,25 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="e-flex e-flex-column e-gap-12">
             <button
               type="button"
               onClick={() => setStrategy('quick_wins')}
+              className="e-w-full e-p-24 e-rounded-lg e-border e-text-left e-transition e-cursor-pointer"
               style={{
-                width: '100%',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: strategy === 'quick_wins' ? '2px solid var(--copper-500)' : '2px solid var(--e-border)',
+                borderColor: strategy === 'quick_wins' ? 'var(--copper-500)' : 'var(--e-border)',
+                borderWidth: '2px',
                 backgroundColor: strategy === 'quick_wins' ? 'var(--e-surface-secondary)' : 'var(--e-surface)',
-                boxShadow: strategy === 'quick_wins' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none',
-                transition: 'all 0.2s',
-                textAlign: 'left',
-                cursor: 'pointer'
+                boxShadow: strategy === 'quick_wins' ? '0 10px 15px -3px rgba(0,0,0,0.1)' : 'none'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                <Zap style={{ height: '32px', width: '32px', color: '#eab308', flexShrink: 0 }} />
+              <div className="e-flex e-align-start e-gap-16">
+                <Zap className="e-flex-none" style={{ height: '32px', width: '32px', color: '#eab308' }} />
                 <div>
-                  <div style={{ fontWeight: '600', fontSize: '1.125rem', color: 'var(--e-text)', marginBottom: '4px' }}>
+                  <div className="e-font-semibold e-text-lg e-mb-4" style={{ color: 'var(--e-text)' }}>
                     ⚡ Quick Wins
                   </div>
-                  <div style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)' }}>
+                  <div className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
                     Många små uppgifter för att bygga momentum och känna framsteg
                   </div>
                 </div>

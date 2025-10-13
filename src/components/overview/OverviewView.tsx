@@ -56,16 +56,11 @@ export function OverviewView() {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+      <div className="e-flex e-align-center e-justify-center" style={{
         minHeight: '100vh',
         backgroundColor: 'var(--e-surface)'
       }}>
-        <div style={{
-          animation: 'spin 1s linear infinite',
-          borderRadius: '9999px',
+        <div className="e-animate-spin e-rounded-full" style={{
           height: '48px',
           width: '48px',
           borderBottom: '2px solid var(--copper-500)'
@@ -131,20 +126,13 @@ export function OverviewView() {
   });
 
   return (
-    <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem' }}>
+    <div className="e-mx-auto" style={{ maxWidth: '80rem', padding: '2rem' }}>
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '2rem'
-      }}>
+      <div className="e-flex e-align-center e-justify-between" style={{ marginBottom: '2rem' }}>
         <div>
-          <h1 style={{
+          <h1 className="e-m-0 e-font-bold" style={{
             fontSize: '1.875rem',
-            fontWeight: 'bold',
-            color: 'var(--e-text)',
-            margin: 0
+            color: 'var(--e-text)'
           }}>
             Översikt
           </h1>
@@ -157,20 +145,18 @@ export function OverviewView() {
         </div>
 
         {/* Tidshoriont-väljare */}
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="e-flex" style={{ gap: '0.5rem' }}>
           {(['1', '3', '6', '12'] as TimeHorizon[]).map((horizon) => (
             <button
               key={horizon}
               onClick={() => setTimeHorizon(horizon)}
+              className="e-font-medium e-transition e-cursor-pointer"
               style={{
                 padding: '0.5rem 1rem',
                 borderRadius: '0.75rem',
-                fontWeight: '500',
-                transition: 'all 0.2s',
                 backgroundColor: timeHorizon === horizon ? 'var(--copper-500)' : 'var(--e-surface)',
                 color: timeHorizon === horizon ? 'white' : 'var(--e-text)',
                 border: timeHorizon === horizon ? 'none' : '1px solid var(--e-border)',
-                cursor: 'pointer',
                 boxShadow: timeHorizon === horizon ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
               }}
             >
@@ -181,27 +167,21 @@ export function OverviewView() {
       </div>
 
       {/* Filter */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
+      <div className="e-flex" style={{ gap: '0.75rem', marginBottom: '2rem' }}>
+        <div className="e-flex e-align-center e-border e-rounded-lg" style={{
           gap: '0.5rem',
           backgroundColor: 'var(--e-surface)',
-          padding: '0.75rem 1rem',
-          borderRadius: '0.75rem',
-          border: '1px solid var(--e-border)'
+          padding: '0.75rem 1rem'
         }}>
           <Filter style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary)' }} />
           <select
             value={selectedClient}
             onChange={(e) => setSelectedClient(e.target.value)}
+            className="e-text-sm e-font-medium e-cursor-pointer"
             style={{
               backgroundColor: 'transparent',
-              fontSize: '0.875rem',
-              fontWeight: '500',
               color: 'var(--e-text)',
               outline: 'none',
-              cursor: 'pointer',
               border: 'none'
             }}
           >
@@ -212,26 +192,20 @@ export function OverviewView() {
           </select>
         </div>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
+        <div className="e-flex e-align-center e-border e-rounded-lg" style={{
           gap: '0.5rem',
           backgroundColor: 'var(--e-surface)',
-          padding: '0.75rem 1rem',
-          borderRadius: '0.75rem',
-          border: '1px solid var(--e-border)'
+          padding: '0.75rem 1rem'
         }}>
           <Filter style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary)' }} />
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
+            className="e-text-sm e-font-medium e-cursor-pointer"
             style={{
               backgroundColor: 'transparent',
-              fontSize: '0.875rem',
-              fontWeight: '500',
               color: 'var(--e-text)',
               outline: 'none',
-              cursor: 'pointer',
               border: 'none'
             }}
           >
@@ -243,8 +217,7 @@ export function OverviewView() {
       </div>
 
       {/* Statistik-kort */}
-      <div style={{
-        display: 'grid',
+      <div className="e-grid" style={{
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '1rem',
         marginBottom: '2rem'

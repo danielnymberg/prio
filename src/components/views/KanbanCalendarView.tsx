@@ -33,65 +33,31 @@ export function KanbanCalendarView() {
 
   const cardTemplate = (props: any) => {
     return (
-      <div style={{ padding: '12px' }}>
-        <div style={{ marginBottom: '8px' }}>
-          <div style={{
-            fontWeight: '600',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
+      <div className="e-p-12">
+        <div className="e-mb-8">
+          <div className="e-font-semibold e-flex e-align-center e-justify-between">
             <span>{props.Title}</span>
-            {props.Scheduled && <span style={{ fontSize: '12px' }}>📅</span>}
+            {props.Scheduled && <span className="e-text-xs">📅</span>}
           </div>
         </div>
         {props.Summary && (
-          <div style={{
-            fontSize: '14px',
-            color: 'var(--e-text)',
-            opacity: 0.7,
-            marginTop: '8px'
-          }}>
+          <div className="e-text-sm e-mt-8 e-opacity-75" style={{ color: 'var(--e-text)' }}>
             {props.Summary.substring(0, 80)}{props.Summary.length > 80 ? '...' : ''}
           </div>
         )}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: '12px',
-          fontSize: '12px',
-          flexWrap: 'wrap',
-          gap: '4px'
-        }}>
+        <div className="e-flex e-align-center e-justify-between e-mt-12 e-text-xs e-flex-wrap e-gap-4">
           {props.Estimate && (
-            <span style={{
-              padding: '4px 8px',
-              borderRadius: '4px',
-              backgroundColor: '#3b82f6',
-              color: '#fff'
-            }}>
+            <span className="e-rounded" style={{ padding: '4px 8px', backgroundColor: '#3b82f6', color: '#fff' }}>
               ⏱️ {props.Estimate}
             </span>
           )}
           {props.Deadline && (
-            <span style={{
-              padding: '4px 8px',
-              borderRadius: '4px',
-              backgroundColor: '#f59e0b',
-              color: '#fff'
-            }}>
+            <span className="e-rounded" style={{ padding: '4px 8px', backgroundColor: '#f59e0b', color: '#fff' }}>
               📅 {props.Deadline}
             </span>
           )}
           {props.Priority && (
-            <span style={{
-              padding: '4px 8px',
-              borderRadius: '4px',
-              backgroundColor: 'var(--copper-500)',
-              color: '#fff',
-              fontWeight: '600'
-            }}>
+            <span className="e-rounded e-font-semibold" style={{ padding: '4px 8px', backgroundColor: 'var(--copper-500)', color: '#fff' }}>
               {Math.round(props.Priority)}
             </span>
           )}
@@ -207,41 +173,14 @@ export function KanbanCalendarView() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      height: '100%',
-      gap: '16px',
-      position: 'relative'
-    }} id="kanban-calendar-container">
+    <div className="e-flex e-h-full e-gap-16 e-relative" id="kanban-calendar-container">
       {/* Kanban board */}
-      <div style={{
-        width: '33.333%',
-        flexShrink: 0
-      }}>
-        <div style={{
-          height: '100%',
-          background: 'var(--e-surface)',
-          borderRadius: '12px',
-          border: '1px solid var(--e-border)',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <h2 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            marginBottom: '16px',
-            color: 'var(--e-text)',
-            flexShrink: 0
-          }}>
+      <div style={{ width: '33.333%', flexShrink: 0 }}>
+        <div className="e-h-full e-border e-rounded-lg e-p-16 e-flex e-flex-column" style={{ background: 'var(--e-surface)' }}>
+          <h2 className="e-text-lg e-font-semibold e-mb-16 e-flex-none" style={{ color: 'var(--e-text)' }}>
             Uppgifter
           </h2>
-          <div style={{
-            flex: 1,
-            minHeight: 0,
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
+          <div className="e-flex-1 e-flex e-flex-column" style={{ minHeight: 0 }}>
             <KanbanComponent
               id="kanban-board"
               dataSource={kanbanData}
@@ -281,11 +220,7 @@ export function KanbanCalendarView() {
       </div>
 
       {/* Calendar */}
-      <div style={{
-        flex: 1,
-        minWidth: 0,
-        overflow: 'hidden'
-      }}>
+      <div className="e-flex-1 e-overflow-hidden" style={{ minWidth: 0 }}>
         <WeekCalendarView
           onScheduleReady={setScheduleRef}
           tasks={tasks}

@@ -26,75 +26,43 @@ export function Dashboard() {
   ];
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '24px'
-    }}>
+    <div className="e-flex e-flex-column e-gap-24">
       <Alert variant="info" title="Matrix (Beta)">
         Eisenhower Matrix är nu i beta-läge. För bästa upplevelse rekommenderar vi vår nya <strong>Just Nu</strong>-vy som använder CPM (Consequence-Priority Model) för smartare prioritering baserat på forskningsbaserade principer.
       </Alert>
 
       {highestPriorityTask && (
-        <div style={{
-          background: 'linear-gradient(to right, #fef2f2, #fff7ed)',
-          border: '2px solid #ef4444',
-          borderRadius: '12px',
-          padding: '24px'
+        <div className="e-rounded-lg e-p-24 e-border" style={{
+          background: 'linear-gradient(to right, var(--error-50, #fef2f2), var(--warning-50, #fff7ed))',
+          borderWidth: '2px',
+          borderColor: 'var(--error-500, #ef4444)'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '16px'
-          }}>
-            <div style={{
-              padding: '12px',
-              background: '#ef4444',
-              opacity: 0.2,
-              borderRadius: '8px'
+          <div className="e-flex e-align-start e-gap-16">
+            <div className="e-p-12 e-rounded-md e-opacity-75" style={{
+              backgroundColor: 'var(--error-500, #ef4444)'
             }}>
               <Target style={{
                 width: '24px',
                 height: '24px',
-                color: '#ef4444'
+                color: 'var(--error-500, #ef4444)'
               }} />
             </div>
-            <div style={{ flex: 1 }}>
-              <h2 style={{
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#ef4444',
-                marginBottom: '4px'
-              }}>
+            <div className="e-flex-1">
+              <h2 className="e-text-lg e-font-bold e-mb-4" style={{ color: 'var(--error-500, #ef4444)' }}>
                 🎯 Börja med:
               </h2>
-              <p style={{
-                fontSize: '20px',
-                fontWeight: '500',
-                color: '#ef4444',
-                marginBottom: '8px'
-              }}>
+              <p className="e-text-xl e-font-medium e-mb-8" style={{ color: 'var(--error-500, #ef4444)' }}>
                 {highestPriorityTask.title}
               </p>
               {highestPriorityTask.description && (
-                <p style={{
-                  fontSize: '14px',
-                  color: '#ef4444',
-                  opacity: 0.9
-                }}>
+                <p className="e-text-sm e-opacity-75" style={{ color: 'var(--error-500, #ef4444)' }}>
                   {highestPriorityTask.description}
                 </p>
               )}
-              <div style={{
-                marginTop: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <span style={{
-                  fontSize: '12px',
+              <div className="e-mt-8 e-flex e-align-center e-gap-8">
+                <span className="e-text-xs" style={{
                   fontFamily: 'monospace',
-                  color: '#ef4444'
+                  color: 'var(--error-500, #ef4444)'
                 }}>
                   Prioritet: {highestPriorityTask.priority.toFixed(1)}
                 </span>
@@ -104,28 +72,19 @@ export function Dashboard() {
         </div>
       )}
 
-      <div style={{
-        background: 'var(--e-surface)',
-        borderRadius: '12px',
-        padding: '24px',
-        border: '1px solid var(--e-border)'
+      <div className="e-rounded-lg e-p-24 e-border" style={{
+        backgroundColor: 'var(--e-surface)',
+        borderColor: 'var(--e-border)'
       }}>
-        <h2 style={{
-          fontSize: '20px',
-          fontWeight: 'bold',
-          color: 'var(--e-text)',
-          marginBottom: '16px'
-        }}>
+        <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
           Eisenhower Matrix
         </h2>
         <EisenhowerMatrix />
       </div>
 
-      <div style={{
-        background: 'var(--e-surface)',
-        borderRadius: '12px',
-        padding: '24px',
-        border: '1px solid var(--e-border)'
+      <div className="e-rounded-lg e-p-24 e-border" style={{
+        backgroundColor: 'var(--e-surface)',
+        borderColor: 'var(--e-border)'
       }}>
         <Stats stats={stats} />
       </div>

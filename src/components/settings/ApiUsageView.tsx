@@ -155,7 +155,7 @@ export function ApiUsageView() {
     switch (tier) {
       case 'free': return { bg: 'var(--e-surface-secondary, #f5f5f4)', color: 'var(--e-text, #44403c)' };
       case 'pro': return { bg: 'var(--copper-100, #fef3ee)', color: 'var(--copper-700, #c2410c)' };
-      case 'business': return { bg: 'rgba(220, 252, 231, 0.5)', color: '#15803d' };
+      case 'business': return { bg: 'rgba(220, 252, 231, 0.5)', color: 'var(--success-700, #15803d)' };
       default: return { bg: 'var(--e-surface-secondary, #f5f5f4)', color: 'var(--e-text, #44403c)' };
     }
   };
@@ -170,10 +170,8 @@ export function ApiUsageView() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
-        <div style={{
-          animation: 'spin 1s linear infinite',
-          borderRadius: '9999px',
+      <div className="e-flex e-align-center e-justify-center" style={{ padding: '48px 0' }}>
+        <div className="e-animate-spin e-rounded-full" style={{
           height: '32px',
           width: '32px',
           border: '2px solid transparent',
@@ -191,41 +189,30 @@ export function ApiUsageView() {
     : 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="e-flex e-flex-column e-gap-24">
       {/* Header */}
       <div>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text, #1c1917)' }}>
+        <h2 className="e-text-2xl e-font-bold" style={{ color: 'var(--e-text, #1c1917)' }}>
           API-användning
         </h2>
-        <p style={{ fontSize: '14px', color: 'var(--e-text-secondary, #57534e)', marginTop: '4px' }}>
+        <p className="e-text-sm e-mt-4" style={{ color: 'var(--e-text-secondary, #57534e)' }}>
           Håll koll på din AI-förbrukning och kostnader
         </p>
       </div>
 
       {/* Pricing Tier Badge */}
       {settings && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{
-            padding: '4px 12px',
-            borderRadius: '9999px',
-            fontSize: '14px',
-            fontWeight: '500',
+        <div className="e-flex e-align-center e-gap-12">
+          <span className="e-px-12 e-py-4 e-rounded-full e-text-sm e-font-medium" style={{
             backgroundColor: getTierColor(settings.pricing_tier).bg,
             color: getTierColor(settings.pricing_tier).color
           }}>
             {settings.pricing_tier.toUpperCase()}
           </span>
           {settings.use_own_api_keys && (
-            <span style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '4px 12px',
-              borderRadius: '9999px',
-              fontSize: '14px',
-              fontWeight: '500',
+            <span className="e-flex e-align-center e-gap-4 e-px-12 e-py-4 e-rounded-full e-text-sm e-font-medium" style={{
               backgroundColor: 'rgba(233, 213, 255, 0.5)',
-              color: '#7c3aed'
+              color: 'var(--purple-700, #7c3aed)'
             }}>
               <Key style={{ height: '12px', width: '12px' }} />
               Egen API-nyckel
@@ -286,7 +273,7 @@ export function ApiUsageView() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ padding: '8px', backgroundColor: 'rgba(254, 243, 199, 0.5)', borderRadius: '8px' }}>
-              <TrendingUp style={{ height: '20px', width: '20px', color: '#f59e0b' }} />
+              <TrendingUp style={{ height: '20px', width: '20px', color: 'var(--warning-500, #f59e0b)' }} />
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Denna månad
@@ -301,7 +288,7 @@ export function ApiUsageView() {
           <div style={{ marginTop: '12px', backgroundColor: 'var(--e-border, #e5e7eb)', borderRadius: '9999px', height: '8px' }}>
             <div
               style={{
-                backgroundColor: '#f59e0b',
+                backgroundColor: 'var(--warning-500, #f59e0b)',
                 height: '8px',
                 borderRadius: '9999px',
                 transition: 'width 0.3s',
@@ -323,7 +310,7 @@ export function ApiUsageView() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ padding: '8px', backgroundColor: 'rgba(220, 252, 231, 0.5)', borderRadius: '8px' }}>
-              <DollarSign style={{ height: '20px', width: '20px', color: '#10b981' }} />
+              <DollarSign style={{ height: '20px', width: '20px', color: 'var(--success-500, #10b981)' }} />
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Kostnad idag
@@ -346,7 +333,7 @@ export function ApiUsageView() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ padding: '8px', backgroundColor: 'rgba(254, 226, 226, 0.5)', borderRadius: '8px' }}>
-              <DollarSign style={{ height: '20px', width: '20px', color: '#ef4444' }} />
+              <DollarSign style={{ height: '20px', width: '20px', color: 'var(--error-500, #ef4444)' }} />
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Kostnad månad
@@ -410,7 +397,7 @@ export function ApiUsageView() {
               padding: '16px'
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <AlertCircle style={{ height: '20px', width: '20px', color: '#f59e0b', marginTop: '2px' }} />
+                <AlertCircle style={{ height: '20px', width: '20px', color: 'var(--warning-500, #f59e0b)', marginTop: '2px' }} />
                 <div>
                   <h4 style={{ fontWeight: '600', color: '#b45309' }}>
                     Nära daglig gräns
@@ -431,7 +418,7 @@ export function ApiUsageView() {
               padding: '16px'
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <AlertCircle style={{ height: '20px', width: '20px', color: '#ef4444', marginTop: '2px' }} />
+                <AlertCircle style={{ height: '20px', width: '20px', color: 'var(--error-500, #ef4444)', marginTop: '2px' }} />
                 <div>
                   <h4 style={{ fontWeight: '600', color: '#991b1b' }}>
                     Nära månadsgräns
@@ -472,8 +459,8 @@ export function ApiUsageView() {
               border: '1px solid #bbf7d0',
               borderRadius: '8px'
             }}>
-              <Lock style={{ height: '16px', width: '16px', color: '#10b981' }} />
-              <span style={{ fontSize: '14px', color: '#15803d', fontWeight: '500' }}>
+              <Lock style={{ height: '16px', width: '16px', color: 'var(--success-500, #10b981)' }} />
+              <span style={{ fontSize: '14px', color: 'var(--success-700, #15803d)', fontWeight: '500' }}>
                 Egen API-nyckel aktiv
               </span>
             </div>
@@ -484,7 +471,7 @@ export function ApiUsageView() {
               variant="ghost"
               onClick={removeApiKey}
               disabled={saving}
-              style={{ color: '#ef4444' }}
+              style={{ color: 'var(--error-500, #ef4444)' }}
             >
               Ta bort API-nyckel
             </Button>

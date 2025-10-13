@@ -84,44 +84,44 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
   const [hoverDismiss, setHoverDismiss] = useState(false);
 
   return (
-    <div style={{ background: 'linear-gradient(to right, var(--copper-600), var(--copper-600))', color: 'white', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }}>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>{greeting}</h2>
+    <div className="e-rounded-lg e-p-24 e-mb-24" style={{ background: 'linear-gradient(to right, var(--copper-600), var(--copper-600))', color: 'white', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)' }}>
+      <h2 className="e-text-xl e-font-bold e-mb-16">{greeting}</h2>
 
       {/* Statistik-grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
-        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', borderRadius: '0.5rem', padding: '0.75rem' }}>
-          <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>Deadline idag</div>
-          <div style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>{todayTasks.length}</div>
+      <div className="e-grid e-grid-cols-2 e-gap-16 e-mb-16">
+        <div className="e-rounded-md e-p-12" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' }}>
+          <div className="e-text-sm e-opacity-75">Deadline idag</div>
+          <div className="e-text-2xl e-font-bold">{todayTasks.length}</div>
         </div>
-        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', borderRadius: '0.5rem', padding: '0.75rem' }}>
-          <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>Försenade</div>
-          <div style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>{overdueTasks.length}</div>
+        <div className="e-rounded-md e-p-12" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' }}>
+          <div className="e-text-sm e-opacity-75">Försenade</div>
+          <div className="e-text-2xl e-font-bold">{overdueTasks.length}</div>
         </div>
       </div>
 
       {/* Extra info */}
       {blockedTasks.length > 0 && (
-        <p style={{ marginBottom: '0.75rem', opacity: 0.9, fontSize: '0.875rem' }}>
+        <p className="e-mb-12 e-opacity-75 e-text-sm">
           🔒 {blockedTasks.length} uppgifter är blockerade av andra tasks
         </p>
       )}
 
       {availableTime && (
-        <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
+        <p className="e-mb-16 e-opacity-75">
           ⏰ Du har {formatDuration(availableTime)} ledig tid idag
         </p>
       )}
 
       {/* Top 3 tasks */}
       {scoredTasks.length > 0 && (
-        <div style={{ marginBottom: '1rem' }}>
-          <h3 style={{ fontWeight: '600', marginBottom: '0.5rem' }}>🎯 Rekommenderade tasks:</h3>
-          <ol style={{ listStyleType: 'decimal', paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.875rem' }}>
+        <div className="e-mb-16">
+          <h3 className="e-font-semibold e-mb-8">🎯 Rekommenderade tasks:</h3>
+          <ol className="e-flex e-flex-column e-gap-4 e-text-sm" style={{ listStyleType: 'decimal', paddingLeft: '1.5rem' }}>
             {scoredTasks.map(({ task }) => (
-              <li key={task.id} style={{ opacity: 0.9 }}>
+              <li key={task.id} className="e-opacity-75">
                 {task.title}
                 {task.deadline && (
-                  <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', opacity: 0.75 }}>
+                  <span className="e-text-xs e-ml-8 e-opacity-75">
                     (deadline: {new Date(task.deadline).toLocaleDateString('sv-SE')})
                   </span>
                 )}
@@ -133,26 +133,24 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
 
       {/* Om inga tasks */}
       {activeTasks.length === 0 && (
-        <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
+        <p className="e-mb-16 e-opacity-75">
           🎉 Du har inga aktiva tasks! Skapa din första uppgift för att komma igång.
         </p>
       )}
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '0.75rem' }}>
+      <div className="e-flex e-gap-12">
         <div
-          style={{ flex: 1 }}
+          className="e-flex-1"
           onMouseEnter={() => setHoverStartDay(true)}
-          onMouseLeave={() => setHoverStartDay(false)}
+          onMouseLeave={() => setHoverDismiss(false)}
         >
           <Button
             onClick={onStartDay}
+            className="e-w-full e-font-semibold e-transition"
             style={{
-              width: '100%',
               backgroundColor: hoverStartDay ? '#f5f1ed' : 'white',
-              color: 'var(--copper-600)',
-              fontWeight: '600',
-              transition: 'background-color 0.2s'
+              color: 'var(--copper-600)'
             }}
           >
             Starta dagen
@@ -165,11 +163,11 @@ export function MorningBriefing({ tasks, onStartDay, onDismiss }: MorningBriefin
           <Button
             onClick={onDismiss}
             variant="ghost"
+            className="e-transition e-border"
             style={{
               color: 'white',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              backgroundColor: hoverDismiss ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
-              transition: 'background-color 0.2s'
+              borderColor: 'rgba(255, 255, 255, 0.3)',
+              backgroundColor: hoverDismiss ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
             }}
           >
             Hoppa över

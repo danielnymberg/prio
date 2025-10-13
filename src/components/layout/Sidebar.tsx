@@ -141,42 +141,27 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
       <aside
-        className="sidebar-responsive"
+        className="sidebar-responsive e-fixed e-z-40 e-flex e-flex-column e-border-r"
         style={{
-          position: 'fixed',
           top: 0,
           bottom: 0,
           left: 0,
-          zIndex: 40,
           width: '16rem',
           backgroundColor: 'var(--e-surface)',
-          borderRight: '1px solid var(--e-border)',
-          display: 'flex',
-          flexDirection: 'column',
           transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform 300ms ease-in-out'
         }}
       >
         {/* Header med stängknapp för mobil */}
         <div
-          style={{
-            padding: '1rem',
-            borderBottom: '1px solid var(--e-border)',
-            display: 'none'
-          }}
-          className="mobile-only"
+          className="mobile-only e-p-16 e-border-b e-hidden"
         >
           <button
             onClick={onClose}
+            className="e-p-8 e-rounded-md e-transition-colors e-ml-auto e-block e-cursor-pointer"
             style={{
-              padding: '0.5rem',
-              borderRadius: '0.5rem',
-              transition: 'background-color 200ms',
-              marginLeft: 'auto',
-              display: 'block',
               backgroundColor: 'transparent',
               border: 'none',
-              cursor: 'pointer'
             }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-secondary)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -187,7 +172,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* Ny uppgift-knapp */}
-        <div style={{ padding: '1rem' }}>
+        <div className="e-p-16">
           <Button
             variant="primary"
             size="md"
@@ -196,7 +181,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               setIsFormOpen(true);
               onClose();
             }}
-            style={{ width: '100%' }}
+            className="e-w-full"
           >
             <Plus style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
             Ny uppgift
@@ -204,7 +189,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* TreeView Navigation */}
-        <nav style={{ flex: 1, overflowY: 'auto', paddingLeft: '0.75rem', paddingRight: '0.75rem', paddingBottom: '1rem' }}>
+        <nav className="e-flex-1 e-overflow-y-auto e-px-12 e-pb-16">
           <TreeViewComponent
             ref={treeRef}
             fields={{

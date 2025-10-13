@@ -84,15 +84,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header style={{
-      backgroundColor: 'var(--e-surface)',
-      borderBottom: '1px solid var(--e-border)',
-      padding: '1rem 2rem',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <header className="e-border-b e-px-32 e-py-16 e-flex e-align-center e-justify-between" style={{ backgroundColor: 'var(--e-surface)' }}>
+      <div className="e-flex e-align-center e-gap-16">
         {/* Mobile menu button */}
         <ButtonComponent
           cssClass="e-flat mobile-menu-btn"
@@ -101,44 +94,28 @@ export function Header({ onMenuClick }: HeaderProps) {
           style={{ display: 'none' }}
         />
 
-        <h1 style={{
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          color: 'var(--copper-500)',
-          margin: 0
-        }}>
+        <h1 className="e-text-2xl e-font-bold e-m-0" style={{ color: 'var(--copper-500)' }}>
           Prio
         </h1>
-        <span style={{
-          fontSize: '0.875rem',
-          color: 'var(--e-text-secondary)'
-        }}>
+        <span className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
           Håll fokus på det som är viktigt
         </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div className="e-flex e-align-center e-gap-12">
         {/* Microsoft status */}
         <div
           onClick={() => navigate('/settings')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 0.75rem',
-            borderRadius: '4px',
-            backgroundColor: 'var(--e-surface-secondary)',
-            cursor: 'pointer'
-          }}
+          className="e-flex e-align-center e-gap-8 e-px-12 e-py-8 e-rounded e-cursor-pointer"
+          style={{ backgroundColor: 'var(--e-surface-secondary)' }}
           title={isMicrosoftConnected ? 'Microsoft Calendar ansluten' : 'Ej ansluten'}
         >
-          <div style={{
+          <div className="e-rounded-full" style={{
             width: '8px',
             height: '8px',
-            borderRadius: '50%',
             backgroundColor: isMicrosoftConnected ? '#10b981' : '#ef4444'
           }} />
-          <span style={{ fontSize: '0.75rem' }}>MSFT</span>
+          <span className="e-text-xs">MSFT</span>
         </div>
 
         <ButtonComponent
@@ -148,7 +125,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           content=""
         />
 
-        <div style={{ position: 'relative', display: 'inline-block' }}>
+        <div className="e-relative e-inline-block">
           <ButtonComponent
             cssClass="e-outline"
             iconCss="e-icons e-refresh"

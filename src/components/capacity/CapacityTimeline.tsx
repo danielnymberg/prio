@@ -47,8 +47,8 @@ export function CapacityTimeline() {
 
   if (absenceLoading || settingsLoading || loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16rem' }}>
-        <Loader2 style={{ width: '2rem', height: '2rem', animation: 'spin 1s linear infinite', color: 'var(--copper-600)' }} />
+      <div className="e-flex e-align-center e-justify-center" style={{ height: '16rem' }}>
+        <Loader2 className="e-animate-spin" style={{ width: '2rem', height: '2rem', color: 'var(--copper-600)' }} />
       </div>
     );
   }
@@ -62,34 +62,29 @@ export function CapacityTimeline() {
   const totalAvailableHours = Math.round(capacityData.reduce((sum, d) => sum + d.availableHours, 0));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="e-flex e-flex-column" style={{ gap: '1.5rem' }}>
       {/* Header */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
+      <div className="e-flex e-flex-column e-align-start e-justify-between" style={{ gap: '1rem' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--charcoal-900)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h2 className="e-text-xl e-font-bold e-flex e-align-center" style={{ color: 'var(--charcoal-900)', gap: '0.5rem' }}>
             📊 Kapacitetsöversikt
           </h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', marginTop: '0.25rem' }}>
+          <p className="e-text-sm e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
             Din beläggning baserat på tasks, projekt och möten
           </p>
         </div>
 
         {/* Zoom-knappar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--e-surface)', borderRadius: '0.5rem', padding: '0.25rem', border: '1px solid var(--e-border)' }}>
+        <div className="e-flex e-align-center e-rounded e-border" style={{ gap: '0.5rem', backgroundColor: 'var(--e-surface)', padding: '0.25rem' }}>
           {zoomButtons.map(({ level, label }) => (
             <button
               key={level}
               onClick={() => setZoomLevel(level)}
+              className="e-px-16 e-py-8 e-rounded e-text-sm e-font-medium e-transition e-cursor-pointer"
               style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                transition: 'colors 0.2s',
                 backgroundColor: zoomLevel === level ? 'var(--copper-600)' : 'transparent',
                 color: zoomLevel === level ? '#ffffff' : 'var(--e-text-secondary)',
-                border: 'none',
-                cursor: 'pointer'
+                border: 'none'
               }}
             >
               {label}
@@ -99,7 +94,7 @@ export function CapacityTimeline() {
       </div>
 
       {/* Info cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
+      <div className="e-grid e-grid-cols-2" style={{ gap: '0.75rem' }}>
         {[
           {
             label: 'Snittbeläggning',
