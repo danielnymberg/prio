@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownButtonComponent, ItemModel } from '@syncfusion/ej2-react-splitbuttons';
-import { BadgeComponent } from '@syncfusion/ej2-react-notifications';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
 import { useTasks } from '@/hooks/useTasks';
@@ -157,15 +156,26 @@ export function Header({ onMenuClick }: HeaderProps) {
             content="Avstämning"
           />
           {needsCheckIn && (
-            <BadgeComponent
-              content="!"
-              cssClass="e-badge-danger e-badge-notification e-badge-overlap"
+            <span
               style={{
                 position: 'absolute',
                 top: '-4px',
-                right: '-4px'
+                right: '-4px',
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
               }}
-            />
+            >
+              !
+            </span>
           )}
         </div>
 
