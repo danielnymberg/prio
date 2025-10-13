@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Plus, X } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
@@ -15,7 +15,6 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { tasks, createTask, updateTask } = useTasks();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
 
@@ -107,29 +106,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     } else {
       console.log('⚠️ No navigateUrl found in nodeData:', args.nodeData);
     }
-  };
-
-  // Custom template for highlighting current route
-  const nodeTemplate = (data: any) => {
-    const isActive = location.pathname === data.navigateUrl;
-    const isHighlight = data.highlight;
-
-    return (
-      <div
-        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-          isHighlight
-            ? isActive
-              ? 'bg-copper-500 text-white shadow-soft'
-              : 'bg-copper-400 text-white hover:bg-copper-500 shadow-subtle'
-            : isActive
-            ? 'bg-sand-200 dark:bg-charcoal-800 text-copper-600 dark:text-copper-400'
-            : 'text-stone-700 dark:text-stone-300 hover:bg-sand-100 dark:hover:bg-charcoal-850'
-        }`}
-      >
-        <span className={data.iconCss} />
-        <span className="font-medium">{data.text}</span>
-      </div>
-    );
   };
 
   return (
