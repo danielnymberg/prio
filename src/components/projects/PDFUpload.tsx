@@ -164,18 +164,18 @@ VIKTIGT:
   if (isProcessing) {
     return (
       <div className="e-p-32 e-rounded-xl e-text-center" style={{
-        border: '2px dashed #f59e0b',
+        border: '2px dashed var(--warning-500)',
         backgroundColor: 'rgba(245, 158, 11, 0.1)'
       }}>
         <Loader2 className="e-animate-spin e-mx-auto e-mb-16" style={{
           height: '48px',
           width: '48px',
-          color: '#f59e0b'
+          color: 'var(--warning-500)'
         }} />
-        <p className="e-text-lg e-font-semibold e-mb-8 e-mt-0" style={{ color: '#f59e0b' }}>
+        <p className="e-text-lg e-font-semibold e-mb-8 e-mt-0" style={{ color: 'var(--warning-500)' }}>
           Analyserar PDF med AI...
         </p>
-        <p className="e-text-sm e-m-0" style={{ color: '#f59e0b' }}>
+        <p className="e-text-sm e-m-0" style={{ color: 'var(--warning-500)' }}>
           Detta tar vanligtvis 5-15 sekunder
         </p>
       </div>
@@ -185,7 +185,7 @@ VIKTIGT:
   if (uploadedFile) {
     return (
       <div className="e-p-24 e-rounded-xl" style={{
-        border: '2px solid #f59e0b',
+        border: '2px solid var(--warning-500)',
         backgroundColor: 'rgba(245, 158, 11, 0.1)'
       }}>
         <div className="e-flex e-align-center e-justify-between">
@@ -193,13 +193,13 @@ VIKTIGT:
             <FileText style={{
               height: '32px',
               width: '32px',
-              color: '#f59e0b'
+              color: 'var(--warning-500)'
             }} />
             <div>
-              <p className="e-font-semibold e-m-0" style={{ color: '#f59e0b' }}>
+              <p className="e-font-semibold e-m-0" style={{ color: 'var(--warning-500)' }}>
                 {uploadedFile.name}
               </p>
-              <p className="e-text-sm e-m-0" style={{ color: '#f59e0b' }}>
+              <p className="e-text-sm e-m-0" style={{ color: 'var(--warning-500)' }}>
                 {(uploadedFile.size / 1024).toFixed(0)} KB
               </p>
             </div>
@@ -217,7 +217,7 @@ VIKTIGT:
             <X style={{
               height: '20px',
               width: '20px',
-              color: '#f59e0b'
+              color: 'var(--warning-500)'
             }} />
           </button>
         </div>
@@ -232,7 +232,7 @@ VIKTIGT:
       onDrop={handleDrop}
       className="e-p-32 e-rounded-xl e-transition e-cursor-pointer"
       style={{
-        border: isDragging ? '2px dashed #f59e0b' : '2px dashed var(--e-border)',
+        border: isDragging ? '2px dashed var(--warning-500)' : '2px dashed var(--e-border)',
         backgroundColor: isDragging ? 'rgba(245, 158, 11, 0.1)' : 'var(--e-surface-hover)'
       }}
     >
@@ -249,12 +249,12 @@ VIKTIGT:
             <Upload style={{
               height: '48px',
               width: '48px',
-              color: '#f59e0b'
+              color: 'var(--warning-500)'
             }} />
             <Sparkles className="e-animate-pulse" style={{
               height: '24px',
               width: '24px',
-              color: '#f59e0b'
+              color: 'var(--warning-500)'
             }} />
           </div>
           <p className="e-text-lg e-font-semibold e-mb-8 e-mt-0" style={{ color: 'var(--e-text)' }}>
@@ -263,7 +263,7 @@ VIKTIGT:
           <p className="e-text-sm e-mb-4 e-mt-0" style={{ color: 'var(--e-text-secondary)' }}>
             eller klicka för att välja fil
           </p>
-          <p className="e-text-xs e-mt-12 e-mb-0 e-flex e-align-center e-justify-center e-gap-4" style={{ color: '#f59e0b' }}>
+          <p className="e-text-xs e-mt-12 e-mb-0 e-flex e-align-center e-justify-center e-gap-4" style={{ color: 'var(--warning-500)' }}>
             <Sparkles style={{ height: '16px', width: '16px' }} />
             AI extraherar automatiskt timmar, pris och deadline
           </p>

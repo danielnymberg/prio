@@ -168,19 +168,19 @@ export function ProjectProgressSlider({
        metrics.billable_hours_remaining > 0 && (
         <div className="e-p-16 e-rounded-lg" style={{
           backgroundColor: 'rgba(245, 158, 11, 0.1)',
-          border: '2px solid #f59e0b'
+          border: '2px solid var(--warning-500)'
         }}>
           <div className="e-flex e-align-center e-gap-8 e-mb-8">
             <AlertTriangle style={{
               height: '20px',
               width: '20px',
-              color: '#f59e0b'
+              color: 'var(--warning-500)'
             }} />
-            <h3 className="e-font-bold e-m-0" style={{ color: '#f59e0b' }}>
+            <h3 className="e-font-bold e-m-0" style={{ color: 'var(--warning-500)' }}>
               Tight budget!
             </h3>
           </div>
-          <p className="e-text-sm e-m-0" style={{ color: '#f59e0b' }}>
+          <p className="e-text-sm e-m-0" style={{ color: 'var(--warning-500)' }}>
             Återstående insats ({metrics.estimated_remaining_hours}h) överstiger
             fakturerbara timmar kvar ({metrics.billable_hours_remaining}h) med{' '}
             {Math.round((metrics.estimated_remaining_hours - metrics.billable_hours_remaining) * 10) / 10}h.

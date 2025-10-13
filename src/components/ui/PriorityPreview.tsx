@@ -18,7 +18,7 @@ export function PriorityPreview({
 
   const getPriorityLevel = (p: number) => {
     if (p >= 50) return { label: 'Hög', color: 'var(--success-500, #10b981)', bg: 'var(--success-100, rgba(220, 252, 231, 0.5))', icon: TrendingUp };
-    if (p >= 20) return { label: 'Medel', color: 'var(--warning-500, #f59e0b)', bg: 'var(--warning-100, rgba(254, 243, 199, 0.5))', icon: Minus };
+    if (p >= 20) return { label: 'Medel', color: 'var(--warning-500, var(--warning-500))', bg: 'var(--warning-100, rgba(254, 243, 199, 0.5))', icon: Minus };
     return { label: 'Låg', color: 'var(--e-text-secondary, #6b7280)', bg: 'var(--e-surface-secondary, #f9fafb)', icon: TrendingDown };
   };
 

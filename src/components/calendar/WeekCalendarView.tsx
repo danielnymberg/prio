@@ -157,7 +157,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           StartTime: new Date(m.start),
           EndTime: new Date(m.end),
           IsReadonly: true,
-          CategoryColor: '#3b82f6',
+          CategoryColor: 'var(--primary-500)',
           EventType: 'meeting' as const,
         })),
         // Schemalagda tasks (röd, editable)
@@ -407,7 +407,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
             <div className="e-flex e-align-center e-gap-8">
               <div className="e-rounded"
                 style={{
-                  backgroundColor: '#3b82f6',
+                  backgroundColor: 'var(--primary-500)',
                   width: '16px',
                   height: '16px'
                 }} />

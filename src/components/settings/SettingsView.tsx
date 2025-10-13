@@ -425,7 +425,7 @@ export function SettingsView() {
             {!import.meta.env.VITE_AZURE_CLIENT_ID && (
               <p style={{
                 fontSize: '0.875rem',
-                color: 'var(--warning-500, #f59e0b)',
+                color: 'var(--warning-500, var(--warning-500))',
                 marginTop: '0.75rem'
               }}>
                 ⚠️ Azure Client ID saknas i miljövariabler. Kontakta administratör.
@@ -520,7 +520,7 @@ export function SettingsView() {
             {!isMicrosoftConnected && (
               <div style={{
                 backgroundColor: 'var(--warning-100, #fef3c7)',
-                border: '1px solid var(--warning-500, #f59e0b)',
+                border: '1px solid var(--warning-500, var(--warning-500))',
                 borderRadius: '8px',
                 padding: '0.75rem',
                 marginBottom: '1rem'

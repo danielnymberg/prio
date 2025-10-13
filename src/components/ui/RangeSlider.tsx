@@ -16,7 +16,7 @@ interface RangeSliderProps {
 const colorAccents = {
   blue: 'var(--primary-600)',
   green: 'var(--success-500, #10b981)',
-  amber: 'var(--warning-500, #f59e0b)',
+  amber: 'var(--warning-500, var(--warning-500))',
   red: 'var(--error-500, #ef4444)',
 };
 

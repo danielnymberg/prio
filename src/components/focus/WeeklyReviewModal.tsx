@@ -139,11 +139,11 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         </div>
 
         {/* Productivity Score */}
-        <div style={{ background: 'linear-gradient(to right, #faf5ff, #fef3e2)', borderRadius: '0.75rem', padding: '1.5rem', border: '1px solid #a855f7' }}>
+        <div style={{ background: 'linear-gradient(to right, #faf5ff, #fef3e2)', borderRadius: '0.75rem', padding: '1.5rem', border: '1px solid var(--primary-500)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <TrendingUp style={{ height: '20px', width: '20px', color: '#a855f7' }} />
-              <h3 style={{ fontWeight: '600', color: '#a855f7' }}>
+              <TrendingUp style={{ height: '20px', width: '20px', color: 'var(--primary-500)' }} />
+              <h3 style={{ fontWeight: '600', color: 'var(--primary-500)' }}>
                 Produktivitetspoäng
               </h3>
             </div>
@@ -154,16 +154,16 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
 
           <div style={{ marginBottom: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#a855f7' }}>
+              <span style={{ fontSize: '2.25rem', fontWeight: 'bold', color: 'var(--primary-500)' }}>
                 {stats.productivityScore}%
               </span>
-              <span style={{ fontSize: '0.875rem', color: '#a855f7' }}>
+              <span style={{ fontSize: '0.875rem', color: 'var(--primary-500)' }}>
                 högvärdes-tasks
               </span>
             </div>
             <div style={{ width: '100%', backgroundColor: '#e9d5ff', borderRadius: '9999px', height: '12px' }}>
               <div
-                style={{ backgroundColor: '#a855f7', height: '12px', borderRadius: '9999px', transition: 'width 0.3s', width: `${stats.productivityScore}%` }}
+                style={{ backgroundColor: 'var(--primary-500)', height: '12px', borderRadius: '9999px', transition: 'width 0.3s', width: `${stats.productivityScore}%` }}
               />
             </div>
           </div>
@@ -174,31 +174,31 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         </div>
 
         {/* Pareto Analysis */}
-        <div style={{ backgroundColor: '#fef3c7', borderRadius: '0.5rem', padding: '1rem', border: '1px solid #f59e0b' }}>
+        <div style={{ backgroundColor: '#fef3c7', borderRadius: '0.5rem', padding: '1rem', border: '1px solid var(--warning-500)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <Target style={{ height: '20px', width: '20px', color: '#f59e0b' }} />
-            <h3 style={{ fontWeight: '600', color: '#f59e0b' }}>
+            <Target style={{ height: '20px', width: '20px', color: 'var(--warning-500)' }} />
+            <h3 style={{ fontWeight: '600', color: 'var(--warning-500)' }}>
               Pareto-analys (80/20-regeln)
             </h3>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.875rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#f59e0b' }}>Högt värde (7-10):</span>
-              <span style={{ fontWeight: '600', color: '#f59e0b' }}>
+              <span style={{ color: 'var(--warning-500)' }}>Högt värde (7-10):</span>
+              <span style={{ fontWeight: '600', color: 'var(--warning-500)' }}>
                 {stats.paretoAnalysis.high_value_count} tasks
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#f59e0b' }}>Lågt värde (1-6):</span>
-              <span style={{ fontWeight: '600', color: '#f59e0b' }}>
+              <span style={{ color: 'var(--warning-500)' }}>Lågt värde (1-6):</span>
+              <span style={{ fontWeight: '600', color: 'var(--warning-500)' }}>
                 {stats.paretoAnalysis.low_value_count} tasks
               </span>
             </div>
           </div>
 
-          <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #fbbf24' }}>
-            <p style={{ fontSize: '0.75rem', color: '#d97706' }}>
+          <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--warning-400)' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--warning-600)' }}>
               💡 <strong>Insight:</strong> {stats.paretoAnalysis.high_value_percentage >= 80
                 ? 'Perfekt! Du följer 80/20-regeln - fokuserar på det viktigaste.'
                 : stats.paretoAnalysis.high_value_percentage >= 60

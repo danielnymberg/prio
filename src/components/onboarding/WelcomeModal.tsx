@@ -106,11 +106,11 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
               </p>
             </div>
 
-            <div style={{ backgroundColor: 'var(--e-warning, #f59e0b)', opacity: 0.1, border: '1px solid var(--e-warning, #f59e0b)', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: 'var(--e-warning, #f59e0b)', marginBottom: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-warning, var(--warning-500))', opacity: 0.1, border: '1px solid var(--e-warning, var(--warning-500))', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-warning, var(--warning-500))', marginBottom: '8px' }}>
                 ⏱️ Tidskänslighet (Time-Sensitivity)
               </h4>
-              <p style={{ fontSize: '14px', color: 'var(--e-warning, #f59e0b)' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-warning, var(--warning-500))' }}>
                 Hur mycket <strong>kostar det att vänta</strong>? (Inte hur stressad du känner dig!)
               </p>
             </div>
@@ -149,7 +149,7 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
       {step === 3 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <AlertTriangle style={{ height: '64px', width: '64px', color: 'var(--e-warning, #f59e0b)', margin: '0 auto 16px' }} />
+            <AlertTriangle style={{ height: '64px', width: '64px', color: 'var(--e-warning, var(--warning-500))', margin: '0 auto 16px' }} />
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '8px' }}>
               Motverka "Urgency Bias"
             </h2>
@@ -158,12 +158,12 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
             </p>
           </div>
 
-          <div style={{ backgroundColor: 'var(--e-warning, #f59e0b)', opacity: 0.1, border: '2px solid var(--e-warning, #f59e0b)', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontWeight: 'bold', color: 'var(--e-warning, #f59e0b)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ backgroundColor: 'var(--e-warning, var(--warning-500))', opacity: 0.1, border: '2px solid var(--e-warning, var(--warning-500))', borderRadius: '12px', padding: '24px' }}>
+            <h3 style={{ fontWeight: 'bold', color: 'var(--e-warning, var(--warning-500))', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Brain style={{ height: '24px', width: '24px' }} />
               Mere Urgency Effect
             </h3>
-            <p style={{ color: 'var(--e-warning, #f59e0b)', marginBottom: '16px' }}>
+            <p style={{ color: 'var(--e-warning, var(--warning-500))', marginBottom: '16px' }}>
               När vi är stressade väljer vi vad som <strong>känns brådskande</strong> istället
               för vad som faktiskt <strong>är viktigt</strong>.
             </p>

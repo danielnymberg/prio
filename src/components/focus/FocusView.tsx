@@ -526,9 +526,9 @@ export function FocusView() {
           {nextTask.estimated_duration &&
            context &&
            nextTask.estimated_duration > context.availableTime && (
-            <div style={{ backgroundColor: '#fef3c7', border: '2px solid #f59e0b', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ backgroundColor: '#fef3c7', border: '2px solid var(--warning-500)', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <Clock style={{ height: '24px', width: '24px', color: '#d97706', flexShrink: 0, marginTop: '0.25rem' }} />
+                <Clock style={{ height: '24px', width: '24px', color: 'var(--warning-600)', flexShrink: 0, marginTop: '0.25rem' }} />
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontWeight: 'bold', color: '#78350f', marginBottom: '0.25rem' }}>
                     ⏱️ Uppgiften tar längre än tillgänglig tid

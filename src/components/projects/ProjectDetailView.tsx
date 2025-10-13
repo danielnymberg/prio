@@ -159,7 +159,7 @@ export function ProjectDetailView() {
                         backgroundColor: task.status === 'done'
                           ? '#10b981'
                           : task.status === 'in_progress'
-                          ? '#f59e0b'
+                          ? 'var(--warning-500)'
                           : 'var(--e-surface)',
                         color: task.status === 'done' || task.status === 'in_progress'
                           ? '#ffffff'

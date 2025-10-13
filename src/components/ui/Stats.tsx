@@ -9,7 +9,7 @@ interface StatsProps {
 export function Stats({ stats }: StatsProps) {
   const variantStyles = {
     default: 'var(--e-text, #111827)',
-    warning: 'var(--warning-500, #f59e0b)',
+    warning: 'var(--warning-500, var(--warning-500))',
     danger: 'var(--error-500, #ef4444)',
   };
 

@@ -279,7 +279,7 @@ export function OverviewView() {
         <div style={{
           padding: '1.5rem',
           backgroundColor: 'var(--e-surface)',
-          border: '2px solid #f59e0b',
+          border: '2px solid var(--warning-500)',
           borderRadius: '0.75rem'
         }}>
           <div style={{
@@ -288,7 +288,7 @@ export function OverviewView() {
             gap: '0.5rem',
             marginBottom: '0.5rem'
           }}>
-            <Clock style={{ height: '20px', width: '20px', color: '#f59e0b' }} />
+            <Clock style={{ height: '20px', width: '20px', color: 'var(--warning-500)' }} />
             <span style={{
               fontSize: '0.875rem',
               fontWeight: '500',
@@ -348,7 +348,7 @@ export function OverviewView() {
             <div style={{
               padding: '1.5rem',
               backgroundColor: '#fef3c7',
-              border: '2px solid #f59e0b',
+              border: '2px solid var(--warning-500)',
               borderRadius: '0.75rem'
             }}>
               <div style={{
@@ -357,7 +357,7 @@ export function OverviewView() {
                 gap: '0.5rem',
                 marginBottom: '0.5rem'
               }}>
-                <AlertTriangle style={{ height: '20px', width: '20px', color: '#d97706' }} />
+                <AlertTriangle style={{ height: '20px', width: '20px', color: 'var(--warning-600)' }} />
                 <h3 style={{ fontWeight: 'bold', color: '#78350f', margin: 0 }}>
                   Brådskande deadlines
                 </h3>

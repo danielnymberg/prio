@@ -86,8 +86,8 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
             </div>
           </div>
 
-          <div style={{ background: 'linear-gradient(to right, var(--e-info, #3b82f6), var(--e-info, #3b82f6))', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid var(--e-info, #3b82f6)' }}>
-            <p style={{ fontSize: '14px', color: 'var(--e-info, #3b82f6)' }}>
+          <div style={{ background: 'linear-gradient(to right, var(--e-info, var(--primary-500)), var(--e-info, var(--primary-500)))', opacity: 0.1, borderRadius: '8px', padding: '16px', border: '1px solid var(--e-info, var(--primary-500))' }}>
+            <p style={{ fontSize: '14px', color: 'var(--e-info, var(--primary-500))' }}>
               <FolderKanban style={{ display: 'inline', height: '16px', width: '16px', marginRight: '4px' }} />
               <strong>Swimlanes för projekt:</strong> Tasks grupperas automatiskt per projekt så du ser strukturen tydligt!
             </p>
@@ -131,12 +131,12 @@ export function KanbanOnboarding({ isOpen, onComplete }: KanbanOnboardingProps) 
               </div>
             </div>
 
-            <div style={{ backgroundColor: 'var(--e-warning, #f59e0b)', opacity: 0.1, border: '1px solid var(--e-warning, #f59e0b)', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontWeight: 'bold', color: 'var(--e-warning, #f59e0b)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ backgroundColor: 'var(--e-warning, var(--warning-500))', opacity: 0.1, border: '1px solid var(--e-warning, var(--warning-500))', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontWeight: 'bold', color: 'var(--e-warning, var(--warning-500))', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Undo2 style={{ height: '20px', width: '20px' }} />
                 Ångra-funktion
               </h4>
-              <p style={{ fontSize: '14px', color: 'var(--e-warning, #f59e0b)' }}>
+              <p style={{ fontSize: '14px', color: 'var(--e-warning, var(--warning-500))' }}>
                 När du schemalägger en task visas en notifikation med "Ångra"-knapp. Du har 5 sekunder på dig att ändra dig!
               </p>
             </div>

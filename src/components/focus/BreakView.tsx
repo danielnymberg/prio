@@ -70,7 +70,7 @@ export function BreakView() {
       <div className="e-rounded-xl e-p-32 e-w-full" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', maxWidth: '48rem' }}>
         <div className="e-text-center e-mb-16">
           {phase === 'physical' ? (
-            <Coffee className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: '#f59e0b' }} />
+            <Coffee className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: 'var(--warning-500)' }} />
           ) : (
             <Mail className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: 'var(--primary-500)' }} />
           )}

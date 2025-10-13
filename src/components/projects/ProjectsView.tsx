@@ -153,7 +153,7 @@ export function ProjectsView() {
     const percentage = props.completion_percentage || 0;
     const getColor = () => {
       if (percentage < 30) return '#ef4444';
-      if (percentage < 70) return '#f59e0b';
+      if (percentage < 70) return 'var(--warning-500)';
       return '#10b981';
     };
 
@@ -195,7 +195,7 @@ export function ProjectsView() {
       if (props.status === 'active')
         return { backgroundColor: '#10b981', color: '#ffffff' };
       if (props.status === 'completed')
-        return { backgroundColor: '#3b82f6', color: '#ffffff' };
+        return { backgroundColor: 'var(--primary-500)', color: '#ffffff' };
       return { backgroundColor: 'var(--e-surface-hover)', color: 'var(--e-text)' };
     };
 

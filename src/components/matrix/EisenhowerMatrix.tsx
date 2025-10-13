@@ -163,8 +163,8 @@ export function EisenhowerMatrix() {
       {/* Tips */}
       <div className="e-border e-rounded-lg e-p-16 e-opacity-75"
         style={{
-          backgroundColor: '#3b82f6',
-          borderColor: '#3b82f6'
+          backgroundColor: 'var(--primary-500)',
+          borderColor: 'var(--primary-500)'
         }}>
         <p className="e-text-sm"
           style={{ color: 'var(--e-text)' }}>

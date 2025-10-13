@@ -64,7 +64,7 @@ export function ResultImpactModal() {
                 style={{
                   width: '40px',
                   height: '40px',
-                  backgroundColor: impact >= value ? 'var(--warning-500, #fbbf24)' : 'var(--e-hover, #e5e7eb)',
+                  backgroundColor: impact >= value ? 'var(--warning-500, var(--warning-400))' : 'var(--e-hover, #e5e7eb)',
                   color: impact >= value ? 'var(--warning-900, #78350f)' : 'var(--e-text-secondary, #6b7280)',
                   transform: impact >= value ? 'scale(1.1)' : 'scale(1)',
                   border: 'none'

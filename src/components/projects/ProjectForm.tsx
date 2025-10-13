@@ -83,7 +83,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             onClick={() => setShowPDFUpload(!showPDFUpload)}
             className="e-flex e-align-center e-gap-8 e-px-16 e-py-8 e-text-sm e-font-medium e-rounded-lg e-transition e-cursor-pointer"
             style={{
-              color: '#f59e0b',
+              color: 'var(--warning-500)',
               backgroundColor: 'transparent',
               border: 'none'
             }}

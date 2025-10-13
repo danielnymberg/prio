@@ -79,7 +79,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
   const getStatusDot = () => {
     const colors = {
       not_started: 'var(--e-text-secondary, #9ca3af)',
-      in_progress: 'var(--e-warning, #fbbf24)',
+      in_progress: 'var(--e-warning, var(--warning-400))',
       done: 'var(--e-success, #4ade80)',
     };
 
@@ -163,7 +163,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
         border: isOverdue
           ? '2px solid var(--e-error, #ef4444)'
           : isEmergency
-          ? '2px solid var(--e-warning, #f59e0b)'
+          ? '2px solid var(--e-warning, var(--warning-500))'
           : '1px solid var(--e-border, #e7e5e4)',
         transition: 'all 0.2s',
       }}
@@ -494,7 +494,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: 'var(--e-warning, #fbbf24)' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '9999px', backgroundColor: 'var(--e-warning, var(--warning-400))' }} />
                     Pågående
                   </button>
                   <button

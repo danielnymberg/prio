@@ -47,12 +47,12 @@ export function KanbanCalendarView() {
         )}
         <div className="e-flex e-align-center e-justify-between e-mt-12 e-text-xs e-flex-wrap e-gap-4">
           {props.Estimate && (
-            <span className="e-rounded" style={{ padding: '4px 8px', backgroundColor: '#3b82f6', color: '#fff' }}>
+            <span className="e-rounded" style={{ padding: '4px 8px', backgroundColor: 'var(--primary-500)', color: '#fff' }}>
               ⏱️ {props.Estimate}
             </span>
           )}
           {props.Deadline && (
-            <span className="e-rounded" style={{ padding: '4px 8px', backgroundColor: '#f59e0b', color: '#fff' }}>
+            <span className="e-rounded" style={{ padding: '4px 8px', backgroundColor: 'var(--warning-500)', color: '#fff' }}>
               📅 {props.Deadline}
             </span>
           )}

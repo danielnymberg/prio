@@ -273,7 +273,7 @@ export function ApiUsageView() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ padding: '8px', backgroundColor: 'rgba(254, 243, 199, 0.5)', borderRadius: '8px' }}>
-              <TrendingUp style={{ height: '20px', width: '20px', color: 'var(--warning-500, #f59e0b)' }} />
+              <TrendingUp style={{ height: '20px', width: '20px', color: 'var(--warning-500, var(--warning-500))' }} />
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Denna månad
@@ -288,7 +288,7 @@ export function ApiUsageView() {
           <div style={{ marginTop: '12px', backgroundColor: 'var(--e-border, #e5e7eb)', borderRadius: '9999px', height: '8px' }}>
             <div
               style={{
-                backgroundColor: 'var(--warning-500, #f59e0b)',
+                backgroundColor: 'var(--warning-500, var(--warning-500))',
                 height: '8px',
                 borderRadius: '9999px',
                 transition: 'width 0.3s',
@@ -397,12 +397,12 @@ export function ApiUsageView() {
               padding: '16px'
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <AlertCircle style={{ height: '20px', width: '20px', color: 'var(--warning-500, #f59e0b)', marginTop: '2px' }} />
+                <AlertCircle style={{ height: '20px', width: '20px', color: 'var(--warning-500, var(--warning-500))', marginTop: '2px' }} />
                 <div>
                   <h4 style={{ fontWeight: '600', color: '#b45309' }}>
                     Nära daglig gräns
                   </h4>
-                  <p style={{ fontSize: '14px', color: '#d97706', marginTop: '4px' }}>
+                  <p style={{ fontSize: '14px', color: 'var(--warning-600)', marginTop: '4px' }}>
                     Du har använt {dailyPercentage.toFixed(0)}% av dina dagliga requests.
                     {settings.pricing_tier === 'free' && ' Uppgradera till Pro för fler requests.'}
                   </p>

@@ -663,7 +663,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
 
             {/* Stress warning */}
             {timeSensitivity > 7 && (
-              <div style={{ marginTop: '1rem', backgroundColor: 'var(--e-warning-light, #fffbeb)', border: '2px solid var(--e-warning, #f59e0b)', borderRadius: '0.5rem', padding: '1rem' }}>
+              <div style={{ marginTop: '1rem', backgroundColor: 'var(--e-warning-light, #fffbeb)', border: '2px solid var(--e-warning, var(--warning-500))', borderRadius: '0.5rem', padding: '1rem' }}>
                 <h4 style={{ fontWeight: 'bold', color: 'var(--e-warning-dark, #78350f)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <AlertTriangle style={{ height: '1.25rem', width: '1.25rem' }} />
                   ⚠️ Stress-varning!

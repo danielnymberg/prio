@@ -121,7 +121,7 @@ export function CapacityTimeline() {
             label: 'Ledigt',
             value: `${totalAvailableHours}h`,
             icon: Calendar,
-            color: '#3b82f6',
+            color: 'var(--primary-500)',
             bgColor: '#eff6ff',
           },
         ].map((stat, i) => {
@@ -181,8 +181,8 @@ export function CapacityTimeline() {
                           width: `${Math.min(data.utilization, 100)}%`,
                           backgroundColor: data.status === 'under' ? '#9ca3af' :
                                           data.status === 'sweet' ? '#10b981' :
-                                          data.status === 'high' ? '#f59e0b' :
-                                          data.status === 'full' ? '#f59e0b' :
+                                          data.status === 'high' ? 'var(--warning-500)' :
+                                          data.status === 'full' ? 'var(--warning-500)' :
                                           data.status === 'over' ? '#ef4444' : '#9ca3af',
                           transition: 'all 0.3s'
                         }}
@@ -218,7 +218,7 @@ export function CapacityTimeline() {
                 <div style={{ marginTop: '0.5rem', padding: '0.75rem', backgroundColor: 'var(--e-surface)', borderRadius: '0.5rem', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', border: '1px solid var(--e-border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--e-text-secondary)' }}>Möten:</span>
-                    <span style={{ fontWeight: '500', color: '#3b82f6' }}>{data.meetingHours}h</span>
+                    <span style={{ fontWeight: '500', color: 'var(--primary-500)' }}>{data.meetingHours}h</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--e-text-secondary)' }}>Projekt:</span>
@@ -250,8 +250,8 @@ export function CapacityTimeline() {
           {[
             { label: `Under ${settings.capacity_thresholds.under}%`, color: '#9ca3af' },
             { label: `${settings.capacity_thresholds.sweet_start}-${settings.capacity_thresholds.sweet_end}% (Sweetspot)`, color: '#10b981' },
-            { label: `${settings.capacity_thresholds.sweet_end}-${settings.capacity_thresholds.over}%`, color: '#f59e0b' },
-            { label: `${settings.capacity_thresholds.over}-100%`, color: '#f59e0b' },
+            { label: `${settings.capacity_thresholds.sweet_end}-${settings.capacity_thresholds.over}%`, color: 'var(--warning-500)' },
+            { label: `${settings.capacity_thresholds.over}-100%`, color: 'var(--warning-500)' },
             { label: 'Över 100%', color: '#ef4444' },
           ].map((item, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

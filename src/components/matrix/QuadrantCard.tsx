@@ -53,7 +53,7 @@ const quadrantConfig = {
     borderColor: '#fde68a',
     borderColorDark: '#92400e',
     textColor: '#b45309',
-    textColorDark: '#fbbf24',
+    textColorDark: 'var(--warning-400)',
     action: 'Delegera',
   },
   Q4: {
