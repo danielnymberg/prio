@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, LogOut, LogIn, Info, Bell, BellOff, Clock, Mail } from 'lucide-react';
+import { Calendar, LogOut, LogIn, Info, Bell, BellOff, Mail } from 'lucide-react';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import {
   loginToMicrosoft,
@@ -22,6 +22,11 @@ import {
   requestNotificationPermission as requestEmailNotificationPermission,
 } from '@/services/email-scheduler';
 import { showToast } from '@/services/toast';
+import {
+  AccordionComponent,
+  AccordionItemDirective,
+  AccordionItemsDirective,
+} from '@syncfusion/ej2-react-navigations';
 import { SwitchComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
@@ -545,52 +550,45 @@ export function SettingsView() {
         </p>
       </div>
 
-      <div className="space-y-4">
-        {/* Arbetstider */}
-        <details open className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-            <Clock className="h-5 w-5" />
-            <span className="font-semibold">Arbetstider</span>
-          </summary>
-          {workingHoursContent()}
-        </details>
+      <AccordionComponent expandMode="Multiple">
+        <AccordionItemsDirective>
+          <AccordionItemDirective
+            header="Arbetstider"
+            iconCss="e-icons e-clock"
+            expanded={true}
+          >
+            {workingHoursContent()}
+          </AccordionItemDirective>
 
-        {/* Microsoft Calendar */}
-        <details className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-            <Calendar className="h-5 w-5" />
-            <span className="font-semibold">Microsoft Calendar</span>
-          </summary>
-          {microsoftCalendarContent()}
-        </details>
+          <AccordionItemDirective
+            header="Microsoft Calendar"
+            iconCss="e-icons e-schedule"
+          >
+            {microsoftCalendarContent()}
+          </AccordionItemDirective>
 
-        {/* Email Scheduler */}
-        <details className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-            <Mail className="h-5 w-5" />
-            <span className="font-semibold">Automatisk mejl-processorering</span>
-          </summary>
-          {emailSchedulerContent()}
-        </details>
+          <AccordionItemDirective
+            header="Automatisk mejl-processorering"
+            iconCss="e-icons e-mail"
+          >
+            {emailSchedulerContent()}
+          </AccordionItemDirective>
 
-        {/* Notifications */}
-        <details className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-            <Bell className="h-5 w-5" />
-            <span className="font-semibold">Notifieringar</span>
-          </summary>
-          {notificationsContent()}
-        </details>
+          <AccordionItemDirective
+            header="Notifieringar"
+            iconCss="e-icons e-bell"
+          >
+            {notificationsContent()}
+          </AccordionItemDirective>
 
-        {/* App Info */}
-        <details className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-          <summary className="flex items-center gap-2 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-            <Info className="h-5 w-5" />
-            <span className="font-semibold">Om Prio</span>
-          </summary>
-          {appInfoContent()}
-        </details>
-      </div>
+          <AccordionItemDirective
+            header="Om Prio"
+            iconCss="e-icons e-info"
+          >
+            {appInfoContent()}
+          </AccordionItemDirective>
+        </AccordionItemsDirective>
+      </AccordionComponent>
     </div>
   );
 }
