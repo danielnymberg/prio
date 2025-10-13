@@ -93,10 +93,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   // Handle node selection
   const handleNodeSelect = (args: any) => {
+    console.log('🔥 TreeView nodeSelected triggered!', args);
     const nodeData = args.nodeData;
     if (nodeData.url) {
+      console.log('📍 Navigating to:', nodeData.url);
       navigate(nodeData.url);
       onClose(); // Close sidebar on mobile after navigation
+    } else {
+      console.log('⚠️ No URL found in nodeData:', nodeData);
     }
   };
 
@@ -171,9 +175,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               hasChildren: 'hasChild',
             }}
             nodeSelected={handleNodeSelect}
+            nodeClicked={(args: any) => console.log('👆 Node clicked:', args)}
             nodeTemplate={nodeTemplate}
             cssClass="sidebar-treeview"
             expandOn="Click"
+            allowEditing={false}
+            allowDragAndDrop={false}
           />
         </nav>
       </aside>
