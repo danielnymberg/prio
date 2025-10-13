@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { Task, CreateTaskInput, UpdateTaskInput, Project, PriorityFlag } from '@/lib/types';
 import { Dialog } from '@/components/ui/Dialog';
-import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { Clock, AlertTriangle } from 'lucide-react';
@@ -431,19 +431,12 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                 { value: 'in_progress', label: 'Pågår' },
                 { value: 'done', label: 'Klar' },
               ].map(({ value, label }) => (
-                <Button
+                <ButtonComponent
                   key={value}
                   onClick={() => setStatus(value as any)}
-                  variant={status === value ? 'primary' : 'secondary'}
-                  size="sm"
-                  style={{
-                    width: '100%',
-                    textAlign: 'left',
-                    justifyContent: 'flex-start'
-                  }}
-                >
-                  {label}
-                </Button>
+                  cssClass={status === value ? 'e-primary e-round e-small' : 'e-outline e-round e-small'}
+                  content={label}
+                />
               ))}
             </div>
           </div>
@@ -762,7 +755,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
         {/* Action buttons */}
         <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '1rem' }}>
           {task && onDelete && (
-            <Button
+            <ButtonComponent
               onClick={async () => {
                 if (confirm(`Är du säker på att du vill radera "${task.title}"?`)) {
                   await onDelete(task.id);
@@ -770,35 +763,21 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
                   toast.success('Uppgift raderad');
                 }
               }}
-              variant="danger"
-              size="sm"
-            >
-              Radera
-            </Button>
+              cssClass="e-danger e-round e-small"
+              content="Radera"
+            />
           )}
-          <Button
+          <ButtonComponent
             onClick={onClose}
-            variant="ghost"
-            size="sm"
-            style={{ flex: 1 }}
-          >
-            Avbryt
-          </Button>
-          <div style={{ flex: 1 }} onClick={(e) => {
-            e.preventDefault();
-            if (!loading && title.trim()) {
-              handleSubmit(e as any);
-            }
-          }}>
-            <Button
-              disabled={loading || !title.trim()}
-              variant="primary"
-              size="sm"
-              style={{ width: '100%' }}
-            >
-              {loading ? 'Sparar...' : 'Spara'}
-            </Button>
-          </div>
+            cssClass="e-link e-small"
+            content="Avbryt"
+          />
+          <ButtonComponent
+            onClick={handleSubmit}
+            disabled={loading || !title.trim()}
+            cssClass="e-primary e-round e-small"
+            content={loading ? 'Sparar...' : 'Spara'}
+          />
         </div>
       </form>
 

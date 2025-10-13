@@ -1,7 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Plus } from 'lucide-react';
 import { useTasks } from '@/hooks/useTasks';
-import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { useState, useRef, useEffect } from 'react';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { Task, CreateTaskInput } from '@/lib/types';
@@ -150,19 +149,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         position="Left"
       >
         <div className="e-p-16">
-          <Button
-            variant="primary"
-            size="md"
+          <ButtonComponent
+            cssClass="e-primary e-round e-w-full"
             onClick={() => {
               setSelectedTask(undefined);
               setIsFormOpen(true);
               onClose();
             }}
-            className="e-w-full"
-          >
-            <Plus style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
-            Ny uppgift
-          </Button>
+            iconCss="e-icons e-plus"
+            content="Ny uppgift"
+          />
         </div>
 
         <nav className="e-flex-1 e-overflow-y-auto e-px-12 e-pb-16">

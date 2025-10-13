@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Dialog } from '@/components/ui/Dialog';
-import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DailyCheckIn, EnergyLevel, FocusStrategy } from '@/lib/types';
 import { Battery, BatteryMedium, BatteryLow, Zap, Target, BarChart } from 'lucide-react';
 
@@ -99,14 +99,12 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
             </div>
           </div>
 
-          <Button
+          <ButtonComponent
             onClick={() => setStep(2)}
-            className="e-w-full"
-            style={{ height: '48px' }}
+            cssClass="e-primary e-round e-w-full"
             disabled={availableTime === 0}
-          >
-            Nästa →
-          </Button>
+            content="Nästa →"
+          />
         </div>
       )}
 
@@ -123,66 +121,51 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
           </div>
 
           <div className="e-grid e-grid-cols-3 e-gap-12">
-            <Button
+            <ButtonComponent
               onClick={() => setEnergyLevel('low')}
-              variant={energyLevel === 'low' ? 'primary' : 'secondary'}
-              className="e-p-24"
-              style={{
-                flexDirection: 'column',
-                height: 'auto',
-                textAlign: 'center'
-              }}
+              cssClass={energyLevel === 'low' ? 'e-primary e-round e-p-24' : 'e-outline e-round e-p-24'}
             >
-              <BatteryLow className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: 'var(--error-500)' }} />
-              <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Låg</div>
-              <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Trött, dämpad</div>
-            </Button>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                <BatteryLow className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: 'var(--error-500)' }} />
+                <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Låg</div>
+                <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Trött, dämpad</div>
+              </div>
+            </ButtonComponent>
 
-            <Button
+            <ButtonComponent
               onClick={() => setEnergyLevel('medium')}
-              variant={energyLevel === 'medium' ? 'primary' : 'secondary'}
-              className="e-p-24"
-              style={{
-                flexDirection: 'column',
-                height: 'auto',
-                textAlign: 'center'
-              }}
+              cssClass={energyLevel === 'medium' ? 'e-primary e-round e-p-24' : 'e-outline e-round e-p-24'}
             >
-              <BatteryMedium className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: 'var(--warning-500)' }} />
-              <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Medel</div>
-              <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Normal, stabil</div>
-            </Button>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                <BatteryMedium className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: 'var(--warning-500)' }} />
+                <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Medel</div>
+                <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Normal, stabil</div>
+              </div>
+            </ButtonComponent>
 
-            <Button
+            <ButtonComponent
               onClick={() => setEnergyLevel('high')}
-              variant={energyLevel === 'high' ? 'primary' : 'secondary'}
-              className="e-p-24"
-              style={{
-                flexDirection: 'column',
-                height: 'auto',
-                textAlign: 'center'
-              }}
+              cssClass={energyLevel === 'high' ? 'e-primary e-round e-p-24' : 'e-outline e-round e-p-24'}
             >
-              <Battery className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: 'var(--success-500)' }} />
-              <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Hög</div>
-              <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Energisk, fokuserad</div>
-            </Button>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                <Battery className="e-mx-auto e-mb-12" style={{ height: '48px', width: '48px', color: 'var(--success-500)' }} />
+                <div className="e-font-semibold" style={{ color: 'var(--e-text)' }}>Hög</div>
+                <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>Energisk, fokuserad</div>
+              </div>
+            </ButtonComponent>
           </div>
 
           <div className="e-flex e-gap-12">
-            <Button
-              variant="ghost"
+            <ButtonComponent
+              cssClass="e-link e-flex-1"
               onClick={() => setStep(1)}
-              className="e-flex-1"
-            >
-              ← Tillbaka
-            </Button>
-            <Button
+              content="← Tillbaka"
+            />
+            <ButtonComponent
+              cssClass="e-primary e-round e-flex-1"
               onClick={() => setStep(3)}
-              className="e-flex-1"
-            >
-              Nästa →
-            </Button>
+              content="Nästa →"
+            />
           </div>
         </div>
       )}
@@ -200,18 +183,13 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
           </div>
 
           <div className="e-flex e-flex-column e-gap-12">
-            <Button
+            <ButtonComponent
               onClick={() => setStrategy('quick_wins')}
-              variant={strategy === 'quick_wins' ? 'primary' : 'secondary'}
-              className="e-w-full e-p-24"
-              style={{
-                height: 'auto',
-                textAlign: 'left'
-              }}
+              cssClass={strategy === 'quick_wins' ? 'e-primary e-round e-w-full e-p-24' : 'e-outline e-round e-w-full e-p-24'}
             >
               <div className="e-flex e-align-start e-gap-16">
                 <Zap className="e-flex-none" style={{ height: '32px', width: '32px', color: 'var(--warning-500)' }} />
-                <div>
+                <div style={{ textAlign: 'left' }}>
                   <div className="e-font-semibold e-text-lg e-mb-4" style={{ color: 'var(--e-text)' }}>
                     ⚡ Quick Wins
                   </div>
@@ -220,20 +198,15 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
                   </div>
                 </div>
               </div>
-            </Button>
+            </ButtonComponent>
 
-            <Button
+            <ButtonComponent
               onClick={() => setStrategy('deep_work')}
-              variant={strategy === 'deep_work' ? 'primary' : 'secondary'}
-              className="e-w-full e-p-24"
-              style={{
-                height: 'auto',
-                textAlign: 'left'
-              }}
+              cssClass={strategy === 'deep_work' ? 'e-primary e-round e-w-full e-p-24' : 'e-outline e-round e-w-full e-p-24'}
             >
               <div className="e-flex e-align-start e-gap-16">
                 <Target style={{ height: '32px', width: '32px', color: 'var(--primary-500)' }} />
-                <div>
+                <div style={{ textAlign: 'left' }}>
                   <div className="e-font-semibold e-text-lg e-mb-4" style={{ color: 'var(--e-text)' }}>
                     🧠 Deep Work
                   </div>
@@ -242,21 +215,15 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
                   </div>
                 </div>
               </div>
-            </Button>
+            </ButtonComponent>
 
-            <Button
+            <ButtonComponent
               onClick={() => setStrategy('balanced')}
-              variant={strategy === 'balanced' ? 'primary' : 'secondary'}
-              className="e-w-full e-p-24"
-              style={{
-                height: 'auto',
-                textAlign: 'left'
-              }}
-              title="Blandning av korta och långa uppgifter baserat på CPM-algoritmen"
+              cssClass={strategy === 'balanced' ? 'e-primary e-round e-w-full e-p-24' : 'e-outline e-round e-w-full e-p-24'}
             >
               <div className="e-flex e-align-start e-gap-16">
                 <BarChart style={{ height: '32px', width: '32px', color: 'var(--primary-500)' }} />
-                <div>
+                <div style={{ textAlign: 'left' }}>
                   <div className="e-font-semibold e-text-lg e-mb-4" style={{ color: 'var(--e-text)' }}>
                     ⚖️ Balanced
                   </div>
@@ -265,23 +232,20 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
                   </div>
                 </div>
               </div>
-            </Button>
+            </ButtonComponent>
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <Button
-              variant="ghost"
+            <ButtonComponent
+              cssClass="e-link e-flex-1"
               onClick={() => setStep(2)}
-              style={{ flex: 1 }}
-            >
-              ← Tillbaka
-            </Button>
-            <Button
+              content="← Tillbaka"
+            />
+            <ButtonComponent
+              cssClass="e-primary e-round e-flex-1"
               onClick={handleSubmit}
-              style={{ flex: 1 }}
-            >
-              Klar! 🎯
-            </Button>
+              content="Klar! 🎯"
+            />
           </div>
         </div>
       )}
