@@ -4,7 +4,7 @@ import { useAuth } from './contexts/AuthContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
-import { QuickCaptureBar } from './components/ui/QuickCaptureBar';
+// import { QuickCaptureBar } from './components/ui/QuickCaptureBar'; // TEMPORÄRT DISABLED
 // import { QuickNoteInput } from './components/tasks/QuickNoteInput'; // TEMPORÄRT DISABLED
 // import { WelcomeModal } from './components/onboarding/WelcomeModal'; // TEMPORÄRT DISABLED
 // import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding'; // TEMPORÄRT DISABLED
@@ -234,8 +234,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {/* <VoiceInterface key="voice-interface" /> */}
       {/* Quick note input - TEMPORÄRT DISABLED: Kraschar vid expandering */}
       {/* <QuickNoteInput key="quick-note" /> */}
-      {/* Quick capture bar för mobil */}
-      <QuickCaptureBar key="quick-capture" />
+      {/* Quick capture bar för mobil - TEMPORÄRT DISABLED: Testing if TaskForm/Dialog causes crash */}
+      {/* <QuickCaptureBar key="quick-capture" /> */}
       {/* Onboarding modal för nya användare - TEMPORÄRT DISABLED: Testing crash */}
       {/* <WelcomeModal
         key="welcome-modal"
