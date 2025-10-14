@@ -37,12 +37,6 @@ export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckIn
     onClose();
   };
 
-  const formatTime = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
-  };
-
   // Animation settings enligt SyncFusion best practice
   const animationSettings: AnimationSettingsModel = {
     effect: 'Zoom',
@@ -139,16 +133,28 @@ export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckIn
             </h3>
             <SliderComponent
               value={availableTime}
-              min={30}
+              min={0}
               max={480}
               step={30}
               tooltip={{ isVisible: true, placement: 'Before' }}
-              ticks={{ placement: 'After', largeStep: 120, smallStep: 30 }}
+              ticks={{
+                placement: 'After',
+                largeStep: 120,
+                smallStep: 30,
+                showSmallTicks: false
+              }}
+              renderingTicks={(args: any) => {
+                const hours = Math.floor(args.value / 60);
+                const mins = args.value % 60;
+                args.text = mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+              }}
+              tooltipChange={(args: any) => {
+                const hours = Math.floor(args.value / 60);
+                const mins = args.value % 60;
+                args.text = mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+              }}
               change={(e: any) => setAvailableTime(e.value)}
             />
-            <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '24px', fontWeight: 'bold' }}>
-              {formatTime(availableTime)}
-            </div>
           </>
         )}
 
