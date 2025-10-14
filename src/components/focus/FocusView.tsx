@@ -7,7 +7,6 @@ import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { formatDuration, formatRelativeTime } from '@/lib/utils';
 import { Play, ChevronRight, AlertTriangle, CheckCircle, SkipForward, Clock, Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { DailyCheckInModal } from './DailyCheckInModal';
 import { MorningBriefing } from './MorningBriefing';
 import { DependencyAlert } from '@/components/alerts/DependencyAlert';
 import { findCriticalDependencyChains } from '@/lib/dependencyAnalyzer';
@@ -19,7 +18,6 @@ export function FocusView() {
   const [nextTask, setNextTask] = useState<Task | null>(null);
   const [queue, setQueue] = useState<Task[]>([]);
   const [isEmergency, setIsEmergency] = useState(false);
-  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [checkInData, setCheckInData] = useState<DailyCheckIn | null>(null);
   const [skippedTaskIds, setSkippedTaskIds] = useState<string[]>([]);
   const [showMorningBriefing, setShowMorningBriefing] = useState(false);
@@ -51,16 +49,16 @@ export function FocusView() {
     const today = new Date().toISOString().split('T')[0];
 
     if (!stored) {
-      // Ingen check-in gjord, öppna modal
-      setIsCheckInOpen(true);
+      // Ingen check-in gjord, navigera till check-in page
+      navigate('/daily-checkin');
       return;
     }
 
     const checkIn: DailyCheckIn = JSON.parse(stored);
 
     if (checkIn.date !== today) {
-      // Gammal check-in, öppna modal
-      setIsCheckInOpen(true);
+      // Gammal check-in, navigera till check-in page
+      navigate('/daily-checkin');
       return;
     }
 
@@ -73,7 +71,7 @@ export function FocusView() {
       currentDate: new Date(),
       nextBlockDuration: 90
     });
-  }, []);
+  }, [navigate]);
 
   // Beräkna nästa task när context eller tasks ändras
   useEffect(() => {
@@ -129,17 +127,6 @@ export function FocusView() {
     toast('Nästa uppgifter listas snart!');
   };
 
-  const handleCheckInComplete = (checkIn: DailyCheckIn) => {
-    setCheckInData(checkIn);
-    setContext({
-      availableTime: checkIn.availableTime,
-      energyLevel: checkIn.energyLevel,
-      strategy: checkIn.strategy,
-      currentDate: new Date(),
-      nextBlockDuration: 90
-    });
-  };
-
   const handleSkipTask = () => {
     if (!nextTask) return;
 
@@ -159,7 +146,7 @@ export function FocusView() {
               onStartDay={() => {
                 localStorage.setItem('last_briefing_date', new Date().toDateString());
                 setShowMorningBriefing(false);
-                setIsCheckInOpen(true);
+                navigate('/daily-checkin');
               }}
               onDismiss={() => {
                 localStorage.setItem('last_briefing_date', new Date().toDateString());
@@ -169,12 +156,6 @@ export function FocusView() {
           </div>
         </div>
 
-        {/* Daily Check-In Modal */}
-        <DailyCheckInModal
-          isOpen={isCheckInOpen}
-          onClose={() => setIsCheckInOpen(false)}
-          onComplete={handleCheckInComplete}
-        />
       </>
     );
   }
@@ -191,18 +172,12 @@ export function FocusView() {
             <p className="e-mb-24">
               Gör din dagliga avstämning för att få din första uppgift.
             </p>
-            <Button onClick={() => setIsCheckInOpen(true)} size="lg">
+            <Button onClick={() => navigate('/daily-checkin')} size="lg">
               Starta avstämning
             </Button>
           </div>
         </div>
 
-        {/* Daily Check-In Modal */}
-        <DailyCheckInModal
-          isOpen={isCheckInOpen}
-          onClose={() => setIsCheckInOpen(false)}
-          onComplete={handleCheckInComplete}
-        />
       </>
     );
   }
@@ -271,7 +246,7 @@ export function FocusView() {
                       Du har {activeTasks.length} uppgifter men alla kräver mer än {Math.floor(context.availableTime / 60)}h.
                     </p>
                     <div className="e-flex e-gap-12 e-justify-center">
-                      <Button onClick={() => setIsCheckInOpen(true)} variant="primary">
+                      <Button onClick={() => navigate('/daily-checkin')} variant="primary">
                         Uppdatera tillgänglig tid
                       </Button>
                       <Button onClick={() => navigate('/all')} variant="secondary">
@@ -292,7 +267,7 @@ export function FocusView() {
                     Det finns uppgifter men ingen passar dina nuvarande filter.
                   </p>
                   <div className="e-flex e-gap-12 e-justify-center">
-                    <Button onClick={() => setIsCheckInOpen(true)} variant="primary">
+                    <Button onClick={() => navigate('/daily-checkin')} variant="primary">
                       Uppdatera avstämning
                     </Button>
                     <Button onClick={() => navigate('/all')} variant="secondary">
@@ -305,12 +280,6 @@ export function FocusView() {
           </div>
         </div>
 
-        {/* Daily Check-In Modal */}
-        <DailyCheckInModal
-          isOpen={isCheckInOpen}
-          onClose={() => setIsCheckInOpen(false)}
-          onComplete={handleCheckInComplete}
-        />
       </>
     );
   }
@@ -356,7 +325,7 @@ export function FocusView() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsCheckInOpen(true)}
+            onClick={() => navigate('/daily-checkin')}
           >
             Ny avstämning
           </Button>
@@ -602,12 +571,6 @@ export function FocusView() {
         )}
       </div>
 
-      {/* Daily Check-In Modal */}
-      <DailyCheckInModal
-        isOpen={isCheckInOpen}
-        onClose={() => setIsCheckInOpen(false)}
-        onComplete={handleCheckInComplete}
-      />
     </div>
   );
 }

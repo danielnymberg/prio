@@ -29,7 +29,8 @@ const InboxView = lazy(() => import('./components/views/InboxView').then(m => ({
 const FocusView = lazy(() => import('./components/focus/FocusView').then(m => ({ default: m.FocusView })));
 const ActiveSession = lazy(() => import('./components/focus/ActiveSession').then(m => ({ default: m.ActiveSession })));
 const BreakView = lazy(() => import('./components/focus/BreakView').then(m => ({ default: m.BreakView })));
-const ResultImpactModal = lazy(() => import('./components/tasks/ResultImpactModal').then(m => ({ default: m.ResultImpactModal })));
+const TaskImpactPage = lazy(() => import('./pages/TaskImpactPage').then(m => ({ default: m.TaskImpactPage })));
+const DailyCheckInPage = lazy(() => import('./pages/DailyCheckInPage').then(m => ({ default: m.DailyCheckInPage })));
 const ShareHandler = lazy(() => import('./components/share/ShareHandler').then(m => ({ default: m.ShareHandler })));
 const SettingsView = lazy(() => import('./components/settings/SettingsView').then(m => ({ default: m.SettingsView })));
 const ProjectsView = lazy(() => import('./components/projects/ProjectsView').then(m => ({ default: m.ProjectsView })));
@@ -447,7 +448,17 @@ function App() {
           element={
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
-                <ResultImpactModal />
+                <TaskImpactPage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/daily-checkin"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <DailyCheckInPage />
               </Suspense>
             </ProtectedRoute>
           }

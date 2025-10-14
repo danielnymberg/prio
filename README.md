@@ -1,131 +1,359 @@
 # Prio
 
-**Eisenhower Priority Matrix-app** - Håll fokus på det som är viktigt
+**AI-driven uppgiftshantering med Microsoft 365-integration**
+
+Prio hjälper dig att hålla fokus på det som är viktigt genom CPM-ramverket (Could/Possibly/Must), AI-assistans och smart kalenderintegration.
 
 Del av DaNy-ekosystemet (shared auth med Anmärkt)
 
-## Teknisk Stack
+---
 
-- **Frontend:** React 18 + TypeScript + Vite
-- **Styling:** Tailwind CSS
-- **Backend:** Supabase (shared med anmarkt.beta)
-- **Deploy:** Render (senare)
+## 🎯 Kärnfunktioner
 
-## Setup
+### ✅ Aktiva Features
+- **Uppgiftshantering** - Skapa, redigera, prioritera tasks med importance/urgency
+- **Microsoft 365-integration** - Outlook-kalender, fokustid, OneDrive
+- **Email-to-Task** - Mejla till `task@nymberg.se` → Claude AI skapar tasks
+- **Veckokalender** - Drag & drop tasks till kalendern, synkar med Outlook
+- **AI Backend** - Claude Sonnet för smart prioritering och uppgiftstolkning
+- **Kanban-board** - Visuell översikt med tidslinjer
+- **Projekt-kategorisering** - Gruppera tasks i projekt
+- **Dark Mode** - Fullständigt stöd för mörkt tema
+- **PWA** - Installable som native app
+
+### ⚠️ Inaktiverade Features (väntar på fix)
+- **Röststyrning** - AI-assistent med svensk TTS/STT (Speechmatics + Azure Speech)
+- **AI Chat** - Konversationell chatbot för uppgiftshantering
+- **Quick Capture** - Mobile FAB för snabb uppgiftsinmatning
+- **Email Listener** - Realtime-lyssning på email-to-task konverteringar
+- **Onboarding** - Welcome modal och tutorials
+- **Global Search** - Cmd/Ctrl+K sökning
+- **Toast Notifications** - System för toast-meddelanden
+
+**Varför inaktiverade?** Syncfusion DialogComponent + React 18 StrictMode orsakade crashes. Fixas snart.
+
+---
+
+## 🛠️ Teknisk Stack
+
+### Frontend
+- **Framework:** React 18 + TypeScript + Vite
+- **UI Library:** Syncfusion EJ2 (Fluent2 theme)
+- **Styling:** Ren Fluent2 CSS (inga custom overrides)
+- **State:** React Context + Hooks
+- **Build:** Vite (rekommenderat av Syncfusion 2025)
+
+### Backend & Integrationer
+- **Database:** Supabase (PostgreSQL + Realtime + Auth)
+- **Backend Server:** Node.js/Express på Render.com
+- **AI:** Anthropic Claude Sonnet 3.5
+- **Calendar:** Microsoft Graph API (Outlook)
+- **Voice (inaktiv):** Azure Speech + Speechmatics
+- **Email:** SendGrid Inbound Parse
+
+### Deploy
+- **Frontend:** Render.com
+- **Backend:** Render.com
+- **Database:** Supabase (EU-region)
+
+---
+
+## 🚀 Setup
 
 ### 1. Installera dependencies
 ```bash
 npm install
 ```
 
-### 2. Kör SQL-migrationen
-1. Gå till [Supabase SQL Editor](https://supabase.com/dashboard/project/zvjylrvjzucyjzhnamfi/sql)
-2. Kopiera SQL från `supabase/migrations/20241001_prio_tables.sql`
-3. Kör SQL
+### 2. Kör SQL-migrationer
+1. Gå till [Supabase SQL Editor](https://supabase.com/dashboard/project/YOUR_PROJECT/sql)
+2. Kör följande migrations i ordning:
+   - `supabase/migrations/20241001_prio_tables.sql`
+   - `supabase/migrations/001_enable_rls.sql`
+   - `supabase/migrations/002_api_usage_tracking.sql`
+   - `supabase/email_tasks_table.sql`
 
-### 3. Verifiera .env.local
-Credentials är redan satta (shared med anmarkt.beta)
+### 3. Konfigurera miljövariabler
 
-### 4. Starta dev-server
+**Frontend (.env.local):**
 ```bash
-npm run dev
+# Supabase
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+
+# Backend
+VITE_BACKEND_URL=http://localhost:10000  # eller https://your-backend.onrender.com
+
+# Microsoft Graph
+VITE_AZURE_CLIENT_ID=your_azure_client_id
 ```
 
-Öppna http://localhost:5174
+**Backend (server/.env):**
+```bash
+PORT=10000
 
-## Projekt-struktur
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# AI
+ANTHROPIC_API_KEY=sk-ant-your_claude_key
+
+# Voice (om aktiverat)
+AZURE_SPEECH_KEY=your_azure_speech_key
+AZURE_SPEECH_REGION=westeurope
+SPEECHMATICS_API_KEY=your_speechmatics_key
+
+# Email Webhook
+SENDGRID_WEBHOOK_SECRET=your_webhook_secret
+```
+
+### 4. Starta dev-server
+
+**Frontend:**
+```bash
+npm run dev
+# Öppna http://localhost:5174
+```
+
+**Backend:**
+```bash
+cd server
+npm install
+npm start
+# Körs på http://localhost:10000
+```
+
+---
+
+## 📁 Projekt-struktur
 
 ```
 prio/
 ├── src/
-│   ├── components/          # React components
-│   │   ├── auth/           # Login, SignUp
-│   │   ├── matrix/         # Eisenhower Matrix
-│   │   ├── tasks/          # Task management
-│   │   ├── views/          # Dashboard, Today, Week, etc.
-│   │   ├── layout/         # AppLayout, Header, Sidebar
-│   │   └── ui/             # Reusable UI components
-│   ├── hooks/              # Custom React hooks
-│   │   └── useTasks.ts     # ✅ Created
-│   ├── lib/                # Utilities
-│   │   ├── supabase.ts     # ✅ Created
-│   │   ├── types.ts        # ✅ Created
-│   │   └── utils.ts        # ✅ Created
-│   ├── contexts/           # React contexts
-│   │   ├── AuthContext.tsx # ✅ Created
-│   │   └── ThemeContext.tsx# ✅ Created
-│   ├── App.tsx             # ✅ Created
-│   ├── main.tsx            # ✅ Created
-│   └── index.css           # ✅ Created
+│   ├── components/
+│   │   ├── auth/              # Login, SignUp
+│   │   ├── calendar/          # Veckokalender, drag & drop
+│   │   ├── focus/             # DailyCheckIn, FocusSession
+│   │   ├── layout/            # AppLayout, Header, Sidebar
+│   │   ├── pwa/               # InstallPrompt, OfflineBanner
+│   │   ├── settings/          # SettingsView, ApiUsageView
+│   │   ├── tasks/             # TaskForm, TaskCard, TaskList
+│   │   ├── ui/                # Dialog, ThemeToggle
+│   │   └── views/             # Dashboard, Inbox, Kanban, Archive
+│   ├── contexts/              # AuthContext, ThemeContext
+│   ├── hooks/                 # useTasks, useCalendar, useMicrosoft
+│   ├── lib/                   # supabase, types, utils, constants
+│   ├── services/              # microsoft, azure, speechmatics
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css              # Minimal custom CSS
+├── server/
+│   ├── index.js               # Express server med endpoints
+│   └── package.json
 ├── supabase/
-│   └── migrations/
-│       └── 20241001_prio_tables.sql  # ✅ Created - RUN THIS IN SUPABASE!
-├── .env.local              # ✅ Created (shared credentials)
-├── .env.example            # ✅ Created
-├── .gitignore              # ✅ Created
-├── package.json            # ✅ Created
-├── tsconfig.json           # ✅ Created
-├── vite.config.ts          # ✅ Created
-├── tailwind.config.js      # ✅ Created
-└── postcss.config.js       # ✅ Created
+│   └── migrations/            # SQL migrations
+├── public/                    # PWA assets
+├── .env.local                 # Frontend env vars
+└── README.md                  # Denna fil
 ```
 
-## Databas-schema
+---
+
+## 💾 Databas-schema
 
 ### `tasks` table
-- Eisenhower matrix tasks
-- `importance` (1-10) & `urgency` (1-10)
-- Computed `priority` column
-- Quadrant assignment: Q1/Q2/Q3/Q4
+- Prioriterade uppgifter
+- Fält: `title`, `description`, `importance`, `urgency`, `deadline`, `duration`, `project_id`
+- Computed `priority` column baserat på importance + urgency
+- RLS: Users kan endast se sina egna tasks
 
 ### `projects` table
-- Project grouping (future feature)
-- Color-coded organization
+- Projekt-kategorisering
+- Färgkodning för visuell gruppering
+- RLS: Users kan endast se sina egna projekt
 
-## Nästa steg
+### `email_tasks` table
+- Email-to-task konverteringar
+- JSON-data från Claude AI-tolkning
+- Realtime-enabled för frontend-lyssning
 
-### PRIORITERADE komponenter att bygga:
-1. **Auth components** (LoginForm, SignUpForm)
-2. **EisenhowerMatrix** (2x2 grid med quadrants)
-3. **TaskCard** (draggable task card)
-4. **TaskForm** (create/edit modal)
-5. **UI components** (Button, Input, Modal, etc.)
+### `api_usage` table
+- Spårar Claude API-användning per user
+- Token count, cost, daily/monthly quotas
+- Pricing tiers: Free (100k tokens/mån), Pro, Business
 
-### Eisenhower Quadrants:
-- **Q1:** Important + Urgent (röd #EF4444) - "Gör nu"
-- **Q2:** Important + Not Urgent (grön #10B981) - "Schemalägg"
-- **Q3:** Not Important + Urgent (gul #F59E0B) - "Delegera"
-- **Q4:** Not Important + Not Urgent (grå #6B7280) - "Eliminera"
+---
 
-## Features att implementera
+## 📧 Email-to-Task Setup
 
-- [x] Supabase setup
-- [x] Auth context (shared med anmarkt.beta)
-- [x] Task CRUD hooks
-- [x] Theme toggle (dark mode)
-- [ ] Login/Signup UI
-- [ ] Eisenhower Matrix grid
-- [ ] Task cards (drag & drop)
-- [ ] Task create/edit form
-- [ ] Dashboard views (Today, Week, All, Archive)
-- [ ] Project management
-- [ ] Realtime subscriptions
-- [ ] Mobile responsive
+**Funktion:** Mejla uppgifter till `task@nymberg.se` → Claude AI tolkar → Task skapas automatiskt!
+
+**Setup:**
+1. Följ instruktioner i `EMAIL_TO_TASK_SETUP.md`
+2. Konfigurera SendGrid Inbound Parse
+3. Lägg till MX-record i DNS
+4. Starta backend med Supabase Service Role Key
+
+**Säkerhet:** Endast mejl från `daniel@nymberg.se` accepteras.
+
+Se `EMAIL_TO_TASK_SETUP.md` för detaljerad guide.
+
+---
+
+## 📅 Kalenderfunktion
+
+**Features:**
+- Veckokalender (må-fre, 07:00-20:00)
+- Visa Microsoft Outlook-möten
+- Dra tasks från inbox → schemalägg i kalender
+- Skapa fokustid direkt i Outlook
+- Flytta/ändra events med drag & drop
+- Färgkodning: 🔵 Möten, 🟠 Fokustid, 🔴 Deadlines
+
+**Setup:**
+1. Gå till Inställningar → Microsoft
+2. Klicka "Koppla" och godkänn permissions
+3. Gå till Kalender-vyn
+4. Dra tasks för att schemalägga!
+
+Se `KALENDER_GUIDE.md` för användarguide.
+
+---
+
+## 🎤 Röststyrning (Inaktiv)
+
+**Features:**
+- Svensk TTS med Azure (Sofie Neural)
+- Speech-to-Text med Speechmatics
+- Konversationell AI med Claude
+- Kommandon: "Skapa task", "Vad ska jag göra nu?"
+
+**Setup:**
+Se `VOICE_SETUP.md` för konfiguration.
+
+**Status:** Byggd men inaktiverad pga DialogComponent-crashes. Återaktiveras efter fix.
+
+---
+
+## 🔐 Säkerhet
+
+### Implementerat
+- ✅ Row Level Security (RLS) på alla tabeller
+- ✅ Bearer token authentication på backend
+- ✅ CORS whitelist (localhost + minprio.se)
+- ✅ Rate limiting (100 req/15 min)
+- ✅ HMAC-validering för email webhooks
+- ✅ API quota tracking per user
+- ✅ Inga API-nycklar i frontend
+
+### Säkerhetsmigration
+Om du uppgraderar från gammal version, följ `TODO_DANIEL.md` för säkerhetsmigration.
+
+Se `SECURITY_AUDIT.md` för fullständig säkerhetsrevision.
+
+---
+
+## 🐛 Kända Problem
+
+### Kritiska (pågående fix)
+1. **Knappar fungerar inte konsekvent** - ButtonComponent onClick i vissa modaler
+2. **Dialog/Modal crashes** - React 18 StrictMode + Syncfusion Portal-issues
+3. **Grå overlay blockerar** - Sidebar backdrop orsakar interaktionsproblem
+
+### Workarounds tillämpade
+- Dialog wrapper med proper lifecycle management
+- `showBackdrop={false}` på Sidebar
+- CSS-fixes för overlay pointer-events
+
+Se `DISABLED_COMPONENTS.md` för lista över inaktiverade komponenter.
+
+---
+
+## 🚀 Roadmap
+
+### Akut (pågående)
+- [ ] Fixa ButtonComponent onClick-problem
+- [ ] Återaktivera Dialog-baserade komponenter
+- [ ] Fixa overlay/backdrop-issues
+
+### Kort sikt
+- [ ] Eisenhower Matrix grid (2x2 quadrants)
+- [ ] Återaktivera VoiceInterface
+- [ ] Återaktivera QuickNoteInput (AI chat)
+- [ ] Återaktivera EmailTaskListener
+- [ ] Global Search (Cmd+K)
+- [ ] Toast Notifications
+
+### Medellång sikt
+- [ ] Månadvy + Dagvy för kalender
+- [ ] Konfliktvarning för dubbelbokningar
+- [ ] Smart AI-schemaläggning
+- [ ] Batch-schemaläggning
+- [ ] Mobile swipe-gestures
 - [ ] Keyboard shortcuts
 
-## Future enhancements
+### Lång sikt
+- [ ] Analytics & insights
+- [ ] Team collaboration
+- [ ] Recurring tasks
+- [ ] Print/Export till PDF
+- [ ] Push-to-talk röstläge
+- [ ] Voice activation ("Hej Prio")
+- [ ] Flerspråkig support
 
-- Voice control (Deepgram)
-- AI assistant (DaNy)
-- Analytics & insights
-- Team collaboration
+---
 
-## Deploy
+## 📚 Dokumentation
 
+- `README.md` - Denna fil (översikt)
+- `VOICE_SETUP.md` - Röststyrning setup
+- `EMAIL_TO_TASK_SETUP.md` - Email-to-task guide
+- `KALENDER_GUIDE.md` - Kalender användarguide
+- `TODO_DANIEL.md` - Säkerhetsmigration checklist
+- `SECURITY_AUDIT.md` - Säkerhetsrevision
+- `DISABLED_COMPONENTS.md` - Inaktiverade features
+- `SYNCFUSION_MIGRATION.md` - Syncfusion migration guide
+- `MIGRATION_GUIDE.md` - Teknisk migreringsguide
+- `TASKFORM_NEW_STRUCTURE.md` - TaskForm-struktur
+
+---
+
+## 🏗️ Deploy
+
+### Frontend (Render.com)
 ```bash
 npm run build
-# Deploy to Render
+# Deploy static site till Render
+# Root directory: /
+# Build command: npm run build
+# Publish directory: dist
 ```
+
+### Backend (Render.com)
+```bash
+cd server
+npm install
+npm start
+# Deploy web service till Render
+# Root directory: /server
+# Build command: npm install
+# Start command: npm start
+```
+
+**Environment Variables:** Se `.env.example` för referens.
+
+---
+
+## 🤝 Bidra
+
+Detta är för närvarande ett privat projekt. För frågor eller bug reports, kontakta daniel@nymberg.se.
+
+---
+
+## 📄 Licens
+
+Proprietary - Daniel Nymberg © 2024-2025
 
 ---
 
