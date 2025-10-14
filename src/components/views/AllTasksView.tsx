@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   GridComponent,
   ColumnsDirective,
@@ -22,6 +22,8 @@ import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { toast } from 'react-hot-toast';
+import { TaskForm } from '@/components/tasks/TaskForm';
+import type { Task } from '@/lib/types';
 import { formatDistanceToNow, format, isToday, isTomorrow, isPast } from 'date-fns';
 import { sv } from 'date-fns/locale';
 
@@ -29,6 +31,8 @@ export function AllTasksView() {
   const { tasks, deleteTask } = useTasks();
   const { projects } = useProjects();
   const gridRef = useRef<GridComponent>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   // Filtrera bort Snabbis (≤2 min) och slutförda
   const activeTasks = tasks.filter(
@@ -149,22 +153,35 @@ export function AllTasksView() {
   };
 
   // Event handlers
-  const handleRecordDoubleClick = (_: any) => {
-    // TaskForm removed
+  const handleRecordDoubleClick = (args: any) => {
+    const task = tasks.find(t => t.id === args.rowData.id);
+    if (task) {
+      setSelectedTask(task);
+      setIsFormOpen(true);
+    }
   };
 
   const toolbarClick = (args: any) => {
     if (args.item.id === 'grid_excelexport') {
       gridRef.current?.excelExport();
     } else if (args.item.id === 'add_task') {
-      // TaskForm removed
+      setSelectedTask(null);
+      setIsFormOpen(true);
     }
   };
 
   const handleKeyDown = (args: any) => {
     // Space för att öppna task
     if (args.keyCode === 32 && gridRef.current) {
-      // TaskForm removed
+      const selectedRecords = gridRef.current.getSelectedRecords();
+      if (selectedRecords.length > 0) {
+        const task = tasks.find(t => t.id === (selectedRecords[0] as any).id);
+        if (task) {
+          setSelectedTask(task);
+          setIsFormOpen(true);
+        }
+      }
+      args.cancel = true;
     }
     // Delete för att radera task
     else if (args.keyCode === 46 && gridRef.current) {
@@ -331,6 +348,16 @@ export function AllTasksView() {
           <Inject services={[Page, Sort, Filter, Group, Toolbar, ExcelExport, ColumnChooser]} />
         </GridComponent>
       </div>
+
+      {/* TaskForm - NYA implementationen med SyncFusion */}
+      <TaskForm
+        isOpen={isFormOpen}
+        onClose={() => {
+          setIsFormOpen(false);
+          setSelectedTask(null);
+        }}
+        taskToEdit={selectedTask}
+      />
     </div>
   );
 }
