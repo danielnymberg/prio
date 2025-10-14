@@ -1,9 +1,7 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
-import { TaskForm } from '@/components/tasks/TaskForm';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Task, CreateTaskInput } from '@/lib/types';
 import { Archive } from 'lucide-react';
 import { showToast } from '@/services/toast';
 import { format } from 'date-fns';
@@ -25,10 +23,8 @@ import {
 } from '@syncfusion/ej2-react-grids';
 
 export function ArchiveView() {
-  const { tasks, updateTask, createTask, deleteTask } = useTasks();
+  const { tasks, updateTask, deleteTask } = useTasks();
   const { projects } = useProjects();
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const gridRef = useRef<GridComponent>(null);
 
   const completedTasks = tasks.filter(t => t.status === 'done');
@@ -95,27 +91,15 @@ export function ArchiveView() {
   };
 
   // Handle double-click
-  const handleRecordDoubleClick = (args: any) => {
-    const task = tasks.find(t => t.id === args.rowData.id);
-    if (task) {
-      setSelectedTask(task);
-      setIsFormOpen(true);
-    }
+  const handleRecordDoubleClick = (_: any) => {
+    // TaskForm removed
   };
 
   // Handle keyboard shortcuts
   const handleKeyDown = (args: any) => {
     // Space för att öppna task
     if (args.keyCode === 32 && gridRef.current) {
-      const selectedRecords = gridRef.current.getSelectedRecords();
-      if (selectedRecords.length > 0) {
-        const task = tasks.find(t => t.id === (selectedRecords[0] as any).id);
-        if (task) {
-          setSelectedTask(task);
-          setIsFormOpen(true);
-          args.preventDefault();
-        }
-      }
+      // TaskForm removed
     }
     // Delete för att radera task permanent
     else if (args.keyCode === 46 && gridRef.current) {
@@ -237,26 +221,6 @@ export function ArchiveView() {
           </GridComponent>
         </div>
       )}
-
-      {/* TaskForm Modal */}
-      <TaskForm
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onSubmit={async (input) => {
-          if (selectedTask) {
-            await updateTask(selectedTask.id, input);
-            showToast.success('Uppgift uppdaterad!');
-          } else {
-            await createTask(input as CreateTaskInput);
-            showToast.success('Uppgift skapad!');
-          }
-        }}
-        onDelete={deleteTask}
-        task={selectedTask}
-      />
     </div>
   );
 }

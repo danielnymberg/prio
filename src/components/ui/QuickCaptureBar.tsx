@@ -1,13 +1,8 @@
-import { useState, CSSProperties } from 'react';
+import { CSSProperties } from 'react';
 import { Plus, Camera } from 'lucide-react';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
-import { TaskForm } from '@/components/tasks/TaskForm';
-import { useTasks } from '@/hooks/useTasks';
-import { CreateTaskInput } from '@/lib/types';
 
 export function QuickCaptureBar() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const { createTask } = useTasks();
 
   // Photo capture kommer i FAS 3
   const handlePhotoCapture = () => {
@@ -71,17 +66,7 @@ export function QuickCaptureBar() {
   const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
 
   if (isDesktop) {
-    return (
-      <>
-        <TaskForm
-          isOpen={isFormOpen}
-          onClose={() => setIsFormOpen(false)}
-          onSubmit={async (input) => {
-            await createTask(input as CreateTaskInput);
-          }}
-        />
-      </>
-    );
+    return null;
   }
 
   return (
@@ -92,7 +77,6 @@ export function QuickCaptureBar() {
           <Button
             variant="primary"
             size="lg"
-            onClick={() => setIsFormOpen(true)}
             style={primaryButtonStyle}
             title="Skapa task"
           >
@@ -112,15 +96,6 @@ export function QuickCaptureBar() {
           </Button>
         </div>
       </div>
-
-      {/* Task form modal */}
-      <TaskForm
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={async (input) => {
-          await createTask(input as CreateTaskInput);
-        }}
-      />
 
       {/* Spacer för att innehåll inte täcks av fixed bar */}
       <div style={spacerStyle} />

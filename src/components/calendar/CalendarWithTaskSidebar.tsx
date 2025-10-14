@@ -4,21 +4,17 @@ import { useTasks } from '@/hooks/useTasks';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import { closest } from '@syncfusion/ej2-base';
-import { TaskForm } from '@/components/tasks/TaskForm';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
-import { Task } from '@/lib/types';
 import { DialogUtility } from '@syncfusion/ej2-popups';
 import { ToastComponent } from '@syncfusion/ej2-react-notifications';
 import { toast } from 'react-hot-toast';
 
 export function CalendarWithTaskSidebar() {
-  const { tasks, updateTask, deleteTask } = useTasks();
+  const { tasks, updateTask } = useTasks();
   const [showSidebar, setShowSidebar] = useState(true);
   const scheduleRef = useRef<any>(null);
   const toastRef = useRef<ToastComponent>(null);
   const [treeData, setTreeData] = useState<any[]>([]);
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [checkedTaskIds, setCheckedTaskIds] = useState<string[]>([]);
 
   // Ej schemalagda uppgifter (uppgifter utan scheduled_start som kan dras till kalendern)
@@ -123,19 +119,9 @@ export function CalendarWithTaskSidebar() {
     }
   };
 
-  // Hantera click på task i sidebar - öppna task-modal
-  const onNodeClick = (args: any) => {
-    const clickedId = args.node?.dataset?.uid;
-
-    if (clickedId) {
-      // Hitta task baserat på Id
-      const fullTask = tasks.find(t => t.id === clickedId);
-
-      if (fullTask) {
-        setSelectedTask(fullTask);
-        setIsFormOpen(true);
-      }
-    }
+  // Hantera click på task i sidebar
+  const onNodeClick = (_: any) => {
+    // TaskForm removed
   };
 
   // Sätt schedule ref från child
@@ -343,29 +329,6 @@ export function CalendarWithTaskSidebar() {
           updateTask={updateTask}
         />
       </div>
-
-      {/* Task detail modal */}
-      <TaskForm
-        isOpen={isFormOpen}
-        task={selectedTask}
-        onClose={() => {
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onSubmit={async (input) => {
-          if (selectedTask) {
-            await updateTask(selectedTask.id, input);
-          }
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onDelete={async (id) => {
-          await deleteTask(id);
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-          return true;
-        }}
-      />
 
       {/* Toast notifications with undo */}
       <ToastComponent

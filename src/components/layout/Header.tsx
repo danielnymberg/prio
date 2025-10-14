@@ -5,10 +5,8 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { AppBarComponent } from '@syncfusion/ej2-react-navigations';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownButtonComponent, ItemModel } from '@syncfusion/ej2-react-splitbuttons';
-import { TaskForm } from '@/components/tasks/TaskForm';
 import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
-import { useTasks } from '@/hooks/useTasks';
-import { CreateTaskInput, DailyCheckIn } from '@/lib/types';
+import { DailyCheckIn } from '@/lib/types';
 import { isMicrosoftLoggedIn } from '@/services/microsoft-graph';
 
 interface HeaderProps {
@@ -17,9 +15,7 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut } = useAuth();
-  const { createTask } = useTasks();
   const navigate = useNavigate();
-  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [needsCheckIn, setNeedsCheckIn] = useState(false);
@@ -162,7 +158,6 @@ export function Header({ onMenuClick }: HeaderProps) {
         <ButtonComponent
           cssClass="e-primary"
           iconCss="e-icons e-plus"
-          onClick={() => setIsQuickAddOpen(true)}
           content="Ny uppgift"
         />
 
@@ -177,14 +172,6 @@ export function Header({ onMenuClick }: HeaderProps) {
           />
         )}
       </AppBarComponent>
-
-      <TaskForm
-        isOpen={isQuickAddOpen}
-        onClose={() => setIsQuickAddOpen(false)}
-        onSubmit={async (input) => {
-          await createTask(input as CreateTaskInput);
-        }}
-      />
 
       <DailyCheckInModal
         isOpen={isCheckInOpen}

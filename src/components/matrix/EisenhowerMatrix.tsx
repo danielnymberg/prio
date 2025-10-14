@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
-import { Task, Quadrant, CreateTaskInput } from '@/lib/types';
-import { TaskForm } from '@/components/tasks/TaskForm';
+import { Task, Quadrant } from '@/lib/types';
 import { showToast } from '@/services/toast';
 import {
   KanbanComponent,
@@ -11,10 +9,8 @@ import {
 } from '@syncfusion/ej2-react-kanban';
 
 export function EisenhowerMatrix() {
-  const { tasks, updateTask, createTask, deleteTask } = useTasks();
+  const { tasks, updateTask } = useTasks();
   const { projects } = useProjects();
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
-  const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Filter active tasks only
   const activeTasks = tasks.filter(t => t.status !== 'done');
@@ -108,13 +104,8 @@ export function EisenhowerMatrix() {
   };
 
   // Handle card click
-  const handleCardClick = (args: any) => {
-    const taskId = args.data.id;
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      setSelectedTask(task);
-      setIsFormOpen(true);
-    }
+  const handleCardClick = (_: any) => {
+    // TaskForm removed
   };
 
   // Handle drag & drop (quadrant change)
@@ -216,26 +207,6 @@ export function EisenhowerMatrix() {
           </ColumnsDirective>
         </KanbanComponent>
       </div>
-
-      {/* TaskForm Modal */}
-      <TaskForm
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onSubmit={async (input) => {
-          if (selectedTask) {
-            await updateTask(selectedTask.id, input);
-            showToast.success('Uppgift uppdaterad!');
-          } else {
-            await createTask(input as CreateTaskInput);
-            showToast.success('Uppgift skapad!');
-          }
-        }}
-        onDelete={deleteTask}
-        task={selectedTask}
-      />
     </div>
   );
 }

@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react';
 import { KanbanComponent, ColumnsDirective, ColumnDirective } from '@syncfusion/ej2-react-kanban';
 import { useTasks } from '@/hooks/useTasks';
-import { Task, Project } from '@/lib/types';
-import { TaskForm } from '@/components/tasks/TaskForm';
+import { Project } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function KanbanView() {
   const { user } = useAuth();
-  const { tasks, updateTask, deleteTask } = useTasks();
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const { tasks, updateTask } = useTasks();
   const [projects, setProjects] = useState<Project[]>([]);
 
   // Hämta projekt för swimlanes
@@ -87,14 +84,8 @@ export function KanbanView() {
     );
   };
 
-  const onCardClick = (args: any) => {
-    const taskId = args.data.Id;
-    const fullTask = tasks.find(t => t.id === taskId);
-
-    if (fullTask) {
-      setSelectedTask(fullTask);
-      setIsFormOpen(true);
-    }
+  const onCardClick = (_: any) => {
+    // TaskForm removed
   };
 
   const onDragStop = async (args: any) => {
@@ -114,74 +105,49 @@ export function KanbanView() {
   };
 
   return (
-    <>
-      <div style={{ height: '100%', backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', border: '1px solid var(--e-border)', padding: '1rem', display: 'flex', flexDirection: 'column' }}>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--e-text)', flexShrink: 0 }}>
-          Kanban Board
-        </h2>
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-          <KanbanComponent
-            id="kanban"
-            dataSource={kanbanData}
-            keyField="Status"
-            cardSettings={{
-              contentField: 'Summary',
-              headerField: 'Title',
-              template: cardTemplate
-            }}
-            swimlaneSettings={{
-              keyField: 'ProjectId',
-              textField: 'ProjectName',
-              allowDragAndDrop: true
-            }}
-            dialogSettings={{ fields: [] }} // Disable default dialog
-            cardClick={onCardClick}
-            dragStop={onDragStop}
-            style={{ height: '100%' }}
-          >
-          <ColumnsDirective>
-            <ColumnDirective
-              headerText="📋 Ej påbörjad"
-              keyField="not_started"
-              allowToggle={true}
-            />
-            <ColumnDirective
-              headerText="🚀 Pågående"
-              keyField="in_progress"
-              allowToggle={true}
-            />
-            <ColumnDirective
-              headerText="✅ Klar"
-              keyField="done"
-              allowToggle={true}
-            />
-          </ColumnsDirective>
-        </KanbanComponent>
-        </div>
+    <div style={{ height: '100%', backgroundColor: 'var(--e-surface)', borderRadius: '0.75rem', border: '1px solid var(--e-border)', padding: '1rem', display: 'flex', flexDirection: 'column' }}>
+      <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--e-text)', flexShrink: 0 }}>
+        Kanban Board
+      </h2>
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <KanbanComponent
+          id="kanban"
+          dataSource={kanbanData}
+          keyField="Status"
+          cardSettings={{
+            contentField: 'Summary',
+            headerField: 'Title',
+            template: cardTemplate
+          }}
+          swimlaneSettings={{
+            keyField: 'ProjectId',
+            textField: 'ProjectName',
+            allowDragAndDrop: true
+          }}
+          dialogSettings={{ fields: [] }} // Disable default dialog
+          cardClick={onCardClick}
+          dragStop={onDragStop}
+          style={{ height: '100%' }}
+        >
+        <ColumnsDirective>
+          <ColumnDirective
+            headerText="📋 Ej påbörjad"
+            keyField="not_started"
+            allowToggle={true}
+          />
+          <ColumnDirective
+            headerText="🚀 Pågående"
+            keyField="in_progress"
+            allowToggle={true}
+          />
+          <ColumnDirective
+            headerText="✅ Klar"
+            keyField="done"
+            allowToggle={true}
+          />
+        </ColumnsDirective>
+      </KanbanComponent>
       </div>
-
-      {/* Task detail modal */}
-      <TaskForm
-        isOpen={isFormOpen}
-        task={selectedTask}
-        onClose={() => {
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onSubmit={async (input) => {
-          if (selectedTask) {
-            await updateTask(selectedTask.id, input);
-          }
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onDelete={async (id) => {
-          await deleteTask(id);
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-          return true;
-        }}
-      />
-    </>
+    </div>
   );
 }

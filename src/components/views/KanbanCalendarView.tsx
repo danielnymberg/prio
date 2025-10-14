@@ -1,17 +1,13 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { KanbanComponent, ColumnsDirective, ColumnDirective, DragEventArgs } from '@syncfusion/ej2-react-kanban';
 import { WeekCalendarView } from '@/components/calendar/WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
-import { Task } from '@/lib/types';
-import { TaskForm } from '@/components/tasks/TaskForm';
 import { ToastComponent } from '@syncfusion/ej2-react-notifications';
 import { toast } from 'react-hot-toast';
 import { closest } from '@syncfusion/ej2-base';
 
 export function KanbanCalendarView() {
-  const { tasks, updateTask, deleteTask } = useTasks();
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const { tasks, updateTask } = useTasks();
   const scheduleRef = useRef<any>(null);
   const toastRef = useRef<ToastComponent>(null);
 
@@ -66,14 +62,8 @@ export function KanbanCalendarView() {
     );
   };
 
-  const onCardClick = (args: any) => {
-    const taskId = args.data.Id;
-    const fullTask = tasks.find(t => t.id === taskId);
-
-    if (fullTask) {
-      setSelectedTask(fullTask);
-      setIsFormOpen(true);
-    }
+  const onCardClick = (_: any) => {
+    // TaskForm removed
   };
 
   const onDragStop = async (args: DragEventArgs) => {
@@ -227,29 +217,6 @@ export function KanbanCalendarView() {
           updateTask={updateTask}
         />
       </div>
-
-      {/* Task detail modal */}
-      <TaskForm
-        isOpen={isFormOpen}
-        task={selectedTask}
-        onClose={() => {
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onSubmit={async (input) => {
-          if (selectedTask) {
-            await updateTask(selectedTask.id, input);
-          }
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onDelete={async (id) => {
-          await deleteTask(id);
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-          return true;
-        }}
-      />
 
       {/* Toast notifications with undo */}
       <ToastComponent

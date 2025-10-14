@@ -1,9 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
-import { useState, useRef, useEffect } from 'react';
-import { TaskForm } from '@/components/tasks/TaskForm';
-import { Task, CreateTaskInput } from '@/lib/types';
+import { useRef, useEffect } from 'react';
 import { SidebarComponent } from '@syncfusion/ej2-react-navigations';
 import { TreeViewComponent } from '@syncfusion/ej2-react-navigations';
 
@@ -13,11 +11,9 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const { tasks, createTask, updateTask } = useTasks();
+  const { tasks } = useTasks();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
   const treeRef = useRef<TreeViewComponent>(null);
   const sidebarRef = useRef<SidebarComponent>(null);
 
@@ -151,11 +147,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="e-p-16">
           <ButtonComponent
             cssClass="e-primary e-round e-w-full"
-            onClick={() => {
-              setSelectedTask(undefined);
-              setIsFormOpen(true);
-              onClose();
-            }}
             iconCss="e-icons e-plus"
             content="Ny uppgift"
           />
@@ -179,22 +170,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           />
         </nav>
       </SidebarComponent>
-
-      <TaskForm
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onSubmit={async (input) => {
-          if (selectedTask) {
-            await updateTask(selectedTask.id, input);
-          } else {
-            await createTask(input as CreateTaskInput);
-          }
-        }}
-        task={selectedTask}
-      />
     </>
   );
 }

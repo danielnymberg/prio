@@ -1,8 +1,6 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { useTasks } from '@/hooks/useTasks';
-import { TaskForm } from '@/components/tasks/TaskForm';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Task, CreateTaskInput } from '@/lib/types';
 import { Inbox } from 'lucide-react';
 import { showToast } from '@/services/toast';
 import {
@@ -19,9 +17,7 @@ import {
 } from '@syncfusion/ej2-react-grids';
 
 export function InboxView() {
-  const { tasks, updateTask, deleteTask, createTask } = useTasks();
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const { tasks, deleteTask } = useTasks();
   const gridRef = useRef<GridComponent>(null);
 
   // Inbox = tasks med status 'not_started' OCH låg bedömning (värde+tidskänslighet = default)
@@ -60,13 +56,8 @@ export function InboxView() {
         return;
       }
 
-      // Öppna första tasken för bedömning
-      const firstTask = tasks.find(t => t.id === selectedRecords[0].id);
-      if (firstTask) {
-        setSelectedTask(firstTask);
-        setIsFormOpen(true);
-        showToast.info(`Bedöm ${selectedRecords.length} uppgifter (startar med första)`);
-      }
+      // TaskForm removed
+      showToast.info(`Bedöm ${selectedRecords.length} uppgifter (startar med första)`);
     } else if (args.item.id === 'delete_selected' && gridRef.current) {
       const selectedRecords = gridRef.current.getSelectedRecords() as any[];
       if (selectedRecords.length === 0) {
@@ -84,27 +75,15 @@ export function InboxView() {
   };
 
   // Handle double-click to open task
-  const handleRecordDoubleClick = (args: any) => {
-    const task = tasks.find(t => t.id === args.rowData.id);
-    if (task) {
-      setSelectedTask(task);
-      setIsFormOpen(true);
-    }
+  const handleRecordDoubleClick = (_: any) => {
+    // TaskForm removed
   };
 
   // Handle keyboard shortcuts
   const handleKeyDown = (args: any) => {
     // Space för att öppna task
     if (args.keyCode === 32 && gridRef.current) {
-      const selectedRecords = gridRef.current.getSelectedRecords();
-      if (selectedRecords.length > 0) {
-        const task = tasks.find(t => t.id === (selectedRecords[0] as any).id);
-        if (task) {
-          setSelectedTask(task);
-          setIsFormOpen(true);
-          args.preventDefault();
-        }
-      }
+      // TaskForm removed
     }
     // Delete för att radera task
     else if (args.keyCode === 46 && gridRef.current) {
@@ -212,26 +191,6 @@ export function InboxView() {
           </GridComponent>
         </div>
       )}
-
-      {/* TaskForm Modal */}
-      <TaskForm
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        onSubmit={async (input) => {
-          if (selectedTask) {
-            await updateTask(selectedTask.id, input);
-            showToast.success('Uppgift bedömd och uppdaterad!');
-          } else {
-            await createTask(input as CreateTaskInput);
-            showToast.success('Uppgift skapad!');
-          }
-        }}
-        onDelete={deleteTask}
-        task={selectedTask}
-      />
     </div>
   );
 }
