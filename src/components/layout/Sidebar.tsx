@@ -142,6 +142,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         isOpen={isOpen}
         close={onClose}
         position="Left"
+        style={{ top: '64px', height: 'calc(100vh - 64px)' }}
       >
         <nav className="e-flex-1 e-overflow-y-auto e-px-12 e-pb-16 e-pt-16">
           <TreeViewComponent
