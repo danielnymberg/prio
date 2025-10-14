@@ -75,7 +75,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
       {/* PDF Upload sektion */}
       <div className="e-mb-24">
         <div className="e-flex e-align-center e-justify-between e-mb-16">
-          <h3 className="e-text-lg e-font-semibold" style={{ color: 'var(--e-text)' }}>
+          <h3 className="e-text-lg e-font-semibold">
             Skapa från offert
           </h3>
           <button
@@ -83,12 +83,9 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             onClick={() => setShowPDFUpload(!showPDFUpload)}
             className="e-flex e-align-center e-gap-8 e-px-16 e-py-8 e-text-sm e-font-medium e-rounded-lg e-transition e-cursor-pointer"
             style={{
-              color: 'var(--warning-500)',
               backgroundColor: 'transparent',
               border: 'none'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.1)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             <FileText style={{ height: '16px', width: '16px' }} />
             {showPDFUpload ? 'Dölj' : 'Ladda upp'} PDF
@@ -100,11 +97,8 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         )}
 
         {extractedFromPDF && (
-          <div className="e-mt-16 e-p-16 e-rounded-xl" style={{
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            border: '2px solid #10b981'
-          }}>
-            <p className="e-text-sm e-flex e-align-center e-gap-8" style={{ color: '#10b981' }}>
+          <div className="e-mt-16 e-p-16 e-rounded-xl">
+            <p className="e-text-sm e-flex e-align-center e-gap-8">
               ✓ Data extraherad från PDF. Granska fälten nedan och justera vid behov.
             </p>
           </div>
@@ -112,13 +106,13 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
       </div>
 
       <div className="e-border-t e-pt-24">
-        <h3 className="e-text-lg e-font-semibold e-mb-16" style={{ color: 'var(--e-text)' }}>
+        <h3 className="e-text-lg e-font-semibold e-mb-16">
           Projektinformation
         </h3>
 
         <div className="e-flex e-flex-column e-gap-24">
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8">
               Projektnamn *
             </label>
             <input
@@ -127,24 +121,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                backgroundColor: 'var(--e-surface)',
-                color: 'var(--e-text)',
                 outline: 'none'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--e-border)';
-                e.currentTarget.style.boxShadow = 'none';
               }}
               required
             />
           </div>
 
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8">
               Klient/Beställare
             </label>
             <input
@@ -153,24 +137,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
               className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                backgroundColor: 'var(--e-surface)',
-                color: 'var(--e-text)',
                 outline: 'none'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--e-border)';
-                e.currentTarget.style.boxShadow = 'none';
               }}
             />
           </div>
 
           <div className="e-grid e-grid-cols-2 e-gap-16">
             <div>
-              <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
+              <label className="e-block e-text-sm e-font-medium e-mb-8">
                 Offererade timmar *
               </label>
               <input
@@ -180,24 +154,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 onChange={(e) => setFormData({ ...formData, quoted_hours: parseFloat(e.target.value) || 0 })}
                 className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
                 style={{
-                  backgroundColor: 'var(--e-surface)',
-                  color: 'var(--e-text)',
                   outline: 'none'
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--primary-400)';
-                  e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--e-border)';
-                  e.currentTarget.style.boxShadow = 'none';
                 }}
                 required
               />
             </div>
 
             <div>
-              <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
+              <label className="e-block e-text-sm e-font-medium e-mb-8">
                 Timpris (kr) *
               </label>
               <input
@@ -207,17 +171,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
                 onChange={(e) => setFormData({ ...formData, hourly_rate: parseFloat(e.target.value) || 0 })}
                 className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
                 style={{
-                  backgroundColor: 'var(--e-surface)',
-                  color: 'var(--e-text)',
                   outline: 'none'
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--primary-400)';
-                  e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--e-border)';
-                  e.currentTarget.style.boxShadow = 'none';
                 }}
                 required
               />
@@ -225,7 +179,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8">
               Övriga kostnader (resor, externa tjänster, kr)
             </label>
             <input
@@ -235,36 +189,26 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               onChange={(e) => setFormData({ ...formData, external_costs: parseFloat(e.target.value) || 0 })}
               className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                backgroundColor: 'var(--e-surface)',
-                color: 'var(--e-text)',
                 outline: 'none'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--e-border)';
-                e.currentTarget.style.boxShadow = 'none';
               }}
             />
           </div>
 
-          <div className="e-p-16 e-rounded-lg" style={{ backgroundColor: 'var(--e-surface-hover)' }}>
-            <div className="e-text-sm e-mb-4" style={{ color: 'var(--e-text-secondary)' }}>
+          <div className="e-p-16 e-rounded-lg">
+            <div className="e-text-sm e-mb-4">
               Beräknad total budget
             </div>
-            <div className="e-text-2xl e-font-bold" style={{ color: 'var(--primary-600)' }}>
+            <div className="e-text-2xl e-font-bold">
               {calculatedBudget.toLocaleString('sv-SE')} kr
             </div>
-            <div className="e-text-xs e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
+            <div className="e-text-xs e-mt-4">
               {formData.quoted_hours}h × {formData.hourly_rate} kr/h
               {(formData.external_costs || 0) > 0 && ` + ${formData.external_costs} kr övriga`}
             </div>
           </div>
 
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8">
               Deadline
             </label>
             <input
@@ -273,23 +217,13 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               onChange={(e) => setFormData({ ...formData, project_deadline: e.target.value })}
               className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                backgroundColor: 'var(--e-surface)',
-                color: 'var(--e-text)',
                 outline: 'none'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--e-border)';
-                e.currentTarget.style.boxShadow = 'none';
               }}
             />
           </div>
 
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
+            <label className="e-block e-text-sm e-font-medium e-mb-8">
               Beskrivning
             </label>
             <textarea
@@ -297,19 +231,9 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
               style={{
-                backgroundColor: 'var(--e-surface)',
-                color: 'var(--e-text)',
                 outline: 'none',
                 resize: 'vertical',
                 minHeight: '72px'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary-400)';
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--primary-400)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'var(--e-border)';
-                e.currentTarget.style.boxShadow = 'none';
               }}
               rows={3}
             />

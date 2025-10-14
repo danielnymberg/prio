@@ -53,7 +53,7 @@ h3 {
   margin: 0;
 }
 
-/* SyncFusion TreeView anpassningar för Sidebar */
+/* SyncFusion TreeView - Pure Fluent2 styling */
 .sidebar-tree {
   border: none !important;
   background: transparent !important;
@@ -62,64 +62,6 @@ h3 {
 .sidebar-tree .e-list-item {
   margin: 2px 0;
   border-radius: 0.5rem;
-  transition: all 0.2s;
-}
-
-.sidebar-tree .e-list-item:hover {
-  background-color: rgba(245, 243, 239, 0.5);
-}
-
-.dark .sidebar-tree .e-list-item:hover {
-  background-color: rgba(42, 37, 32, 0.5);
-}
-
-/* Aktiv nod */
-.sidebar-tree .e-active {
-  background-color: var(--primary-500) !important;
-  color: white !important;
-}
-
-.sidebar-tree .e-active .e-list-text,
-.sidebar-tree .e-active .e-icons {
-  color: white !important;
-}
-
-/* Focus-item (Just nu) special styling */
-.sidebar-tree .focus-item.e-active {
-  background-color: var(--primary-600) !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Ikoner */
-.sidebar-tree .e-icons {
-  color: #78716c;
-  font-size: 16px;
-}
-
-.dark .sidebar-tree .e-icons {
-  color: #a8a29e;
-}
-
-/* Text */
-.sidebar-tree .e-list-text {
-  color: #44403c;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.dark .sidebar-tree .e-list-text {
-  color: #e7e5e4;
-}
-
-/* Expandera/kollaps ikoner */
-.sidebar-tree .e-icon-expandable,
-.sidebar-tree .e-icon-collapsible {
-  color: #78716c;
-}
-
-.dark .sidebar-tree .e-icon-expandable,
-.dark .sidebar-tree .e-icon-collapsible {
-  color: #a8a29e;
 }
 
 /* Full rad klickbar */

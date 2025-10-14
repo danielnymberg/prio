@@ -152,7 +152,7 @@ export function FocusView() {
   if (showMorningBriefing) {
     return (
       <>
-        <div className="e-flex e-align-center e-justify-center e-h-screen e-p-16" style={{ background: 'linear-gradient(to bottom right, #f9fafb, #e5e7eb)' }}>
+        <div className="e-flex e-align-center e-justify-center e-h-screen e-p-16">
           <div className="e-w-full" style={{ maxWidth: '42rem' }}>
             <MorningBriefing
               tasks={tasks}
@@ -182,13 +182,13 @@ export function FocusView() {
   if (!context) {
     return (
       <>
-        <div className="e-flex e-align-center e-justify-center e-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
+        <div className="e-flex e-align-center e-justify-center e-h-screen">
           <div className="e-text-center" style={{ maxWidth: '28rem', padding: '0 24px' }}>
             <div className="e-text-2xl e-mb-16" style={{ fontSize: '60px' }}>☀️</div>
-            <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
+            <h2 className="e-text-xl e-font-bold e-mb-16">
               Börja din dag!
             </h2>
-            <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
+            <p className="e-mb-24">
               Gör din dagliga avstämning för att få din första uppgift.
             </p>
             <Button onClick={() => setIsCheckInOpen(true)} size="lg">
@@ -210,7 +210,7 @@ export function FocusView() {
   if (!nextTask) {
     return (
       <>
-        <div className="e-flex e-align-center e-justify-center e-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
+        <div className="e-flex e-align-center e-justify-center e-h-screen">
           <div className="e-text-center" style={{ maxWidth: '28rem', padding: '0 24px' }}>
             {(() => {
               const activeTasks = tasks.filter(t => t.status !== 'done');
@@ -229,10 +229,10 @@ export function FocusView() {
                 return (
                   <>
                     <div className="e-mb-16" style={{ fontSize: '60px' }}>📝</div>
-                    <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
+                    <h2 className="e-text-xl e-font-bold e-mb-16">
                       Inga uppgifter ännu!
                     </h2>
-                    <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
+                    <p className="e-mb-24">
                       Skapa din första uppgift för att komma igång med smart prioritering.
                     </p>
                     <Button onClick={() => navigate('/all')} size="lg">
@@ -247,10 +247,10 @@ export function FocusView() {
                 return (
                   <>
                     <div className="e-mb-16" style={{ fontSize: '60px' }}>🔒</div>
-                    <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
+                    <h2 className="e-text-xl e-font-bold e-mb-16">
                       Alla uppgifter är blockerade
                     </h2>
-                    <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
+                    <p className="e-mb-24">
                       {blockedTasks.length} uppgifter väntar på att andra uppgifter ska bli klara.
                     </p>
                     <Button onClick={() => navigate('/all')} variant="primary">
@@ -264,10 +264,10 @@ export function FocusView() {
                 return (
                   <>
                     <div className="e-mb-16" style={{ fontSize: '60px' }}>⏰</div>
-                    <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
+                    <h2 className="e-text-xl e-font-bold e-mb-16">
                       Alla uppgifter tar för lång tid
                     </h2>
-                    <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
+                    <p className="e-mb-24">
                       Du har {activeTasks.length} uppgifter men alla kräver mer än {Math.floor(context.availableTime / 60)}h.
                     </p>
                     <div className="e-flex e-gap-12 e-justify-center">
@@ -285,10 +285,10 @@ export function FocusView() {
               return (
                 <>
                   <div className="e-mb-16" style={{ fontSize: '60px' }}>🤷</div>
-                  <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
+                  <h2 className="e-text-xl e-font-bold e-mb-16">
                     Inga uppgifter tillgängliga just nu
                   </h2>
-                  <p className="e-mb-24" style={{ color: 'var(--e-text-secondary)' }}>
+                  <p className="e-mb-24">
                     Det finns uppgifter men ingen passar dina nuvarande filter.
                   </p>
                   <div className="e-flex e-gap-12 e-justify-center">
@@ -316,10 +316,10 @@ export function FocusView() {
   }
 
   return (
-    <div className="e-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--e-surface), var(--e-border))' }}>
+    <div className="e-h-screen">
       {/* Emergency Banner */}
       {isEmergency && (
-        <div className="e-text-center e-font-semibold" style={{ backgroundColor: '#ef4444', color: 'white', padding: '12px 24px' }}>
+        <div className="e-text-center e-font-semibold" style={{ padding: '12px 24px' }}>
           <AlertTriangle style={{ display: 'inline', height: '20px', width: '20px', marginRight: '8px', verticalAlign: 'middle' }} />
           Du har uppgifter med deadline inom 24 timmar!
         </div>
@@ -327,9 +327,9 @@ export function FocusView() {
 
       {/* Dependency Alerts */}
       {criticalChains.length > 0 && (
-        <div className="e-border-b e-p-16" style={{ backgroundColor: 'var(--e-surface)' }}>
+        <div className="e-border-b e-p-16">
           <div className="e-mx-auto" style={{ maxWidth: '64rem' }}>
-            <h2 className="e-text-lg e-font-semibold e-mb-12" style={{ color: 'var(--e-text)' }}>
+            <h2 className="e-text-lg e-font-semibold e-mb-12">
               ⚠️ Kritiska blockeringskedjor ({criticalChains.length})
             </h2>
             {criticalChains.map((chain, index) => (
@@ -340,13 +340,13 @@ export function FocusView() {
       )}
 
       {/* Header */}
-      <div className="e-border-b e-p-16" style={{ backgroundColor: 'var(--e-surface)' }}>
+      <div className="e-border-b e-p-16">
         <div className="e-mx-auto e-flex e-justify-between e-align-center" style={{ maxWidth: '64rem' }}>
           <div>
-            <h1 className="e-text-xl e-font-bold" style={{ color: 'var(--e-text)', margin: 0 }}>
+            <h1 className="e-text-xl e-font-bold" style={{ margin: 0 }}>
               🎯 Just Nu
             </h1>
-            <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
+            <p className="e-text-sm" style={{ margin: 0 }}>
               {context.availableTime} min kvar idag • {context.energyLevel === 'low' ? '🔋' : context.energyLevel === 'medium' ? '🔋🔋' : '🔋🔋🔋'}
               {checkInData?.strategy === 'quick_wins' && ' • ⚡ Quick Wins'}
               {checkInData?.strategy === 'deep_work' && ' • 🧠 Deep Work'}
@@ -375,14 +375,14 @@ export function FocusView() {
 
         return (
           <div className="e-mx-auto e-p-24 e-pt-24" style={{ maxWidth: '64rem', paddingBottom: 0 }}>
-            <div className="e-border e-rounded-lg e-p-16" style={{ backgroundColor: '#ecfdf5', borderColor: '#10b981', borderWidth: '2px' }}>
+            <div className="e-border e-rounded-lg e-p-16">
               <div className="e-flex e-align-center e-gap-8 e-mb-12">
                 <span className="e-text-xl">⚡</span>
-                <h3 className="e-text-lg e-font-bold" style={{ color: '#064e3b', margin: 0 }}>
+                <h3 className="e-text-lg e-font-bold" style={{ margin: 0 }}>
                   Snabbis ({snabbis.length}) - Gör direkt!
                 </h3>
               </div>
-              <p className="e-text-sm e-mb-12" style={{ color: '#065f46' }}>
+              <p className="e-text-sm e-mb-12">
                 💡 Uppgifter som tar ≤ 2 min - klara av dem först!
               </p>
               <div className="e-flex e-flex-column e-gap-8">
@@ -390,18 +390,17 @@ export function FocusView() {
                   <div
                     key={task.id}
                     className="e-rounded-md e-p-12 e-flex e-align-center e-justify-between e-cursor-pointer e-transition"
-                    style={{ backgroundColor: 'var(--e-surface)' }}
                     onClick={() => navigate(`/session/${task.id}`)}
                     onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
                     onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                   >
                     <div>
-                      <p className="e-font-medium" style={{ color: 'var(--e-text)', margin: 0 }}>{task.title}</p>
-                      <p className="e-text-xs" style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
+                      <p className="e-font-medium" style={{ margin: 0 }}>{task.title}</p>
+                      <p className="e-text-xs" style={{ margin: 0 }}>
                         {formatDuration(task.estimated_duration)}
                       </p>
                     </div>
-                    <Play style={{ height: '20px', width: '20px', color: '#10b981' }} />
+                    <Play style={{ height: '20px', width: '20px' }} />
                   </div>
                 ))}
               </div>
@@ -412,7 +411,7 @@ export function FocusView() {
 
       {/* Main Focus Card */}
       <div className="e-mx-auto e-p-32" style={{ maxWidth: '64rem', padding: '48px 24px' }}>
-        <div className="e-rounded-xl e-p-32" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: '4px solid var(--primary-500)' }}>
+        <div className="e-rounded-xl e-p-32" style={{ boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
           {/* Deadline Warnings */}
           {nextTask.deadline && (() => {
             const deadline = new Date(nextTask.deadline);
@@ -424,14 +423,14 @@ export function FocusView() {
             if (isOverdue) {
               const hoursOverdue = Math.abs(hoursUntil);
               return (
-                <div style={{ backgroundColor: '#fee2e2', border: '2px solid #ef4444', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <AlertTriangle style={{ height: '24px', width: '24px', color: '#dc2626', flexShrink: 0, marginTop: '0.25rem' }} />
+                    <AlertTriangle style={{ height: '24px', width: '24px', flexShrink: 0, marginTop: '0.25rem' }} />
                     <div>
-                      <h3 style={{ fontWeight: 'bold', color: '#7f1d1d', marginBottom: '0.25rem' }}>
+                      <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                         🚨 FÖRSENAD - {hoursOverdue < 24 ? `${hoursOverdue}h` : `${Math.floor(hoursOverdue / 24)} dagar`} sen!
                       </h3>
-                      <p style={{ fontSize: '0.875rem', color: '#991b1b' }}>
+                      <p style={{ fontSize: '0.875rem' }}>
                         Deadline var {deadline.toLocaleDateString('sv-SE')} kl {deadline.toLocaleTimeString('sv-SE', {hour: '2-digit', minute: '2-digit'})}.
                         Denna uppgift bör prioriteras högst.
                       </p>
@@ -443,14 +442,14 @@ export function FocusView() {
 
             if (isEmergency) {
               return (
-                <div style={{ backgroundColor: '#fed7aa', border: '2px solid #f97316', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <AlertTriangle style={{ height: '24px', width: '24px', color: '#ea580c', flexShrink: 0, marginTop: '0.25rem' }} />
+                    <AlertTriangle style={{ height: '24px', width: '24px', flexShrink: 0, marginTop: '0.25rem' }} />
                     <div>
-                      <h3 style={{ fontWeight: 'bold', color: '#7c2d12', marginBottom: '0.25rem' }}>
+                      <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                         ⚡ AKUT - Deadline om {hoursUntil}h
                       </h3>
-                      <p style={{ fontSize: '0.875rem', color: '#9a3412' }}>
+                      <p style={{ fontSize: '0.875rem' }}>
                         Deadline: {deadline.toLocaleDateString('sv-SE')} kl {deadline.toLocaleTimeString('sv-SE', {hour: '2-digit', minute: '2-digit'})}
                       </p>
                     </div>
@@ -463,13 +462,13 @@ export function FocusView() {
           })()}
 
           {/* Title */}
-          <h2 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: '2.25rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
             {nextTask.title}
           </h2>
 
           {/* Description */}
           {nextTask.description && (
-            <p style={{ fontSize: '1.125rem', color: 'var(--e-text-secondary)', marginBottom: '1.5rem', lineHeight: '1.75' }}>
+            <p style={{ fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: '1.75' }}>
               {nextTask.description}
             </p>
           )}
@@ -477,17 +476,17 @@ export function FocusView() {
           {/* Metadata */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
             {nextTask.estimated_duration && (
-              <div style={{ backgroundColor: 'var(--e-border)', borderRadius: '0.5rem', padding: '1rem' }}>
-                <div style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', marginBottom: '0.25rem' }}>Uppskattad tid</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--e-text)' }}>
+              <div style={{ borderRadius: '0.5rem', padding: '1rem' }}>
+                <div style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}>Uppskattad tid</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>
                   {formatDuration(nextTask.estimated_duration)}
                 </div>
               </div>
             )}
             {nextTask.deadline && (
-              <div style={{ backgroundColor: 'var(--e-border)', borderRadius: '0.5rem', padding: '1rem' }}>
-                <div style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', marginBottom: '0.25rem' }}>Deadline</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--e-text)' }}>
+              <div style={{ borderRadius: '0.5rem', padding: '1rem' }}>
+                <div style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}>Deadline</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>
                   {formatRelativeTime(nextTask.deadline)}
                 </div>
               </div>
@@ -496,21 +495,21 @@ export function FocusView() {
 
           {/* Too Late Warning */}
           {(nextTask as any).isTooLate && (
-            <div style={{ backgroundColor: '#fee2e2', border: '2px solid #ef4444', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <AlertTriangle style={{ height: '24px', width: '24px', color: '#dc2626', flexShrink: 0, marginTop: '0.25rem' }} />
+                <AlertTriangle style={{ height: '24px', width: '24px', flexShrink: 0, marginTop: '0.25rem' }} />
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontWeight: 'bold', color: '#7f1d1d', marginBottom: '0.25rem' }}>
+                  <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                     🚨 För sent att påbörja denna uppgift
                   </h3>
-                  <p style={{ fontSize: '0.875rem', color: '#991b1b', marginBottom: '0.5rem' }}>
+                  <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
                     {(nextTask as any).tooLateReason}
                   </p>
-                  <div style={{ backgroundColor: '#fecaca', borderRadius: '0.5rem', padding: '0.75rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#7f1d1d' }}>
+                  <div style={{ borderRadius: '0.5rem', padding: '0.75rem', marginTop: '0.5rem' }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: '600' }}>
                       💡 Förslag:
                     </p>
-                    <ul style={{ fontSize: '0.875rem', color: '#991b1b', marginTop: '0.25rem', paddingLeft: '1rem' }}>
+                    <ul style={{ fontSize: '0.875rem', marginTop: '0.25rem', paddingLeft: '1rem' }}>
                       <li>• Omförhandla deadline med beställare</li>
                       <li>• Delegera uppgiften till någon annan</li>
                       <li>• Dela upp i mindre delar och gör det viktigaste först</li>
@@ -526,19 +525,19 @@ export function FocusView() {
           {nextTask.estimated_duration &&
            context &&
            nextTask.estimated_duration > context.availableTime && (
-            <div style={{ backgroundColor: '#fef3c7', border: '2px solid var(--warning-500)', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <Clock style={{ height: '24px', width: '24px', color: 'var(--warning-600)', flexShrink: 0, marginTop: '0.25rem' }} />
+                <Clock style={{ height: '24px', width: '24px', flexShrink: 0, marginTop: '0.25rem' }} />
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontWeight: 'bold', color: '#78350f', marginBottom: '0.25rem' }}>
+                  <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                     ⏱️ Uppgiften tar längre än tillgänglig tid
                   </h3>
-                  <p style={{ fontSize: '0.875rem', color: '#92400e', marginBottom: '0.5rem' }}>
+                  <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
                     Uppgiften tar {formatDuration(nextTask.estimated_duration)},
                     du har {formatDuration(context.availableTime)} kvar idag.
                   </p>
-                  <div style={{ backgroundColor: '#fde68a', borderRadius: '0.5rem', padding: '0.75rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#78350f' }}>
+                  <div style={{ borderRadius: '0.5rem', padding: '0.75rem', marginTop: '0.5rem' }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: '600' }}>
                       💡 Förslag: {calculatePartialWork(
                         nextTask.estimated_duration,
                         context.availableTime
@@ -590,14 +589,10 @@ export function FocusView() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                color: 'var(--e-text-secondary)',
                 background: 'none',
                 border: 'none',
-                cursor: 'pointer',
-                transition: 'color 0.2s'
+                cursor: 'pointer'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--e-text)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--e-text-secondary)'}
             >
               <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Därefter:</span>
               <span style={{ fontSize: '1rem', fontWeight: '600' }}>{queue[0].title}</span>

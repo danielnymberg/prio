@@ -1,6 +1,6 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { Task, CreateTaskInput, UpdateTaskInput, Project, PriorityFlag } from '@/lib/types';
-import { DialogComponent } from '@syncfusion/ej2-react-popups';
+import { Dialog } from '@/components/ui/Dialog';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
@@ -256,13 +256,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
   const priorityPreview = (valueScore * timeSensitivity * confidence) / effort;
 
   return (
-    <DialogComponent
-      visible={isOpen}
-      close={onClose}
-      header={task ? 'Redigera uppgift' : 'Ny uppgift'}
-      width="600px"
-      isModal={true}
-      showCloseIcon={true}
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title={task ? 'Redigera uppgift' : 'Ny uppgift'}
+      size="md"
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
@@ -797,6 +795,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           deadline={autoBookDeadline}
         />
       )}
-    </DialogComponent>
+    </Dialog>
   );
 }

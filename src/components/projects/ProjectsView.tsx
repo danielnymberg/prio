@@ -151,30 +151,22 @@ export function ProjectsView() {
   // Progress bar template
   const progressTemplate = (props: any) => {
     const percentage = props.completion_percentage || 0;
-    const getColor = () => {
-      if (percentage < 30) return '#ef4444';
-      if (percentage < 70) return 'var(--warning-500)';
-      return '#10b981';
-    };
 
     return (
       <div className="e-flex e-align-center e-gap-8">
         <div className="e-flex-1 e-rounded-full e-overflow-hidden" style={{
-          backgroundColor: 'var(--e-surface-hover)',
           height: '8px'
         }}>
           <div
             className="e-transition"
             style={{
               height: '100%',
-              backgroundColor: getColor(),
               width: `${percentage}%`
             }}
           />
         </div>
         <span className="e-text-xs e-font-medium" style={{
-          width: '40px',
-          color: 'var(--e-text)'
+          width: '40px'
         }}>{percentage}%</span>
       </div>
     );
@@ -183,7 +175,7 @@ export function ProjectsView() {
   // Budget template (formatted currency)
   const budgetTemplate = (props: any) => {
     return (
-      <span className="e-font-medium" style={{ color: 'var(--e-text)' }}>
+      <span className="e-font-medium">
         {props.total_budget.toLocaleString('sv-SE')} kr
       </span>
     );
@@ -191,18 +183,8 @@ export function ProjectsView() {
 
   // Status badge template
   const statusTemplate = (props: any) => {
-    const getStatusStyle = () => {
-      if (props.status === 'active')
-        return { backgroundColor: '#10b981', color: '#ffffff' };
-      if (props.status === 'completed')
-        return { backgroundColor: 'var(--primary-500)', color: '#ffffff' };
-      return { backgroundColor: 'var(--e-surface-hover)', color: 'var(--e-text)' };
-    };
-
-    const style = getStatusStyle();
-
     return (
-      <span className="e-px-8 e-py-4 e-rounded-full e-text-xs" style={style}>
+      <span className="e-px-8 e-py-4 e-rounded-full e-text-xs">
         {props.status_display}
       </span>
     );
@@ -218,8 +200,7 @@ export function ProjectsView() {
       <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '100vh' }}>
         <div className="e-animate-spin e-rounded-full" style={{
           height: '48px',
-          width: '48px',
-          borderBottom: '2px solid var(--primary-600)',
+          width: '48px'
         }} />
       </div>
     );
@@ -230,10 +211,10 @@ export function ProjectsView() {
       {/* Header */}
       <div className="e-flex e-align-center e-justify-between">
         <div>
-          <h1 className="e-text-2xl e-font-bold e-mb-4" style={{ color: 'var(--e-text)' }}>
+          <h1 className="e-text-2xl e-font-bold e-mb-4">
             Projekt
           </h1>
-          <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+          <p className="e-text-sm">
             {projects.length} projekt totalt
           </p>
         </div>
@@ -242,18 +223,14 @@ export function ProjectsView() {
       {projects.length === 0 ? (
         <div className="e-flex-1 e-flex e-align-center e-justify-center">
           <div className="e-text-center">
-            <p className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>Inga projekt än</p>
+            <p className="e-mb-16">Inga projekt än</p>
             <button
               onClick={() => navigate('/projects/new')}
               className="e-px-24 e-py-12 e-rounded-lg e-text-base e-font-medium e-transition"
               style={{
-                backgroundColor: 'var(--primary-600)',
-                color: '#ffffff',
                 border: 'none',
                 cursor: 'pointer'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-700)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
             >
               Skapa ditt första projekt
             </button>
@@ -261,7 +238,6 @@ export function ProjectsView() {
         </div>
       ) : (
         <div className="e-flex-1 e-rounded-xl e-overflow-hidden" style={{
-          backgroundColor: 'var(--e-surface)',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
         }}>
           <GridComponent

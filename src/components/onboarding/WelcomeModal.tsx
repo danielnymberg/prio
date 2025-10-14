@@ -35,14 +35,13 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
               height: '8px',
               flex: 1,
               borderRadius: '4px',
-              transition: 'all 0.3s',
-              backgroundColor: s <= step ? 'var(--primary-600)' : 'var(--e-border)'
+              transition: 'all 0.3s'
             }}
           />
         ))}
       </div>
 
-      <div style={{ textAlign: 'center', marginBottom: '16px', fontSize: '14px', color: 'var(--e-text)' }}>
+      <div style={{ textAlign: 'center', marginBottom: '16px', fontSize: '14px' }}>
         Steg {step} av 4
       </div>
 
@@ -51,24 +50,24 @@ export function WelcomeModal({ isOpen, onComplete }: WelcomeModalProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '60px', marginBottom: '16px' }}>🎯</div>
-            <h2 style={{ fontSize: '30px', fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '12px' }}>
+            <h2 style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '12px' }}>
               Håll fokus på det som är viktigt
             </h2>
-            <p style={{ fontSize: '18px', color: 'var(--e-text)' }}>
+            <p style={{ fontSize: '18px' }}>
               Prio hjälper dig prioritera smartare med CPM-modellen
             </p>
           </div>
 
-          <div style={{ backgroundColor: 'var(--e-surface)', border: '2px solid var(--e-border)', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontWeight: 'bold', color: 'var(--e-text)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ borderRadius: '12px', padding: '24px' }}>
+            <h3 style={{ fontWeight: 'bold', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Target style={{ height: '24px', width: '24px' }} />
               Vad är CPM-modellen?
             </h3>
-            <p style={{ color: 'var(--e-text)', marginBottom: '16px' }}>
+            <p style={{ marginBottom: '16px' }}>
               <strong>Consequence-Priority Model</strong> är en forskningsbaserad metod som
               beräknar verklig prioritet baserat på faktiska konsekvenser - inte vad som känns brådskande.
             </p>
-            <div style={{ backgroundColor: 'var(--e-surface)', borderRadius: '8px', padding: '16px', fontFamily: 'monospace', fontSize: '14px' }}>
+            <div style={{ borderRadius: '8px', padding: '16px', fontFamily: 'monospace', fontSize: '14px' }}>
               Prioritet = (Värde × Tidskänslighet × Tillit) / Ansträngning
             </div>
           </div>
