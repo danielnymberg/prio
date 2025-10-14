@@ -100,14 +100,10 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
           </div>
 
           <ButtonComponent
-            onClick={() => {
-              console.log('Button clicked! Setting step to 2');
-              setStep(2);
-            }}
+            onClick={() => setStep(2)}
             isPrimary={true}
-          >
-            Nästa
-          </ButtonComponent>
+            content="Nästa"
+          />
         </div>
       )}
 

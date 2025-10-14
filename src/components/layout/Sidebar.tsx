@@ -1,11 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
-import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { SidebarComponent } from '@syncfusion/ej2-react-navigations';
 import { TreeViewComponent } from '@syncfusion/ej2-react-navigations';
-import { TaskForm } from '@/components/tasks/TaskForm';
-import type { Task } from '@/lib/types';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -18,8 +15,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
   const treeRef = useRef<TreeViewComponent>(null);
   const sidebarRef = useRef<SidebarComponent>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
 
   // Exkludera Snabbis (≤2 min) från räknare
   const activeTasks = tasks.filter(t => t.status !== 'done' && (t.estimated_duration || 999) > 2);
@@ -148,19 +143,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         close={onClose}
         position="Left"
       >
-        <div className="e-p-16">
-          <ButtonComponent
-            cssClass="e-primary e-round e-w-full"
-            iconCss="e-icons e-plus"
-            content="Ny uppgift"
-            onClick={() => {
-              setSelectedTask(undefined);
-              setIsFormOpen(true);
-            }}
-          />
-        </div>
-
-        <nav className="e-flex-1 e-overflow-y-auto e-px-12 e-pb-16">
+        <nav className="e-flex-1 e-overflow-y-auto e-px-12 e-pb-16 e-pt-16">
           <TreeViewComponent
             ref={treeRef}
             fields={{
@@ -178,16 +161,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           />
         </nav>
       </SidebarComponent>
-
-      {/* TaskForm - NYA implementationen med SyncFusion */}
-      <TaskForm
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        taskToEdit={selectedTask}
-      />
     </>
   );
 }
