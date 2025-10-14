@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DialogComponent } from '@syncfusion/ej2-react-popups';
+import { Dialog } from '@/components/ui/Dialog';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DailyCheckIn, EnergyLevel, FocusStrategy } from '@/lib/types';
 import { Battery, BatteryMedium, BatteryLow, Zap, Target, BarChart } from 'lucide-react';
@@ -37,13 +37,11 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
   };
 
   return (
-    <DialogComponent
-      visible={isOpen}
-      close={onClose}
-      header="Dagens avstämning"
-      width="800px"
-      isModal={true}
-      showCloseIcon={true}
+    <Dialog
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Dagens avstämning"
+      size="lg"
     >
       {/* Progress Indicator */}
       <div className="e-flex e-gap-8 e-mb-24">
@@ -254,6 +252,6 @@ export function DailyCheckInModal({ isOpen, onClose, onComplete }: DailyCheckInM
           </div>
         </div>
       )}
-    </DialogComponent>
+    </Dialog>
   );
 }
