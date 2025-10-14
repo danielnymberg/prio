@@ -227,7 +227,7 @@ export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckIn
 
   return (
     <DialogComponent
-      width="800px"
+      width="90%"
       height="auto"
       header="Dagens avstämning"
       visible={isOpen}
@@ -237,6 +237,8 @@ export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckIn
       buttons={getDialogButtons()}
       animationSettings={animationSettings}
       target="body"
+      cssClass="e-responsive-dialog"
+      style={{ maxWidth: '800px', minWidth: '320px' } as any}
     >
       {getDialogContent()}
     </DialogComponent>
