@@ -138,7 +138,7 @@ prio/
 │   │   ├── layout/            # AppLayout, Header, Sidebar
 │   │   ├── pwa/               # InstallPrompt, OfflineBanner
 │   │   ├── settings/          # SettingsView, ApiUsageView
-│   │   ├── tasks/             # TaskForm, TaskCard, TaskList
+│   │   ├── tasks/             # TaskCard, TaskList, KanbanView
 │   │   ├── ui/                # Dialog, ThemeToggle
 │   │   └── views/             # Dashboard, Inbox, Kanban, Archive
 │   ├── contexts/              # AuthContext, ThemeContext
@@ -256,12 +256,15 @@ Se `SECURITY_AUDIT.md` för fullständig säkerhetsrevision.
 
 ## 🐛 Kända Problem
 
-### Kritiska (pågående fix)
-1. **Knappar fungerar inte konsekvent** - ButtonComponent onClick i vissa modaler
-2. **Dialog/Modal crashes** - React 18 StrictMode + Syncfusion Portal-issues
-3. **Grå overlay blockerar** - Sidebar backdrop orsakar interaktionsproblem
+### Kritiska (kräver åtgärd)
+1. **TaskForm borttagen** - Ingen UI för att skapa/redigera uppgifter finns längre
+   - Orsak: ButtonComponent onClick fungerar inte i Syncfusion DialogComponent (Portal rendering)
+   - Data behålls: Alla tasks finns kvar i databasen
+   - Behövs: Ny implementation av task form (route-based eller annan lösning)
+2. **Grå overlay blockerar** - Sidebar backdrop orsakar interaktionsproblem
 
 ### Workarounds tillämpade
+- DailyCheckIn och TaskImpact konverterade till routes (fungerar)
 - Dialog wrapper med proper lifecycle management
 - `showBackdrop={false}` på Sidebar
 - CSS-fixes för overlay pointer-events
@@ -273,8 +276,7 @@ Se `DISABLED_COMPONENTS.md` för lista över inaktiverade komponenter.
 ## 🚀 Roadmap
 
 ### Akut (pågående)
-- [ ] Fixa ButtonComponent onClick-problem
-- [ ] Återaktivera Dialog-baserade komponenter
+- [ ] **Implementera ny TaskForm** - Route-based eller annan fungerande lösning
 - [ ] Fixa overlay/backdrop-issues
 
 ### Kort sikt
@@ -315,7 +317,6 @@ Se `DISABLED_COMPONENTS.md` för lista över inaktiverade komponenter.
 - `DISABLED_COMPONENTS.md` - Inaktiverade features
 - `SYNCFUSION_MIGRATION.md` - Syncfusion migration guide
 - `MIGRATION_GUIDE.md` - Teknisk migreringsguide
-- `TASKFORM_NEW_STRUCTURE.md` - TaskForm-struktur
 
 ---
 
