@@ -5,7 +5,7 @@ import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
 // import { QuickCaptureBar } from './components/ui/QuickCaptureBar'; // TEMPORÄRT DISABLED
-// import { QuickNoteInput } from './components/tasks/QuickNoteInput'; // TEMPORÄRT DISABLED
+import { QuickNoteInput } from './components/tasks/QuickNoteInput'; // Återaktiverad med SF implementation
 // import { WelcomeModal } from './components/onboarding/WelcomeModal'; // TEMPORÄRT DISABLED
 // import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding'; // TEMPORÄRT DISABLED
 import { VersionBanner } from './components/VersionBanner';
@@ -233,8 +233,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {/* <EmailTaskListener key="email-listener" /> */}
       {/* Voice AI assistant - TEMPORÄRT DISABLED: Kraschar vid mount */}
       {/* <VoiceInterface key="voice-interface" /> */}
-      {/* Quick note input - TEMPORÄRT DISABLED: Kraschar vid expandering */}
-      {/* <QuickNoteInput key="quick-note" /> */}
+      {/* Quick note input - återaktiverad med ren SF implementation */}
+      <QuickNoteInput key="quick-note" />
       {/* Quick capture bar för mobil - TEMPORÄRT DISABLED: Testing if TaskForm/Dialog causes crash */}
       {/* <QuickCaptureBar key="quick-capture" /> */}
       {/* Onboarding modal för nya användare - TEMPORÄRT DISABLED: Testing crash */}
