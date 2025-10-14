@@ -6,8 +6,9 @@ import { AppBarComponent } from '@syncfusion/ej2-react-navigations';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownButtonComponent, ItemModel } from '@syncfusion/ej2-react-splitbuttons';
 import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
-import { DailyCheckIn } from '@/lib/types';
+import { DailyCheckIn, Task } from '@/lib/types';
 import { isMicrosoftLoggedIn } from '@/services/microsoft-graph';
+import { TaskForm } from '@/components/tasks/TaskForm';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -19,6 +20,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [needsCheckIn, setNeedsCheckIn] = useState(false);
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
 
   useEffect(() => {
     const checkMicrosoftStatus = async () => {
@@ -159,6 +162,10 @@ export function Header({ onMenuClick }: HeaderProps) {
           cssClass="e-primary"
           iconCss="e-icons e-plus"
           content="Ny uppgift"
+          onClick={() => {
+            setSelectedTask(undefined);
+            setIsTaskFormOpen(true);
+          }}
         />
 
         <ThemeToggle />
@@ -177,6 +184,16 @@ export function Header({ onMenuClick }: HeaderProps) {
         isOpen={isCheckInOpen}
         onClose={() => setIsCheckInOpen(false)}
         onComplete={handleCheckInComplete}
+      />
+
+      {/* TaskForm - NYA implementationen med SyncFusion */}
+      <TaskForm
+        isOpen={isTaskFormOpen}
+        onClose={() => {
+          setIsTaskFormOpen(false);
+          setSelectedTask(undefined);
+        }}
+        taskToEdit={selectedTask}
       />
     </>
   );
