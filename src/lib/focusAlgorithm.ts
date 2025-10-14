@@ -98,10 +98,6 @@ export function calculateDynamicPriority(
   );
   const isStressMode = overdueTasks.length >= 3;
 
-  if (isStressMode) {
-    console.log(`🚨 STRESS MODE aktiverat: ${overdueTasks.length} försenade tasks`);
-  }
-
   // 1. DEADLINE MULTIPLIER (baserat på ARBETSTIMMAR, inte klocktimmar)
   let deadlineMultiplier = 1.0;
   if (task.deadline) {
@@ -148,7 +144,6 @@ export function calculateDynamicPriority(
     switch (task.priority_flag) {
       case 'asap':
         flagMultiplier = 1.5;  // +50% - viktigt, gör snart!
-        console.log(`🎯 ASAP boost för "${task.title}"`);
         break;
       case 'whenever':
         flagMultiplier = 1.0;  // Normal prio
@@ -208,7 +203,6 @@ export function calculateDynamicPriority(
   let effortBoost = 1.0;
   if (task.effort >= 7 && !task.deadline && !isStressMode) {
     effortBoost = 1.3;  // +30% för krävande tasks utan deadline
-    console.log(`⚠️ Effort boost för "${task.title}" - Gör innan energin tar slut!`);
   }
 
   // FINAL SCORE
@@ -241,7 +235,6 @@ export function getNextTask(tasks: Task[], context: UserContext): Task | null {
 
       if (!finishCheck.canFinish && finishCheck.workingHoursUntil >= 0) {
         // Task har deadline framåt i tiden men vi hinner inte klart
-        console.warn(`Task "${t.title}" är för sent att påbörja: ${finishCheck.reason}`);
         (t as any).isTooLate = true;
         (t as any).tooLateReason = finishCheck.reason;
       }

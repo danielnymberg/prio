@@ -193,7 +193,7 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
           placeholder="Skriv uppgiftens titel..."
           floatLabelType="Auto"
           value={title}
-          input={(e) => setTitle((e.target as HTMLInputElement).value)}
+          input={(e) => setTitle(e.value)}
         />
 
         {/* Beskrivning */}
@@ -202,7 +202,7 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
           floatLabelType="Auto"
           multiline={true}
           value={description}
-          input={(e) => setDescription((e.target as HTMLInputElement).value)}
+          input={(e) => setDescription(e.value)}
         />
 
         {/* Projekt */}
