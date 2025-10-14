@@ -143,7 +143,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         ref={sidebarRef}
         width="240px"
         type="Push"
-        showBackdrop={true}
+        showBackdrop={false}
         isOpen={isOpen}
         close={onClose}
         position="Left"
