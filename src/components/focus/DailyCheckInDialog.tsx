@@ -12,7 +12,7 @@ interface DailyCheckInDialogProps {
 
 export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckInDialogProps) {
   const [step, setStep] = useState(1);
-  const [availableTime, setAvailableTime] = useState(240);
+  const [availableTime, setAvailableTime] = useState(4); // Timmar istället för minuter
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>('medium');
   const [strategy, setStrategy] = useState<FocusStrategy>('balanced');
 
@@ -27,7 +27,7 @@ export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckIn
     const today = new Date().toISOString().split('T')[0];
     const checkIn: DailyCheckIn = {
       date: today,
-      availableTime,
+      availableTime: availableTime * 60, // Konvertera timmar till minuter för backend
       energyLevel,
       strategy
     };
@@ -129,29 +129,37 @@ export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckIn
         {step === 1 && (
           <>
             <h3 style={{ textAlign: 'center', marginBottom: '24px' }}>
-              Hur mycket tid har du för fokusarbete idag?
+              Hur många timmar kan du fokusera idag?
             </h3>
             <SliderComponent
               value={availableTime}
               min={0}
-              max={480}
-              step={30}
+              max={8}
+              step={0.5}
               tooltip={{ isVisible: true, placement: 'Before' }}
               ticks={{
                 placement: 'After',
-                largeStep: 120,
-                smallStep: 30,
+                largeStep: 2,
+                smallStep: 1,
                 showSmallTicks: false
               }}
               renderingTicks={(args: any) => {
-                const hours = Math.floor(args.value / 60);
-                const mins = args.value % 60;
-                args.text = mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+                const hours = args.value;
+                if (hours % 1 === 0) {
+                  args.text = `${hours}h`;
+                } else {
+                  const h = Math.floor(hours);
+                  args.text = `${h}h 30m`;
+                }
               }}
               tooltipChange={(args: any) => {
-                const hours = Math.floor(args.value / 60);
-                const mins = args.value % 60;
-                args.text = mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+                const hours = args.value;
+                if (hours % 1 === 0) {
+                  args.text = `${hours}h`;
+                } else {
+                  const h = Math.floor(hours);
+                  args.text = `${h}h 30m`;
+                }
               }}
               change={(e: any) => setAvailableTime(e.value)}
             />
