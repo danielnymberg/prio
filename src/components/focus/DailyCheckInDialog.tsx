@@ -216,7 +216,6 @@ export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckIn
       width="800px"
       height="auto"
       header="Dagens avstämning"
-      content={getDialogContent()}
       visible={isOpen}
       close={onClose}
       showCloseIcon={true}
@@ -224,6 +223,8 @@ export function DailyCheckInDialog({ isOpen, onClose, onComplete }: DailyCheckIn
       buttons={getDialogButtons()}
       animationSettings={animationSettings}
       target="body"
-    />
+    >
+      {getDialogContent()}
+    </DialogComponent>
   );
 }
