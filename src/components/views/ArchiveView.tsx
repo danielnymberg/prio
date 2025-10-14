@@ -1,9 +1,11 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Archive } from 'lucide-react';
 import { showToast } from '@/services/toast';
+import { TaskForm } from '@/components/tasks/TaskForm';
+import type { Task } from '@/lib/types';
 import { format } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import {
@@ -26,6 +28,8 @@ export function ArchiveView() {
   const { tasks, updateTask, deleteTask } = useTasks();
   const { projects } = useProjects();
   const gridRef = useRef<GridComponent>(null);
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const completedTasks = tasks.filter(t => t.status === 'done');
 
@@ -91,15 +95,27 @@ export function ArchiveView() {
   };
 
   // Handle double-click
-  const handleRecordDoubleClick = (_: any) => {
-    // TaskForm removed
+  const handleRecordDoubleClick = (args: any) => {
+    const task = tasks.find(t => t.id === args.rowData.id);
+    if (task) {
+      setSelectedTask(task);
+      setIsTaskFormOpen(true);
+    }
   };
 
   // Handle keyboard shortcuts
   const handleKeyDown = (args: any) => {
     // Space för att öppna task
     if (args.keyCode === 32 && gridRef.current) {
-      // TaskForm removed
+      const selectedRecords = gridRef.current.getSelectedRecords();
+      if (selectedRecords.length > 0) {
+        const task = tasks.find(t => t.id === (selectedRecords[0] as any).id);
+        if (task) {
+          setSelectedTask(task);
+          setIsTaskFormOpen(true);
+        }
+      }
+      args.cancel = true;
     }
     // Delete för att radera task permanent
     else if (args.keyCode === 46 && gridRef.current) {
@@ -226,6 +242,16 @@ export function ArchiveView() {
           </GridComponent>
         </div>
       )}
+
+      {/* TaskForm - NYA implementationen med SyncFusion */}
+      <TaskForm
+        isOpen={isTaskFormOpen}
+        onClose={() => {
+          setIsTaskFormOpen(false);
+          setSelectedTask(null);
+        }}
+        taskToEdit={selectedTask}
+      />
     </div>
   );
 }
