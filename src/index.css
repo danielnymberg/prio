@@ -105,3 +105,22 @@ h3 {
     transform: translateX(0) !important;
   }
 }
+
+/* Fix Syncfusion overlay/backdrop issues */
+.e-dlg-overlay {
+  pointer-events: auto !important;
+}
+
+/* Ensure hidden overlays dont block interactions */
+.e-sidebar-overlay.e-hidden,
+.e-dlg-overlay[style*="display: none"] {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Ensure main content is not blocked when no modal is open */
+body:not(.e-modal-open) .e-dlg-overlay {
+  display: none !important;
+  pointer-events: none !important;
+}
+
