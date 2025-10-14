@@ -98,7 +98,6 @@ export function Dialog({ isOpen, onClose, title, children, size = 'md', buttons 
       enableResize={false}
       allowDragging={false}
       closeOnEscape={true}
-      target="body"
       zIndex={1000}
       buttons={dialogButtons}
       created={() => {

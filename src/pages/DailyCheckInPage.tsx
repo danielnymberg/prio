@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
+import { SliderComponent } from '@syncfusion/ej2-react-inputs';
 import { DailyCheckIn, EnergyLevel, FocusStrategy } from '@/lib/types';
 import { Battery, BatteryMedium, BatteryLow, Zap, Target, BarChart } from 'lucide-react';
 
@@ -95,14 +96,15 @@ export function DailyCheckInPage() {
               </div>
             </div>
 
-            <input
-              type="range"
-              min="0"
-              max="480"
-              step="30"
+            <SliderComponent
+              min={0}
+              max={480}
+              step={30}
               value={availableTime}
-              onChange={(e) => setAvailableTime(Number(e.target.value))}
-              style={{ width: '100%', height: '12px', cursor: 'pointer' }}
+              change={(e) => setAvailableTime(e.value)}
+              type="MinRange"
+              ticks={{ placement: 'After', largeStep: 120, smallStep: 30, showSmallTicks: false }}
+              tooltip={{ isVisible: true, placement: 'Before', showOn: 'Hover' }}
             />
 
             <div className="e-flex e-justify-between e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>

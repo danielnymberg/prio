@@ -5,10 +5,10 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { AppBarComponent } from '@syncfusion/ej2-react-navigations';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownButtonComponent, ItemModel } from '@syncfusion/ej2-react-splitbuttons';
-import { DailyCheckInModal } from '@/components/focus/DailyCheckInModal';
-import { DailyCheckIn, Task } from '@/lib/types';
+import { Task, DailyCheckIn } from '@/lib/types';
 import { isMicrosoftLoggedIn } from '@/services/microsoft-graph';
 import { TaskForm } from '@/components/tasks/TaskForm';
+import { DailyCheckInDialog } from '@/components/focus/DailyCheckInDialog';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -17,9 +17,9 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [needsCheckIn, setNeedsCheckIn] = useState(false);
+  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
 
@@ -50,6 +50,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const handleCheckInComplete = (checkIn: DailyCheckIn) => {
     localStorage.setItem('prio-daily-checkin', JSON.stringify(checkIn));
+    setNeedsCheckIn(false);
     window.location.reload();
   };
 
@@ -180,7 +181,8 @@ export function Header({ onMenuClick }: HeaderProps) {
         )}
       </AppBarComponent>
 
-      <DailyCheckInModal
+      {/* DailyCheckInDialog - REN SyncFusion best practice */}
+      <DailyCheckInDialog
         isOpen={isCheckInOpen}
         onClose={() => setIsCheckInOpen(false)}
         onComplete={handleCheckInComplete}
