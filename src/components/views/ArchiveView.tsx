@@ -216,6 +216,11 @@ export function ArchiveView() {
                 width="120"
                 visible={false}
               />
+              <ColumnDirective
+                field="completed_at"
+                headerText="Slutdatum"
+                visible={false}
+              />
             </ColumnsDirective>
             <Inject services={[Page, Sort, Filter, Group, Toolbar]} />
           </GridComponent>
