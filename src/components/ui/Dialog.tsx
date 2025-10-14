@@ -1,5 +1,13 @@
 import { ReactNode, useRef, useEffect, useState } from 'react';
-import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
+import { DialogComponent, AnimationSettingsModel, ButtonPropsModel } from '@syncfusion/ej2-react-popups';
+
+export interface DialogButton {
+  content: string;
+  cssClass?: string;
+  isPrimary?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}
 
 interface DialogProps {
   isOpen: boolean;
@@ -7,6 +15,7 @@ interface DialogProps {
   title: string;
   children: ReactNode;
   size?: 'sm' | 'md' | 'lg';
+  buttons?: DialogButton[];
 }
 
 const sizeMap = {
@@ -21,9 +30,20 @@ const animationSettings: AnimationSettingsModel = {
   delay: 0,
 };
 
-export function Dialog({ isOpen, onClose, title, children, size = 'md' }: DialogProps) {
+export function Dialog({ isOpen, onClose, title, children, size = 'md', buttons }: DialogProps) {
   const dialogRef = useRef<DialogComponent>(null);
   const [hasBeenOpened, setHasBeenOpened] = useState(false);
+
+  // Map buttons to Syncfusion's native button format
+  const dialogButtons: ButtonPropsModel[] | undefined = buttons?.map(btn => ({
+    buttonModel: {
+      content: btn.content,
+      cssClass: btn.cssClass,
+      isPrimary: btn.isPrimary,
+      disabled: btn.disabled,
+    },
+    click: btn.onClick,
+  }));
 
   // Track if dialog has ever been opened
   useEffect(() => {
@@ -80,6 +100,7 @@ export function Dialog({ isOpen, onClose, title, children, size = 'md' }: Dialog
       closeOnEscape={true}
       target="body"
       zIndex={1000}
+      buttons={dialogButtons}
       created={() => {
         // Ensure dialog is shown when created if isOpen is true
         if (isOpen && dialogRef.current) {

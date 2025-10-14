@@ -1,6 +1,6 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, useMemo } from 'react';
 import { Task, CreateTaskInput, UpdateTaskInput, Project, PriorityFlag } from '@/lib/types';
-import { Dialog } from '@/components/ui/Dialog';
+import { Dialog, DialogButton } from '@/components/ui/Dialog';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DURATION_PRESETS, formatDuration } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
@@ -255,12 +255,55 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
   // Calculate priority preview
   const priorityPreview = (valueScore * timeSensitivity * confidence) / effort;
 
+  // Define dialog buttons
+  const dialogButtons = useMemo<DialogButton[]>(() => {
+    const buttons: DialogButton[] = [];
+
+    // Delete button (only for existing tasks)
+    if (task && onDelete) {
+      buttons.push({
+        content: 'Radera',
+        cssClass: 'e-danger e-round e-small',
+        onClick: async () => {
+          if (confirm(`Är du säker på att du vill radera "${task.title}"?`)) {
+            await onDelete(task.id);
+            onClose();
+            toast.success('Uppgift raderad');
+          }
+        }
+      });
+    }
+
+    // Cancel button
+    buttons.push({
+      content: 'Avbryt',
+      cssClass: 'e-link e-small',
+      onClick: onClose
+    });
+
+    // Save button
+    buttons.push({
+      content: loading ? 'Sparar...' : 'Spara',
+      cssClass: 'e-primary e-round e-small',
+      isPrimary: true,
+      disabled: loading || !title.trim(),
+      onClick: () => {
+        const formEvent = new Event('submit', { bubbles: true, cancelable: true }) as any;
+        formEvent.preventDefault = () => {};
+        handleSubmit(formEvent);
+      }
+    });
+
+    return buttons;
+  }, [task, onDelete, onClose, loading, title]);
+
   return (
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
       title={task ? 'Redigera uppgift' : 'Ny uppgift'}
       size="md"
+      buttons={dialogButtons}
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
@@ -752,33 +795,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, onDelete, task }: TaskForm
           </div>
         )}
 
-        {/* Action buttons */}
-        <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '1rem' }}>
-          {task && onDelete && (
-            <ButtonComponent
-              onClick={async () => {
-                if (confirm(`Är du säker på att du vill radera "${task.title}"?`)) {
-                  await onDelete(task.id);
-                  onClose();
-                  toast.success('Uppgift raderad');
-                }
-              }}
-              cssClass="e-danger e-round e-small"
-              content="Radera"
-            />
-          )}
-          <ButtonComponent
-            onClick={onClose}
-            cssClass="e-link e-small"
-            content="Avbryt"
-          />
-          <ButtonComponent
-            onClick={handleSubmit}
-            disabled={loading || !title.trim()}
-            cssClass="e-primary e-round e-small"
-            content={loading ? 'Sparar...' : 'Spara'}
-          />
-        </div>
       </form>
 
       {/* Auto-Booking Modal */}
