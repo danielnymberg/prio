@@ -634,7 +634,7 @@ export function VoiceInterface() {
       {/* Text Input FAB - Alltid synlig (utom när lyssnar) */}
       {!isListening && !(finalText || partialText) && (
         <FabComponent
-          iconCss="e-icons e-comment"
+          iconCss="e-icons e-edit"
           position="BottomLeft"
           onClick={() => setShowTextInput(true)}
           title="Skriv meddelande till AI"
