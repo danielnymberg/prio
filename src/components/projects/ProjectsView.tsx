@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Project, UpdateProjectInput } from '@/lib/types';
-import { ProjectOnboardingModal } from '../onboarding/ProjectOnboardingModal';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/services/toast';
 import {
@@ -24,18 +23,11 @@ export function ProjectsView() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const gridRef = useRef<GridComponent>(null);
 
   useEffect(() => {
     if (user) {
       fetchProjects();
-
-      // Check if user has seen project onboarding
-      const completed = localStorage.getItem('prio_project_onboarding_completed');
-      if (!completed) {
-        setShowOnboarding(true);
-      }
     }
   }, [user]);
 
@@ -337,12 +329,6 @@ export function ProjectsView() {
           </GridComponent>
         </div>
       )}
-
-      {/* Onboarding Modal */}
-      <ProjectOnboardingModal
-        isOpen={showOnboarding}
-        onComplete={() => setShowOnboarding(false)}
-      />
     </div>
   );
 }

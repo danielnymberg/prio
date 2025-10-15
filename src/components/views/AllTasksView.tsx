@@ -18,7 +18,6 @@ import {
   SortSettingsModel,
   GroupSettingsModel
 } from '@syncfusion/ej2-react-grids';
-import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { toast } from 'react-hot-toast';
