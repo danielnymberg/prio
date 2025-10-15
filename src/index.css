@@ -53,21 +53,6 @@ h3 {
   margin: 0;
 }
 
-/* SyncFusion TreeView - Pure Fluent2 styling */
-.sidebar-tree {
-  border: none !important;
-  background: transparent !important;
-}
-
-.sidebar-tree .e-list-item {
-  margin: 2px 0;
-  border-radius: 0.5rem;
-}
-
-/* Full rad klickbar */
-.sidebar-tree.e-fullrow-wrap .e-text-content {
-  padding: 8px 12px;
-}
 
 /* Loading spinner animation */
 @keyframes spin {

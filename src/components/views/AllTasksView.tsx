@@ -22,7 +22,7 @@ import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { toast } from 'react-hot-toast';
-import { TaskForm } from '@/components/tasks/TaskForm';
+import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import type { Task } from '@/lib/types';
 import { formatDistanceToNow, format, isToday, isTomorrow, isPast } from 'date-fns';
 import { sv } from 'date-fns/locale';
@@ -34,9 +34,12 @@ export function AllTasksView() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  // Filtrera bort Snabbis (≤2 min) och slutförda
-  const activeTasks = tasks.filter(
-    t => t.status !== 'done' && (t.estimated_duration || 999) > 2
+  // Alla aktiva uppgifter (inkl. Snabbis)
+  const activeTasks = tasks.filter(t => t.status !== 'done');
+
+  // Snabbis-uppgifter (≤2 min)
+  const snabbis = activeTasks.filter(t =>
+    t.estimated_duration && t.estimated_duration <= 2
   );
 
   // Förbered data med extra kolumner för visning
@@ -244,7 +247,7 @@ export function AllTasksView() {
   };
 
   return (
-    <div className="e-h-full e-flex e-flex-column e-gap-16">
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
       <div className="e-flex e-align-center e-justify-between">
         <div>
@@ -252,19 +255,45 @@ export function AllTasksView() {
             Alla uppgifter
           </h1>
           <p style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
-            {activeTasks.length} aktiva uppgifter (exkl. Snabbis)
+            {activeTasks.length} aktiva uppgifter {snabbis.length > 0 && `(inkl. ${snabbis.length} snabbis)`}
           </p>
         </div>
-
-        <ButtonComponent
-          cssClass="e-primary"
-          iconCss="e-icons e-plus"
-          content="Ny uppgift"
-        />
       </div>
 
+      {/* Snabbis-sektion */}
+      {snabbis.length > 0 && (
+        <div className="e-rounded-lg e-p-16" style={{ backgroundColor: 'var(--primary-50)', border: '1px solid var(--primary-200)' }}>
+          <div className="e-flex e-align-center e-gap-8 e-mb-12">
+            <span style={{ fontSize: '20px' }}>⚡</span>
+            <h3 className="e-font-bold" style={{ margin: 0 }}>
+              Snabbis ({snabbis.length}) - Gör direkt!
+            </h3>
+          </div>
+          <div className="e-flex e-gap-8 e-flex-wrap">
+            {snabbis.map(task => (
+              <div
+                key={task.id}
+                className="e-rounded-md e-p-12 e-cursor-pointer"
+                style={{ backgroundColor: 'white', border: '1px solid var(--primary-200)' }}
+                onClick={() => {
+                  setSelectedTask(task);
+                  setIsFormOpen(true);
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+              >
+                <p className="e-font-medium e-text-sm" style={{ margin: 0 }}>{task.title}</p>
+                <p className="e-text-xs" style={{ margin: '4px 0 0 0', color: 'var(--e-text-secondary)' }}>
+                  {task.estimated_duration}min
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Grid */}
-      <div className="e-flex-1 e-rounded-lg e-overflow-hidden" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div className="e-rounded-lg" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <GridComponent
           ref={gridRef}
           dataSource={gridData}
@@ -349,8 +378,8 @@ export function AllTasksView() {
         </GridComponent>
       </div>
 
-      {/* TaskForm - NYA implementationen med SyncFusion */}
-      <TaskForm
+      {/* UppgiftRegistrering */}
+      <UppgiftRegistrering
         isOpen={isFormOpen}
         onClose={() => {
           setIsFormOpen(false);

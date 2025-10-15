@@ -4,7 +4,7 @@ import { useProjects } from '@/hooks/useProjects';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Archive } from 'lucide-react';
 import { showToast } from '@/services/toast';
-import { TaskForm } from '@/components/tasks/TaskForm';
+import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import type { Task } from '@/lib/types';
 import { format } from 'date-fns';
 import { sv } from 'date-fns/locale';
@@ -243,8 +243,8 @@ export function ArchiveView() {
         </div>
       )}
 
-      {/* TaskForm - NYA implementationen med SyncFusion */}
-      <TaskForm
+      {/* UppgiftRegistrering */}
+      <UppgiftRegistrering
         isOpen={isTaskFormOpen}
         onClose={() => {
           setIsTaskFormOpen(false);

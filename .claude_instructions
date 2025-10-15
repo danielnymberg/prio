@@ -11,12 +11,15 @@
 2. Villkorlig rendering för DialogComponent: `if (!isOpen) return null`
 3. Testa lokalt innan commit
 4. Behåll Dialog wrapper INTE DialogComponent för modaler (undantag från regel 1)
+5. **KONTROLLERA SF BIBLIOTEK INNAN**: Vid implementering eller ändring av element/funktioner, kolla SyncFusion dokumentation FÖRST för att välja korrekt Fluent2-lösning enligt SF best practice
+6. **REN FLUENT2 ÖVERALLT**: Inga CSS-overrides - låt SF:s Fluent2 göra jobbet
 
 ## ⚠️ KRITISKA KOMPONENTER - FUNGERAR, ÄNDRA EJ:
 - GridComponent i AllTasksView, ArchiveView
 - ScheduleComponent i KanbanCalendarView
 - KanbanComponent i KanbanView
-- ButtonComponent via SyncButton (denna wrapper behövs för submit)
+- ButtonComponent via SyncButton (denna wrapper behövs för onClick och submit)
+  VIKTIGT: ButtonComponent fungerar INTE med onClick direkt - använd ALLTID SyncButton!
 
 ## 🛑 VARNINGSSIGNALER:
 - "Jag ska också bara..."
@@ -30,17 +33,25 @@
 3. Fixa ENDAST det problemet
 4. Testa lokalt
 5. Fråga användaren om osäker
+6. **JÄMFÖR INTE** med andra platser i appen - det kan leda till felaktiga antaganden
+7. Om oklart syfte - FRÅGA användaren
+8. Vid stora problem - bygg om från grunden, ta bort ALL gammal kod
 
 ## 🚫 PROJEKT-SPECIFIKT:
 - Ensam användare = ingen onboarding behövs
 - Microsoft Graph = valfritt, inte automatiskt
 - Azure AD fungerar inte lokalt = hantera gracefully
 - HTTPS lokalt = problem, kör med http
+- **SVENSKA NAMN**: Nya komponenter ska ha svenska namn - appen är bara för användaren
 
 ## 📋 VANLIGA MISSTAG:
 ### TaskForm DialogComponent
 - PROBLEM: Kraschade med DOM-fel
 - LÖSNING: Villkorlig rendering `if (!isOpen) return null`
+
+### ButtonComponent i DialogComponent (React 17+ issue)
+- PROBLEM: onClick fungerar inte på ButtonComponent inne i DialogComponent
+- LÖSNING: Använd vanliga HTML `<button>` med SyncFusion CSS-klasser (`e-btn e-primary` etc)
 
 ### Microsoft Auto-login
 - PROBLEM: Blockerade inloggning vid fel Azure-config

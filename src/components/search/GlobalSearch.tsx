@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
 import { Task, Project } from '@/lib/types';
-import { Search, FileText, FolderKanban, X, Calendar } from 'lucide-react';
+import { Search, FileText, Folder, X, Calendar } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDuration } from '@/lib/utils';
@@ -86,7 +86,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
           id: project.id,
           title: project.name,
           subtitle: project.client_name || undefined,
-          icon: FolderKanban,
+          icon: Folder,
           data: project
         });
       }

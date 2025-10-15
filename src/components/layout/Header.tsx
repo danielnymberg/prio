@@ -7,8 +7,8 @@ import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownButtonComponent, ItemModel } from '@syncfusion/ej2-react-splitbuttons';
 import { Task, DailyCheckIn } from '@/lib/types';
 import { isMicrosoftLoggedIn } from '@/services/microsoft-graph';
-import { TaskForm } from '@/components/tasks/TaskForm';
-import { DailyCheckInDialog } from '@/components/focus/DailyCheckInDialog';
+import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
+import { DagligCheckIn } from '@/components/focus/DagligCheckIn';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -111,17 +111,9 @@ export function Header({ onMenuClick }: HeaderProps) {
         <span style={{
           fontSize: '1.5rem',
           fontWeight: 'bold',
-          color: 'var(--e-text)',
-          marginRight: '0.5rem'
+          color: 'var(--e-text)'
         }}>
-          Prio
-        </span>
-
-        <span style={{
-          fontSize: '0.875rem',
-          color: 'var(--e-text-secondary)'
-        }}>
-          Håll fokus på det som är viktigt
+          MinPrio
         </span>
 
         <div className="e-appbar-spacer"></div>
@@ -181,15 +173,15 @@ export function Header({ onMenuClick }: HeaderProps) {
         )}
       </AppBarComponent>
 
-      {/* DailyCheckInDialog - REN SyncFusion best practice */}
-      <DailyCheckInDialog
+      {/* Daglig avstämning */}
+      <DagligCheckIn
         isOpen={isCheckInOpen}
         onClose={() => setIsCheckInOpen(false)}
         onComplete={handleCheckInComplete}
       />
 
-      {/* TaskForm - NYA implementationen med SyncFusion */}
-      <TaskForm
+      {/* UppgiftRegistrering */}
+      <UppgiftRegistrering
         isOpen={isTaskFormOpen}
         onClose={() => {
           setIsTaskFormOpen(false);

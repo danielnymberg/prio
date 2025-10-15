@@ -20,7 +20,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           onClose={() => setIsSidebarOpen(false)}
         />
 
-        <main className="e-flex-1 e-overflow-y-auto e-p-32">
+        <main className="e-flex-1 e-overflow-y-auto e-p-16">
           {children}
         </main>
       </div>

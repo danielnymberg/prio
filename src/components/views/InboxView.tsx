@@ -3,7 +3,7 @@ import { useTasks } from '@/hooks/useTasks';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Inbox } from 'lucide-react';
 import { showToast } from '@/services/toast';
-import { TaskForm } from '@/components/tasks/TaskForm';
+import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import type { Task } from '@/lib/types';
 import {
   GridComponent,
@@ -212,8 +212,8 @@ export function InboxView() {
         </div>
       )}
 
-      {/* TaskForm - NYA implementationen med SyncFusion */}
-      <TaskForm
+      {/* UppgiftRegistrering */}
+      <UppgiftRegistrering
         isOpen={isTaskFormOpen}
         onClose={() => {
           setIsTaskFormOpen(false);

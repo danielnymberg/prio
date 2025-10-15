@@ -48,12 +48,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
     {
       id: '5',
-      name: 'Kanban',
-      iconCss: 'e-icons e-grid',
-      url: '/matrix'
-    },
-    {
-      id: '6',
       name: 'Inställningar',
       iconCss: 'e-icons e-settings',
       url: '/settings'

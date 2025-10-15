@@ -10,6 +10,7 @@ import { toast } from 'react-hot-toast';
 import { MorningBriefing } from './MorningBriefing';
 import { DependencyAlert } from '@/components/alerts/DependencyAlert';
 import { findCriticalDependencyChains } from '@/lib/dependencyAnalyzer';
+import { DagligCheckIn } from './DagligCheckIn';
 
 export function FocusView() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export function FocusView() {
   const [skippedTaskIds, setSkippedTaskIds] = useState<string[]>([]);
   const [showMorningBriefing, setShowMorningBriefing] = useState(false);
   const [criticalChains, setCriticalChains] = useState<ReturnType<typeof findCriticalDependencyChains>>([]);
+  const [showCheckInDialog, setShowCheckInDialog] = useState(false);
 
   // Helper functions for morning briefing
   const isMorningTime = () => {
@@ -49,16 +51,16 @@ export function FocusView() {
     const today = new Date().toISOString().split('T')[0];
 
     if (!stored) {
-      // Ingen check-in gjord, navigera till check-in page
-      navigate('/daily-checkin');
+      // Ingen check-in gjord, visa dialog
+      setShowCheckInDialog(true);
       return;
     }
 
     const checkIn: DailyCheckIn = JSON.parse(stored);
 
     if (checkIn.date !== today) {
-      // Gammal check-in, navigera till check-in page
-      navigate('/daily-checkin');
+      // Gammal check-in, visa dialog
+      setShowCheckInDialog(true);
       return;
     }
 
@@ -71,7 +73,7 @@ export function FocusView() {
       currentDate: new Date(),
       nextBlockDuration: 90
     });
-  }, [navigate]);
+  }, []);
 
   // Beräkna nästa task när context eller tasks ändras
   useEffect(() => {
@@ -135,6 +137,18 @@ export function FocusView() {
     toast.success('Uppgift överhoppad - visar nästa');
   };
 
+  const handleCheckInComplete = (checkIn: DailyCheckIn) => {
+    setCheckInData(checkIn);
+    setContext({
+      availableTime: checkIn.availableTime,
+      energyLevel: checkIn.energyLevel,
+      strategy: checkIn.strategy,
+      currentDate: new Date(),
+      nextBlockDuration: 90
+    });
+    setShowCheckInDialog(false);
+  };
+
   // Show morning briefing BEFORE check-in prompt
   if (showMorningBriefing) {
     return (
@@ -163,7 +177,7 @@ export function FocusView() {
   if (!context) {
     return (
       <>
-        <div className="e-flex e-align-center e-justify-center e-h-screen">
+        <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '60vh' }}>
           <div className="e-text-center" style={{ maxWidth: '28rem', padding: '0 24px' }}>
             <div className="e-text-2xl e-mb-16" style={{ fontSize: '60px' }}>☀️</div>
             <h2 className="e-text-xl e-font-bold e-mb-16">
@@ -172,7 +186,7 @@ export function FocusView() {
             <p className="e-mb-24">
               Gör din dagliga avstämning för att få din första uppgift.
             </p>
-            <Button onClick={() => navigate('/daily-checkin')} size="lg">
+            <Button onClick={() => setShowCheckInDialog(true)} size="lg">
               Starta avstämning
             </Button>
           </div>
@@ -185,7 +199,7 @@ export function FocusView() {
   if (!nextTask) {
     return (
       <>
-        <div className="e-flex e-align-center e-justify-center e-h-screen">
+        <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '60vh' }}>
           <div className="e-text-center" style={{ maxWidth: '28rem', padding: '0 24px' }}>
             {(() => {
               const activeTasks = tasks.filter(t => t.status !== 'done');
@@ -246,7 +260,7 @@ export function FocusView() {
                       Du har {activeTasks.length} uppgifter men alla kräver mer än {Math.floor(context.availableTime / 60)}h.
                     </p>
                     <div className="e-flex e-gap-12 e-justify-center">
-                      <Button onClick={() => navigate('/daily-checkin')} variant="primary">
+                      <Button onClick={() => setShowCheckInDialog(true)} variant="primary">
                         Uppdatera tillgänglig tid
                       </Button>
                       <Button onClick={() => navigate('/all')} variant="secondary">
@@ -267,7 +281,7 @@ export function FocusView() {
                     Det finns uppgifter men ingen passar dina nuvarande filter.
                   </p>
                   <div className="e-flex e-gap-12 e-justify-center">
-                    <Button onClick={() => navigate('/daily-checkin')} variant="primary">
+                    <Button onClick={() => setShowCheckInDialog(true)} variant="primary">
                       Uppdatera avstämning
                     </Button>
                     <Button onClick={() => navigate('/all')} variant="secondary">
@@ -285,10 +299,10 @@ export function FocusView() {
   }
 
   return (
-    <div className="e-h-screen">
+    <div>
       {/* Emergency Banner */}
       {isEmergency && (
-        <div className="e-text-center e-font-semibold" style={{ padding: '12px 24px' }}>
+        <div className="e-text-center e-font-semibold" style={{ padding: '12px 24px', backgroundColor: 'var(--e-warning-bg)', color: 'var(--e-warning-text)' }}>
           <AlertTriangle style={{ display: 'inline', height: '20px', width: '20px', marginRight: '8px', verticalAlign: 'middle' }} />
           Du har uppgifter med deadline inom 24 timmar!
         </div>
@@ -297,7 +311,7 @@ export function FocusView() {
       {/* Dependency Alerts */}
       {criticalChains.length > 0 && (
         <div className="e-border-b e-p-16">
-          <div className="e-mx-auto" style={{ maxWidth: '64rem' }}>
+          <div className="e-mx-auto">
             <h2 className="e-text-lg e-font-semibold e-mb-12">
               ⚠️ Kritiska blockeringskedjor ({criticalChains.length})
             </h2>
@@ -310,7 +324,7 @@ export function FocusView() {
 
       {/* Header */}
       <div className="e-border-b e-p-16">
-        <div className="e-mx-auto e-flex e-justify-between e-align-center" style={{ maxWidth: '64rem' }}>
+        <div className="e-mx-auto e-flex e-justify-between e-align-center">
           <div>
             <h1 className="e-text-xl e-font-bold" style={{ margin: 0 }}>
               🎯 Just Nu
@@ -325,7 +339,7 @@ export function FocusView() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/daily-checkin')}
+            onClick={() => setShowCheckInDialog(true)}
           >
             Ny avstämning
           </Button>
@@ -343,7 +357,7 @@ export function FocusView() {
         if (snabbis.length === 0) return null;
 
         return (
-          <div className="e-mx-auto e-p-24 e-pt-24" style={{ maxWidth: '64rem', paddingBottom: 0 }}>
+          <div className="e-p-24 e-pt-24" style={{ paddingBottom: 0 }}>
             <div className="e-border e-rounded-lg e-p-16">
               <div className="e-flex e-align-center e-gap-8 e-mb-12">
                 <span className="e-text-xl">⚡</span>
@@ -379,8 +393,8 @@ export function FocusView() {
       })()}
 
       {/* Main Focus Card */}
-      <div className="e-mx-auto e-p-32" style={{ maxWidth: '64rem', padding: '48px 24px' }}>
-        <div className="e-rounded-xl e-p-32" style={{ boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+      <div className="e-p-24">
+        <div className="e-rounded-xl e-p-32" style={{ boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}>
           {/* Deadline Warnings */}
           {nextTask.deadline && (() => {
             const deadline = new Date(nextTask.deadline);
@@ -571,6 +585,12 @@ export function FocusView() {
         )}
       </div>
 
+      {/* Daglig avstämning */}
+      <DagligCheckIn
+        isOpen={showCheckInDialog}
+        onClose={() => setShowCheckInDialog(false)}
+        onComplete={handleCheckInComplete}
+      />
     </div>
   );
 }

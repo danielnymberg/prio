@@ -1,8 +1,5 @@
 import { useTasks } from '@/hooks/useTasks';
-import { EisenhowerMatrix } from '@/components/matrix/EisenhowerMatrix';
 import { Stats } from '@/components/ui/Stats';
-import { Alert } from '@/components/ui/Alert';
-import { getTaskQuadrant } from '@/lib/utils';
 import { isToday, isPast } from 'date-fns';
 import { Target } from 'lucide-react';
 
@@ -15,8 +12,9 @@ export function Dashboard() {
     t.deadline && isPast(new Date(t.deadline)) && !isToday(new Date(t.deadline))
   );
 
+  // Hitta viktig och brådskande task (högt värde OCH hög tidskänslighet)
   const highestPriorityTask = activeTasks
-    .filter(t => getTaskQuadrant(t) === 'Q1')
+    .filter(t => t.value_score >= 7 && t.time_sensitivity >= 7)
     .sort((a, b) => b.priority - a.priority)[0];
 
   const stats = [
@@ -27,10 +25,6 @@ export function Dashboard() {
 
   return (
     <div className="e-flex e-flex-column e-gap-24">
-      <Alert variant="info" title="Matrix (Beta)">
-        Eisenhower Matrix är nu i beta-läge. För bästa upplevelse rekommenderar vi vår nya <strong>Just Nu</strong>-vy som använder CPM (Consequence-Priority Model) för smartare prioritering baserat på forskningsbaserade principer.
-      </Alert>
-
       {highestPriorityTask && (
         <div className="e-rounded-lg e-p-24 e-border" style={{
           background: 'linear-gradient(to right, var(--error-50, #fef2f2), var(--warning-50, #fff7ed))',
@@ -71,16 +65,6 @@ export function Dashboard() {
           </div>
         </div>
       )}
-
-      <div className="e-rounded-lg e-p-24 e-border" style={{
-        backgroundColor: 'var(--e-surface)',
-        borderColor: 'var(--e-border)'
-      }}>
-        <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
-          Eisenhower Matrix
-        </h2>
-        <EisenhowerMatrix />
-      </div>
 
       <div className="e-rounded-lg e-p-24 e-border" style={{
         backgroundColor: 'var(--e-surface)',

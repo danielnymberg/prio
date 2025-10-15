@@ -159,19 +159,6 @@ export interface DailyCheckIn {
   strategy: FocusStrategy;
 }
 
-// Quadrant type (behåll för Matrix-vy)
-export type Quadrant = 'Q1' | 'Q2' | 'Q3' | 'Q4';
-
-export interface QuadrantInfo {
-  id: Quadrant;
-  title: string;
-  subtitle: string;
-  color: string;
-  bgColor: string;
-  borderColor: string;
-  filter: (task: Task) => boolean;
-}
-
 // ============================================
 // CAPACITY TIMELINE TYPES
 // ============================================

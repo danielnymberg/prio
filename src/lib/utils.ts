@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { format, isToday, isThisWeek, isPast } from 'date-fns';
 import { sv } from 'date-fns/locale';
-import type { Task, Quadrant } from './types';
+import type { Task } from './types';
 
 // Class merger (no Tailwind - just clsx)
 export function cn(...inputs: ClassValue[]) {
@@ -26,25 +26,6 @@ export function formatRelativeTime(date: string | null | undefined): string {
   if (isPast(d)) return 'Försenad';
   if (isThisWeek(d)) return format(d, 'EEEE', { locale: sv });
   return format(d, 'PPP', { locale: sv });
-}
-
-// Eisenhower Matrix logic
-export function getTaskQuadrant(task: Task): Quadrant {
-  // Use value_score and time_sensitivity, fallback to legacy fields
-  const importance = task.value_score || task.importance || 5;
-  const urgency = task.time_sensitivity || task.urgency || 5;
-
-  const isImportant = importance > 5;
-  const isUrgent = urgency > 5;
-
-  if (isImportant && isUrgent) return 'Q1';
-  if (isImportant && !isUrgent) return 'Q2';
-  if (!isImportant && isUrgent) return 'Q3';
-  return 'Q4';
-}
-
-export function filterTasksByQuadrant(tasks: Task[], quadrant: Quadrant): Task[] {
-  return tasks.filter(task => getTaskQuadrant(task) === quadrant);
 }
 
 export function sortTasksByPriority(tasks: Task[]): Task[] {

@@ -3,15 +3,15 @@ import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import type { Task, TaskStatus, PriorityFlag } from '@/lib/types';
 
-// SyncFusion imports - Pure implementation
+// SyncFusion imports
 import { DialogComponent, AnimationSettingsModel, ButtonPropsModel } from '@syncfusion/ej2-react-popups';
 import { TextBoxComponent, NumericTextBoxComponent, SliderComponent } from '@syncfusion/ej2-react-inputs';
-import { DatePickerComponent } from '@syncfusion/ej2-react-calendars';
+import { DateTimePickerComponent } from '@syncfusion/ej2-react-calendars';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
+import { ChipListComponent, CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import { FormValidator } from '@syncfusion/ej2-inputs';
-import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 
-interface TaskFormProps {
+interface UppgiftRegistreringProps {
   isOpen: boolean;
   onClose: () => void;
   taskToEdit?: Task | null;
@@ -25,84 +25,134 @@ interface TaskFormProps {
   };
 }
 
-// Animation settings for dialog
 const animationSettings: AnimationSettingsModel = {
   effect: 'Zoom',
   duration: 300,
   delay: 0
 };
 
-export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFormProps) {
+// Helper: Beräkna default starttid
+function getDefaultStartTime(): Date {
+  const now = new Date();
+  const hour = now.getHours();
+
+  if (hour < 13) {
+    // Före 13:00 - sätt till idag kl 13:00
+    now.setHours(13, 0, 0, 0);
+    return now;
+  } else {
+    // Efter 13:00 - sätt till imorgon kl 09:00
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(9, 0, 0, 0);
+    return tomorrow;
+  }
+}
+
+// Helper: Beräkna deadline (5 arbetsdagar efter start, kl 17:00)
+function getDefaultDeadline(startTime: Date): Date {
+  const deadline = new Date(startTime);
+  let workDaysAdded = 0;
+
+  while (workDaysAdded < 5) {
+    deadline.setDate(deadline.getDate() + 1);
+    const dayOfWeek = deadline.getDay();
+    // Hoppa över lördagar (6) och söndagar (0)
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      workDaysAdded++;
+    }
+  }
+
+  deadline.setHours(17, 0, 0, 0);
+  return deadline;
+}
+
+export function UppgiftRegistrering({ isOpen, onClose, taskToEdit, defaultValues }: UppgiftRegistreringProps) {
   const { createTask, updateTask } = useTasks();
   const { projects } = useProjects();
 
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
-  const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
-  const [status, setStatus] = useState<TaskStatus>('not_started');
+  const [selectedTimeChip, setSelectedTimeChip] = useState<number>(-1); // -1 = ingen vald
+  const [customDuration, setCustomDuration] = useState<number | null>(null);
+  const [scheduledStart, setScheduledStart] = useState<Date | null>(null);
   const [deadline, setDeadline] = useState<Date | null>(null);
-  const [priorityFlag, setPriorityFlag] = useState<PriorityFlag | null>(null);
+  const [status, setStatus] = useState<TaskStatus>('not_started');
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [priorityFlag, setPriorityFlag] = useState<PriorityFlag>('asap');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [valueScore, setValueScore] = useState(8);
   const [timeSensitivity, setTimeSensitivity] = useState(5);
   const [confidence, setConfidence] = useState(8);
   const [effort, setEffort] = useState(5);
-  const [isMobile, setIsMobile] = useState(false);
 
-  // FormValidator ref
   const formRef = useRef<HTMLFormElement>(null);
   const validatorRef = useRef<FormValidator | null>(null);
 
-  // Status options
+  // Tidsval som chips
+  const timeChips = [
+    { text: '≤2min Snabbis', value: 2 },
+    { text: '30min', value: 30 },
+    { text: '1h', value: 60 },
+    { text: 'Anpassad...', value: -1 }
+  ];
+
+  // Status-alternativ
   const statusOptions = [
     { text: 'Inte påbörjad', value: 'not_started' },
     { text: 'Pågår', value: 'in_progress' },
     { text: 'Klar', value: 'done' },
   ];
 
-  // Priority flag options
+  // Priority flag-alternativ
   const priorityFlagOptions = [
     { text: 'ASAP (gör snart)', value: 'asap' },
     { text: 'När det passar', value: 'whenever' },
     { text: 'Någon gång', value: 'someday' },
   ];
 
-  // Responsive detection
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 1023px)');
-    setIsMobile(mediaQuery.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
-
-  // Initialize form values when dialog opens or taskToEdit changes
+  // Initialize form values
   useEffect(() => {
     if (isOpen) {
       if (taskToEdit) {
+        // Redigera befintlig uppgift
         setTitle(taskToEdit.title);
         setDescription(taskToEdit.description || '');
         setSelectedProject(taskToEdit.project_id);
-        setEstimatedDuration(taskToEdit.estimated_duration);
         setStatus(taskToEdit.status);
+        setScheduledStart(taskToEdit.scheduled_start ? new Date(taskToEdit.scheduled_start) : null);
         setDeadline(taskToEdit.deadline ? new Date(taskToEdit.deadline) : null);
-        setPriorityFlag(taskToEdit.priority_flag);
+        setPriorityFlag(taskToEdit.priority_flag || 'asap');
         setValueScore(taskToEdit.value_score);
         setTimeSensitivity(taskToEdit.time_sensitivity);
         setConfidence(taskToEdit.confidence);
         setEffort(taskToEdit.effort);
+
+        // Sätt tidsval baserat på estimated_duration
+        const duration = taskToEdit.estimated_duration;
+        if (duration && duration <= 2) {
+          setSelectedTimeChip(0);
+        } else if (duration === 30) {
+          setSelectedTimeChip(1);
+        } else if (duration === 60) {
+          setSelectedTimeChip(2);
+        } else {
+          setSelectedTimeChip(3);
+          setCustomDuration(duration || null);
+        }
       } else {
-        // New task - reset to defaults
+        // Ny uppgift - defaults
         setTitle(defaultValues?.title || '');
         setDescription(defaultValues?.description || '');
         setSelectedProject(null);
-        setEstimatedDuration(null);
+        setSelectedTimeChip(-1);
+        setCustomDuration(null);
+        const defaultStart = getDefaultStartTime();
+        setScheduledStart(defaultStart);
+        setDeadline(getDefaultDeadline(defaultStart));
         setStatus('not_started');
-        setDeadline(null);
-        setPriorityFlag(null);
+        setPriorityFlag('asap');
         setShowAdvanced(false);
         setValueScore(defaultValues?.value_score || 8);
         setTimeSensitivity(defaultValues?.time_sensitivity || 5);
@@ -123,12 +173,9 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
         },
       };
 
-      validatorRef.current = new FormValidator(formRef.current, {
-        rules,
-      });
+      validatorRef.current = new FormValidator(formRef.current, { rules });
     }
 
-    // Cleanup
     return () => {
       if (validatorRef.current) {
         validatorRef.current.destroy();
@@ -137,24 +184,39 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
     };
   }, [isOpen]);
 
+  // Uppdatera deadline när starttid ändras
+  useEffect(() => {
+    if (scheduledStart && !taskToEdit) {
+      setDeadline(getDefaultDeadline(scheduledStart));
+    }
+  }, [scheduledStart, taskToEdit]);
+
   const handleSubmit = async () => {
-    // Validate form
     if (validatorRef.current && !validatorRef.current.validate()) {
       return;
+    }
+
+    // Beräkna estimated_duration från chips eller custom
+    let estimatedDuration: number | undefined;
+    if (selectedTimeChip >= 0 && selectedTimeChip < 3) {
+      estimatedDuration = timeChips[selectedTimeChip].value;
+    } else if (selectedTimeChip === 3 && customDuration) {
+      estimatedDuration = customDuration;
     }
 
     const taskData = {
       title,
       description: description || undefined,
       project_id: selectedProject || undefined,
-      estimated_duration: estimatedDuration || undefined,
+      estimated_duration: estimatedDuration,
+      scheduled_start: scheduledStart?.toISOString(),
+      deadline: deadline?.toISOString(),
       status,
-      deadline: deadline ? deadline.toISOString().split('T')[0] : undefined,
-      priority_flag: !deadline && priorityFlag ? priorityFlag : null,
-      value_score: showAdvanced ? valueScore : 8,
-      time_sensitivity: showAdvanced ? timeSensitivity : 5,
-      confidence: showAdvanced ? confidence : 8,
-      effort: showAdvanced ? effort : 5,
+      priority_flag: priorityFlag,
+      value_score: valueScore,
+      time_sensitivity: timeSensitivity,
+      confidence: confidence,
+      effort: effort,
     };
 
     if (taskToEdit) {
@@ -162,17 +224,16 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
     } else {
       await createTask({
         ...taskData,
-        value_score: taskData.value_score,
-        time_sensitivity: taskData.time_sensitivity,
-        confidence: taskData.confidence,
-        effort: taskData.effort,
+        value_score: valueScore,
+        time_sensitivity: timeSensitivity,
+        confidence: confidence,
+        effort: effort,
       });
     }
 
     onClose();
   };
 
-  // Dialog buttons enligt SyncFusion best practice
   const dialogButtons: ButtonPropsModel[] = [
     {
       buttonModel: {
@@ -191,12 +252,12 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
     }
   ];
 
-  // Only render dialog when it should be open to avoid DOM conflicts
+  // Villkorlig rendering enligt SF best practice
   if (!isOpen) return null;
 
   return (
     <DialogComponent
-      width="min(90%, 800px)"
+      width="min(95%, 800px)"
       header={taskToEdit ? 'Redigera uppgift' : 'Ny uppgift'}
       visible={true}
       close={onClose}
@@ -206,15 +267,13 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
       animationSettings={animationSettings}
       target="body"
       cssClass="e-responsive-dialog"
-      allowDragging={false}
-      enableResize={false}
-      closeOnEscape={true}
     >
       <form ref={formRef} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
         {/* Titel */}
         <TextBoxComponent
           name="title"
-          placeholder="Skriv uppgiftens titel..."
+          placeholder="Vad ska göras?"
           floatLabelType="Auto"
           value={title}
           input={(e) => setTitle(e.value)}
@@ -222,101 +281,103 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
 
         {/* Beskrivning */}
         <TextBoxComponent
-          placeholder="Lägg till detaljer (valfritt)..."
+          placeholder="Detaljer (valfritt)"
           floatLabelType="Auto"
           multiline={true}
           value={description}
           input={(e) => setDescription(e.value)}
         />
 
-        {/* Projekt */}
-        <DropDownListComponent
-          dataSource={projects as any}
-          fields={{ text: 'name', value: 'id' }}
-          placeholder="Välj projekt (valfritt)"
-          floatLabelType="Auto"
-          allowFiltering={true}
-          value={selectedProject}
-          change={(e) => setSelectedProject(e.value || null)}
-        />
-
-        {/* Tidsuppskattning */}
-        <NumericTextBoxComponent
-          placeholder="Minuter"
-          floatLabelType="Auto"
-          format="n0"
-          min={1}
-          step={15}
-          value={estimatedDuration || undefined}
-          change={(e) => setEstimatedDuration(e.value)}
-        />
-
-        {/* Status och Deadline - Responsive layout */}
-        {!isMobile && (
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <div style={{ flex: 1 }}>
-              <DropDownListComponent
-                dataSource={statusOptions}
-                fields={{ text: 'text', value: 'value' }}
-                floatLabelType="Auto"
-                value={status}
-                change={(e) => setStatus(e.value)}
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <DatePickerComponent
-                format="yyyy-MM-dd"
-                floatLabelType="Auto"
-                placeholder="Välj slutdatum (valfritt)"
-                value={deadline || undefined}
-                change={(e) => setDeadline(e.value)}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Mobil layout - Stacked */}
-        {isMobile && (
-          <>
-            <DropDownListComponent
-              dataSource={statusOptions}
-              fields={{ text: 'text', value: 'value' }}
-              floatLabelType="Auto"
-              value={status}
-              change={(e) => setStatus(e.value)}
-            />
-            <DatePickerComponent
-              format="yyyy-MM-dd"
-              floatLabelType="Auto"
-              placeholder="Välj slutdatum (valfritt)"
-              value={deadline || undefined}
-              change={(e) => setDeadline(e.value)}
-            />
-          </>
-        )}
-
-        {/* Priority Flag - Visa endast om ingen deadline */}
-        {!deadline && (
-          <DropDownListComponent
-            dataSource={priorityFlagOptions}
-            fields={{ text: 'text', value: 'value' }}
-            placeholder="Prioritet (valfritt)"
-            floatLabelType="Auto"
-            value={priorityFlag}
-            change={(e) => setPriorityFlag(e.value || null)}
+        {/* Tidsval - ChipList */}
+        <div>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>
+            Uppskattad tid
+          </label>
+          <ChipListComponent
+            chips={timeChips.map(chip => chip.text)}
+            selection="Single"
+            selectedChips={selectedTimeChip >= 0 ? [selectedTimeChip] : undefined}
+            click={(e: any) => setSelectedTimeChip(e.index)}
           />
-        )}
+
+          {/* Visa NumericTextBox om "Anpassad" valts */}
+          {selectedTimeChip === 3 && (
+            <div style={{ marginTop: '12px' }}>
+              <NumericTextBoxComponent
+                placeholder="Minuter"
+                floatLabelType="Auto"
+                format="n0"
+                min={1}
+                step={15}
+                value={customDuration || undefined}
+                change={(e) => setCustomDuration(e.value)}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Starttid och Deadline */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <DateTimePickerComponent
+            placeholder="Starttid"
+            floatLabelType="Auto"
+            value={scheduledStart || undefined}
+            change={(e) => setScheduledStart(e.value)}
+            format="yyyy-MM-dd HH:mm"
+          />
+          <DateTimePickerComponent
+            placeholder="Deadline"
+            floatLabelType="Auto"
+            value={deadline || undefined}
+            change={(e) => setDeadline(e.value)}
+            format="yyyy-MM-dd HH:mm"
+          />
+        </div>
+
+        {/* Status och Projekt */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <DropDownListComponent
+            dataSource={statusOptions}
+            fields={{ text: 'text', value: 'value' }}
+            floatLabelType="Auto"
+            placeholder="Status"
+            value={status}
+            change={(e) => setStatus(e.value)}
+          />
+          <DropDownListComponent
+            dataSource={projects as any}
+            fields={{ text: 'name', value: 'id' }}
+            placeholder="Projekt (valfritt)"
+            floatLabelType="Auto"
+            allowFiltering={true}
+            value={selectedProject}
+            change={(e) => setSelectedProject(e.value || null)}
+          />
+        </div>
 
         {/* Avancerat-sektion */}
         <div>
-          <ButtonComponent
-            content={showAdvanced ? 'Dölj avancerade inställningar' : 'Visa avancerade inställningar'}
-            onClick={() => setShowAdvanced(!showAdvanced)}
+          <CheckBoxComponent
+            label="Visa avancerade inställningar"
+            checked={showAdvanced}
+            change={(e: any) => setShowAdvanced(e.checked)}
           />
         </div>
 
         {showAdvanced && (
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px', paddingLeft: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '16px', backgroundColor: 'var(--primary-50)', borderRadius: '8px' }}>
+
+            {/* Priority Flag */}
+            <DropDownListComponent
+              dataSource={priorityFlagOptions}
+              fields={{ text: 'text', value: 'value' }}
+              placeholder="Prioritet"
+              floatLabelType="Auto"
+              value={priorityFlag}
+              change={(e) => setPriorityFlag(e.value)}
+            />
+
+            {/* CPM-parametrar */}
             <div>
               <label style={{ fontSize: '12px', color: '#666', marginBottom: '8px', display: 'block' }}>
                 Värde/Konsekvens om det INTE görs: {valueScore}
@@ -330,6 +391,7 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
                 change={(e: any) => setValueScore(e.value)}
               />
             </div>
+
             <div>
               <label style={{ fontSize: '12px', color: '#666', marginBottom: '8px', display: 'block' }}>
                 Tidskänslighet (kostnad av att vänta): {timeSensitivity}
@@ -343,6 +405,7 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
                 change={(e: any) => setTimeSensitivity(e.value)}
               />
             </div>
+
             <div>
               <label style={{ fontSize: '12px', color: '#666', marginBottom: '8px', display: 'block' }}>
                 Säkerhet i bedömningen: {confidence}
@@ -356,6 +419,7 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
                 change={(e: any) => setConfidence(e.value)}
               />
             </div>
+
             <div>
               <label style={{ fontSize: '12px', color: '#666', marginBottom: '8px', display: 'block' }}>
                 Uppskattad ansträngning: {effort}
@@ -371,6 +435,7 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
             </div>
           </div>
         )}
+
       </form>
     </DialogComponent>
   );

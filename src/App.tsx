@@ -28,14 +28,12 @@ const FocusView = lazy(() => import('./components/focus/FocusView').then(m => ({
 const ActiveSession = lazy(() => import('./components/focus/ActiveSession').then(m => ({ default: m.ActiveSession })));
 const BreakView = lazy(() => import('./components/focus/BreakView').then(m => ({ default: m.BreakView })));
 const TaskImpactPage = lazy(() => import('./pages/TaskImpactPage').then(m => ({ default: m.TaskImpactPage })));
-const DailyCheckInPage = lazy(() => import('./pages/DailyCheckInPage').then(m => ({ default: m.DailyCheckInPage })));
 const ShareHandler = lazy(() => import('./components/share/ShareHandler').then(m => ({ default: m.ShareHandler })));
 const SettingsView = lazy(() => import('./components/settings/SettingsView').then(m => ({ default: m.SettingsView })));
 const ProjectsView = lazy(() => import('./components/projects/ProjectsView').then(m => ({ default: m.ProjectsView })));
 const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetailView').then(m => ({ default: m.ProjectDetailView })));
 const OverviewView = lazy(() => import('./components/overview/OverviewView').then(m => ({ default: m.OverviewView })));
 const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSidebar').then(m => ({ default: m.CalendarWithTaskSidebar })));
-const EisenhowerMatrix = lazy(() => import('./components/matrix/EisenhowerMatrix').then(m => ({ default: m.EisenhowerMatrix })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -405,27 +403,6 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <TaskImpactPage />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/daily-checkin"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <DailyCheckInPage />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        {/* Eisenhower Matrix */}
-        <Route
-          path="/matrix"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <EisenhowerMatrix />
               </Suspense>
             </ProtectedRoute>
           }

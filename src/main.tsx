@@ -20,7 +20,6 @@ import '@syncfusion/ej2-popups/styles/fluent2.css';
 import '@syncfusion/ej2-splitbuttons/styles/fluent2.css';
 import '@syncfusion/ej2-grids/styles/fluent2.css';
 import '@syncfusion/ej2-react-schedule/styles/fluent2.css';
-import '@syncfusion/ej2-react-kanban/styles/fluent2.css';
 import '@syncfusion/ej2-notifications/styles/fluent2.css';
 
 // Then import our custom CSS
