@@ -207,19 +207,25 @@ export function VoiceInterface() {
   }, [handleUserMessage, isListening, finalText, partialText]);
 
   const handleStopListening = useCallback(() => {
-    // Skicka finalText till Claude när användaren stoppar
-    if (finalText.trim()) {
-      console.log('🎯 Skickar final text till Claude:', finalText);
+    setIsListening(false);
+    sttRef.current?.stopListening(false);
+
+    // Spara den ackumulerade texten INNAN vi stänger WebSocket
+    const savedText = finalText.trim();
+
+    // Skicka till Claude om det finns text
+    if (savedText) {
+      console.log('🎯 Skickar final text till Claude:', savedText);
       setStatus('Bearbetar...');
-      handleUserMessage(finalText);
+      handleUserMessage(savedText);
+      setPartialText('');
+      setFinalText('');
     } else {
-      setIsListening(false);
-      setStatus('Avbruten');
+      setStatus('Avbruten - inget ljud');
       setPartialText('');
       setFinalText('');
       setTimeout(() => setStatus(''), 2000);
     }
-    sttRef.current?.stopListening(false);
   }, [finalText, handleUserMessage]);
 
   const handleTextSubmit = useCallback(() => {
@@ -660,7 +666,7 @@ export function VoiceInterface() {
             {conversationLog.length}
           </div>
         )}
-      </div>
+        </div>
 
         {/* Text Input Button */}
         <div style={{ position: 'relative' }}>
@@ -724,9 +730,17 @@ export function VoiceInterface() {
             delay: 0
           } as AnimationSettingsModel}
         >
-          <div style={{ padding: '16px' }}>
+          <div
+            style={{ padding: '16px' }}
+            onKeyDown={(e: any) => {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                handleTextSubmit();
+              }
+            }}
+          >
             <TextBoxComponent
-              placeholder="Skriv din fråga till AI..."
+              placeholder="Skriv din fråga till AI... (Cmd+Enter för att skicka)"
               floatLabelType="Auto"
               multiline={true}
               value={textInputValue}
