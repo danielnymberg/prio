@@ -723,6 +723,7 @@ export function VoiceInterface() {
             <MessageSquare style={{ height: '28px', width: '28px' }} />
           </Button>
         </div>
+        )}
       </div>
 
       {/* Text Input Dialog */}
