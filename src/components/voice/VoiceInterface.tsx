@@ -148,11 +148,8 @@ export function VoiceInterface() {
         };
         setConversationLog(prev => [...prev, assistantMessage]);
 
-        // Visa textsvar istället för TTS (undviker feedback loop)
-        setStatus('');
-
-        // Expandera automatiskt för att visa svaret
-        setIsExpanded(true);
+        // Visa textsvar i status (behåll minimerad)
+        setStatus('💬 ' + response);
       } else {
         setStatus('');
       }
@@ -333,7 +330,7 @@ export function VoiceInterface() {
   return (
     <div style={{
       position: 'fixed',
-      bottom: '80px',
+      bottom: '160px',
       right: '24px',
       zIndex: 50
     }}>
@@ -678,19 +675,20 @@ export function VoiceInterface() {
         </div>
         )}
 
-        {/* Send Button - Visas när man pratar */}
-        {!isDesktop && isListening && (
+        {/* Send Button - Byter plats med Mic när man pratar */}
+        {!isDesktop && !isListening && (
           <div style={{ position: 'relative' }}>
             <Button
               variant="primary"
               size="lg"
               onClick={handleSendToAI}
+              disabled={!finalText && !partialText}
               style={{
                 borderRadius: '9999px',
                 width: '64px',
                 height: '64px',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                display: 'flex',
+                display: (finalText || partialText) ? 'flex' : 'none',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 0,
@@ -703,7 +701,8 @@ export function VoiceInterface() {
           </div>
         )}
 
-        {/* Text Input Button */}
+        {/* Text Input Button - Dölj när man pratar */}
+        {!isListening && (
         <div style={{ position: 'relative' }}>
           <Button
             variant="secondary"
