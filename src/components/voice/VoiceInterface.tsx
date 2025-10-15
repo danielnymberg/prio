@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic, MicOff, MessageSquare, X, Send } from 'lucide-react';
+import { MessageSquare, X } from 'lucide-react';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { FabComponent } from '@syncfusion/ej2-react-buttons';
 import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
@@ -32,7 +33,6 @@ export function VoiceInterface() {
 
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
 
@@ -287,20 +287,6 @@ export function VoiceInterface() {
     claudeRef.current?.clearHistory();
   };
 
-  // Långklick-hantering för att öppna conversation view
-  const handleMouseDown = () => {
-    longPressTimerRef.current = setTimeout(() => {
-      setIsExpanded(!isExpanded);
-    }, 500); // 500ms långklick
-  };
-
-  const handleMouseUp = () => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-  };
-
   if (!isInitialized) {
     return (
       <div style={{
@@ -328,14 +314,15 @@ export function VoiceInterface() {
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '160px',
-      right: '24px',
-      zIndex: 50
-    }}>
-      {/* Expanded Conversation View */}
+    <>
+      {/* Expanded Conversation View - Fixed overlay */}
       {isExpanded && (
+        <div style={{
+          position: 'fixed',
+          bottom: '160px',
+          right: '24px',
+          zIndex: 50
+        }}>
         <div style={{
           marginBottom: '16px',
           background: 'var(--e-surface)',
@@ -505,10 +492,17 @@ export function VoiceInterface() {
             </div>
           )}
         </div>
+        </div>
       )}
 
-      {/* Status/Transcript Box (when not expanded) */}
+      {/* Status/Transcript Box (when not expanded) - Fixed overlay */}
       {!isExpanded && (status || finalText || partialText || error) && (
+        <div style={{
+          position: 'fixed',
+          bottom: '160px',
+          right: '24px',
+          zIndex: 50
+        }}>
         <div style={{
           marginBottom: '16px',
           borderRadius: '16px',
@@ -600,131 +594,52 @@ export function VoiceInterface() {
             </>
           ) : null}
         </div>
+        </div>
       )}
 
-      {/* Buttons Container */}
-      <div style={{ display: 'flex', gap: '12px' }}>
-        {/* Voice Button - Endast mobil */}
-        {!isDesktop && (
-        <div style={{ position: 'relative' }}>
-        <Button
-          variant={isListening ? 'danger' : 'primary'}
-          size="lg"
+      {/* Mic FAB - Endast mobil, när INTE lyssnar */}
+      {!isDesktop && !isListening && !(finalText || partialText) && (
+        <FabComponent
+          iconCss="e-icons e-microphone"
+          position="BottomRight"
+          isPrimary={true}
           onClick={handleToggleListening}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onTouchStart={handleMouseDown}
-          onTouchEnd={handleMouseUp}
-          style={{
-            borderRadius: '9999px',
-            width: '64px',
-            height: '64px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-            transition: 'all 0.3s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 0
-          }}
-          title={
-            isListening
-              ? 'Pausa inspelning'
-              : 'Starta röstinspelning (håll inne för chat)'
-          }
-        >
-          {isListening ? (
-            <MicOff style={{ height: '32px', width: '32px' }} />
-          ) : (
-            <Mic style={{ height: '32px', width: '32px' }} />
-          )}
-        </Button>
+          title="Starta röstinspelning"
+        />
+      )}
 
-        {/* Pulsing Animation */}
-        {isListening && (
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '9999px',
-            background: '#ef4444',
-            animation: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
-            opacity: 0.2,
-            pointerEvents: 'none'
-          }} />
-        )}
+      {/* Mic FAB (active) - Röd när lyssnar */}
+      {!isDesktop && isListening && (
+        <FabComponent
+          iconCss="e-icons e-stop"
+          position="BottomRight"
+          cssClass="e-danger"
+          onClick={handleToggleListening}
+          title="Pausa inspelning"
+        />
+      )}
 
-        {/* Notification Badge */}
-        {conversationLog.length > 0 && !isExpanded && (
-          <div style={{
-            position: 'absolute',
-            top: '-8px',
-            right: '-8px',
-            background: 'var(--primary-600)',
-            color: '#ffffff',
-            fontSize: '12px',
-            borderRadius: '9999px',
-            width: '24px',
-            height: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700
-          }}>
-            {conversationLog.length}
-          </div>
-        )}
-        </div>
-        )}
+      {/* Send FAB - När har text (final eller partial) */}
+      {!isDesktop && (finalText || partialText) && (
+        <FabComponent
+          iconCss="e-icons e-send"
+          position="BottomCenter"
+          isPrimary={true}
+          onClick={handleSendToAI}
+          title="Skicka till AI"
+          cssClass="fab-pulse"
+        />
+      )}
 
-        {/* Send Button - Byter plats med Mic när man pratar */}
-        {!isDesktop && !isListening && (
-          <div style={{ position: 'relative' }}>
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={handleSendToAI}
-              disabled={!finalText && !partialText}
-              style={{
-                borderRadius: '9999px',
-                width: '64px',
-                height: '64px',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                display: (finalText || partialText) ? 'flex' : 'none',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
-                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-              }}
-              title="Skicka till AI"
-            >
-              <Send style={{ height: '28px', width: '28px' }} />
-            </Button>
-          </div>
-        )}
-
-        {/* Text Input Button - Dölj när man pratar */}
-        {!isListening && (
-        <div style={{ position: 'relative' }}>
-          <Button
-            variant="secondary"
-            size="lg"
-            onClick={() => setShowTextInput(true)}
-            style={{
-              borderRadius: '9999px',
-              width: '64px',
-              height: '64px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 0
-            }}
-            title="Skriv meddelande till AI"
-          >
-            <MessageSquare style={{ height: '28px', width: '28px' }} />
-          </Button>
-        </div>
-        )}
-      </div>
+      {/* Text Input FAB - Alltid synlig (utom när lyssnar) */}
+      {!isListening && !(finalText || partialText) && (
+        <FabComponent
+          iconCss="e-icons e-comment"
+          position="BottomLeft"
+          onClick={() => setShowTextInput(true)}
+          title="Skriv meddelande till AI"
+        />
+      )}
 
       {/* Text Input Dialog */}
       {showTextInput && (
@@ -784,6 +699,6 @@ export function VoiceInterface() {
           </div>
         </DialogComponent>
       )}
-    </div>
+    </>
   );
 }
