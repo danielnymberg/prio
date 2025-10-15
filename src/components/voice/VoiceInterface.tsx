@@ -15,6 +15,9 @@ interface ConversationMessage {
 }
 
 export function VoiceInterface() {
+  // Dölj röst på desktop, visa bara text-knapp
+  const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
   const [isListening, setIsListening] = useState(false);
   const [partialText, setPartialText] = useState(''); // Pågående tal (live)
   const [finalText, setFinalText] = useState(''); // Bekräftat tal
@@ -219,16 +222,19 @@ export function VoiceInterface() {
   }, [isListening, handleStartListening]);
 
   const handleSendToAI = useCallback(() => {
-    if (finalText.trim()) {
-      console.log('🎯 Skickar final text till Claude:', finalText);
+    // Skicka allt som finns (final + partial)
+    const fullText = (finalText + (partialText ? ' ' + partialText : '')).trim();
+
+    if (fullText) {
+      console.log('🎯 Skickar text till Claude:', fullText);
       setStatus('Bearbetar...');
-      handleUserMessage(finalText);
+      handleUserMessage(fullText);
       setPartialText('');
       setFinalText('');
       setIsListening(false);
       sttRef.current?.stopListening(false);
     }
-  }, [finalText, handleUserMessage]);
+  }, [finalText, partialText, handleUserMessage]);
 
   const handleTextSubmit = useCallback(() => {
     if (textInputValue.trim()) {
@@ -601,7 +607,8 @@ export function VoiceInterface() {
 
       {/* Buttons Container */}
       <div style={{ display: 'flex', gap: '12px' }}>
-        {/* Voice Button */}
+        {/* Voice Button - Endast mobil */}
+        {!isDesktop && (
         <div style={{ position: 'relative' }}>
         <Button
           variant={isListening ? 'danger' : 'primary'}
@@ -669,9 +676,10 @@ export function VoiceInterface() {
           </div>
         )}
         </div>
+        )}
 
-        {/* Send Button - Visas när det finns text att skicka */}
-        {finalText.trim() && (
+        {/* Send Button - Visas när man pratar */}
+        {!isDesktop && isListening && (
           <div style={{ position: 'relative' }}>
             <Button
               variant="primary"
