@@ -282,6 +282,21 @@ export function VoiceInterface() {
     };
   }, [isListening, handleStartListening]);
 
+  // Automatisk tystnad-detektion: Skicka efter 1.5 sek tystnad
+  useEffect(() => {
+    if (!isListening || !finalText) return;
+
+    // Om vi har final text men inget partial = tyst
+    if (!partialText) {
+      const silenceTimer = setTimeout(() => {
+        console.log('🔇 1.5 sek tystnad - skickar automatiskt');
+        handleSendToAI();
+      }, 1500);
+
+      return () => clearTimeout(silenceTimer);
+    }
+  }, [isListening, finalText, partialText, handleSendToAI]);
+
   const clearConversation = () => {
     setConversationLog([]);
     claudeRef.current?.clearHistory();
