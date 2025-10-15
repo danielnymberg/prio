@@ -146,7 +146,12 @@ ${JSON.stringify({
   oplanerade: this.context.tasks.filter(t => t.status !== 'done' && !t.deadline).length,
   aktivaProjekt: this.context.projects.filter(p => p.status === 'active').length,
   totalProjektBudget: this.context.projects.reduce((sum, p) => sum + (p.total_budget || 0), 0).toLocaleString('sv-SE') + ' kr',
-  dagensKalender: this.context.calendarEvents.length + ' händelser',
+  dagensKalender: this.context.calendarEvents.map(e => ({
+    subject: e.subject,
+    start: e.start,
+    end: e.end,
+    isAllDay: e.isAllDay
+  })),
 }, null, 2)}
 
 VIKTIGA BEGREPP:

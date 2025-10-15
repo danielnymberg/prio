@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Mic, MicOff, MessageSquare, X } from 'lucide-react';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
+import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { useTasks } from '@/hooks/useTasks';
@@ -13,18 +15,17 @@ interface ConversationMessage {
 }
 
 export function VoiceInterface() {
-  // Hide on desktop (min-width: 1024px)
-  const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
-  if (isDesktop) return null;
-
   const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
+  const [partialText, setPartialText] = useState(''); // Pågående tal (live)
+  const [finalText, setFinalText] = useState(''); // Bekräftat tal
   const [conversationLog, setConversationLog] = useState<ConversationMessage[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<string>(''); // Ny: visa aktuell status
+  const [status, setStatus] = useState<string>('');
   const [closeButtonHover, setCloseButtonHover] = useState(false);
+  const [showTextInput, setShowTextInput] = useState(false);
+  const [textInputValue, setTextInputValue] = useState('');
 
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
@@ -101,8 +102,9 @@ export function VoiceInterface() {
     };
     setConversationLog(prev => [...prev, userMessage]);
 
-    // Rensa transcript och uppdatera status
-    setTranscript('');
+    // Rensa text och uppdatera status
+    setPartialText('');
+    setFinalText('');
     setIsListening(false);
     setStatus('AI tänker...');
     sttRef.current?.stopListening();
@@ -166,26 +168,33 @@ export function VoiceInterface() {
 
     try {
       setIsListening(true);
-      setTranscript('');
+      setPartialText('');
+      setFinalText('');
       setError(null);
       setStatus('Ansluter...');
 
       await sttRef.current.startListening((text, isFinal) => {
         console.log('🎤 Transcript callback:', { text, isFinal });
         setStatus('Lyssnar...');
-        setTranscript(text);
-        console.log('📝 State updated - transcript:', text);
 
-        if (isFinal && text.trim()) {
-          console.log('✅ Final transcript, sending to AI');
-          setStatus('Bearbetar...');
-          handleUserMessage(text);
+        if (isFinal) {
+          // Final text - lägg till i final och rensa partial
+          console.log('✅ Final transcript:', text);
+          setFinalText(prev => prev + (prev ? ' ' : '') + text);
+          setPartialText('');
+
+          // Skicka hela finalText till Claude när den är klar
+          // (väntar tills stopListening anropas)
+        } else {
+          // Partial text - visa live
+          console.log('📝 Partial text:', text);
+          setPartialText(text);
         }
       });
 
-      // Timeout: visa varning om ingen transcript efter 5 sekunder
+      // Timeout: visa varning om ingen text efter 5 sekunder
       setTimeout(() => {
-        if (isListening && !transcript) {
+        if (isListening && !finalText && !partialText) {
           setStatus('Inget ljud upptäckt...');
         }
       }, 5000);
@@ -195,16 +204,31 @@ export function VoiceInterface() {
       setStatus('');
       setIsListening(false);
     }
-  }, [handleUserMessage, isListening, transcript]);
+  }, [handleUserMessage, isListening, finalText, partialText]);
 
   const handleStopListening = useCallback(() => {
-    setIsListening(false);
-    setStatus('Avbruten');
-    // Pass false to discard accumulated transcript instead of sending it
+    // Skicka finalText till Claude när användaren stoppar
+    if (finalText.trim()) {
+      console.log('🎯 Skickar final text till Claude:', finalText);
+      setStatus('Bearbetar...');
+      handleUserMessage(finalText);
+    } else {
+      setIsListening(false);
+      setStatus('Avbruten');
+      setPartialText('');
+      setFinalText('');
+      setTimeout(() => setStatus(''), 2000);
+    }
     sttRef.current?.stopListening(false);
-    setTranscript('');
-    setTimeout(() => setStatus(''), 2000); // Clear status after 2s
-  }, []);
+  }, [finalText, handleUserMessage]);
+
+  const handleTextSubmit = useCallback(() => {
+    if (textInputValue.trim()) {
+      handleUserMessage(textInputValue.trim());
+      setTextInputValue('');
+      setShowTextInput(false);
+    }
+  }, [textInputValue, handleUserMessage]);
 
   // Initialize services once when user logs in
   useEffect(() => {
@@ -409,7 +433,7 @@ export function VoiceInterface() {
           </div>
 
           {/* Live Transcript */}
-          {transcript && (
+          {(finalText || partialText) && (
             <div style={{
               padding: '8px 16px',
               borderTop: '1px solid var(--e-border)',
@@ -425,7 +449,33 @@ export function VoiceInterface() {
                 fontSize: '14px',
                 color: 'var(--e-text)',
                 margin: 0
-              }}>{transcript}</p>
+              }}>
+                {finalText && (
+                  <span style={{ fontWeight: 600, color: 'var(--success-600)' }}>{finalText}</span>
+                )}
+                {partialText && (
+                  <span style={{
+                    fontStyle: 'italic',
+                    color: 'var(--warning-600)',
+                    opacity: 0.9
+                  }}>
+                    {finalText ? ' ' : ''}{partialText}
+                    <span style={{ marginLeft: '4px', fontWeight: 'bold' }}>▊</span>
+                  </span>
+                )}
+              </p>
+              <div style={{ marginTop: '4px', fontSize: '11px', display: 'flex', gap: '8px' }}>
+                {finalText && (
+                  <span style={{ color: 'var(--success-600)' }}>
+                    ✓ {finalText.split(' ').length} ord
+                  </span>
+                )}
+                {partialText && (
+                  <span style={{ color: 'var(--warning-600)', fontStyle: 'italic' }}>
+                    ⏳ {partialText.split(' ').length} temporära
+                  </span>
+                )}
+              </div>
             </div>
           )}
 
@@ -447,7 +497,7 @@ export function VoiceInterface() {
       )}
 
       {/* Status/Transcript Box (when not expanded) */}
-      {!isExpanded && (status || transcript || error) && (
+      {!isExpanded && (status || finalText || partialText || error) && (
         <div style={{
           marginBottom: '16px',
           borderRadius: '16px',
@@ -461,7 +511,8 @@ export function VoiceInterface() {
           {/* Close button */}
           <button
             onClick={() => {
-              setTranscript('');
+              setPartialText('');
+              setFinalText('');
               setStatus('');
               setError(null);
             }}
@@ -501,7 +552,7 @@ export function VoiceInterface() {
                 margin: 0
               }}>{error}</p>
             </>
-          ) : transcript ? (
+          ) : (finalText || partialText) ? (
             <>
               <p style={{
                 fontSize: '14px',
@@ -512,7 +563,16 @@ export function VoiceInterface() {
                 color: 'var(--e-text)',
                 paddingRight: '24px',
                 margin: 0
-              }}>{transcript}</p>
+              }}>
+                {finalText && (
+                  <span style={{ fontWeight: 600, color: 'var(--success-600)' }}>{finalText}</span>
+                )}
+                {partialText && (
+                  <span style={{ fontStyle: 'italic', color: 'var(--warning-600)' }}>
+                    {finalText ? ' ' : ''}{partialText}<span style={{ fontWeight: 'bold' }}>▊</span>
+                  </span>
+                )}
+              </p>
             </>
           ) : status ? (
             <>
@@ -531,8 +591,10 @@ export function VoiceInterface() {
         </div>
       )}
 
-      {/* Voice Button */}
-      <div style={{ position: 'relative' }}>
+      {/* Buttons Container */}
+      <div style={{ display: 'flex', gap: '12px' }}>
+        {/* Voice Button */}
+        <div style={{ position: 'relative' }}>
         <Button
           variant={isListening ? 'secondary' : 'primary'}
           size="lg"
@@ -599,6 +661,80 @@ export function VoiceInterface() {
           </div>
         )}
       </div>
+
+        {/* Text Input Button */}
+        <div style={{ position: 'relative' }}>
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => setShowTextInput(true)}
+            style={{
+              borderRadius: '9999px',
+              width: '64px',
+              height: '64px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0
+            }}
+            title="Skriv meddelande till AI"
+          >
+            <MessageSquare style={{ height: '28px', width: '28px' }} />
+          </Button>
+        </div>
+      </div>
+
+      {/* Text Input Dialog */}
+      {showTextInput && (
+        <DialogComponent
+          width="min(90%, 400px)"
+          header="Skriv till AI"
+          visible={true}
+          close={() => {
+            setShowTextInput(false);
+            setTextInputValue('');
+          }}
+          showCloseIcon={true}
+          isModal={true}
+          target="body"
+          buttons={[
+            {
+              buttonModel: {
+                content: 'Skicka',
+                isPrimary: true,
+                cssClass: 'e-primary'
+              },
+              click: handleTextSubmit
+            },
+            {
+              buttonModel: {
+                content: 'Avbryt',
+                cssClass: 'e-flat'
+              },
+              click: () => {
+                setShowTextInput(false);
+                setTextInputValue('');
+              }
+            }
+          ]}
+          animationSettings={{
+            effect: 'Zoom',
+            duration: 300,
+            delay: 0
+          } as AnimationSettingsModel}
+        >
+          <div style={{ padding: '16px' }}>
+            <TextBoxComponent
+              placeholder="Skriv din fråga till AI..."
+              floatLabelType="Auto"
+              multiline={true}
+              value={textInputValue}
+              input={(e) => setTextInputValue(e.value)}
+            />
+          </div>
+        </DialogComponent>
+      )}
     </div>
   );
 }
