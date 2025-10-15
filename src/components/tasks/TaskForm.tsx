@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Dialog } from '@/components/ui/Dialog';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import type { Task, TaskStatus, PriorityFlag } from '@/lib/types';
 
-// SyncFusion imports
-import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
-import { NumericTextBoxComponent } from '@syncfusion/ej2-react-inputs';
+// SyncFusion imports - Pure implementation
+import { DialogComponent, AnimationSettingsModel, ButtonPropsModel } from '@syncfusion/ej2-react-popups';
+import { TextBoxComponent, NumericTextBoxComponent, SliderComponent } from '@syncfusion/ej2-react-inputs';
 import { DatePickerComponent } from '@syncfusion/ej2-react-calendars';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { FormValidator } from '@syncfusion/ej2-inputs';
@@ -25,6 +24,13 @@ interface TaskFormProps {
     effort?: number;
   };
 }
+
+// Animation settings for dialog
+const animationSettings: AnimationSettingsModel = {
+  effect: 'Zoom',
+  duration: 300,
+  delay: 0
+};
 
 export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFormProps) {
   const { createTask, updateTask } = useTasks();
@@ -166,25 +172,43 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
     onClose();
   };
 
-  const dialogButtons = [
+  // Dialog buttons enligt SyncFusion best practice
+  const dialogButtons: ButtonPropsModel[] = [
     {
-      content: taskToEdit ? 'Spara ändringar' : 'Skapa uppgift',
-      isPrimary: true,
-      onClick: handleSubmit,
+      buttonModel: {
+        content: taskToEdit ? 'Spara ändringar' : 'Skapa uppgift',
+        isPrimary: true,
+        cssClass: 'e-primary'
+      },
+      click: handleSubmit
     },
     {
-      content: 'Avbryt',
-      onClick: onClose,
-    },
+      buttonModel: {
+        content: 'Avbryt',
+        cssClass: 'e-flat'
+      },
+      click: onClose
+    }
   ];
 
+  // Only render dialog when it should be open to avoid DOM conflicts
+  if (!isOpen) return null;
+
   return (
-    <Dialog
-      isOpen={isOpen}
-      onClose={onClose}
-      title={taskToEdit ? 'Redigera uppgift' : 'Ny uppgift'}
-      size="lg"
+    <DialogComponent
+      width="min(90%, 800px)"
+      header={taskToEdit ? 'Redigera uppgift' : 'Ny uppgift'}
+      visible={true}
+      close={onClose}
+      showCloseIcon={true}
+      isModal={true}
       buttons={dialogButtons}
+      animationSettings={animationSettings}
+      target="body"
+      cssClass="e-responsive-dialog"
+      allowDragging={false}
+      enableResize={false}
+      closeOnEscape={true}
     >
       <form ref={formRef} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {/* Titel */}
@@ -292,50 +316,62 @@ export function TaskForm({ isOpen, onClose, taskToEdit, defaultValues }: TaskFor
         </div>
 
         {showAdvanced && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingLeft: '16px' }}>
-            <NumericTextBoxComponent
-              placeholder="Värde/Konsekvens om det INTE görs"
-              floatLabelType="Auto"
-              format="n0"
-              min={1}
-              max={10}
-              step={1}
-              value={valueScore}
-              change={(e) => setValueScore(e.value || 8)}
-            />
-            <NumericTextBoxComponent
-              placeholder="Tidskänslighet (kostnad av att vänta)"
-              floatLabelType="Auto"
-              format="n0"
-              min={1}
-              max={10}
-              step={1}
-              value={timeSensitivity}
-              change={(e) => setTimeSensitivity(e.value || 5)}
-            />
-            <NumericTextBoxComponent
-              placeholder="Säkerhet i bedömningen"
-              floatLabelType="Auto"
-              format="n0"
-              min={1}
-              max={10}
-              step={1}
-              value={confidence}
-              change={(e) => setConfidence(e.value || 8)}
-            />
-            <NumericTextBoxComponent
-              placeholder="Uppskattad ansträngning"
-              floatLabelType="Auto"
-              format="n0"
-              min={1}
-              max={10}
-              step={1}
-              value={effort}
-              change={(e) => setEffort(e.value || 5)}
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px', paddingLeft: '16px' }}>
+            <div>
+              <label style={{ fontSize: '12px', color: '#666', marginBottom: '8px', display: 'block' }}>
+                Värde/Konsekvens om det INTE görs: {valueScore}
+              </label>
+              <SliderComponent
+                value={valueScore}
+                min={1}
+                max={10}
+                step={1}
+                tooltip={{ isVisible: true, placement: 'Before' }}
+                change={(e: any) => setValueScore(e.value)}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '12px', color: '#666', marginBottom: '8px', display: 'block' }}>
+                Tidskänslighet (kostnad av att vänta): {timeSensitivity}
+              </label>
+              <SliderComponent
+                value={timeSensitivity}
+                min={1}
+                max={10}
+                step={1}
+                tooltip={{ isVisible: true, placement: 'Before' }}
+                change={(e: any) => setTimeSensitivity(e.value)}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '12px', color: '#666', marginBottom: '8px', display: 'block' }}>
+                Säkerhet i bedömningen: {confidence}
+              </label>
+              <SliderComponent
+                value={confidence}
+                min={1}
+                max={10}
+                step={1}
+                tooltip={{ isVisible: true, placement: 'Before' }}
+                change={(e: any) => setConfidence(e.value)}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '12px', color: '#666', marginBottom: '8px', display: 'block' }}>
+                Uppskattad ansträngning: {effort}
+              </label>
+              <SliderComponent
+                value={effort}
+                min={1}
+                max={10}
+                step={1}
+                tooltip={{ isVisible: true, placement: 'Before' }}
+                change={(e: any) => setEffort(e.value)}
+              />
+            </div>
           </div>
         )}
       </form>
-    </Dialog>
+    </DialogComponent>
   );
 }

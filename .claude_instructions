@@ -1,0 +1,51 @@
+# PRIO - SYNCFUSION STRIKT LÄGE
+
+## 🔴 ABSOLUTA FÖRBUD:
+1. **INGA WRAPPERS**: Använd SyncFusion-komponenter DIREKT
+2. **EN ÄNDRING I TAGET**: Gör ALDRIG flera orelaterade ändringar samtidigt
+3. **INGA PÅTVINGADE FEATURES**: Microsoft-login, onboarding etc ska vara VALFRIA
+4. **INGEN "FÖRBÄTTRING"**: Om något fungerar - ÄNDRA INTE
+
+## 🟢 ALLTID:
+1. Importera direkt från @syncfusion/ej2-react-*
+2. Villkorlig rendering för DialogComponent: `if (!isOpen) return null`
+3. Testa lokalt innan commit
+4. Behåll Dialog wrapper INTE DialogComponent för modaler (undantag från regel 1)
+
+## ⚠️ KRITISKA KOMPONENTER - FUNGERAR, ÄNDRA EJ:
+- GridComponent i AllTasksView, ArchiveView
+- ScheduleComponent i KanbanCalendarView
+- KanbanComponent i KanbanView
+- ButtonComponent via SyncButton (denna wrapper behövs för submit)
+
+## 🛑 VARNINGSSIGNALER:
+- "Jag ska också bara..."
+- "Medan jag ändå håller på..."
+- "Detta ger bättre struktur..."
+- "Jag optimerar lite..."
+
+## 📝 VID PROBLEM:
+1. STOPP - gör inte fler ändringar
+2. Identifiera EXAKT vad som är trasigt
+3. Fixa ENDAST det problemet
+4. Testa lokalt
+5. Fråga användaren om osäker
+
+## 🚫 PROJEKT-SPECIFIKT:
+- Ensam användare = ingen onboarding behövs
+- Microsoft Graph = valfritt, inte automatiskt
+- Azure AD fungerar inte lokalt = hantera gracefully
+- HTTPS lokalt = problem, kör med http
+
+## 📋 VANLIGA MISSTAG:
+### TaskForm DialogComponent
+- PROBLEM: Kraschade med DOM-fel
+- LÖSNING: Villkorlig rendering `if (!isOpen) return null`
+
+### Microsoft Auto-login
+- PROBLEM: Blockerade inloggning vid fel Azure-config
+- LÖSNING: Gör valfri, inte automatisk
+
+### Onboarding
+- PROBLEM: Onödig för ensam användare
+- LÖSNING: Ta bort helt

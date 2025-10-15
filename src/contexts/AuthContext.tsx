@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { loginToMicrosoft, logoutFromMicrosoft, isMicrosoftLoggedIn } from '@/services/microsoft-graph';
+import { logoutFromMicrosoft } from '@/services/microsoft-graph';
 import { toast } from 'react-hot-toast';
-import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 
 interface AuthContextType {
   user: User | null;
@@ -21,7 +20,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const INACTIVITY_TIMEOUT = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 
@@ -63,41 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
 
-      // Auto-login to Microsoft when user logs into Prio
+      // Start inactivity timer when user signs in
       if (session?.user && _event === 'SIGNED_IN') {
-        try {
-          const isMsftConnected = await isMicrosoftLoggedIn();
-
-          if (!isMsftConnected) {
-            // Kolla om detta är första inloggningen
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('onboarding_completed')
-              .eq('id', session.user.id)
-              .single();
-
-            const isFirstLogin = !profile || !profile.onboarding_completed;
-
-            if (isFirstLogin) {
-              // Visa välkomstmodal för nya användare
-              setShowWelcomeModal(true);
-            } else {
-              // Befintlig användare - visa bara notis
-              toast('Kopplar till Microsoft för kalender och mejl...', {
-                icon: '🔗',
-                duration: 3000,
-              });
-
-              await new Promise(resolve => setTimeout(resolve, 500));
-              await loginToMicrosoft(true);
-            }
-          }
-        } catch (error) {
-          console.error('Auto-MSFT login failed:', error);
-          toast.error('Kunde inte ansluta till Microsoft. Du kan logga in manuellt i inställningar.');
-        }
-
-        // Start inactivity timer
         resetInactivityTimer();
       }
 
@@ -169,48 +134,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const handleConnectMicrosoft = async () => {
-    setShowWelcomeModal(false);
-
-    toast('Kopplar till Microsoft...', {
-      icon: '🔗',
-      duration: 3000,
-    });
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    try {
-      await loginToMicrosoft(true);
-
-      // Markera onboarding som klar
-      if (user) {
-        await supabase
-          .from('profiles')
-          .upsert({ id: user.id, onboarding_completed: true });
-      }
-
-      toast.success('Microsoft-konto kopplat!');
-    } catch (error) {
-      console.error('Microsoft connection failed:', error);
-      toast.error('Kunde inte ansluta. Försök igen via Inställningar.');
-    }
-  };
-
-  const handleSkipMicrosoft = async () => {
-    setShowWelcomeModal(false);
-
-    // Markera onboarding som klar även om de skippar
-    if (user) {
-      await supabase
-        .from('profiles')
-        .upsert({ id: user.id, onboarding_completed: true });
-    }
-
-    toast('Du kan koppla Microsoft när som helst via Inställningar', {
-      icon: 'ℹ️',
-      duration: 4000,
-    });
-  };
 
   const value = {
     user,
@@ -225,15 +148,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={value}>
       {children}
-      {showWelcomeModal && (
-        <WelcomeModal
-          isOpen={showWelcomeModal}
-          onComplete={() => setShowWelcomeModal(false)}
-          onClose={() => setShowWelcomeModal(false)}
-          onConnectMicrosoft={handleConnectMicrosoft}
-          onSkip={handleSkipMicrosoft}
-        />
-      )}
     </AuthContext.Provider>
   );
 }

@@ -21,10 +21,10 @@ interface SyncButtonProps {
 }
 
 const variantMap = {
-  primary: 'e-primary e-round',
-  secondary: 'e-outline e-round',
-  ghost: 'e-link',
-  danger: 'e-danger e-round',
+  primary: 'e-primary',
+  secondary: 'e-outline',
+  ghost: 'e-flat',
+  danger: 'e-danger',
 };
 
 const sizeMap = {
@@ -48,17 +48,47 @@ export const SyncButton = forwardRef<any, SyncButtonProps>(
     className = '',
     style,
     title,
+    type = 'button',
     iconCss,
     iconPosition = 'Left',
   }, ref) => {
     const cssClass = `${variantMap[variant]} ${sizeMap[size]} ${className}`.trim();
 
-    // Handle click on wrapper div to ensure it always works
+    // Handle click on wrapper div to ensure it always works (but not for submit buttons)
     const handleClick = (e: any) => {
+      if (type === 'submit') {
+        // Let form handle submit
+        return;
+      }
       if (!disabled && !loading && onClick) {
         onClick(e);
       }
     };
+
+    // For submit buttons, render without wrapper to allow native form submission
+    if (type === 'submit') {
+      return (
+        <ButtonComponent
+          ref={ref}
+          cssClass={cssClass}
+          disabled={disabled || loading}
+          enableRtl={false}
+          isPrimary={variant === 'primary'}
+          iconCss={iconCss}
+          iconPosition={iconPosition}
+          type={type}
+          style={{
+            width: style?.width,
+            minHeight: size === 'lg' ? '44px' : size === 'sm' ? '28px' : '36px',
+            padding: size === 'lg' ? '10px 20px' : size === 'sm' ? '4px 12px' : '6px 16px',
+            ...style
+          }}
+        >
+          {loading && <span className="e-spinner-pane e-spin-show"></span>}
+          {children}
+        </ButtonComponent>
+      );
+    }
 
     return (
       <div
@@ -83,6 +113,7 @@ export const SyncButton = forwardRef<any, SyncButtonProps>(
             isPrimary={variant === 'primary'}
             iconCss={iconCss}
             iconPosition={iconPosition}
+            type={type}
           >
             {loading && <span className="e-spinner-pane e-spin-show"></span>}
             {children}

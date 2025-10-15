@@ -16,7 +16,7 @@ export default defineConfig(() => ({
   server: {
     port: 5174, // Different port than anmarkt-beta
     host: true,
-    https: true, // Required for microphone access in production-like environment
+    https: false, // Temporarily disabled due to SSL certificate issues
   },
   build: {
     chunkSizeWarningLimit: 1000, // Increase limit to 1000 kB

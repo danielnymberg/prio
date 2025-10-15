@@ -6,8 +6,6 @@ import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
 // import { QuickCaptureBar } from './components/ui/QuickCaptureBar'; // TEMPORÄRT DISABLED
 // import { QuickNoteInput } from './components/tasks/QuickNoteInput'; // TEMPORÄRT DISABLED
-// import { WelcomeModal } from './components/onboarding/WelcomeModal'; // TEMPORÄRT DISABLED
-// import { KanbanOnboarding } from './components/onboarding/KanbanOnboarding'; // TEMPORÄRT DISABLED
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
@@ -109,15 +107,6 @@ function LoginPage() {
         </div>
 
         <LoginForm />
-
-        <p style={{
-          textAlign: 'center',
-          fontSize: '14px',
-          color: 'var(--e-text)',
-          marginTop: '24px'
-        }}>
-          Samma inloggning som Anmärkt
-        </p>
       </div>
     </div>
   );
@@ -125,29 +114,8 @@ function LoginPage() {
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  // TEMPORÄRT DISABLED: Modals disabled for testing
-  // const [showWelcome, setShowWelcome] = useState(false);
-  // const [showKanbanOnboarding, setShowKanbanOnboarding] = useState(false);
   // const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const { tasks } = useTasks();
-
-  // TEMPORÄRT DISABLED: Onboarding modals disabled
-  // useEffect(() => {
-  //   // Kolla om användaren har slutfört onboarding
-  //   if (user && !loading) {
-  //     const completed = localStorage.getItem('prio_onboarding_completed');
-  //     const kanbanCompleted = localStorage.getItem('prio_kanban_onboarding_completed');
-
-  //     if (!completed) {
-  //       setShowWelcome(true);
-  //     } else if (!kanbanCompleted) {
-  //       // Visa Kanban onboarding efter 2 sekunder om huvudonboarding är klar
-  //       setTimeout(() => {
-  //         setShowKanbanOnboarding(true);
-  //       }, 2000);
-  //     }
-  //   }
-  // }, [user, loading]);
 
   // Initialize notifications and check every 5 minutes
   useEffect(() => {
@@ -237,18 +205,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {/* <QuickNoteInput key="quick-note" /> */}
       {/* Quick capture bar för mobil - TEMPORÄRT DISABLED: Testing if TaskForm/Dialog causes crash */}
       {/* <QuickCaptureBar key="quick-capture" /> */}
-      {/* Onboarding modal för nya användare - TEMPORÄRT DISABLED: Testing crash */}
-      {/* <WelcomeModal
-        key="welcome-modal"
-        isOpen={showWelcome}
-        onComplete={() => setShowWelcome(false)}
-      /> */}
-      {/* Kanban onboarding för befintliga användare - TEMPORÄRT DISABLED: Testing crash */}
-      {/* <KanbanOnboarding
-        key="kanban-onboarding"
-        isOpen={showKanbanOnboarding}
-        onComplete={() => setShowKanbanOnboarding(false)}
-      /> */}
       {/* Weekly review modal - TEMPORÄRT DISABLED: Testing crash */}
       {/* <WeeklyReviewModal
         key="weekly-review"
