@@ -60,14 +60,12 @@ export function ResultImpactModal() {
               <button
                 key={value}
                 onClick={() => setImpact(value)}
-                className="e-rounded-md e-font-semibold e-transition e-cursor-pointer"
+                className={`e-btn ${impact >= value ? 'e-primary' : 'e-outline'}`}
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  backgroundColor: impact >= value ? 'var(--warning-500, var(--warning-400))' : 'var(--e-hover, #e5e7eb)',
-                  color: impact >= value ? 'var(--warning-900, #78350f)' : 'var(--e-text-secondary, #6b7280)',
-                  transform: impact >= value ? 'scale(1.1)' : 'scale(1)',
-                  border: 'none'
+                  width: '44px',
+                  height: '44px',
+                  minWidth: '44px',
+                  padding: 0
                 }}
               >
                 {value}
