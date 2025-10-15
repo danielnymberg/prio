@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Mic, MicOff, MessageSquare, X } from 'lucide-react';
+import { Mic, MicOff, MessageSquare, X, Send } from 'lucide-react';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
@@ -206,25 +206,27 @@ export function VoiceInterface() {
     }
   }, [handleUserMessage, isListening, finalText, partialText]);
 
-  const handleStopListening = useCallback(() => {
-    setIsListening(false);
-    sttRef.current?.stopListening(false);
-
-    // Spara den ackumulerade texten INNAN vi stänger WebSocket
-    const savedText = finalText.trim();
-
-    // Skicka till Claude om det finns text
-    if (savedText) {
-      console.log('🎯 Skickar final text till Claude:', savedText);
-      setStatus('Bearbetar...');
-      handleUserMessage(savedText);
-      setPartialText('');
-      setFinalText('');
+  const handleToggleListening = useCallback(() => {
+    if (isListening) {
+      // Stoppa lyssnande men behåll texten
+      setIsListening(false);
+      setStatus('Pausad - klicka Skicka eller fortsätt prata');
+      sttRef.current?.stopListening(false);
     } else {
-      setStatus('Avbruten - inget ljud');
+      // Starta lyssnande
+      handleStartListening();
+    }
+  }, [isListening, handleStartListening]);
+
+  const handleSendToAI = useCallback(() => {
+    if (finalText.trim()) {
+      console.log('🎯 Skickar final text till Claude:', finalText);
+      setStatus('Bearbetar...');
+      handleUserMessage(finalText);
       setPartialText('');
       setFinalText('');
-      setTimeout(() => setStatus(''), 2000);
+      setIsListening(false);
+      sttRef.current?.stopListening(false);
     }
   }, [finalText, handleUserMessage]);
 
@@ -325,7 +327,7 @@ export function VoiceInterface() {
   return (
     <div style={{
       position: 'fixed',
-      bottom: '24px',
+      bottom: '80px',
       right: '24px',
       zIndex: 50
     }}>
@@ -602,9 +604,9 @@ export function VoiceInterface() {
         {/* Voice Button */}
         <div style={{ position: 'relative' }}>
         <Button
-          variant={isListening ? 'secondary' : 'primary'}
+          variant={isListening ? 'danger' : 'primary'}
           size="lg"
-          onClick={isListening ? handleStopListening : handleStartListening}
+          onClick={handleToggleListening}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onTouchStart={handleMouseDown}
@@ -622,8 +624,8 @@ export function VoiceInterface() {
           }}
           title={
             isListening
-              ? 'Klicka för att sluta lyssna'
-              : 'Klicka för att prata, håll inne för att öppna chat'
+              ? 'Pausa inspelning'
+              : 'Starta röstinspelning (håll inne för chat)'
           }
         >
           {isListening ? (
@@ -667,6 +669,31 @@ export function VoiceInterface() {
           </div>
         )}
         </div>
+
+        {/* Send Button - Visas när det finns text att skicka */}
+        {finalText.trim() && (
+          <div style={{ position: 'relative' }}>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={handleSendToAI}
+              style={{
+                borderRadius: '9999px',
+                width: '64px',
+                height: '64px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+              }}
+              title="Skicka till AI"
+            >
+              <Send style={{ height: '28px', width: '28px' }} />
+            </Button>
+          </div>
+        )}
 
         {/* Text Input Button */}
         <div style={{ position: 'relative' }}>
