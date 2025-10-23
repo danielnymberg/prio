@@ -5,14 +5,14 @@ import { useTasks } from '@/hooks/useTasks';
 import { Project } from '@/lib/types';
 import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { useNavigate } from 'react-router-dom';
+import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import {
   Calendar,
   Clock,
   TrendingUp,
   AlertTriangle,
   CheckCircle2,
-  Sparkles,
-  Filter
+  Sparkles
 } from 'lucide-react';
 import { CapacityTimeline } from '@/components/capacity/CapacityTimeline';
 
@@ -126,38 +126,28 @@ export function OverviewView() {
   });
 
   return (
-    <div className="e-mx-auto" style={{ maxWidth: '80rem', padding: '2rem' }}>
+    <>
       {/* Header */}
-      <div className="e-flex e-align-center e-justify-between" style={{ marginBottom: '2rem' }}>
+      <div className="e-flex e-align-center e-justify-between e-mb-16">
         <div>
-          <h1 className="e-m-0 e-font-bold" style={{
-            fontSize: '1.875rem',
-            color: 'var(--e-text)'
-          }}>
+          <h1 className="e-text-2xl e-font-bold e-mb-4">
             Översikt
           </h1>
-          <p style={{
-            color: 'var(--e-text-secondary)',
-            marginTop: '0.25rem'
-          }}>
+          <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
             Planera {timeHorizon} månad{parseInt(timeHorizon) > 1 ? 'er' : ''} framåt
           </p>
         </div>
 
         {/* Tidshoriont-väljare */}
-        <div className="e-flex" style={{ gap: '0.5rem' }}>
+        <div className="e-flex e-gap-8">
           {(['1', '3', '6', '12'] as TimeHorizon[]).map((horizon) => (
             <button
               key={horizon}
               onClick={() => setTimeHorizon(horizon)}
-              className="e-font-medium e-transition e-cursor-pointer"
+              className={`e-btn ${timeHorizon === horizon ? 'e-primary' : 'e-outline'}`}
               style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '0.75rem',
-                backgroundColor: timeHorizon === horizon ? 'var(--primary-500)' : 'var(--e-surface)',
-                color: timeHorizon === horizon ? 'white' : 'var(--e-text)',
-                border: timeHorizon === horizon ? 'none' : '1px solid var(--e-border)',
-                boxShadow: timeHorizon === horizon ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                padding: '4px 12px',
+                minHeight: '28px'
               }}
             >
               {horizon} mån
@@ -167,219 +157,119 @@ export function OverviewView() {
       </div>
 
       {/* Filter */}
-      <div className="e-flex" style={{ gap: '0.75rem', marginBottom: '2rem' }}>
-        <div className="e-flex e-align-center e-border e-rounded-lg" style={{
-          gap: '0.5rem',
-          backgroundColor: 'var(--e-surface)',
-          padding: '0.75rem 1rem'
-        }}>
-          <Filter style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary)' }} />
-          <select
-            value={selectedClient}
-            onChange={(e) => setSelectedClient(e.target.value)}
-            className="e-text-sm e-font-medium e-cursor-pointer"
-            style={{
-              backgroundColor: 'transparent',
-              color: 'var(--e-text)',
-              outline: 'none',
-              border: 'none'
-            }}
-          >
-            <option value="all">Alla klienter</option>
-            {clients.map(client => (
-              <option key={client} value={client}>{client}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="e-flex e-align-center e-border e-rounded-lg" style={{
-          gap: '0.5rem',
-          backgroundColor: 'var(--e-surface)',
-          padding: '0.75rem 1rem'
-        }}>
-          <Filter style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary)' }} />
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="e-text-sm e-font-medium e-cursor-pointer"
-            style={{
-              backgroundColor: 'transparent',
-              color: 'var(--e-text)',
-              outline: 'none',
-              border: 'none'
-            }}
-          >
-            <option value="all">Alla status</option>
-            <option value="active">Aktiva</option>
-            <option value="completed">Klara</option>
-          </select>
-        </div>
+      <div className="e-flex e-gap-8 e-mb-16">
+        <DropDownListComponent
+          dataSource={[{ value: 'all', text: 'Alla klienter' }, ...clients.map(c => ({ value: c, text: c }))]}
+          fields={{ text: 'text', value: 'value' }}
+          value={selectedClient}
+          change={(e: any) => setSelectedClient(e.value)}
+          placeholder="Filtrera klient"
+          cssClass="e-outline"
+          style={{ width: '200px' }}
+        />
+        <DropDownListComponent
+          dataSource={[
+            { value: 'all', text: 'Alla status' },
+            { value: 'active', text: 'Aktiva' },
+            { value: 'completed', text: 'Klara' }
+          ]}
+          fields={{ text: 'text', value: 'value' }}
+          value={selectedStatus}
+          change={(e: any) => setSelectedStatus(e.value)}
+          placeholder="Filtrera status"
+          cssClass="e-outline"
+          style={{ width: '200px' }}
+        />
       </div>
 
       {/* Statistik-kort */}
-      <div className="e-grid" style={{
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem'
+      <div className="e-grid e-gap-8 e-mb-16" style={{
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))'
       }}>
-        <div style={{
-          padding: '1.5rem',
-          backgroundColor: 'var(--e-surface)',
-          border: '2px solid var(--primary-500)',
-          borderRadius: '0.75rem'
+        <div className="e-p-12 e-border e-rounded-lg" style={{
+          borderColor: 'var(--primary-500)',
+          borderWidth: '2px'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.5rem'
-          }}>
-            <Sparkles style={{ height: '20px', width: '20px', color: 'var(--primary-600)' }} />
-            <span style={{
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              color: 'var(--e-text-secondary)'
-            }}>
+          <div className="e-flex e-align-center e-gap-4 e-mb-4">
+            <Sparkles style={{ height: '16px', width: '16px', color: 'var(--primary-600)' }} />
+            <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
               Totalt
             </span>
           </div>
-          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
-            {stats.total}
-          </p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>projekt</p>
+          <p className="e-text-xl e-font-bold e-m-0">{stats.total}</p>
+          <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>projekt</p>
         </div>
 
-        <div style={{
-          padding: '1.5rem',
-          backgroundColor: 'var(--e-surface)',
-          border: '2px solid #10b981',
-          borderRadius: '0.75rem'
+        <div className="e-p-12 e-border e-rounded-lg" style={{
+          borderColor: '#10b981',
+          borderWidth: '2px'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.5rem'
-          }}>
-            <CheckCircle2 style={{ height: '20px', width: '20px', color: '#10b981' }} />
-            <span style={{
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              color: 'var(--e-text-secondary)'
-            }}>
+          <div className="e-flex e-align-center e-gap-4 e-mb-4">
+            <CheckCircle2 style={{ height: '16px', width: '16px', color: '#10b981' }} />
+            <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
               Klara
             </span>
           </div>
-          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
-            {stats.completed}
-          </p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>projekt</p>
+          <p className="e-text-xl e-font-bold e-m-0">{stats.completed}</p>
+          <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>projekt</p>
         </div>
 
-        <div style={{
-          padding: '1.5rem',
-          backgroundColor: 'var(--e-surface)',
-          border: '2px solid var(--warning-500)',
-          borderRadius: '0.75rem'
+        <div className="e-p-12 e-border e-rounded-lg" style={{
+          borderColor: 'var(--warning-500)',
+          borderWidth: '2px'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.5rem'
-          }}>
-            <Clock style={{ height: '20px', width: '20px', color: 'var(--warning-500)' }} />
-            <span style={{
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              color: 'var(--e-text-secondary)'
-            }}>
+          <div className="e-flex e-align-center e-gap-4 e-mb-4">
+            <Clock style={{ height: '16px', width: '16px', color: 'var(--warning-500)' }} />
+            <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
               Totalt
             </span>
           </div>
-          <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
-            {stats.totalQuotedHours}h
-          </p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>offererat</p>
+          <p className="e-text-xl e-font-bold e-m-0">{stats.totalQuotedHours}h</p>
+          <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>offererat</p>
         </div>
 
-        <div style={{
-          padding: '1.5rem',
-          backgroundColor: 'var(--e-surface)',
-          border: '2px solid #8b5cf6',
-          borderRadius: '0.75rem'
+        <div className="e-p-12 e-border e-rounded-lg" style={{
+          borderColor: '#8b5cf6',
+          borderWidth: '2px'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.5rem'
-          }}>
-            <TrendingUp style={{ height: '20px', width: '20px', color: '#8b5cf6' }} />
-            <span style={{
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              color: 'var(--e-text-secondary)'
-            }}>
+          <div className="e-flex e-align-center e-gap-4 e-mb-4">
+            <TrendingUp style={{ height: '16px', width: '16px', color: '#8b5cf6' }} />
+            <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
               Budget
             </span>
           </div>
-          <p style={{
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: 'var(--e-text)',
-            margin: 0
-          }}>
-            {(stats.totalBudget / 1000).toFixed(0)}k
-          </p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--e-text-secondary)', margin: 0 }}>kr totalt</p>
+          <p className="e-text-xl e-font-bold e-m-0">{(stats.totalBudget / 1000).toFixed(0)}k</p>
+          <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>kr totalt</p>
         </div>
       </div>
 
       {/* Varningar */}
       {(urgentProjects.length > 0 || overBudgetProjects.length > 0) && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1rem',
-          marginBottom: '2rem'
+        <div className="e-grid e-gap-8 e-mb-16" style={{
+          gridTemplateColumns: 'repeat(auto-fit, minmin(250px, 1fr))'
         }}>
           {urgentProjects.length > 0 && (
-            <div style={{
-              padding: '1.5rem',
+            <div className="e-p-12 e-border e-rounded-lg" style={{
               backgroundColor: '#fef3c7',
-              border: '2px solid var(--warning-500)',
-              borderRadius: '0.75rem'
+              borderColor: 'var(--warning-500)',
+              borderWidth: '2px'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                marginBottom: '0.5rem'
-              }}>
-                <AlertTriangle style={{ height: '20px', width: '20px', color: 'var(--warning-600)' }} />
-                <h3 style={{ fontWeight: 'bold', color: '#78350f', margin: 0 }}>
+              <div className="e-flex e-align-center e-gap-4 e-mb-8">
+                <AlertTriangle style={{ height: '16px', width: '16px', color: 'var(--warning-600)' }} />
+                <h3 className="e-font-bold e-m-0 e-text-sm" style={{ color: '#78350f' }}>
                   Brådskande deadlines
                 </h3>
               </div>
-              <p style={{
-                fontSize: '0.875rem',
-                color: '#92400e',
-                marginBottom: '0.5rem'
-              }}>
+              <p className="e-text-xs e-mb-8" style={{ color: '#92400e' }}>
                 {urgentProjects.length} projekt med deadline inom 2 veckor
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div className="e-flex e-flex-column e-gap-4">
                 {urgentProjects.slice(0, 3).map(project => (
                   <div
                     key={project.id}
                     onClick={() => navigate(`/projects/${project.id}`)}
-                    style={{
-                      fontSize: '0.875rem',
-                      color: '#78350f',
-                      cursor: 'pointer',
-                      textDecoration: 'none'
-                    }}
+                    className="e-text-xs e-cursor-pointer"
+                    style={{ color: '#78350f' }}
                     onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
                     onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
@@ -391,41 +281,27 @@ export function OverviewView() {
           )}
 
           {overBudgetProjects.length > 0 && (
-            <div style={{
-              padding: '1.5rem',
+            <div className="e-p-12 e-border e-rounded-lg" style={{
               backgroundColor: '#fee2e2',
-              border: '2px solid #ef4444',
-              borderRadius: '0.75rem'
+              borderColor: '#ef4444',
+              borderWidth: '2px'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                marginBottom: '0.5rem'
-              }}>
-                <AlertTriangle style={{ height: '20px', width: '20px', color: '#dc2626' }} />
-                <h3 style={{ fontWeight: 'bold', color: '#7f1d1d', margin: 0 }}>
+              <div className="e-flex e-align-center e-gap-4 e-mb-8">
+                <AlertTriangle style={{ height: '16px', width: '16px', color: '#dc2626' }} />
+                <h3 className="e-font-bold e-m-0 e-text-sm" style={{ color: '#7f1d1d' }}>
                   Budgetöverskridning
                 </h3>
               </div>
-              <p style={{
-                fontSize: '0.875rem',
-                color: '#991b1b',
-                marginBottom: '0.5rem'
-              }}>
+              <p className="e-text-xs e-mb-8" style={{ color: '#991b1b' }}>
                 {overBudgetProjects.length} projekt över budget
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div className="e-flex e-flex-column e-gap-4">
                 {overBudgetProjects.slice(0, 3).map(project => (
                   <div
                     key={project.id}
                     onClick={() => navigate(`/projects/${project.id}`)}
-                    style={{
-                      fontSize: '0.875rem',
-                      color: '#7f1d1d',
-                      cursor: 'pointer',
-                      textDecoration: 'none'
-                    }}
+                    className="e-text-xs e-cursor-pointer"
+                    style={{ color: '#7f1d1d' }}
                     onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
                     onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
@@ -439,33 +315,20 @@ export function OverviewView() {
       )}
 
       {/* Projekttidslinje */}
-      <div style={{
-        backgroundColor: 'var(--e-surface)',
-        borderRadius: '0.75rem',
-        border: '2px solid var(--e-border)',
-        padding: '2rem'
-      }}>
-        <h2 style={{
-          fontSize: '1.25rem',
-          fontWeight: 'bold',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          color: 'var(--e-text)'
-        }}>
-          <Calendar style={{ height: '24px', width: '24px' }} />
+      <div className="e-border e-rounded-lg e-p-16">
+        <h2 className="e-text-lg e-font-bold e-mb-12 e-flex e-align-center e-gap-8">
+          <Calendar style={{ height: '20px', width: '20px' }} />
           Projekttidslinje
         </h2>
 
         {filteredProjects.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+          <div className="e-text-center e-py-32">
             <p style={{ color: 'var(--e-text-secondary)' }}>
               Inga projekt i denna tidsperiod
             </p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="e-flex e-flex-column e-gap-8">
             {filteredProjects.map(project => {
               const projectTasks = tasks.filter(t => t.project_id === project.id);
               const metrics = calculateProjectMetrics(project, projectTasks);
@@ -488,67 +351,40 @@ export function OverviewView() {
                 <div
                   key={project.id}
                   onClick={() => navigate(`/projects/${project.id}`)}
+                  className="e-p-12 e-border e-rounded-lg e-cursor-pointer e-transition"
                   style={{
-                    padding: '1.5rem',
-                    border: `2px solid ${project.color}`,
-                    borderRadius: '0.75rem',
-                    cursor: 'pointer',
-                    backgroundColor: 'var(--e-surface)',
-                    transition: 'box-shadow 0.2s'
+                    borderColor: project.color,
+                    borderWidth: '2px'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                 >
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    marginBottom: '0.5rem'
-                  }}>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{
-                        fontWeight: 'bold',
-                        fontSize: '1.125rem',
-                        color: 'var(--e-text)',
-                        margin: 0
-                      }}>
+                  <div className="e-flex e-align-start e-justify-between e-mb-8">
+                    <div className="e-flex-1">
+                      <h3 className="e-font-bold e-text-base e-m-0">
                         {project.name}
                       </h3>
                       {project.client_name && (
-                        <p style={{
-                          fontSize: '0.875rem',
-                          color: 'var(--e-text-secondary)',
-                          margin: 0
-                        }}>
+                        <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>
                           {project.client_name}
                         </p>
                       )}
                     </div>
 
                     {project.status === 'completed' && (
-                      <span style={{
-                        padding: '0.25rem 0.75rem',
+                      <span className="e-px-8 e-py-2 e-rounded-full e-text-xs e-font-medium" style={{
                         backgroundColor: '#d1fae5',
-                        color: '#065f46',
-                        borderRadius: '9999px',
-                        fontSize: '0.875rem',
-                        fontWeight: '500'
+                        color: '#065f46'
                       }}>
                         Klart
                       </span>
                     )}
 
                     {deadlineStyle && (
-                      <span
-                        style={{
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.875rem',
-                          fontWeight: '500',
-                          backgroundColor: deadlineStyle.bg,
-                          color: deadlineStyle.color
-                        }}
-                      >
+                      <span className="e-px-8 e-py-2 e-rounded-full e-text-xs e-font-medium" style={{
+                        backgroundColor: deadlineStyle.bg,
+                        color: deadlineStyle.color
+                      }}>
                         {daysUntilDeadline! < 0
                           ? `${Math.abs(daysUntilDeadline!)} dagar sen`
                           : daysUntilDeadline === 0
@@ -558,93 +394,55 @@ export function OverviewView() {
                     )}
                   </div>
 
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: '1rem',
-                    marginTop: '0.75rem'
+                  <div className="e-grid e-gap-8 e-mt-8" style={{
+                    gridTemplateColumns: 'repeat(4, 1fr)'
                   }}>
                     <div>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--e-text-secondary)'
-                      }}>
+                      <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
                         Färdigt
                       </span>
-                      <p style={{
-                        fontSize: '1.125rem',
-                        fontWeight: '600',
-                        color: 'var(--e-text)',
-                        margin: 0
-                      }}>
+                      <p className="e-text-base e-font-semibold e-m-0">
                         {project.completion_percentage}%
                       </p>
                     </div>
 
                     <div>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--e-text-secondary)'
-                      }}>
+                      <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
                         Loggat
                       </span>
-                      <p style={{
-                        fontSize: '1.125rem',
-                        fontWeight: '600',
-                        color: 'var(--e-text)',
-                        margin: 0
-                      }}>
+                      <p className="e-text-base e-font-semibold e-m-0">
                         {metrics.logged_hours}h
                       </p>
                     </div>
 
                     <div>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--e-text-secondary)'
-                      }}>
+                      <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
                         Återstår
                       </span>
-                      <p style={{
-                        fontSize: '1.125rem',
-                        fontWeight: '600',
-                        color: 'var(--e-text)',
-                        margin: 0
-                      }}>
+                      <p className="e-text-base e-font-semibold e-m-0">
                         {metrics.estimated_remaining_hours}h
                       </p>
                     </div>
 
                     <div>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--e-text-secondary)'
-                      }}>
+                      <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
                         Budget
                       </span>
-                      <p style={{
-                        fontSize: '1.125rem',
-                        fontWeight: '600',
-                        color: 'var(--e-text)',
-                        margin: 0
-                      }}>
+                      <p className="e-text-base e-font-semibold e-m-0">
                         {(project.total_budget / 1000).toFixed(0)}k
                       </p>
                     </div>
                   </div>
 
                   {/* Progress bar */}
-                  <div style={{
-                    marginTop: '0.75rem',
-                    height: '8px',
-                    backgroundColor: 'var(--e-border)',
-                    borderRadius: '9999px',
-                    overflow: 'hidden'
+                  <div className="e-mt-8 e-rounded-full e-overflow-hidden" style={{
+                    height: '6px',
+                    backgroundColor: 'var(--e-border)'
                   }}>
                     <div
+                      className="e-transition"
                       style={{
                         height: '100%',
-                        transition: 'width 0.3s',
                         backgroundColor: metrics.is_over_budget
                           ? '#ef4444'
                           : project.completion_percentage >= 80
@@ -662,9 +460,9 @@ export function OverviewView() {
       </div>
 
       {/* Capacity Timeline */}
-      <div style={{ marginTop: '2rem' }}>
+      <div className="e-mt-16">
         <CapacityTimeline />
       </div>
-    </div>
+    </>
   );
 }

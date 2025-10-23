@@ -252,7 +252,6 @@ export function ProjectsView() {
           recordDoubleClick={handleRecordDoubleClick}
           height="auto"
           rowHeight={30}
-          headerRowHeight={20}
           gridLines="Horizontal"
           enableHover={true}
         >
