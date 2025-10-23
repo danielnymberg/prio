@@ -16,6 +16,7 @@ export function useProjects() {
     }
 
     try {
+      console.log('[useProjects] Fetching projects for user:', user.id);
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -23,6 +24,11 @@ export function useProjects() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('[useProjects] Fetched projects:', data?.length, 'projects');
+      console.log('[useProjects] Status breakdown:', data?.reduce((acc: any, p) => {
+        acc[p.status] = (acc[p.status] || 0) + 1;
+        return acc;
+      }, {}));
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -33,6 +39,7 @@ export function useProjects() {
   };
 
   useEffect(() => {
+    console.log('[useProjects] useEffect triggered, user:', user?.id);
     fetchProjects();
   }, [user]);
 

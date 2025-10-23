@@ -15,6 +15,7 @@ import {
   Selection,
   Toolbar,
   DayMarkers,
+  ContextMenu,
   EditSettingsModel,
 } from '@syncfusion/ej2-react-gantt';
 
@@ -32,7 +33,9 @@ export function GanttView() {
   const ganttData = useMemo((): GanttData[] => {
     const activeProjects = projects.filter(p => p.status !== 'archived');
 
-    return activeProjects.map(project => {
+    console.log('[Gantt] Active projects:', activeProjects.length);
+
+    const data = activeProjects.map(project => {
       const startDate = project.start_date
         ? new Date(project.start_date)
         : new Date(project.created_at);
@@ -55,6 +58,9 @@ export function GanttView() {
         info: project,
       };
     });
+
+    console.log('[Gantt] Transformed data:', data);
+    return data;
   }, [projects, tasks]);
 
   // Edit settings (allow editing dates)
@@ -94,16 +100,18 @@ export function GanttView() {
 
   // Row data bound (for custom styling)
   const rowDataBound = (args: any) => {
+    if (!args.data || !args.data.info) return;
+
     const data = args.data as GanttData;
     const project = data.info;
 
     // Color based on status
     let color = '#10b981'; // Green (default)
-    if (project.status === 'completed') {
+    if (project?.status === 'completed') {
       color = '#9ca3af'; // Gray
-    } else if (project.project_deadline && new Date(project.project_deadline) < new Date()) {
+    } else if (project?.project_deadline && new Date(project.project_deadline) < new Date()) {
       color = '#ef4444'; // Red (overdue)
-    } else if (project.completion_percentage > 80) {
+    } else if (project?.completion_percentage && project.completion_percentage > 80) {
       color = '#f59e0b'; // Orange (almost done)
     }
 
@@ -124,9 +132,11 @@ export function GanttView() {
 
   // Task label template (show remaining hours)
   const taskbarTemplate = (props: any) => {
+    if (!props || !props.TaskID) return null;
+
     const data = props as GanttData;
     const projectTasks = tasks.filter(t => t.project_id === data.TaskID);
-    const metrics = calculateProjectMetrics(data.info, projectTasks);
+    const metrics = data.info ? calculateProjectMetrics(data.info, projectTasks) : null;
 
     return (
       <div style={{
@@ -140,7 +150,7 @@ export function GanttView() {
         fontWeight: 500,
       }}>
         <span>{data.TaskName}</span>
-        <span>{metrics.estimated_remaining_hours.toFixed(0)}h kvar</span>
+        {metrics && <span>{metrics.estimated_remaining_hours.toFixed(0)}h kvar</span>}
       </div>
     );
   };
@@ -222,7 +232,7 @@ export function GanttView() {
         allowSelection={true}
         highlightWeekends={true}
         showColumnMenu={false}
-        enableContextMenu={true}
+        enableContextMenu={false}
         enableImmutableMode={false}
         treeColumnIndex={1}
         projectStartDate={new Date(new Date().getFullYear(), 0, 1)} // Jan 1st
@@ -236,7 +246,7 @@ export function GanttView() {
           <ColumnDirective field="Duration" headerText="Dagar" width="80" />
           <ColumnDirective field="Progress" headerText="%" width="80" />
         </ColumnsDirective>
-        <Inject services={[Edit, Selection, Toolbar, DayMarkers]} />
+        <Inject services={[Edit, Selection, Toolbar, DayMarkers, ContextMenu]} />
       </GanttComponent>
     </>
   );

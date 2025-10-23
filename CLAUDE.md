@@ -60,11 +60,94 @@ return <DialogComponent visible={true} ... />
 - Appen är endast för svensk användare
 
 ### 7. SYNCFUSION LICENSE & CSS - OBLIGATORISKT
-- **License key**: Registreras globalt i `main.tsx` (redan konfigurerat)
+- **License key**:
+  - Registreras i `main.tsx` via `registerLicense()`
+  - Läses från `.env.local`: `VITE_SYNCFUSION_LICENSE_KEY`
+  - **Enterprise Edition** täcker ALLA komponenter (Grid, Gantt, Schedule, etc)
+  - **Production**: Lägg till samma key som environment variable på Render
+  - **Verifiera**: Console ska visa `[SF License] ✓ Registered`
 - **CSS-import**: VID NYA SF-KOMPONENTER → lägg till CSS i `main.tsx`
 - Exempel: Vid `GanttComponent` → lägg till `import '@syncfusion/ej2-react-gantt/styles/fluent2.css';`
 - **VIKTIGT**: CSS-import FÖRE komponenten används första gången
 - **Format**: Alltid `/styles/fluent2.css` (konsekvent med resten)
+
+### 8. NYA SF-KOMPONENTER - OBLIGATORISK PROCESS
+**FÖRE implementation:**
+1. ✅ Läs SF dokumentation för komponenten
+2. ✅ Hitta minimal working example i SF docs
+3. ✅ Kopiera EXAKT kod från exempel
+4. ✅ Testa minimal version i webbläsare (inte bara build!)
+5. ✅ Lägg till features EN i taget
+6. ✅ Testa i webbläsare efter varje feature
+
+**ALDRIG:**
+- ❌ Implementera utan att läsa docs
+- ❌ Anta att props fungerar som du tror
+- ❌ Gissa på configuration
+- ❌ Lägga till flera features samtidigt
+- ❌ Commita utan att testa i webbläsare
+
+### 9. GRID EDITING - SF BEST PRACTICE
+
+**Batch Edit Mode (för många cell-edits):**
+```tsx
+const editSettings = {
+  allowEditing: true,
+  mode: 'Batch'  // Editera flera → klicka Update
+};
+const toolbar = ['Update', 'Cancel'];
+
+<GridComponent
+  editSettings={editSettings}
+  toolbar={toolbar}
+>
+  <Inject services={[Edit, Toolbar]} />
+</GridComponent>
+```
+
+**NumericEdit params:**
+```tsx
+<ColumnDirective
+  editType="numericedit"
+  edit={{ params: {
+    min: 0,
+    step: 0.5,
+    format: 'N1',
+    showSpinButton: false  // VIKTIGT: Dölj pilar, tillåt fritext
+  }}}
+/>
+```
+
+**KRITISKT:**
+- ❌ INGEN `recordDoubleClick` på editerbara Grids (konflikt med edit-mode!)
+- ❌ INGA `template` på editerbara kolumner (blockerar editing!)
+- ✅ Använd `queryCellInfo` för styling istället för template
+- ✅ `format="N1"` på kolumn + i edit params för konsistens
+
+### 10. TEMPLATE RESTRICTIONS - När template BLOCKERAR SF
+
+**Templates blockerar SF funktionalitet:**
+- ❌ Editerbara kolumner med template → editing fungerar INTE
+- ❌ queryCellInfo + complex styling → kan störa edit mode
+- ✅ Använd `format` prop istället för template när möjligt
+- ✅ Templates endast på read-only kolumner
+- ✅ queryCellInfo för enkel cell-styling (bakgrundsfärg, font-weight)
+
+**Exempel - FEL:**
+```tsx
+<ColumnDirective
+  editType="numericedit"
+  template={(props) => <div>{props.value}h</div>}  // ❌ Blockerar edit!
+/>
+```
+
+**Exempel - RÄTT:**
+```tsx
+<ColumnDirective
+  editType="numericedit"
+  format="N1"  // ✅ SF format istället
+/>
+```
 
 ## ⚠️ KRITISKA KOMPONENTER - FUNGERAR, ÄNDRA EJ
 
@@ -119,6 +202,18 @@ Dessa fraser indikerar att du gör för mycket:
 ### CSS-overrides
 **Problem:** Overrides på SyncFusion-komponenter orsakar sidoeffekter
 **Lösning:** Ta bort alla CSS-overrides, använd ren Fluent2
+
+### Gantt + AllocationGrid (2025-10-23)
+**Problem:** Implementerade utan att läsa SF docs först
+**Konsekvens:** 2h felsökning - license popup, pilar täcker celler, loop
+**Lärdomar:**
+1. LÄS SF DOCS FÖRST - kopiera exakt från exempel
+2. Testa minimal version i WEBBLÄSARE innan features
+3. `showSpinButton: false` för NumericTextBox i Grid
+4. INGA templates på editerbara kolumner
+5. INGEN `recordDoubleClick` på editerbara Grids
+6. Batch mode + Toolbar för Grid editing
+7. EN komponent i taget - testa - commit - nästa
 
 ## 🏗️ Arkitektur
 
@@ -208,9 +303,18 @@ npm run preview      # Testa production build
 ## ✅ Checklista innan commit
 
 - [ ] Build lyckas lokalt (`npm run build`)
-- [ ] Funktionalitet testad i webbläsare
+- [ ] Funktionalitet testad i **WEBBLÄSARE** (inte bara build!)
 - [ ] Endast EN ändring per commit
 - [ ] Inga nya CSS-overrides på SF-komponenter
 - [ ] Inga nya wrappers (använd SF direkt)
 - [ ] Svenska namn för nya komponenter
 - [ ] Följer SyncFusion Fluent2 best practice
+
+### För nya SF-komponenter (extra viktigt!):
+- [ ] SF dokumentation läst FÖRE implementation
+- [ ] Minimal example kopierad EXAKT från SF docs
+- [ ] Testad i webbläsare INNAN features lagts till
+- [ ] License key täcker komponenten (Enterprise Edition)
+- [ ] CSS import tillagd i `main.tsx`
+- [ ] INGA templates på editerbara kolumner
+- [ ] `showSpinButton: false` om NumericTextBox i Grid

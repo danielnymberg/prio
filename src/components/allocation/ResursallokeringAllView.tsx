@@ -5,8 +5,9 @@ import { DateRangePickerComponent } from '@syncfusion/ej2-react-calendars';
 
 // Predefined periods
 const periodOptions = [
-  { text: 'Nästa 4 veckor', value: 'next_4_weeks' },
-  { text: 'Nästa 8 veckor', value: 'next_8_weeks' },
+  { text: 'Nästa 12 veckor', value: 'next_12_weeks' },
+  { text: 'Nästa 26 veckor (6 mån)', value: 'next_26_weeks' },
+  { text: 'Nästa 52 veckor (1 år)', value: 'next_52_weeks' },
   { text: 'Q4 2025', value: 'q4_2025' },
   { text: 'Q1 2026', value: 'q1_2026' },
   { text: 'Anpassad period...', value: 'custom' },
@@ -16,15 +17,20 @@ function getDateRange(period: string): { start: Date; end: Date } {
   const today = new Date();
 
   switch (period) {
-    case 'next_4_weeks':
+    case 'next_12_weeks':
       return {
         start: today,
-        end: new Date(today.getTime() + 4 * 7 * 24 * 60 * 60 * 1000),
+        end: new Date(today.getTime() + 12 * 7 * 24 * 60 * 60 * 1000),
       };
-    case 'next_8_weeks':
+    case 'next_26_weeks':
       return {
         start: today,
-        end: new Date(today.getTime() + 8 * 7 * 24 * 60 * 60 * 1000),
+        end: new Date(today.getTime() + 26 * 7 * 24 * 60 * 60 * 1000),
+      };
+    case 'next_52_weeks':
+      return {
+        start: today,
+        end: new Date(today.getTime() + 52 * 7 * 24 * 60 * 60 * 1000),
       };
     case 'q4_2025':
       return {
@@ -37,12 +43,12 @@ function getDateRange(period: string): { start: Date; end: Date } {
         end: new Date(2026, 2, 31),    // 31 mars 2026
       };
     default:
-      return { start: today, end: new Date(today.getTime() + 8 * 7 * 24 * 60 * 60 * 1000) };
+      return { start: today, end: new Date(today.getTime() + 12 * 7 * 24 * 60 * 60 * 1000) };
   }
 }
 
 export function ResursallokeringAllView() {
-  const [selectedPeriod, setSelectedPeriod] = useState('next_8_weeks');
+  const [selectedPeriod, setSelectedPeriod] = useState('next_12_weeks');
   const [customStart, setCustomStart] = useState<Date | null>(null);
   const [customEnd, setCustomEnd] = useState<Date | null>(null);
 

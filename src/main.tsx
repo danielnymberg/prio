@@ -29,12 +29,11 @@ import './index.css';
 import './styles/app.css';
 
 // Register Syncfusion license FIRST (before any component loads)
-const syncfusionLicense = import.meta.env.VITE_SYNCFUSION_LICENSE_KEY;
-if (syncfusionLicense) {
-  registerLicense(syncfusionLicense);
-} else {
-  console.warn('Syncfusion license key not found. Add VITE_SYNCFUSION_LICENSE_KEY to .env.local');
-}
+// HARDCODED for testing - ska ersättas med env var
+const syncfusionLicense = 'Ngo9BigBOggjHTQxAR8/V1JFaF5cXGRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWH9cc3VTRmdZWUFzVkFWYEg=';
+console.log('[SF License] Key loaded:', syncfusionLicense ? `${syncfusionLicense.substring(0, 20)}...` : 'NOT FOUND');
+registerLicense(syncfusionLicense);
+console.log('[SF License] ✓ Registered (HARDCODED Enterprise Edition v31.x.x)');
 
 // Enable ripple effect globally for Material design
 enableRipple(true);

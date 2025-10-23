@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useProjects } from '@/hooks/useProjects';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjectAllocations } from '@/hooks/useProjectAllocations';
 import { calculateProjectMetrics } from '@/lib/projectMetrics';
-import { GridComponent, ColumnsDirective, ColumnDirective, Page, Sort, Inject, Edit, EditSettingsModel } from '@syncfusion/ej2-react-grids';
+import { GridComponent, ColumnsDirective, ColumnDirective, Sort, Inject, Edit, Toolbar, EditSettingsModel } from '@syncfusion/ej2-react-grids';
 
 interface AllocationGridProps {
   startDate: Date;
@@ -44,7 +43,6 @@ function getWeekNumber(dateString: string): number {
 }
 
 export function AllocationGrid({ startDate, endDate }: AllocationGridProps) {
-  const navigate = useNavigate();
   const { projects } = useProjects();
   const { tasks } = useTasks();
   const { allocations, setAllocation, getTotalHoursForWeek } = useProjectAllocations();
@@ -85,73 +83,44 @@ export function AllocationGrid({ startDate, endDate }: AllocationGridProps) {
     });
   }, [activeProjects, tasks, allocations, weeks]);
 
-  // Edit settings
+  // Edit settings - Batch mode för editera flera celler innan save
   const editSettings: EditSettingsModel = {
     allowEditing: true,
     allowAdding: false,
     allowDeleting: false,
-    mode: 'Normal',
+    mode: 'Batch',
   };
 
-  // Handle cell save
-  const actionComplete = async (args: any) => {
-    if (args.requestType === 'save') {
-      const data = args.data;
-      const projectId = data.id;
+  // Toolbar för batch editing
+  const toolbar = ['Update', 'Cancel'];
 
-      // Find which week was edited
-      weeks.forEach(async weekStart => {
-        const fieldName = `week_${weekStart}`;
-        if (args.previousData[fieldName] !== data[fieldName]) {
-          const hours = parseFloat(data[fieldName]) || 0;
-          await setAllocation({
-            project_id: projectId,
-            week_start: weekStart,
-            allocated_hours: hours,
-          });
+  // Handle batch save
+  const actionComplete = async (args: any) => {
+    if (args.requestType === 'batchsave' && args.batchChanges) {
+      const changes = args.batchChanges.changedRecords || [];
+
+      console.log('[AllocationGrid] Batch save:', changes);
+
+      for (const change of changes) {
+        const projectId = change.id;
+
+        // Find which weeks were edited
+        for (const weekStart of weeks) {
+          const fieldName = `week_${weekStart}`;
+          if (change[fieldName] !== undefined) {
+            const hours = parseFloat(change[fieldName]) || 0;
+            await setAllocation({
+              project_id: projectId,
+              week_start: weekStart,
+              allocated_hours: hours,
+            });
+          }
         }
-      });
+      }
     }
   };
 
-  // Header template
-  const headerTemplate = (text: string) => () => <span className="e-font-bold">{text}</span>;
-
-  // Remaining template with color
-  const remainingTemplate = (props: any) => {
-    const color = props.remaining < 0 ? '#ef4444' : 'var(--e-text)';
-    return <span style={{ color, fontWeight: 500 }}>{props.remaining.toFixed(0)}h</span>;
-  };
-
-  // Sum template
-  const sumTemplate = (props: any) => {
-    return <span className="e-font-bold">{props.sum.toFixed(0)}h</span>;
-  };
-
-  // Week cell template with color coding
-  const weekCellTemplate = (weekStart: string) => {
-    return (props: any) => {
-      const hours = props[`week_${weekStart}`] || 0;
-      const totalForWeek = getTotalHoursForWeek(weekStart);
-      const capacity = 40; // TODO: Get from capacity settings
-
-      let bgColor = '#f0fdf4'; // Green
-      if (totalForWeek > capacity * 1.1) bgColor = '#fee2e2'; // Red
-      else if (totalForWeek > capacity * 0.9) bgColor = '#fef3c7'; // Orange
-
-      return (
-        <div style={{
-          backgroundColor: bgColor,
-          padding: '4px 8px',
-          borderRadius: '4px',
-          textAlign: 'center',
-          fontWeight: hours > 0 ? 500 : 400,
-        }}>
-          {hours > 0 ? `${hours}h` : '-'}
-        </div>
-      );
-    };
-  };
+  // Inga templates eller queryCellInfo - ren SF!
 
   return (
     <>
@@ -179,18 +148,19 @@ export function AllocationGrid({ startDate, endDate }: AllocationGridProps) {
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Grid - Ren SF, inga custom overrides */}
       <GridComponent
         dataSource={gridData}
         allowPaging={false}
         allowSorting={true}
         editSettings={editSettings}
+        toolbar={toolbar}
         actionComplete={actionComplete}
+        width="100%"
         height="auto"
         rowHeight={40}
         gridLines="Both"
         enableHover={true}
-        recordDoubleClick={(args: any) => navigate(`/projects/${args.rowData.id}`)}
       >
         <ColumnsDirective>
           <ColumnDirective
@@ -203,28 +173,25 @@ export function AllocationGrid({ startDate, endDate }: AllocationGridProps) {
           <ColumnDirective
             field="name"
             headerText="Projekt"
-            headerTemplate={headerTemplate("Projekt")}
             width="200"
             allowEditing={false}
           />
           <ColumnDirective
             field="client_name"
             headerText="Kund"
-            headerTemplate={headerTemplate("Kund")}
             width="120"
             allowEditing={false}
           />
           <ColumnDirective
             field="remaining"
-            headerText="Kvar"
-            headerTemplate={headerTemplate("Kvar")}
+            headerText="Kvar (h)"
             width="80"
-            template={remainingTemplate}
+            format="N0"
             textAlign="Right"
             allowEditing={false}
           />
 
-          {/* Dynamic week columns */}
+          {/* Dynamic week columns - NumericTextBox utan spin buttons */}
           {weeks.map(weekStart => {
             const weekNum = getWeekNumber(weekStart);
             return (
@@ -232,27 +199,25 @@ export function AllocationGrid({ startDate, endDate }: AllocationGridProps) {
                 key={weekStart}
                 field={`week_${weekStart}`}
                 headerText={`V${weekNum}`}
-                headerTemplate={headerTemplate(`V${weekNum}`)}
-                width="70"
+                width="80"
                 editType="numericedit"
-                edit={{ params: { min: 0, step: 0.5, format: 'N1' } }}
-                template={weekCellTemplate(weekStart)}
+                edit={{ params: { min: 0, step: 0.5, format: 'N1', showSpinButton: false } }}
                 textAlign="Center"
+                format="N1"
               />
             );
           })}
 
           <ColumnDirective
             field="sum"
-            headerText="SUM"
-            headerTemplate={headerTemplate("SUM")}
+            headerText="SUM (h)"
             width="80"
-            template={sumTemplate}
+            format="N0"
             textAlign="Right"
             allowEditing={false}
           />
         </ColumnsDirective>
-        <Inject services={[Page, Sort, Edit]} />
+        <Inject services={[Edit, Toolbar, Sort]} />
       </GridComponent>
     </>
   );
