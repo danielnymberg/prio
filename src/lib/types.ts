@@ -223,3 +223,43 @@ export interface PeriodCapacity {
   status: 'under' | 'sweet' | 'high' | 'full' | 'over'; // Färgkod
   absencePercentage: number; // 0-100 (från absence_periods)
 }
+
+// ============================================
+// PROJECT ALLOCATION TYPES
+// ============================================
+
+export interface ProjectAllocation {
+  id: string;
+  user_id: string;
+  project_id: string;
+  week_start: string;  // YYYY-MM-DD (måndag)
+  allocated_hours: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateProjectAllocationInput {
+  project_id: string;
+  week_start: string;
+  allocated_hours: number;
+}
+
+export interface UpdateProjectAllocationInput {
+  allocated_hours?: number;
+}
+
+// ============================================
+// GANTT TYPES
+// ============================================
+
+export interface GanttData {
+  TaskID: string;
+  TaskName: string;
+  StartDate: Date;
+  EndDate: Date;
+  Duration: number;
+  Progress: number;
+  ResourceID: string[];
+  Predecessor: string | null;
+  info: Project;
+}

@@ -60,14 +60,26 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       subChild: [
         {
           id: '6-1',
-          name: 'Q4 2025',
+          name: 'Gantt Timeline',
           iconCss: 'e-icons e-timeline-day',
-          url: '/planning/q4'
+          url: '/gantt'
         },
         {
           id: '6-2',
+          name: 'Resursallokering',
+          iconCss: 'e-icons e-calendar',
+          url: '/allocation'
+        },
+        {
+          id: '6-3',
+          name: 'Q4 2025',
+          iconCss: 'e-icons e-schedule',
+          url: '/planning/q4'
+        },
+        {
+          id: '6-4',
           name: 'Q1 2026',
-          iconCss: 'e-icons e-timeline-day',
+          iconCss: 'e-icons e-schedule',
           url: '/planning/q1'
         },
       ],

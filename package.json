@@ -24,6 +24,7 @@
     "@syncfusion/ej2-react-calendars": "^31.1.23",
     "@syncfusion/ej2-react-charts": "^31.1.23",
     "@syncfusion/ej2-react-dropdowns": "^31.1.23",
+    "@syncfusion/ej2-react-gantt": "^31.2.3",
     "@syncfusion/ej2-react-grids": "^31.1.23",
     "@syncfusion/ej2-react-inplace-editor": "^31.2.2",
     "@syncfusion/ej2-react-inputs": "^31.1.23",

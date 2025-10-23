@@ -91,6 +91,13 @@ export function UppgiftRegistrering({ isOpen, onClose, taskToEdit, defaultProjec
   const formRef = useRef<HTMLFormElement>(null);
   const validatorRef = useRef<FormValidator | null>(null);
 
+  // Deadline-validering: Varna om task.deadline > project.project_deadline
+  const selectedProjectData = selectedProject ? projects.find(p => p.id === selectedProject) : null;
+  const hasDeadlineConflict =
+    deadline &&
+    selectedProjectData?.project_deadline &&
+    new Date(deadline) > new Date(selectedProjectData.project_deadline);
+
   // Tidsval som chips
   const timeChips = [
     { text: '≤2min Snabbis', value: 2 },
@@ -355,6 +362,30 @@ export function UppgiftRegistrering({ isOpen, onClose, taskToEdit, defaultProjec
             change={(e) => setSelectedProject(e.value || null)}
           />
         </div>
+
+        {/* Deadline-varning */}
+        {hasDeadlineConflict && (
+          <div className="e-p-12 e-rounded-lg" style={{
+            backgroundColor: '#fef3c7',
+            border: '2px solid #f59e0b'
+          }}>
+            <div className="e-flex e-align-center e-gap-8">
+              <span className="e-icons e-warning" style={{ fontSize: '16px', color: '#d97706' }}></span>
+              <div className="e-flex-1">
+                <p className="e-font-bold e-text-sm e-m-0" style={{ color: '#78350f' }}>
+                  ⚠️ Task-deadline efter projekt-deadline
+                </p>
+                <p className="e-text-xs e-m-0 e-mt-4" style={{ color: '#92400e' }}>
+                  Task: {deadline ? new Date(deadline).toLocaleDateString('sv-SE') : ''} •
+                  Projekt: {selectedProjectData?.project_deadline ? new Date(selectedProjectData.project_deadline).toLocaleDateString('sv-SE') : ''}
+                </p>
+                <p className="e-text-xs e-m-0 e-mt-4" style={{ color: '#92400e' }}>
+                  💡 Överväg att justera task-deadline eller projekt-deadline
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Avancerat-sektion */}
         <div>

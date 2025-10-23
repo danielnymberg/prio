@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjects } from '@/hooks/useProjects';
+import { useTasks } from '@/hooks/useTasks';
 import { useAbsencePeriods } from '@/hooks/useAbsencePeriods';
 import { Project, AbsencePeriod } from '@/lib/types';
+import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { GridComponent, ColumnsDirective, ColumnDirective, Page, Sort, Inject } from '@syncfusion/ej2-react-grids';
 import { DialogComponent } from '@syncfusion/ej2-react-popups';
 import { DateRangePickerComponent } from '@syncfusion/ej2-react-calendars';
@@ -15,6 +17,7 @@ interface ResursplaneringViewProps {
 export function ResursplaneringView({ period }: ResursplaneringViewProps) {
   const navigate = useNavigate();
   const { projects } = useProjects();
+  const { tasks } = useTasks();
   const { absencePeriods, createAbsencePeriod, deleteAbsencePeriod } = useAbsencePeriods();
   const [isAbsenceDialogOpen, setIsAbsenceDialogOpen] = useState(false);
   const [absenceStart, setAbsenceStart] = useState<Date | undefined>(undefined);
@@ -25,11 +28,8 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
   const { startDate, endDate, periodName } = getPeriodDates(period);
   const today = new Date();
 
-  // Filtrera bort arkiverade projekt och projekt från Spiris
-  const activeProjects = projects.filter(p =>
-    p.status !== 'archived' &&
-    p.spiris_project_id
-  );
+  // Filtrera bort endast arkiverade projekt (visa ALLA aktiva, både vanliga och Spiris)
+  const activeProjects = projects.filter(p => p.status !== 'archived');
 
   // Gruppera projekt
   const groupedProjects = groupProjectsByPhase(activeProjects, today);
@@ -38,10 +38,11 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
   const weeks = calculateWeeks(startDate, endDate, absencePeriods);
   const workingWeeks = weeks.filter(w => !w.isAbsence);
 
-  // Totaler
+  // Totaler - använd calculateProjectMetrics för konsistent logik
   const totalRemaining = activeProjects.reduce((sum, p) => {
-    const remaining = (p.budgeted_hours || 0) - (p.invoiced_hours || 0);
-    return sum + remaining;
+    const projectTasks = tasks.filter(t => t.project_id === p.id);
+    const metrics = calculateProjectMetrics(p, projectTasks);
+    return sum + metrics.estimated_remaining_hours;
   }, 0);
 
   const avgPerWeek = workingWeeks.length > 0 ? totalRemaining / workingWeeks.length : 0;
@@ -79,15 +80,18 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
     return <span className="e-text-xs e-font-medium">V{startWeek}-{endWeek}</span>;
   };
 
-  // Remaining hours template
+  // Remaining hours template - använd calculateProjectMetrics
   const remainingTemplate = (props: any) => {
-    const remaining = (props.budgeted_hours || 0) - (props.invoiced_hours || 0);
-    return <span className="e-font-medium">{remaining.toFixed(0)}h</span>;
+    const projectTasks = tasks.filter(t => t.project_id === props.id);
+    const metrics = calculateProjectMetrics(props, projectTasks);
+    return <span className="e-font-medium">{metrics.estimated_remaining_hours.toFixed(0)}h</span>;
   };
 
-  // Weeks required template
+  // Weeks required template - använd calculateProjectMetrics
   const weeksRequiredTemplate = (props: any) => {
-    const remaining = (props.budgeted_hours || 0) - (props.invoiced_hours || 0);
+    const projectTasks = tasks.filter(t => t.project_id === props.id);
+    const metrics = calculateProjectMetrics(props, projectTasks);
+    const remaining = metrics.estimated_remaining_hours;
     const deadline = props.project_deadline ? new Date(props.project_deadline) : null;
 
     if (!deadline || deadline < today) return <span>-</span>;

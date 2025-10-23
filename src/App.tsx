@@ -36,6 +36,8 @@ const OverviewView = lazy(() => import('./components/overview/OverviewView').the
 const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSidebar').then(m => ({ default: m.CalendarWithTaskSidebar })));
 const Q4ResursplaneringView = lazy(() => import('./components/planning/Q4ResursplaneringView').then(m => ({ default: m.Q4ResursplaneringView })));
 const Q1ResursplaneringView = lazy(() => import('./components/planning/Q1ResursplaneringView').then(m => ({ default: m.Q1ResursplaneringView })));
+const ResursallokeringAllView = lazy(() => import('./components/allocation/ResursallokeringAllView').then(m => ({ default: m.ResursallokeringAllView })));
+const GanttView = lazy(() => import('./components/gantt/GanttView').then(m => ({ default: m.GanttView })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -492,6 +494,28 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <Q1ResursplaneringView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Resursallokering (All) */}
+        <Route
+          path="/allocation"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <ResursallokeringAllView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Gantt Timeline */}
+        <Route
+          path="/gantt"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <GanttView />
               </Suspense>
             </ProtectedRoute>
           }

@@ -20,6 +20,12 @@ export function ProjectProgressSlider({
   );
   const [updating, setUpdating] = useState(false);
 
+  // Auto-beräkna completion_percentage från loggad tid
+  const autoPercentage = Math.min(
+    Math.round((metrics.logged_hours / metrics.quoted_hours) * 100),
+    100
+  );
+
   const handleUpdate = async (newPercentage: number) => {
     setCompletionPercentage(newPercentage);
     setUpdating(true);
@@ -73,9 +79,28 @@ export function ProjectProgressSlider({
           <label className="e-text-sm e-font-medium" style={{ color: 'var(--e-text)' }}>
             Uppskattat färdigt
           </label>
-          <span className="e-text-2xl e-font-bold" style={{ color: 'var(--primary-600)' }}>
-            {completionPercentage}%
-          </span>
+          <div className="e-flex e-align-center e-gap-12">
+            <div className="e-flex e-flex-column e-align-end">
+              <span className="e-text-2xl e-font-bold" style={{ color: 'var(--primary-600)' }}>
+                {completionPercentage}%
+              </span>
+              {autoPercentage !== completionPercentage && (
+                <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
+                  Auto: {autoPercentage}%
+                </span>
+              )}
+            </div>
+            {autoPercentage !== completionPercentage && (
+              <button
+                onClick={() => handleUpdate(autoPercentage)}
+                disabled={updating}
+                className="e-btn e-small e-outline"
+                title="Använd auto-beräknat värde"
+              >
+                <span className="e-icons e-refresh"></span>
+              </button>
+            )}
+          </div>
         </div>
         <input
           type="range"

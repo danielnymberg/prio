@@ -1,0 +1,259 @@
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useProjects } from '@/hooks/useProjects';
+import { useTasks } from '@/hooks/useTasks';
+import { useProjectAllocations } from '@/hooks/useProjectAllocations';
+import { calculateProjectMetrics } from '@/lib/projectMetrics';
+import { GridComponent, ColumnsDirective, ColumnDirective, Page, Sort, Inject, Edit, EditSettingsModel } from '@syncfusion/ej2-react-grids';
+
+interface AllocationGridProps {
+  startDate: Date;
+  endDate: Date;
+}
+
+// Helper: Get Monday of week
+function getMondayOfWeek(date: Date): string {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+  d.setDate(diff);
+  return d.toISOString().split('T')[0];
+}
+
+// Helper: Generate weeks between dates
+function generateWeeks(start: Date, end: Date): string[] {
+  const weeks: string[] = [];
+  const current = new Date(start);
+
+  while (current <= end) {
+    weeks.push(getMondayOfWeek(current));
+    current.setDate(current.getDate() + 7);
+  }
+
+  return weeks;
+}
+
+// Helper: Get week number
+function getWeekNumber(dateString: string): number {
+  const date = new Date(dateString);
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
+export function AllocationGrid({ startDate, endDate }: AllocationGridProps) {
+  const navigate = useNavigate();
+  const { projects } = useProjects();
+  const { tasks } = useTasks();
+  const { allocations, setAllocation, getTotalHoursForWeek } = useProjectAllocations();
+
+  // Generate weeks
+  const weeks = useMemo(() => generateWeeks(startDate, endDate), [startDate, endDate]);
+
+  // Filter active projects
+  const activeProjects = projects.filter(p => p.status !== 'archived');
+
+  // Prepare grid data with allocations
+  const gridData = useMemo(() => {
+    return activeProjects.map(project => {
+      const projectTasks = tasks.filter(t => t.project_id === project.id);
+      const metrics = calculateProjectMetrics(project, projectTasks);
+
+      const row: any = {
+        id: project.id,
+        name: project.name,
+        client_name: project.client_name,
+        remaining: metrics.estimated_remaining_hours,
+      };
+
+      // Add allocation for each week
+      weeks.forEach(weekStart => {
+        const allocation = allocations.find(
+          a => a.project_id === project.id && a.week_start === weekStart
+        );
+        row[`week_${weekStart}`] = allocation?.allocated_hours || 0;
+      });
+
+      // Calculate sum
+      row.sum = weeks.reduce((sum, weekStart) => {
+        return sum + (row[`week_${weekStart}`] || 0);
+      }, 0);
+
+      return row;
+    });
+  }, [activeProjects, tasks, allocations, weeks]);
+
+  // Edit settings
+  const editSettings: EditSettingsModel = {
+    allowEditing: true,
+    allowAdding: false,
+    allowDeleting: false,
+    mode: 'Normal',
+  };
+
+  // Handle cell save
+  const actionComplete = async (args: any) => {
+    if (args.requestType === 'save') {
+      const data = args.data;
+      const projectId = data.id;
+
+      // Find which week was edited
+      weeks.forEach(async weekStart => {
+        const fieldName = `week_${weekStart}`;
+        if (args.previousData[fieldName] !== data[fieldName]) {
+          const hours = parseFloat(data[fieldName]) || 0;
+          await setAllocation({
+            project_id: projectId,
+            week_start: weekStart,
+            allocated_hours: hours,
+          });
+        }
+      });
+    }
+  };
+
+  // Header template
+  const headerTemplate = (text: string) => () => <span className="e-font-bold">{text}</span>;
+
+  // Remaining template with color
+  const remainingTemplate = (props: any) => {
+    const color = props.remaining < 0 ? '#ef4444' : 'var(--e-text)';
+    return <span style={{ color, fontWeight: 500 }}>{props.remaining.toFixed(0)}h</span>;
+  };
+
+  // Sum template
+  const sumTemplate = (props: any) => {
+    return <span className="e-font-bold">{props.sum.toFixed(0)}h</span>;
+  };
+
+  // Week cell template with color coding
+  const weekCellTemplate = (weekStart: string) => {
+    return (props: any) => {
+      const hours = props[`week_${weekStart}`] || 0;
+      const totalForWeek = getTotalHoursForWeek(weekStart);
+      const capacity = 40; // TODO: Get from capacity settings
+
+      let bgColor = '#f0fdf4'; // Green
+      if (totalForWeek > capacity * 1.1) bgColor = '#fee2e2'; // Red
+      else if (totalForWeek > capacity * 0.9) bgColor = '#fef3c7'; // Orange
+
+      return (
+        <div style={{
+          backgroundColor: bgColor,
+          padding: '4px 8px',
+          borderRadius: '4px',
+          textAlign: 'center',
+          fontWeight: hours > 0 ? 500 : 400,
+        }}>
+          {hours > 0 ? `${hours}h` : '-'}
+        </div>
+      );
+    };
+  };
+
+  return (
+    <>
+      {/* Summary row */}
+      <div className="e-mb-16 e-p-12 e-border e-rounded-lg" style={{ backgroundColor: 'var(--e-surface)' }}>
+        <div className="e-flex e-gap-16 e-flex-wrap">
+          {weeks.map(weekStart => {
+            const total = getTotalHoursForWeek(weekStart);
+            const capacity = 40;
+            const utilization = total / capacity;
+            const weekNum = getWeekNumber(weekStart);
+
+            let color = '#10b981'; // Green
+            if (utilization > 1.1) color = '#ef4444'; // Red
+            else if (utilization > 0.9) color = '#f59e0b'; // Orange
+
+            return (
+              <div key={weekStart} className="e-flex e-flex-column e-align-center">
+                <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>V{weekNum}</span>
+                <span className="e-font-bold" style={{ color }}>{total.toFixed(0)}h</span>
+                <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>/{capacity}h</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Grid */}
+      <GridComponent
+        dataSource={gridData}
+        allowPaging={false}
+        allowSorting={true}
+        editSettings={editSettings}
+        actionComplete={actionComplete}
+        height="auto"
+        rowHeight={40}
+        gridLines="Both"
+        enableHover={true}
+        recordDoubleClick={(args: any) => navigate(`/projects/${args.rowData.id}`)}
+      >
+        <ColumnsDirective>
+          <ColumnDirective
+            field="id"
+            headerText="ID"
+            width="80"
+            isPrimaryKey={true}
+            visible={false}
+          />
+          <ColumnDirective
+            field="name"
+            headerText="Projekt"
+            headerTemplate={headerTemplate("Projekt")}
+            width="200"
+            allowEditing={false}
+          />
+          <ColumnDirective
+            field="client_name"
+            headerText="Kund"
+            headerTemplate={headerTemplate("Kund")}
+            width="120"
+            allowEditing={false}
+          />
+          <ColumnDirective
+            field="remaining"
+            headerText="Kvar"
+            headerTemplate={headerTemplate("Kvar")}
+            width="80"
+            template={remainingTemplate}
+            textAlign="Right"
+            allowEditing={false}
+          />
+
+          {/* Dynamic week columns */}
+          {weeks.map(weekStart => {
+            const weekNum = getWeekNumber(weekStart);
+            return (
+              <ColumnDirective
+                key={weekStart}
+                field={`week_${weekStart}`}
+                headerText={`V${weekNum}`}
+                headerTemplate={headerTemplate(`V${weekNum}`)}
+                width="70"
+                editType="numericedit"
+                edit={{ params: { min: 0, step: 0.5, format: 'N1' } }}
+                template={weekCellTemplate(weekStart)}
+                textAlign="Center"
+              />
+            );
+          })}
+
+          <ColumnDirective
+            field="sum"
+            headerText="SUM"
+            headerTemplate={headerTemplate("SUM")}
+            width="80"
+            template={sumTemplate}
+            textAlign="Right"
+            allowEditing={false}
+          />
+        </ColumnsDirective>
+        <Inject services={[Page, Sort, Edit]} />
+      </GridComponent>
+    </>
+  );
+}
