@@ -215,6 +215,26 @@ Dessa fraser indikerar att du gör för mycket:
 6. Batch mode + Toolbar för Grid editing
 7. EN komponent i taget - testa - commit - nästa
 
+### Gantt License & Navigation Fix (2025-10-24)
+**Problem:** License popup + navigation slutade fungera med Gantt
+**Grundorsaker:**
+1. **Versionsmismatch:** Gantt v31.2.3 när övriga var v31.1.23
+2. **Tom services array:** `<Inject services={[]} />` förvirrade SF modulsystem
+3. **Saknade moduler:** Gantt auto-aktiverar Selection som MÅSTE injekteras
+
+**Lösning:**
+1. Nedgradera Gantt till samma version som övriga SF-komponenter
+2. Injektera ALLA moduler Gantt använder: `Selection, DayMarkers, Edit, Filter, Sort, Toolbar, Resize`
+3. Ta bort ogiltiga props (showToolbar finns ej i v31.1.23)
+4. Använd `allowSelection={true}` explicit för att undvika konflikter
+
+**KRITISKA LÄRDOMAR:**
+- **Gantt kräver explicit modulladdning** även för standard-features
+- **Håll ALLTID samma version** på alla SF-paket (kontrollera package.json!)
+- **Tom services-array = ALDRIG ok**, använd rätt moduler eller ta bort Inject helt
+- **Selection-modulen är obligatorisk** för Gantt även om du inte använder selection
+- **Testa navigationen** efter att lägga till nya SF-komponenter
+
 ## 🏗️ Arkitektur
 
 ### Tech Stack
