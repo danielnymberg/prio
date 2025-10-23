@@ -15,6 +15,7 @@ interface UppgiftRegistreringProps {
   isOpen: boolean;
   onClose: () => void;
   taskToEdit?: Task | null;
+  defaultProjectId?: string;
   defaultValues?: {
     title?: string;
     description?: string;
@@ -67,7 +68,7 @@ function getDefaultDeadline(startTime: Date): Date {
   return deadline;
 }
 
-export function UppgiftRegistrering({ isOpen, onClose, taskToEdit, defaultValues }: UppgiftRegistreringProps) {
+export function UppgiftRegistrering({ isOpen, onClose, taskToEdit, defaultProjectId, defaultValues }: UppgiftRegistreringProps) {
   const { createTask, updateTask } = useTasks();
   const { projects } = useProjects();
 
@@ -145,7 +146,7 @@ export function UppgiftRegistrering({ isOpen, onClose, taskToEdit, defaultValues
         // Ny uppgift - defaults
         setTitle(defaultValues?.title || '');
         setDescription(defaultValues?.description || '');
-        setSelectedProject(null);
+        setSelectedProject(defaultProjectId || null);
         setSelectedTimeChip(-1);
         setCustomDuration(null);
         const defaultStart = getDefaultStartTime();
@@ -160,7 +161,7 @@ export function UppgiftRegistrering({ isOpen, onClose, taskToEdit, defaultValues
         setEffort(defaultValues?.effort || 5);
       }
     }
-  }, [isOpen, taskToEdit, defaultValues]);
+  }, [isOpen, taskToEdit, defaultProjectId, defaultValues]);
 
   // Setup FormValidator
   useEffect(() => {

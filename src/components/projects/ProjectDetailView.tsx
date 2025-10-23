@@ -6,6 +6,7 @@ import { useTasks } from '@/hooks/useTasks';
 import { Project } from '@/lib/types';
 import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { ProjectProgressSlider } from './ProjectProgressSlider';
+import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import { ArrowLeft, Calendar, User, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -16,6 +17,7 @@ export function ProjectDetailView() {
   const { tasks } = useTasks();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
 
   useEffect(() => {
     if (user && id) {
@@ -186,7 +188,7 @@ export function ProjectDetailView() {
             Inga tasks kopplade till detta projekt än
           </p>
           <button
-            onClick={() => navigate('/focus')}
+            onClick={() => setIsTaskFormOpen(true)}
             className="e-px-16 e-py-8 e-rounded-lg e-text-base e-font-medium e-transition e-cursor-pointer"
             style={{
               backgroundColor: 'var(--primary-600)',
@@ -200,6 +202,13 @@ export function ProjectDetailView() {
           </button>
         </div>
       )}
+
+      {/* UppgiftRegistrering */}
+      <UppgiftRegistrering
+        isOpen={isTaskFormOpen}
+        onClose={() => setIsTaskFormOpen(false)}
+        defaultProjectId={project?.id}
+      />
     </div>
   );
 }

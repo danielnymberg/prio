@@ -48,6 +48,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
     {
       id: '5',
+      name: 'Projekt',
+      iconCss: 'e-icons e-folder-open',
+      url: '/projects'
+    },
+    {
+      id: '6',
       name: 'Inställningar',
       iconCss: 'e-icons e-settings',
       url: '/settings'
@@ -60,18 +66,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       subChild: [
         {
           id: '7-1',
-          name: 'Projekt',
-          iconCss: 'e-icons e-folder-open',
-          url: '/projects'
-        },
-        {
-          id: '7-2',
           name: 'Importera',
           iconCss: 'e-icons e-upload',
           url: '/import'
         },
         {
-          id: '7-3',
+          id: '7-2',
           name: 'Arkiv',
           iconCss: 'e-icons e-archive',
           url: '/archive'

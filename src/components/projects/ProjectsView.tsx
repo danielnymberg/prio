@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Project, UpdateProjectInput } from '@/lib/types';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/services/toast';
+import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
 import {
   GridComponent,
   ColumnsDirective,
@@ -11,10 +12,8 @@ import {
   Page,
   Sort,
   Filter,
-  Toolbar,
   Edit,
   Inject,
-  ToolbarItems,
   EditSettingsModel,
 } from '@syncfusion/ej2-react-grids';
 
@@ -23,6 +22,7 @@ export function ProjectsView() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
   const gridRef = useRef<GridComponent>(null);
 
   useEffect(() => {
@@ -38,8 +38,7 @@ export function ProjectsView() {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id);
 
       if (error) throw error;
       setProjects(data || []);
@@ -111,34 +110,34 @@ export function ProjectsView() {
     }
   };
 
-  // Prepare grid data with calculated fields
-  const gridData = projects.map(project => {
-    const totalBudget = project.quoted_hours * project.hourly_rate + project.external_costs;
-    return {
-      ...project,
-      total_budget: totalBudget,
-      status_display: project.status === 'active' ? 'Aktiv' : project.status === 'completed' ? 'Slutförd' : 'Arkiverad',
-    };
-  });
+  // Prepare grid data with calculated fields and search filter
+  const gridData = projects
+    .map(project => {
+      const totalBudget = project.quoted_hours * project.hourly_rate + project.external_costs;
+      return {
+        ...project,
+        total_budget: totalBudget,
+        status_display: project.status === 'active' ? 'Aktiv' : project.status === 'completed' ? 'Slutförd' : 'Arkiverad',
+      };
+    })
+    .filter(project => {
+      if (!searchText) return true;
+      const search = searchText.toLowerCase();
+      return (
+        project.name?.toLowerCase().includes(search) ||
+        project.client_name?.toLowerCase().includes(search) ||
+        project.description?.toLowerCase().includes(search)
+      );
+    });
 
   const editSettings: EditSettingsModel = {
     allowEditing: true,
-    allowAdding: false, // Disable built-in add, use custom flow
+    allowAdding: false,
     allowDeleting: true,
     mode: 'Dialog',
-    template: undefined, // Use default dialog
   };
 
-  const toolbarItems: ToolbarItems[] = [
-    'Edit',
-    'Delete',
-    'Update',
-    'Cancel',
-    'Search',
-  ];
-
   const pageSettings = { pageSize: 20, pageSizes: [10, 20, 50] };
-  const sortSettings = { columns: [{ field: 'created_at', direction: 'Descending' as any }] };
 
   // Progress bar template
   const progressTemplate = (props: any) => {
@@ -182,6 +181,11 @@ export function ProjectsView() {
     );
   };
 
+  // Header template for bold text
+  const headerTemplate = (headerText: string) => {
+    return () => <span className="e-font-bold">{headerText}</span>;
+  };
+
   // Handle row double-click to navigate to details
   const handleRecordDoubleClick = (args: any) => {
     navigate(`/projects/${args.rowData.id}`);
@@ -199,9 +203,9 @@ export function ProjectsView() {
   }
 
   return (
-    <div className="e-h-full e-flex e-flex-column e-gap-16 e-p-24">
+    <>
       {/* Header */}
-      <div className="e-flex e-align-center e-justify-between">
+      <div className="e-mb-16 e-flex e-align-center e-justify-between">
         <div>
           <h1 className="e-text-2xl e-font-bold e-mb-4">
             Projekt
@@ -210,125 +214,140 @@ export function ProjectsView() {
             {projects.length} projekt totalt
           </p>
         </div>
+        <div style={{ width: '320px' }}>
+          <TextBoxComponent
+            placeholder="Sök projekt..."
+            showClearButton={true}
+            input={(e: any) => setSearchText(e.value)}
+            cssClass="e-outline"
+          />
+        </div>
       </div>
 
       {projects.length === 0 ? (
-        <div className="e-flex-1 e-flex e-align-center e-justify-center">
-          <div className="e-text-center">
-            <p className="e-mb-16">Inga projekt än</p>
-            <button
-              onClick={() => navigate('/projects/new')}
-              className="e-px-24 e-py-12 e-rounded-lg e-text-base e-font-medium e-transition"
-              style={{
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              Skapa ditt första projekt
-            </button>
-          </div>
+        <div className="e-text-center e-mt-64">
+          <p className="e-mb-16">Inga projekt än</p>
+          <button
+            onClick={() => navigate('/projects/new')}
+            className="e-px-24 e-py-12 e-rounded-lg e-text-base e-font-medium e-transition"
+            style={{
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            Skapa ditt första projekt
+          </button>
         </div>
       ) : (
-        <div className="e-flex-1 e-rounded-xl e-overflow-hidden" style={{
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        }}>
-          <GridComponent
-            ref={gridRef}
-            dataSource={gridData}
-            allowPaging={true}
-            allowSorting={true}
-            allowFiltering={true}
-            editSettings={editSettings}
-            toolbar={toolbarItems}
-            pageSettings={pageSettings}
-            sortSettings={sortSettings}
-            actionComplete={actionComplete}
-            actionBegin={actionBegin}
-            recordDoubleClick={handleRecordDoubleClick}
-            height="100%"
-            rowHeight={60}
-            gridLines="Horizontal"
-            enableHover={true}
-            enableStickyHeader={true}
-          >
-            <ColumnsDirective>
-              <ColumnDirective
-                field="name"
-                headerText="Projektnamn"
-                width="200"
-                clipMode="EllipsisWithTooltip"
-                validationRules={{ required: true }}
-              />
-              <ColumnDirective
-                field="client_name"
-                headerText="Kund"
-                width="150"
-                clipMode="EllipsisWithTooltip"
-              />
-              <ColumnDirective
-                field="quoted_hours"
-                headerText="Offererade timmar"
-                width="120"
-                editType="numericedit"
-                format="N0"
-                textAlign="Center"
-                validationRules={{ required: true, min: 0 }}
-              />
-              <ColumnDirective
-                field="hourly_rate"
-                headerText="Timpris (kr)"
-                width="100"
-                editType="numericedit"
-                format="N0"
-                textAlign="Right"
-                validationRules={{ required: true, min: 0 }}
-              />
-              <ColumnDirective
-                field="total_budget"
-                headerText="Budget"
-                width="120"
-                template={budgetTemplate}
-                allowEditing={false}
-                textAlign="Right"
-              />
-              <ColumnDirective
-                field="completion_percentage"
-                headerText="Färdigt"
-                width="150"
-                template={progressTemplate}
-                editType="numericedit"
-                edit={{ params: { min: 0, max: 100, step: 5 } }}
-              />
-              <ColumnDirective
-                field="status"
-                headerText="Status"
-                width="100"
-                template={statusTemplate}
-                editType="dropdownedit"
-                edit={{
-                  params: {
-                    dataSource: [
-                      { value: 'active', text: 'Aktiv' },
-                      { value: 'completed', text: 'Slutförd' },
-                      { value: 'archived', text: 'Arkiverad' },
-                    ],
-                    fields: { value: 'value', text: 'text' },
-                  },
-                }}
-              />
-              <ColumnDirective
-                field="project_deadline"
-                headerText="Deadline"
-                width="120"
-                type="date"
-                format="yyyy-MM-dd"
-                editType="datepickeredit"
-              />
-            </ColumnsDirective>
-            <Inject services={[Page, Sort, Filter, Toolbar, Edit]} />
-          </GridComponent>
-        </div>
+        <GridComponent
+          ref={gridRef}
+          dataSource={gridData}
+          allowPaging={true}
+          allowSorting={true}
+          allowFiltering={true}
+          editSettings={editSettings}
+          pageSettings={pageSettings}
+          actionComplete={actionComplete}
+          actionBegin={actionBegin}
+          recordDoubleClick={handleRecordDoubleClick}
+          height="auto"
+          rowHeight={30}
+          headerRowHeight={20}
+          gridLines="Horizontal"
+          enableHover={true}
+        >
+          <ColumnsDirective>
+            <ColumnDirective
+              field="id"
+              headerText="ID"
+              width="80"
+              isPrimaryKey={true}
+              visible={false}
+            />
+            <ColumnDirective
+              field="name"
+              headerText="Projektnamn"
+              headerTemplate={headerTemplate("Projektnamn")}
+              width="200"
+              clipMode="EllipsisWithTooltip"
+              validationRules={{ required: true }}
+            />
+            <ColumnDirective
+              field="client_name"
+              headerText="Kund"
+              headerTemplate={headerTemplate("Kund")}
+              width="150"
+              clipMode="EllipsisWithTooltip"
+            />
+            <ColumnDirective
+              field="quoted_hours"
+              headerText="Offererade timmar"
+              headerTemplate={headerTemplate("Offererade timmar")}
+              width="120"
+              editType="numericedit"
+              format="N0"
+              textAlign="Center"
+              validationRules={{ required: true, min: 0 }}
+            />
+            <ColumnDirective
+              field="hourly_rate"
+              headerText="Timpris (kr)"
+              headerTemplate={headerTemplate("Timpris (kr)")}
+              width="100"
+              editType="numericedit"
+              format="N0"
+              textAlign="Right"
+              validationRules={{ required: true, min: 0 }}
+            />
+            <ColumnDirective
+              field="total_budget"
+              headerText="Budget"
+              headerTemplate={headerTemplate("Budget")}
+              width="120"
+              template={budgetTemplate}
+              allowEditing={false}
+              textAlign="Right"
+            />
+            <ColumnDirective
+              field="completion_percentage"
+              headerText="Färdigt"
+              headerTemplate={headerTemplate("Färdigt")}
+              width="150"
+              template={progressTemplate}
+              editType="numericedit"
+              edit={{ params: { min: 0, max: 100, step: 5 } }}
+            />
+            <ColumnDirective
+              field="status"
+              headerText="Status"
+              headerTemplate={headerTemplate("Status")}
+              width="100"
+              template={statusTemplate}
+              editType="dropdownedit"
+              edit={{
+                params: {
+                  dataSource: [
+                    { value: 'active', text: 'Aktiv' },
+                    { value: 'completed', text: 'Slutförd' },
+                    { value: 'archived', text: 'Arkiverad' },
+                  ],
+                  fields: { value: 'value', text: 'text' },
+                },
+              }}
+            />
+            <ColumnDirective
+              field="project_deadline"
+              headerText="Deadline"
+              headerTemplate={headerTemplate("Deadline")}
+              width="120"
+              type="date"
+              format="yyyy-MM-dd"
+              editType="datepickeredit"
+            />
+          </ColumnsDirective>
+          <Inject services={[Page, Sort, Filter, Edit]} />
+        </GridComponent>
       )}
-    </div>
+    </>
   );
 }
