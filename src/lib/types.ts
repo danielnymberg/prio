@@ -66,6 +66,20 @@ export interface Project {
   project_deadline: string | null;
   completion_percentage: number;
 
+  // Spiris-koppling
+  spiris_project_id?: string | null;
+  spiris_last_sync?: string | null;
+  spiris_sync_enabled?: boolean;
+
+  // Resursplanering (från Spiris)
+  budgeted_hours?: number | null;
+  budgeted_revenue?: number | null;
+  invoiced_hours?: number | null;
+  invoiced_amount?: number | null;
+  actual_hours_worked?: number | null;
+  project_manager?: string | null;
+  start_date?: string | null;
+
   // Status
   color: string;
   status: ProjectStatus;

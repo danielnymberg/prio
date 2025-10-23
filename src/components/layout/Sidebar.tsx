@@ -54,24 +54,44 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
     {
       id: '6',
+      name: 'Planering',
+      iconCss: 'e-icons e-chart',
+      expanded: false,
+      subChild: [
+        {
+          id: '6-1',
+          name: 'Q4 2025',
+          iconCss: 'e-icons e-calendar',
+          url: '/planning/q4'
+        },
+        {
+          id: '6-2',
+          name: 'Q1 2026',
+          iconCss: 'e-icons e-calendar',
+          url: '/planning/q1'
+        },
+      ],
+    },
+    {
+      id: '7',
       name: 'Inställningar',
       iconCss: 'e-icons e-settings',
       url: '/settings'
     },
     {
-      id: '7',
+      id: '8',
       name: 'Avancerat',
       iconCss: 'e-icons e-folder',
       expanded: false,
       subChild: [
         {
-          id: '7-1',
+          id: '8-1',
           name: 'Importera',
           iconCss: 'e-icons e-upload',
           url: '/import'
         },
         {
-          id: '7-2',
+          id: '8-2',
           name: 'Arkiv',
           iconCss: 'e-icons e-archive',
           url: '/archive'

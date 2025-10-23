@@ -34,6 +34,8 @@ const ProjectsView = lazy(() => import('./components/projects/ProjectsView').the
 const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetailView').then(m => ({ default: m.ProjectDetailView })));
 const OverviewView = lazy(() => import('./components/overview/OverviewView').then(m => ({ default: m.OverviewView })));
 const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSidebar').then(m => ({ default: m.CalendarWithTaskSidebar })));
+const Q4ResursplaneringView = lazy(() => import('./components/planning/Q4ResursplaneringView').then(m => ({ default: m.Q4ResursplaneringView })));
+const Q1ResursplaneringView = lazy(() => import('./components/planning/Q1ResursplaneringView').then(m => ({ default: m.Q1ResursplaneringView })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -468,6 +470,28 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <CalendarView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Q4 Resursplanering */}
+        <Route
+          path="/planning/q4"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <Q4ResursplaneringView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Q1 Resursplanering */}
+        <Route
+          path="/planning/q1"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <Q1ResursplaneringView />
               </Suspense>
             </ProtectedRoute>
           }
