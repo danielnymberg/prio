@@ -59,6 +59,13 @@ return <DialogComponent visible={true} ... />
 - Nya filer: `UppgiftRegistrering.tsx`, `DagligCheckIn.tsx`
 - Appen är endast för svensk användare
 
+### 7. SYNCFUSION LICENSE & CSS - OBLIGATORISKT
+- **License key**: Registreras globalt i `main.tsx` (redan konfigurerat)
+- **CSS-import**: VID NYA SF-KOMPONENTER → lägg till CSS i `main.tsx`
+- Exempel: Vid `GanttComponent` → lägg till `import '@syncfusion/ej2-react-gantt/styles/fluent2.css';`
+- **VIKTIGT**: CSS-import FÖRE komponenten används första gången
+- **Format**: Alltid `/styles/fluent2.css` (konsekvent med resten)
+
 ## ⚠️ KRITISKA KOMPONENTER - FUNGERAR, ÄNDRA EJ
 
 - `GridComponent` i AllTasksView, ArchiveView

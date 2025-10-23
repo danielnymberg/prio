@@ -298,13 +298,21 @@ export function ProjectsView() {
             {projects.length} projekt totalt
           </p>
         </div>
-        <div style={{ width: '320px' }}>
-          <TextBoxComponent
-            placeholder="Sök projekt..."
-            showClearButton={true}
-            input={(e: any) => setSearchText(e.value)}
-            cssClass="e-outline"
-          />
+        <div className="e-flex e-gap-8 e-align-center">
+          <div style={{ width: '320px' }}>
+            <TextBoxComponent
+              placeholder="Sök projekt..."
+              showClearButton={true}
+              input={(e: any) => setSearchText(e.value)}
+              cssClass="e-outline"
+            />
+          </div>
+          <button
+            onClick={() => navigate('/projects/new')}
+            className="e-btn e-primary"
+          >
+            <span className="e-icons e-plus"></span> Skapa projekt
+          </button>
         </div>
       </div>
 

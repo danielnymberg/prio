@@ -32,6 +32,7 @@ const ShareHandler = lazy(() => import('./components/share/ShareHandler').then(m
 const SettingsView = lazy(() => import('./components/settings/SettingsView').then(m => ({ default: m.SettingsView })));
 const ProjectsView = lazy(() => import('./components/projects/ProjectsView').then(m => ({ default: m.ProjectsView })));
 const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetailView').then(m => ({ default: m.ProjectDetailView })));
+const NewProjectPage = lazy(() => import('./pages/NewProjectPage').then(m => ({ default: m.NewProjectPage })));
 const OverviewView = lazy(() => import('./components/overview/OverviewView').then(m => ({ default: m.OverviewView })));
 const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSidebar').then(m => ({ default: m.CalendarWithTaskSidebar })));
 const Q4ResursplaneringView = lazy(() => import('./components/planning/Q4ResursplaneringView').then(m => ({ default: m.Q4ResursplaneringView })));
@@ -451,6 +452,16 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <ProjectsView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects/new"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <NewProjectPage />
               </Suspense>
             </ProtectedRoute>
           }
