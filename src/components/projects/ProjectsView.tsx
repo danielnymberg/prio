@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Project, UpdateProjectInput } from '@/lib/types';
+import { Project } from '@/lib/types';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/services/toast';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
@@ -13,8 +13,10 @@ import {
   Sort,
   Filter,
   Edit,
+  CommandColumn,
   Inject,
   EditSettingsModel,
+  CommandModel,
 } from '@syncfusion/ej2-react-grids';
 
 export function ProjectsView() {
@@ -56,7 +58,7 @@ export function ProjectsView() {
       // Update existing project
       const updatedData = args.data;
       try {
-        const updateInput: UpdateProjectInput = {
+        const updateInput: any = {
           name: updatedData.name,
           description: updatedData.description,
           client_name: updatedData.client_name,
@@ -67,6 +69,14 @@ export function ProjectsView() {
           completion_percentage: updatedData.completion_percentage,
           color: updatedData.color,
           status: updatedData.status,
+          // Spiris fields
+          budgeted_hours: updatedData.budgeted_hours,
+          budgeted_revenue: updatedData.budgeted_revenue,
+          invoiced_hours: updatedData.invoiced_hours,
+          invoiced_amount: updatedData.invoiced_amount,
+          actual_hours_worked: updatedData.actual_hours_worked,
+          project_manager: updatedData.project_manager,
+          start_date: updatedData.start_date,
         };
 
         const { error } = await supabase
@@ -137,6 +147,75 @@ export function ProjectsView() {
     mode: 'Dialog',
   };
 
+  const commands: CommandModel[] = [
+    { type: 'Edit', buttonOption: { iconCss: 'e-icons e-edit', cssClass: 'e-flat' } },
+    { type: 'Delete', buttonOption: { iconCss: 'e-icons e-delete', cssClass: 'e-flat' } },
+  ];
+
+  // Actions template för extra knappar
+  const actionsTemplate = (props: Project) => {
+    return (
+      <div className="e-flex e-align-center e-gap-4 e-justify-center">
+        {props.status !== 'completed' && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleMarkComplete(props.id);
+            }}
+            className="e-btn e-small e-flat e-success"
+            title="Markera som klar"
+          >
+            <span className="e-icons e-check"></span>
+          </button>
+        )}
+        {props.status !== 'archived' && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleArchive(props.id);
+            }}
+            className="e-btn e-small e-flat"
+            title="Arkivera"
+          >
+            <span className="e-icons e-archive"></span>
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const handleMarkComplete = async (projectId: string) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ status: 'completed', completion_percentage: 100 })
+        .eq('id', projectId);
+
+      if (error) throw error;
+      showToast.success('Projekt markerat som klart!');
+      fetchProjects();
+    } catch (error) {
+      console.error('Error marking complete:', error);
+      showToast.error('Kunde inte markera projekt som klart');
+    }
+  };
+
+  const handleArchive = async (projectId: string) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ status: 'archived' })
+        .eq('id', projectId);
+
+      if (error) throw error;
+      showToast.success('Projekt arkiverat!');
+      fetchProjects();
+    } catch (error) {
+      console.error('Error archiving:', error);
+      showToast.error('Kunde inte arkivera projekt');
+    }
+  };
+
   const pageSettings = { pageSize: 20, pageSizes: [10, 20, 50] };
 
   // Progress bar template
@@ -184,6 +263,11 @@ export function ProjectsView() {
   // Header template for bold text
   const headerTemplate = (headerText: string) => {
     return () => <span className="e-font-bold">{headerText}</span>;
+  };
+
+  // Actions header with icon
+  const actionsHeaderTemplate = () => {
+    return <span className="e-icons e-check e-font-bold" style={{ color: '#10b981', fontSize: '16px' }}></span>;
   };
 
   // Handle row double-click to navigate to details
@@ -267,7 +351,7 @@ export function ProjectsView() {
               field="name"
               headerText="Projektnamn"
               headerTemplate={headerTemplate("Projektnamn")}
-              width="200"
+              width="250"
               clipMode="EllipsisWithTooltip"
               validationRules={{ required: true }}
             />
@@ -275,14 +359,14 @@ export function ProjectsView() {
               field="client_name"
               headerText="Kund"
               headerTemplate={headerTemplate("Kund")}
-              width="150"
+              width="180"
               clipMode="EllipsisWithTooltip"
             />
             <ColumnDirective
               field="quoted_hours"
-              headerText="Offererade timmar"
-              headerTemplate={headerTemplate("Offererade timmar")}
-              width="120"
+              headerText="Off.tim."
+              headerTemplate={headerTemplate("Off.tim.")}
+              width="70"
               editType="numericedit"
               format="N0"
               textAlign="Center"
@@ -290,9 +374,9 @@ export function ProjectsView() {
             />
             <ColumnDirective
               field="hourly_rate"
-              headerText="Timpris (kr)"
-              headerTemplate={headerTemplate("Timpris (kr)")}
-              width="100"
+              headerText="Timpris"
+              headerTemplate={headerTemplate("Timpris")}
+              width="80"
               editType="numericedit"
               format="N0"
               textAlign="Right"
@@ -302,16 +386,16 @@ export function ProjectsView() {
               field="total_budget"
               headerText="Budget"
               headerTemplate={headerTemplate("Budget")}
-              width="120"
+              width="100"
               template={budgetTemplate}
               allowEditing={false}
               textAlign="Right"
             />
             <ColumnDirective
               field="completion_percentage"
-              headerText="Färdigt"
-              headerTemplate={headerTemplate("Färdigt")}
-              width="150"
+              headerText="Utfört"
+              headerTemplate={headerTemplate("Utfört")}
+              width="120"
               template={progressTemplate}
               editType="numericedit"
               edit={{ params: { min: 0, max: 100, step: 5 } }}
@@ -320,7 +404,7 @@ export function ProjectsView() {
               field="status"
               headerText="Status"
               headerTemplate={headerTemplate("Status")}
-              width="100"
+              width="90"
               template={statusTemplate}
               editType="dropdownedit"
               edit={{
@@ -338,13 +422,102 @@ export function ProjectsView() {
               field="project_deadline"
               headerText="Deadline"
               headerTemplate={headerTemplate("Deadline")}
-              width="120"
+              width="100"
               type="date"
               format="yyyy-MM-dd"
               editType="datepickeredit"
             />
+            <ColumnDirective
+              field="budgeted_hours"
+              headerText="Budgeterade timmar"
+              headerTemplate={headerTemplate("Budgeterade timmar")}
+              width="120"
+              editType="numericedit"
+              format="N0"
+              textAlign="Center"
+              visible={false}
+            />
+            <ColumnDirective
+              field="budgeted_revenue"
+              headerText="Budgeterad intäkt"
+              headerTemplate={headerTemplate("Budgeterad intäkt")}
+              width="120"
+              editType="numericedit"
+              format="N0"
+              textAlign="Right"
+              visible={false}
+            />
+            <ColumnDirective
+              field="invoiced_hours"
+              headerText="Fakturerade timmar"
+              headerTemplate={headerTemplate("Fakturerade timmar")}
+              width="120"
+              editType="numericedit"
+              format="N2"
+              textAlign="Center"
+              visible={false}
+            />
+            <ColumnDirective
+              field="invoiced_amount"
+              headerText="Fakturerat belopp"
+              headerTemplate={headerTemplate("Fakturerat belopp")}
+              width="120"
+              editType="numericedit"
+              format="N0"
+              textAlign="Right"
+              visible={false}
+            />
+            <ColumnDirective
+              field="actual_hours_worked"
+              headerText="Arbetade timmar"
+              headerTemplate={headerTemplate("Arbetade timmar")}
+              width="120"
+              editType="numericedit"
+              format="N2"
+              textAlign="Center"
+              visible={false}
+            />
+            <ColumnDirective
+              field="project_manager"
+              headerText="Projektledare"
+              headerTemplate={headerTemplate("Projektledare")}
+              width="150"
+              visible={false}
+            />
+            <ColumnDirective
+              field="start_date"
+              headerText="Startdatum"
+              headerTemplate={headerTemplate("Startdatum")}
+              width="120"
+              type="date"
+              format="yyyy-MM-dd"
+              editType="datepickeredit"
+              visible={false}
+            />
+            <ColumnDirective
+              field="description"
+              headerText="Beskrivning"
+              headerTemplate={headerTemplate("Beskrivning")}
+              width="200"
+              visible={false}
+            />
+            <ColumnDirective
+              headerText=""
+              headerTemplate={actionsHeaderTemplate}
+              width="80"
+              template={actionsTemplate}
+              textAlign="Center"
+              allowEditing={false}
+            />
+            <ColumnDirective
+              headerText="Edit"
+              headerTemplate={headerTemplate("Edit")}
+              width="80"
+              commands={commands}
+              textAlign="Center"
+            />
           </ColumnsDirective>
-          <Inject services={[Page, Sort, Filter, Edit]} />
+          <Inject services={[Page, Sort, Filter, Edit, CommandColumn]} />
         </GridComponent>
       )}
     </>

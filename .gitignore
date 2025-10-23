@@ -30,3 +30,9 @@ dist-ssr
 
 # Supabase
 .supabase
+
+# Import scripts with credentials
+import_spiris_projects_CONFIGURED.py
+*_CONFIGURED.py
+*.xlsx
+check_q4_projects.sql
