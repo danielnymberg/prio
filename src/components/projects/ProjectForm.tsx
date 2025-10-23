@@ -4,8 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CreateProjectInput } from '@/lib/types';
 import toast from 'react-hot-toast';
 import { PDFUpload } from './PDFUpload';
-// Lucide icons replaced with SyncFusion e-icons
 import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { TextBoxComponent, NumericTextBoxComponent } from '@syncfusion/ej2-react-inputs';
+import { DatePickerComponent } from '@syncfusion/ej2-react-calendars';
 
 interface ProjectFormProps {
   onSuccess?: () => void;
@@ -116,15 +117,11 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             <label className="e-block e-text-sm e-font-medium e-mb-8">
               Projektnamn *
             </label>
-            <input
-              type="text"
+            <TextBoxComponent
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-              style={{
-                outline: 'none'
-              }}
-              required
+              change={(e: any) => setFormData({ ...formData, name: e.value })}
+              cssClass="e-outline"
+              placeholder="Ange projektnamn"
             />
           </div>
 
@@ -132,14 +129,11 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             <label className="e-block e-text-sm e-font-medium e-mb-8">
               Klient/Beställare
             </label>
-            <input
-              type="text"
+            <TextBoxComponent
               value={formData.client_name || ''}
-              onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-              style={{
-                outline: 'none'
-              }}
+              change={(e: any) => setFormData({ ...formData, client_name: e.value })}
+              cssClass="e-outline"
+              placeholder="Ange kund/beställare"
             />
           </div>
 
@@ -148,16 +142,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               <label className="e-block e-text-sm e-font-medium e-mb-8">
                 Offererade timmar *
               </label>
-              <input
-                type="number"
-                step="0.5"
+              <NumericTextBoxComponent
                 value={formData.quoted_hours}
-                onChange={(e) => setFormData({ ...formData, quoted_hours: parseFloat(e.target.value) || 0 })}
-                className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-                style={{
-                  outline: 'none'
-                }}
-                required
+                change={(e: any) => setFormData({ ...formData, quoted_hours: e.value || 0 })}
+                cssClass="e-outline"
+                step={0.5}
+                min={0}
+                format="N1"
+                showSpinButton={false}
               />
             </div>
 
@@ -165,16 +157,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               <label className="e-block e-text-sm e-font-medium e-mb-8">
                 Timpris (kr) *
               </label>
-              <input
-                type="number"
-                step="50"
+              <NumericTextBoxComponent
                 value={formData.hourly_rate}
-                onChange={(e) => setFormData({ ...formData, hourly_rate: parseFloat(e.target.value) || 0 })}
-                className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-                style={{
-                  outline: 'none'
-                }}
-                required
+                change={(e: any) => setFormData({ ...formData, hourly_rate: e.value || 0 })}
+                cssClass="e-outline"
+                step={50}
+                min={0}
+                format="N0"
+                showSpinButton={false}
               />
             </div>
           </div>
@@ -183,15 +173,14 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             <label className="e-block e-text-sm e-font-medium e-mb-8">
               Övriga kostnader (resor, externa tjänster, kr)
             </label>
-            <input
-              type="number"
-              step="100"
+            <NumericTextBoxComponent
               value={formData.external_costs || 0}
-              onChange={(e) => setFormData({ ...formData, external_costs: parseFloat(e.target.value) || 0 })}
-              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-              style={{
-                outline: 'none'
-              }}
+              change={(e: any) => setFormData({ ...formData, external_costs: e.value || 0 })}
+              cssClass="e-outline"
+              step={100}
+              min={0}
+              format="N0"
+              showSpinButton={false}
             />
           </div>
 
@@ -213,28 +202,24 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               <label className="e-block e-text-sm e-font-medium e-mb-8">
                 Startdatum
               </label>
-              <input
-                type="date"
-                value={formData.start_date || ''}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-                style={{
-                  outline: 'none'
-                }}
+              <DatePickerComponent
+                value={formData.start_date ? new Date(formData.start_date) : undefined}
+                change={(e: any) => setFormData({ ...formData, start_date: e.value ? e.value.toISOString().split('T')[0] : '' })}
+                cssClass="e-outline"
+                format="yyyy-MM-dd"
+                placeholder="Välj startdatum"
               />
             </div>
             <div>
               <label className="e-block e-text-sm e-font-medium e-mb-8">
                 Deadline
               </label>
-              <input
-                type="date"
-                value={formData.project_deadline || ''}
-                onChange={(e) => setFormData({ ...formData, project_deadline: e.target.value })}
-                className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-                style={{
-                  outline: 'none'
-                }}
+              <DatePickerComponent
+                value={formData.project_deadline ? new Date(formData.project_deadline) : undefined}
+                change={(e: any) => setFormData({ ...formData, project_deadline: e.value ? e.value.toISOString().split('T')[0] : '' })}
+                cssClass="e-outline"
+                format="yyyy-MM-dd"
+                placeholder="Välj deadline"
               />
             </div>
           </div>
@@ -243,16 +228,12 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             <label className="e-block e-text-sm e-font-medium e-mb-8">
               Beskrivning
             </label>
-            <textarea
+            <TextBoxComponent
               value={formData.description || ''}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-              style={{
-                outline: 'none',
-                resize: 'vertical',
-                minHeight: '72px'
-              }}
-              rows={3}
+              change={(e: any) => setFormData({ ...formData, description: e.value })}
+              cssClass="e-outline"
+              multiline={true}
+              placeholder="Beskriv projektet (valfritt)"
             />
           </div>
 

@@ -148,6 +148,16 @@ export function ProjectsView() {
   };
 
   const commands: CommandModel[] = [
+    {
+      buttonOption: {
+        iconCss: 'e-icons e-eye',
+        cssClass: 'e-flat',
+        click: (args: any) => {
+          const rowData = args.rowData || args;
+          navigate(`/projects/${rowData.id}`);
+        }
+      }
+    },
     { type: 'Edit', buttonOption: { iconCss: 'e-icons e-edit', cssClass: 'e-flat' } },
     { type: 'Delete', buttonOption: { iconCss: 'e-icons e-delete', cssClass: 'e-flat' } },
   ];
@@ -218,44 +228,11 @@ export function ProjectsView() {
 
   const pageSettings = { pageSize: 20, pageSizes: [10, 20, 50] };
 
-  // Progress bar template
-  const progressTemplate = (props: any) => {
-    const percentage = props.completion_percentage || 0;
-
-    return (
-      <div className="e-flex e-align-center e-gap-8">
-        <div className="e-flex-1 e-rounded-full e-overflow-hidden" style={{
-          height: '8px'
-        }}>
-          <div
-            className="e-transition"
-            style={{
-              height: '100%',
-              width: `${percentage}%`
-            }}
-          />
-        </div>
-        <span className="e-text-xs e-font-medium" style={{
-          width: '40px'
-        }}>{percentage}%</span>
-      </div>
-    );
-  };
-
-  // Budget template (formatted currency)
+  // Budget template (formatted currency) - OK, budget is NOT editable
   const budgetTemplate = (props: any) => {
     return (
       <span className="e-font-medium">
         {props.total_budget.toLocaleString('sv-SE')} kr
-      </span>
-    );
-  };
-
-  // Status badge template
-  const statusTemplate = (props: any) => {
-    return (
-      <span className="e-px-8 e-py-4 e-rounded-full e-text-xs">
-        {props.status_display}
       </span>
     );
   };
@@ -268,11 +245,6 @@ export function ProjectsView() {
   // Actions header with icon
   const actionsHeaderTemplate = () => {
     return <span className="e-icons e-check e-font-bold" style={{ color: '#10b981', fontSize: '16px' }}></span>;
-  };
-
-  // Handle row double-click to navigate to details
-  const handleRecordDoubleClick = (args: any) => {
-    navigate(`/projects/${args.rowData.id}`);
   };
 
   if (loading) {
@@ -341,7 +313,6 @@ export function ProjectsView() {
           pageSettings={pageSettings}
           actionComplete={actionComplete}
           actionBegin={actionBegin}
-          recordDoubleClick={handleRecordDoubleClick}
           height="auto"
           rowHeight={30}
           gridLines="Horizontal"
@@ -403,28 +374,18 @@ export function ProjectsView() {
               field="completion_percentage"
               headerText="Utfört"
               headerTemplate={headerTemplate("Utfört")}
-              width="120"
-              template={progressTemplate}
+              width="80"
               editType="numericedit"
               edit={{ params: { min: 0, max: 100, step: 5 } }}
+              format="N0"
+              textAlign="Center"
             />
             <ColumnDirective
-              field="status"
+              field="status_display"
               headerText="Status"
               headerTemplate={headerTemplate("Status")}
               width="90"
-              template={statusTemplate}
-              editType="dropdownedit"
-              edit={{
-                params: {
-                  dataSource: [
-                    { value: 'active', text: 'Aktiv' },
-                    { value: 'completed', text: 'Slutförd' },
-                    { value: 'archived', text: 'Arkiverad' },
-                  ],
-                  fields: { value: 'value', text: 'text' },
-                },
-              }}
+              allowEditing={false}
             />
             <ColumnDirective
               field="start_date"
