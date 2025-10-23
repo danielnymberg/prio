@@ -419,6 +419,15 @@ export function ProjectsView() {
               }}
             />
             <ColumnDirective
+              field="start_date"
+              headerText="Start"
+              headerTemplate={headerTemplate("Start")}
+              width="100"
+              type="date"
+              format="yyyy-MM-dd"
+              editType="datepickeredit"
+            />
+            <ColumnDirective
               field="project_deadline"
               headerText="Deadline"
               headerTemplate={headerTemplate("Deadline")}
