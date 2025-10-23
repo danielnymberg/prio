@@ -21,6 +21,7 @@ import '@syncfusion/ej2-splitbuttons/styles/fluent2.css';
 import '@syncfusion/ej2-grids/styles/fluent2.css';
 import '@syncfusion/ej2-react-schedule/styles/fluent2.css';
 import '@syncfusion/ej2-notifications/styles/fluent2.css';
+import '@syncfusion/ej2-inplace-editor/styles/fluent2.css';
 
 // Then import our custom CSS
 import './index.css';
