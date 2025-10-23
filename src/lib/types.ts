@@ -140,6 +140,7 @@ export interface CreateProjectInput {
   quoted_hours: number;
   hourly_rate: number;
   external_costs?: number;
+  start_date?: string;
   project_deadline?: string;
   color?: string;
   status?: ProjectStatus;

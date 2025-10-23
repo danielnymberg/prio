@@ -24,6 +24,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
     quoted_hours: 0,
     hourly_rate: 0,
     external_costs: 0,
+    start_date: '',
     project_deadline: '',
     color: '#6B7280'
   });
@@ -207,19 +208,35 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             </div>
           </div>
 
-          <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8">
-              Deadline
-            </label>
-            <input
-              type="date"
-              value={formData.project_deadline || ''}
-              onChange={(e) => setFormData({ ...formData, project_deadline: e.target.value })}
-              className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
-              style={{
-                outline: 'none'
-              }}
-            />
+          <div className="e-grid e-grid-cols-2 e-gap-16">
+            <div>
+              <label className="e-block e-text-sm e-font-medium e-mb-8">
+                Startdatum
+              </label>
+              <input
+                type="date"
+                value={formData.start_date || ''}
+                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
+                style={{
+                  outline: 'none'
+                }}
+              />
+            </div>
+            <div>
+              <label className="e-block e-text-sm e-font-medium e-mb-8">
+                Deadline
+              </label>
+              <input
+                type="date"
+                value={formData.project_deadline || ''}
+                onChange={(e) => setFormData({ ...formData, project_deadline: e.target.value })}
+                className="e-w-full e-px-16 e-py-8 e-border e-rounded-lg e-text-base e-transition"
+                style={{
+                  outline: 'none'
+                }}
+              />
+            </div>
           </div>
 
           <div>
