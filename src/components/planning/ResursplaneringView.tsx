@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useProjects } from '@/hooks/useProjects';
 import { useAbsencePeriods } from '@/hooks/useAbsencePeriods';
 import { Project, AbsencePeriod } from '@/lib/types';
@@ -12,6 +13,7 @@ interface ResursplaneringViewProps {
 }
 
 export function ResursplaneringView({ period }: ResursplaneringViewProps) {
+  const navigate = useNavigate();
   const { projects } = useProjects();
   const { absencePeriods, createAbsencePeriod, deleteAbsencePeriod } = useAbsencePeriods();
   const [isAbsenceDialogOpen, setIsAbsenceDialogOpen] = useState(false);
@@ -62,6 +64,20 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
 
   // Header template
   const headerTemplate = (text: string) => () => <span className="e-font-bold">{text}</span>;
+
+  // Week number template
+  const weekNumberTemplate = (props: any) => {
+    const start = props.start_date ? new Date(props.start_date) : today;
+    const deadline = props.project_deadline ? new Date(props.project_deadline) : null;
+
+    const startWeek = getWeekNumber(start);
+    const endWeek = deadline ? getWeekNumber(deadline) : startWeek;
+
+    if (startWeek === endWeek) {
+      return <span className="e-text-xs e-font-medium">V{startWeek}</span>;
+    }
+    return <span className="e-text-xs e-font-medium">V{startWeek}-{endWeek}</span>;
+  };
 
   // Remaining hours template
   const remainingTemplate = (props: any) => {
@@ -192,13 +208,15 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
             rowHeight={30}
             gridLines="Horizontal"
             enableHover={true}
+            recordDoubleClick={(args: any) => navigate(`/projects/${args.rowData.id}`)}
           >
             <ColumnsDirective>
               <ColumnDirective field="name" headerText="Projekt" headerTemplate={headerTemplate("Projekt")} width="250" />
-              <ColumnDirective field="client_name" headerText="Kund" headerTemplate={headerTemplate("Kund")} width="150" />
+              <ColumnDirective field="client_name" headerText="Kund" headerTemplate={headerTemplate("Kund")} width="120" />
+              <ColumnDirective headerText="Veckor" headerTemplate={headerTemplate("Veckor")} width="80" template={weekNumberTemplate} textAlign="Center" />
               <ColumnDirective field="project_deadline" headerText="Deadline" headerTemplate={headerTemplate("Deadline")} width="100" type="date" format="yyyy-MM-dd" />
-              <ColumnDirective headerText="Kvar" headerTemplate={headerTemplate("Kvar")} width="80" template={remainingTemplate} textAlign="Right" />
-              <ColumnDirective headerText="h/vecka" headerTemplate={headerTemplate("h/vecka")} width="90" template={weeksRequiredTemplate} textAlign="Right" />
+              <ColumnDirective headerText="Kvar" headerTemplate={headerTemplate("Kvar")} width="70" template={remainingTemplate} textAlign="Right" />
+              <ColumnDirective headerText="h/v" headerTemplate={headerTemplate("h/v")} width="70" template={weeksRequiredTemplate} textAlign="Right" />
             </ColumnsDirective>
             <Inject services={[Page, Sort]} />
           </GridComponent>
@@ -217,12 +235,14 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
             rowHeight={30}
             gridLines="Horizontal"
             enableHover={true}
+            recordDoubleClick={(args: any) => navigate(`/projects/${args.rowData.id}`)}
           >
             <ColumnsDirective>
               <ColumnDirective field="name" headerText="Projekt" headerTemplate={headerTemplate("Projekt")} width="250" />
               <ColumnDirective field="start_date" headerText="Startar" headerTemplate={headerTemplate("Startar")} width="100" type="date" format="yyyy-MM-dd" />
+              <ColumnDirective headerText="Veckor" headerTemplate={headerTemplate("Veckor")} width="80" template={weekNumberTemplate} textAlign="Center" />
               <ColumnDirective field="project_deadline" headerText="Deadline" headerTemplate={headerTemplate("Deadline")} width="100" type="date" format="yyyy-MM-dd" />
-              <ColumnDirective headerText="Kvar" headerTemplate={headerTemplate("Kvar")} width="80" template={remainingTemplate} textAlign="Right" />
+              <ColumnDirective headerText="Kvar" headerTemplate={headerTemplate("Kvar")} width="70" template={remainingTemplate} textAlign="Right" />
             </ColumnsDirective>
             <Inject services={[Page, Sort]} />
           </GridComponent>
@@ -243,11 +263,13 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
             rowHeight={30}
             gridLines="Horizontal"
             enableHover={true}
+            recordDoubleClick={(args: any) => navigate(`/projects/${args.rowData.id}`)}
           >
             <ColumnsDirective>
               <ColumnDirective field="name" headerText="Projekt" headerTemplate={headerTemplate("Projekt")} width="250" />
+              <ColumnDirective headerText="Veckor" headerTemplate={headerTemplate("Veckor")} width="80" template={weekNumberTemplate} textAlign="Center" />
               <ColumnDirective field="project_deadline" headerText="Deadline" headerTemplate={headerTemplate("Deadline")} width="100" type="date" format="yyyy-MM-dd" />
-              <ColumnDirective headerText="Kvar" headerTemplate={headerTemplate("Kvar")} width="80" template={remainingTemplate} textAlign="Right" />
+              <ColumnDirective headerText="Kvar" headerTemplate={headerTemplate("Kvar")} width="70" template={remainingTemplate} textAlign="Right" />
             </ColumnsDirective>
             <Inject services={[Page, Sort]} />
           </GridComponent>

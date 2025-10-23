@@ -7,6 +7,7 @@ import { Project } from '@/lib/types';
 import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { ProjectProgressSlider } from './ProjectProgressSlider';
 import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
+import { InPlaceEditorComponent } from '@syncfusion/ej2-react-inplace-editor';
 // Lucide icons replaced with SyncFusion e-icons
 import toast from 'react-hot-toast';
 
@@ -89,16 +90,47 @@ export function ProjectDetailView() {
       </button>
 
       <div className="e-mb-24">
-        <h1 className="e-mb-8 e-font-bold" style={{
-          fontSize: '30px',
-          color: 'var(--e-text)'
-        }}>{project.name}</h1>
+        <InPlaceEditorComponent
+          mode="Inline"
+          type="Text"
+          value={project.name}
+          emptyText="Projektnamn"
+          actionOnBlur="Submit"
+          change={async (e: any) => {
+            try {
+              await supabase.from('projects').update({ name: e.value }).eq('id', project.id);
+              toast.success('Projektnamn uppdaterat');
+              fetchProject();
+            } catch (error) {
+              toast.error('Kunde inte uppdatera');
+            }
+          }}
+        >
+          <h1 className="e-mb-8 e-font-bold" style={{
+            fontSize: '30px',
+            color: 'var(--e-text)'
+          }}>{project.name}</h1>
+        </InPlaceEditorComponent>
 
         <div className="e-flex e-flex-wrap e-gap-16 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
           {project.client_name && (
             <div className="e-flex e-align-center e-gap-8">
               <span className="e-icons e-user" style={{ fontSize: '12px' }}></span>
-              <span>{project.client_name}</span>
+              <InPlaceEditorComponent
+                mode="Inline"
+                type="Text"
+                value={project.client_name}
+                emptyText="Kund"
+                actionOnBlur="Submit"
+                change={async (e: any) => {
+                  try {
+                    await supabase.from('projects').update({ client_name: e.value }).eq('id', project.id);
+                    fetchProject();
+                  } catch (error) {
+                    toast.error('Kunde inte uppdatera');
+                  }
+                }}
+              />
             </div>
           )}
 
@@ -118,9 +150,25 @@ export function ProjectDetailView() {
         </div>
 
         {project.description && (
-          <p className="e-mt-16" style={{ color: 'var(--e-text-secondary)' }}>
-            {project.description}
-          </p>
+          <InPlaceEditorComponent
+            mode="Inline"
+            type="Text"
+            value={project.description}
+            emptyText="Beskrivning"
+            actionOnBlur="Submit"
+            change={async (e: any) => {
+              try {
+                await supabase.from('projects').update({ description: e.value }).eq('id', project.id);
+                fetchProject();
+              } catch (error) {
+                toast.error('Kunde inte uppdatera');
+              }
+            }}
+          >
+            <p className="e-mt-16" style={{ color: 'var(--e-text-secondary)' }}>
+              {project.description}
+            </p>
+          </InPlaceEditorComponent>
         )}
       </div>
 
