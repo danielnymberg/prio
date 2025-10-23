@@ -1,5 +1,80 @@
 # TODO - Framtida förbättringar
 
+## 🚧 PÅGÅENDE (Högsta prioritet)
+
+### 1. Resursplanering Q4/Q1 (PÅGÅENDE)
+- ✅ Q4/Q1 ResursplaneringView skapad
+- ✅ Ledighetshantering implementerad
+- ✅ Veckofördelning med 32h/vecka-gräns
+- ⏳ Fyll i startdatum på alla projekt
+- ⏳ Testa ledighetsperioder (23-31 dec)
+- ⏳ Justera fakturerade timmar och nedlagd tid
+
+---
+
+## ⚠️ NÄSTA PRIORITET (Kritiska buggar)
+
+### 2. Disabled Features - Måste Aktiveras
+
+#### **EmailTaskListener** (App.tsx:198-199)
+**Problem**: Kraschar vid mount - dubbla prenumerationer i StrictMode
+**Påverkan**: Email-to-task feature fungerar INTE
+**Orsak**: Supabase realtime subscriptions körs dubbelt i React 18 StrictMode
+**Lösning**: Implementera isSubscribed-pattern + proper cleanup
+**Prioritet**: ⚠️ HÖG - Kritisk funktion
+
+#### **ToastComponent** (App.tsx:303-316)
+**Problem**: Avstängd för testing (misstänkt krasch)
+**Påverkan**: Använder react-hot-toast som fallback (26 filer)
+**Lösning**: Aktivera SF ToastComponent, verifiera att det fungerar
+**Prioritet**: MEDEL - Workaround finns
+
+#### **QuickCaptureBar** (App.tsx:204)
+**Problem**: TaskForm/Dialog krasch-misstanke
+**Påverkan**: Snabb task-capture från mobil fungerar ej
+**Lösning**: Verifiera Dialog fungerar, eller ersätt med QuickCaptureFAB
+**Prioritet**: MEDEL - UX-feature saknas
+
+#### **QuickNoteInput** (App.tsx:202-203)
+**Problem**: Kraschar vid expandering (Portal/Dialog issue)
+**Påverkan**: Quick note-feature fungerar ej
+**Lösning**: Ombyggnad med SF-kompatibel dialog
+**Prioritet**: MEDEL
+
+#### **WeeklyReviewModal** (App.tsx:206-212)
+**Problem**: Portal-krasch misstanke
+**Påverkan**: Veckosammanfattning visas ej
+**Lösning**: Verifiera Dialog fungerar
+**Prioritet**: LÅG - Valfri feature
+
+#### **GlobalSearch** (App.tsx:319, 266-299)
+**Problem**: Portal/Dialog issue
+**Påverkan**: Cmd/Ctrl+K global search fungerar ej
+**Lösning**: Verifiera Dialog fungerar
+**Prioritet**: LÅG - Valfri feature
+
+**Root Cause**: DialogComponent från SyncFusion använder Portals → React 18 Concurrent Mode + StrictMode orsakar `insertBefore`/`removeChild` errors
+
+**Dokumentation**: Se DISABLED_COMPONENTS.md för detaljer
+
+---
+
+### 3. AI-funktioner Fungerar Inte Korrekt
+
+#### **Röstgränssnitt (VoiceInterface.tsx)**
+**Problem**: [SPECIFICERA PROBLEM]
+**Påverkan**: AI-assistans via röst fungerar inte som förväntat
+**Prioritet**: HÖG - Viktig feature
+
+#### **Text-baserad AI (claude-conversation.ts)**
+**Problem**: [SPECIFICERA PROBLEM]
+**Påverkan**: AI-funktioner via text fungerar inte korrekt
+**Prioritet**: HÖG - Viktig feature
+
+**TODO**: Dokumentera exakta problem och buggar med AI-funktionerna
+
+---
+
 ## ✅ KLART (2025-10-23)
 
 ### ProjectsView UX-förbättringar
@@ -25,6 +100,20 @@
 - ✅ CLAUDE.md uppdaterad med best practices
 - ✅ height="auto" i AppLayout's scrollande main
 - ✅ ALDRIG height: '100vh' eller nested scroll-containers
+
+### Lucide → SyncFusion e-icons
+- ✅ Ersatt ALLA Lucide-ikoner med SF e-icons (38 filer)
+- ✅ 100+ individuella ikon-ersättningar
+- ✅ Inga externa ikon-dependencies - ren SF Fluent2
+- ✅ Storlekskonvertering: height/width → fontSize
+- ✅ Mapping: Calendar→e-schedule, Clock→e-time, AlertTriangle→e-warning, etc.
+
+### Städning
+- ✅ Migration 003→004 capacity_timeline (fixade namespace-konflikt)
+- ✅ Raderade 11 gamla SQL-filer (create-user, cleanup, check, repair)
+- ✅ Raderade duplicerade migrations och skräpfiler
+- ✅ Raderade CalendarWithTaskSidebar_OLD.tsx (370 rader)
+- ✅ Raderade MIGRATION_GUIDE.md, TODO_DANIEL.md, TASKFORM_NEW_STRUCTURE.md
 
 ---
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
 import { Task, Project } from '@/lib/types';
-import { Search, FileText, Folder, X, Calendar } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDuration } from '@/lib/utils';
@@ -17,7 +17,7 @@ type SearchResult = {
   id: string;
   title: string;
   subtitle?: string;
-  icon: any;
+  iconClass: string;
   data: Task | Project;
 };
 
@@ -68,7 +68,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
           id: task.id,
           title: task.title,
           subtitle: project ? `${project.name}${project.client_name ? ` • ${project.client_name}` : ''}` : task.estimated_duration ? formatDuration(task.estimated_duration) : undefined,
-          icon: task.status === 'done' ? Calendar : FileText,
+          iconClass: task.status === 'done' ? 'e-schedule' : 'e-file',
           data: task
         });
       }
@@ -86,7 +86,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
           id: project.id,
           title: project.name,
           subtitle: project.client_name || undefined,
-          icon: Folder,
+          iconClass: 'e-folder',
           data: project
         });
       }
@@ -143,7 +143,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
       <div style={{ position: 'relative', width: '100%', maxWidth: '672px', backgroundColor: 'var(--e-surface)', borderRadius: '12px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', border: '1px solid var(--e-border)' }}>
         {/* Search Input */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', borderBottom: '1px solid var(--e-border)' }}>
-          <Search style={{ height: '20px', width: '20px', color: 'var(--e-text)', opacity: 0.4 }} />
+          <span className="e-icons e-search" style={{ fontSize: '16px', color: 'var(--e-text)', opacity: 0.4 }}></span>
           <input
             type="text"
             value={query}
@@ -158,7 +158,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <X style={{ height: '20px', width: '20px', color: 'var(--e-text)', opacity: 0.4 }} />
+            <span className="e-icons e-close" style={{ fontSize: '16px', color: 'var(--e-text)', opacity: 0.4 }}></span>
           </button>
         </div>
 
@@ -177,7 +177,6 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
           )}
 
           {results.map((result, index) => {
-            const Icon = result.icon;
             return (
               <button
                 key={`${result.type}-${result.id}`}
@@ -205,7 +204,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                   }
                 }}
               >
-                <Icon style={{ height: '20px', width: '20px', color: 'var(--e-text)', opacity: 0.4, flexShrink: 0 }} />
+                <span className={`e-icons ${result.iconClass}`} style={{ fontSize: '16px', color: 'var(--e-text)', opacity: 0.4, flexShrink: 0 }}></span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontWeight: '500', color: 'var(--e-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {result.title}

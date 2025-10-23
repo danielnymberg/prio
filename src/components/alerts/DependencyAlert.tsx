@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, ChevronDown, ChevronUp, Clock, Target } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { DependencyChain, getCriticalityLevel } from '@/lib/dependencyAnalyzer';
 import { formatDuration } from '@/lib/utils';
 
@@ -36,7 +36,7 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
       marginBottom: '16px'
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-        <AlertTriangle style={{ height: '20px', width: '20px', color, flexShrink: 0, marginTop: '2px' }} />
+        <span className="e-icons e-warning" style={{ fontSize: '16px', color, flexShrink: 0, marginTop: '2px' }}></span>
 
         <div style={{ flex: 1, minWidth: 0 }}>
           {/* Header */}
@@ -70,13 +70,13 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
           {/* Quick Stats */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-              <Target style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary, #6b7280)' }} />
+              <span className="e-icons e-target" style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}></span>
               <span style={{ color: 'var(--e-text, #374151)' }}>
                 Djup: {chain.depth} nivåer
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-              <Clock style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary, #6b7280)' }} />
+              <span className="e-icons e-time" style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}></span>
               <span style={{ color: 'var(--e-text, #374151)' }}>
                 Total tid: {formatDuration(chain.totalEstimatedTime)}
               </span>
@@ -116,12 +116,12 @@ export function DependencyAlert({ chain }: DependencyAlertProps) {
           >
             {isExpanded ? (
               <>
-                <ChevronUp style={{ height: '16px', width: '16px' }} />
+                <span className="e-icons e-chevron-up" style={{ fontSize: '12px' }}></span>
                 Dölj detaljer
               </>
             ) : (
               <>
-                <ChevronDown style={{ height: '16px', width: '16px' }} />
+                <span className="e-icons e-chevron-down" style={{ fontSize: '12px' }}></span>
                 Visa alla {chain.blockedCount} blockerade uppgifter
               </>
             )}

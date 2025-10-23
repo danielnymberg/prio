@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
-import { Star } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { toast } from 'react-hot-toast';
 
 export function TaskImpactPage() {
@@ -126,7 +126,7 @@ export function TaskImpactPage() {
             onClick={handleSubmit}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Star style={{ height: '16px', width: '16px', marginRight: '8px' }} />
+              <span className="e-icons e-star" style={{ fontSize: '12px', marginRight: '8px' }}></span>
               Spara bedömning
             </div>
           </ButtonComponent>

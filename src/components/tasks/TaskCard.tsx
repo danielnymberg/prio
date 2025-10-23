@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { isPast, isToday, isTomorrow } from 'date-fns';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Copy, Check, X, Clock, Trash2 } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { formatDuration, getDurationIcon } from '@/lib/utils';
 import { isEmergencyTask, isOverdueTask, formatTimeUntilDeadline } from '@/lib/priorityCalculation';
 
@@ -218,7 +218,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <Check style={{ height: '12px', width: '12px', color: 'var(--e-success, #10b981)' }} />
+              <span className="e-icons e-check" style={{ fontSize: '12px', color: 'var(--e-success, #10b981)' }}></span>
             </button>
             <button
               onClick={handleTitleCancel}
@@ -233,7 +233,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <X style={{ height: '12px', width: '12px', color: 'var(--e-error, #ef4444)' }} />
+              <span className="e-icons e-close" style={{ fontSize: '12px', color: 'var(--e-error, #ef4444)' }}></span>
             </button>
           </div>
         ) : (
@@ -297,7 +297,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-border, #d6d3d1)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #e7e5e4)'}
             >
-              <Copy style={{ height: '12px', width: '12px', color: 'var(--e-text-secondary, #57534e)' }} />
+              <span className="e-icons e-copy" style={{ fontSize: '12px', color: 'var(--e-text-secondary, #57534e)' }}></span>
             </button>
           )}
           {onDelete && (
@@ -314,7 +314,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-error-lighter, #fecaca)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-error-light, #fee2e2)'}
             >
-              <Trash2 style={{ height: '12px', width: '12px', color: 'var(--e-error, #dc2626)' }} />
+              <span className="e-icons e-delete" style={{ fontSize: '12px', color: 'var(--e-error, #dc2626)' }}></span>
             </button>
           )}
         </div>
@@ -392,7 +392,7 @@ export function TaskCard({ task, onClick, onDuplicate, onUpdate, onDelete, viewM
                   alignItems: 'center',
                   gap: '4px'
                 }}>
-                  <Clock style={{ height: '12px', width: '12px' }} />
+                  <span className="e-icons e-time" style={{ fontSize: '12px' }}></span>
                   {formatDuration(task.estimated_duration)}
                 </span>
               )}

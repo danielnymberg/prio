@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CreateProjectInput } from '@/lib/types';
 import toast from 'react-hot-toast';
 import { PDFUpload } from './PDFUpload';
-import { FileText } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 
 interface ProjectFormProps {
@@ -87,7 +87,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               border: 'none'
             }}
           >
-            <FileText style={{ height: '16px', width: '16px' }} />
+            <span className="e-icons e-file" style={{ fontSize: '12px' }}></span>
             {showPDFUpload ? 'Dölj' : 'Ladda upp'} PDF
           </button>
         </div>

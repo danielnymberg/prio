@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { toast } from 'react-hot-toast';
-import { Upload, FileJson } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 export function ImportView() {
   const { createTask } = useTasks();
@@ -109,7 +109,7 @@ export function ImportView() {
               backgroundColor: 'var(--e-border)',
               color: 'var(--e-text)'
             }}>
-              <Upload style={{ width: '16px', height: '16px' }} />
+              <span className="e-icons e-upload" style={{ fontSize: '12px' }}></span>
               Välj JSON-fil
             </span>
           </label>
@@ -164,12 +164,11 @@ export function ImportView() {
         borderColor: 'var(--e-border)'
       }}>
         <div className="e-flex e-align-start e-gap-12">
-          <FileJson style={{
-            width: '20px',
-            height: '20px',
+          <span className="e-icons e-file" style={{
+            fontSize: '16px',
             color: 'var(--primary-500)',
             marginTop: '2px'
-          }} />
+          }}></span>
           <div>
             <h3 className="e-font-semibold e-mb-8" style={{ color: 'var(--e-text)' }}>
               JSON-format

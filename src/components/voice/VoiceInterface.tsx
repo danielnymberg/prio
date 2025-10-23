@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquare, X } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { FabComponent } from '@syncfusion/ej2-react-buttons';
 import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
@@ -380,7 +380,7 @@ export function VoiceInterface() {
                 size="sm"
                 onClick={() => setIsExpanded(false)}
               >
-                <X style={{ height: '16px', width: '16px' }} />
+                <span className="e-icons e-close" style={{ fontSize: '12px' }}></span>
               </Button>
             </div>
           </div>
@@ -398,12 +398,12 @@ export function VoiceInterface() {
                 color: 'var(--e-text-secondary)',
                 padding: '32px 0'
               }}>
-                <MessageSquare style={{
-                  height: '32px',
-                  width: '32px',
+                <span className="e-icons e-comment" style={{
+                  fontSize: '32px',
+                  display: 'block',
                   margin: '0 auto 8px',
                   opacity: 0.5
-                }} />
+                }}></span>
                 <p style={{ fontSize: '14px', margin: 0 }}>Säg hej för att börja prata med din AI-assistent!</p>
               </div>
             ) : (
@@ -551,11 +551,10 @@ export function VoiceInterface() {
             }}
             aria-label="Stäng"
           >
-            <X style={{
-              height: '16px',
-              width: '16px',
+            <span className="e-icons e-close" style={{
+              fontSize: '12px',
               color: 'var(--e-text-secondary)'
-            }} />
+            }}></span>
           </button>
 
           {error ? (

@@ -1,6 +1,3 @@
-import { AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
-import { CSSProperties } from 'react';
-
 interface AlertProps {
   variant?: 'info' | 'warning' | 'success' | 'error';
   title?: string;
@@ -9,39 +6,34 @@ interface AlertProps {
 
 const variantConfig = {
   info: {
-    icon: Info,
+    iconCss: 'e-icons e-info',
     iconColor: 'var(--primary-500)',
   },
   warning: {
-    icon: AlertTriangle,
+    iconCss: 'e-icons e-warning',
     iconColor: 'var(--warning-500)',
   },
   success: {
-    icon: CheckCircle,
+    iconCss: 'e-icons e-check',
     iconColor: '#10b981',
   },
   error: {
-    icon: XCircle,
+    iconCss: 'e-icons e-close',
     iconColor: '#ef4444',
   },
 };
 
 export function Alert({ variant = 'info', title, children }: AlertProps) {
   const config = variantConfig[variant];
-  const Icon = config.icon;
-
-  const iconStyle: CSSProperties = {
-    height: '20px',
-    width: '20px',
-    color: config.iconColor,
-    flexShrink: 0,
-    marginTop: '2px',
-  };
 
   return (
     <div className="e-border e-rounded-lg e-p-16" style={{ backgroundColor: 'var(--e-surface)' }}>
       <div className="e-flex e-align-start e-gap-12">
-        <Icon style={iconStyle} />
+        <span className={config.iconCss} style={{
+          fontSize: '16px',
+          color: config.iconColor,
+          marginTop: '2px'
+        }}></span>
         <div className="e-flex-1">
           {title && (
             <h3 className="e-font-semibold e-mb-4" style={{ color: 'var(--e-text)' }}>

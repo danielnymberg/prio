@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Dialog } from '@/components/ui/Dialog';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Task } from '@/lib/types';
-import { TrendingUp, CheckCircle, Clock, AlertTriangle, Target } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 interface WeeklyReviewModalProps {
   isOpen: boolean;
@@ -113,7 +113,7 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         <div className="e-grid e-grid-cols-2 e-gap-16">
           <div className="e-rounded-md e-p-16 e-border" style={{ backgroundColor: '#ecfdf5', borderColor: '#10b981' }}>
             <div className="e-flex e-align-center e-gap-8 e-mb-4">
-              <CheckCircle style={{ height: '16px', width: '16px', color: '#10b981' }} />
+              <span className="e-icons e-check" style={{ fontSize: '12px', color: '#10b981' }}></span>
               <span className="e-text-sm" style={{ color: '#10b981' }}>Slutförda</span>
             </div>
             <div className="e-text-2xl e-font-bold" style={{ color: '#10b981' }}>
@@ -126,7 +126,7 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
 
           <div className="e-rounded-md e-p-16 e-border" style={{ backgroundColor: 'var(--e-border)' }}>
             <div className="e-flex e-align-center e-gap-8 e-mb-4">
-              <Clock style={{ height: '16px', width: '16px', color: 'var(--primary-600)' }} />
+              <span className="e-icons e-time" style={{ fontSize: '12px', color: 'var(--primary-600)' }}></span>
               <span className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>Total tid</span>
             </div>
             <div className="e-text-2xl e-font-bold" style={{ color: 'var(--e-text)' }}>
@@ -142,7 +142,7 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         <div style={{ background: 'linear-gradient(to right, #faf5ff, #fef3e2)', borderRadius: '0.75rem', padding: '1.5rem', border: '1px solid var(--primary-500)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <TrendingUp style={{ height: '20px', width: '20px', color: 'var(--primary-500)' }} />
+              <span className="e-icons e-arrow-up" style={{ fontSize: '16px', color: 'var(--primary-500)' }}></span>
               <h3 style={{ fontWeight: '600', color: 'var(--primary-500)' }}>
                 Produktivitetspoäng
               </h3>
@@ -176,7 +176,7 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         {/* Pareto Analysis */}
         <div style={{ backgroundColor: '#fef3c7', borderRadius: '0.5rem', padding: '1rem', border: '1px solid var(--warning-500)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <Target style={{ height: '20px', width: '20px', color: 'var(--warning-500)' }} />
+            <span className="e-icons e-target" style={{ fontSize: '16px', color: 'var(--warning-500)' }}></span>
             <h3 style={{ fontWeight: '600', color: 'var(--warning-500)' }}>
               Pareto-analys (80/20-regeln)
             </h3>
@@ -212,7 +212,7 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         {stats.topCompletedTasks.length > 0 && (
           <div>
             <h3 style={{ fontWeight: '600', color: 'var(--e-text)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle style={{ height: '20px', width: '20px', color: '#10b981' }} />
+              <span className="e-icons e-check" style={{ fontSize: '16px', color: '#10b981' }}></span>
               Veckans toppresterare
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -251,7 +251,7 @@ export function WeeklyReviewModal({ isOpen, onClose, tasks }: WeeklyReviewModalP
         {stats.overdueCount > 0 && (
           <div style={{ backgroundColor: '#fee2e2', borderRadius: '0.5rem', padding: '1rem', border: '1px solid #ef4444' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-              <AlertTriangle style={{ height: '20px', width: '20px', color: '#ef4444', flexShrink: 0, marginTop: '0.125rem' }} />
+              <span className="e-icons e-warning" style={{ fontSize: '16px', color: '#ef4444', flexShrink: 0, marginTop: '0.125rem' }}></span>
               <div>
                 <p style={{ fontWeight: '600', color: '#ef4444', marginBottom: '0.25rem' }}>
                   ⚠️ {stats.overdueCount} försenade uppgifter

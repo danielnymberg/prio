@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Plus } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 interface EmptyStateProps {
   title: string;
@@ -42,7 +42,7 @@ export function EmptyState({ title, description, icon, action }: EmptyStateProps
           onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-500)'}
           onMouseLeave={(e) => e.currentTarget.style.color = 'var(--primary-600)'}
         >
-          <Plus style={{ height: '16px', width: '16px' }} />
+          <span className="e-icons e-plus" style={{ fontSize: '12px' }}></span>
           {action.label}
         </button>
       )}

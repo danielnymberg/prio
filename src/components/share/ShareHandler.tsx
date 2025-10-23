@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { ClaudeConversation } from '@/services/claude-conversation';
-import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 
 export function ShareHandler() {
@@ -127,13 +127,13 @@ export function ShareHandler() {
         <div style={{ textAlign: 'center' }}>
           {status === 'processing' && (
             <>
-              <Loader2 style={{
-                width: '64px',
-                height: '64px',
+              <span className="e-icons e-loader" style={{
+                fontSize: '64px',
                 color: 'var(--primary-500)',
                 animation: 'spin 1s linear infinite',
-                margin: '0 auto 16px'
-              }} />
+                margin: '0 auto 16px',
+                display: 'block'
+              }}></span>
               <h2 style={{
                 fontSize: '24px',
                 fontWeight: 'bold',
@@ -148,12 +148,12 @@ export function ShareHandler() {
 
           {status === 'success' && (
             <>
-              <CheckCircle style={{
-                width: '64px',
-                height: '64px',
+              <span className="e-icons e-check" style={{
+                fontSize: '64px',
                 color: '#10b981',
-                margin: '0 auto 16px'
-              }} />
+                margin: '0 auto 16px',
+                display: 'block'
+              }}></span>
               <h2 style={{
                 fontSize: '24px',
                 fontWeight: 'bold',
@@ -212,12 +212,12 @@ export function ShareHandler() {
 
           {status === 'error' && (
             <>
-              <AlertCircle style={{
-                width: '64px',
-                height: '64px',
+              <span className="e-icons e-alert" style={{
+                fontSize: '64px',
                 color: '#ef4444',
-                margin: '0 auto 16px'
-              }} />
+                margin: '0 auto 16px',
+                display: 'block'
+              }}></span>
               <h2 style={{
                 fontSize: '24px',
                 fontWeight: 'bold',

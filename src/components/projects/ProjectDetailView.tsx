@@ -7,7 +7,7 @@ import { Project } from '@/lib/types';
 import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { ProjectProgressSlider } from './ProjectProgressSlider';
 import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
-import { ArrowLeft, Calendar, User, Clock } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import toast from 'react-hot-toast';
 
 export function ProjectDetailView() {
@@ -84,7 +84,7 @@ export function ProjectDetailView() {
         onMouseEnter={(e) => e.currentTarget.style.color = 'var(--e-text)'}
         onMouseLeave={(e) => e.currentTarget.style.color = 'var(--e-text-secondary)'}
       >
-        <ArrowLeft style={{ height: '20px', width: '20px' }} />
+        <span className="e-icons e-arrow-left" style={{ fontSize: '16px' }}></span>
         Tillbaka till projekt
       </button>
 
@@ -97,14 +97,14 @@ export function ProjectDetailView() {
         <div className="e-flex e-flex-wrap e-gap-16 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
           {project.client_name && (
             <div className="e-flex e-align-center e-gap-8">
-              <User style={{ height: '16px', width: '16px' }} />
+              <span className="e-icons e-user" style={{ fontSize: '12px' }}></span>
               <span>{project.client_name}</span>
             </div>
           )}
 
           {project.project_deadline && (
             <div className="e-flex e-align-center e-gap-8">
-              <Calendar style={{ height: '16px', width: '16px' }} />
+              <span className="e-icons e-schedule" style={{ fontSize: '12px' }}></span>
               <span>
                 Deadline: {new Date(project.project_deadline).toLocaleDateString('sv-SE')}
               </span>
@@ -112,7 +112,7 @@ export function ProjectDetailView() {
           )}
 
           <div className="e-flex e-align-center e-gap-8">
-            <Clock style={{ height: '16px', width: '16px' }} />
+            <span className="e-icons e-time" style={{ fontSize: '12px' }}></span>
             <span>{projectTasks.length} tasks kopplade</span>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
-import { Coffee, Mail, ArrowRight } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 export function BreakView() {
   const navigate = useNavigate();
@@ -57,7 +57,7 @@ export function BreakView() {
             onClick={handleContinue}
             style={{ height: '64px', padding: '0 3rem', fontSize: '1.125rem' }}
           >
-            <ArrowRight style={{ height: '24px', width: '24px', marginRight: '0.5rem' }} />
+            <span className="e-icons e-arrow-right" style={{ fontSize: '24px', marginRight: '0.5rem' }}></span>
             Nästa uppgift
           </Button>
         </div>
@@ -70,9 +70,9 @@ export function BreakView() {
       <div className="e-rounded-xl e-p-32 e-w-full" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', maxWidth: '48rem' }}>
         <div className="e-text-center e-mb-16">
           {phase === 'physical' ? (
-            <Coffee className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: 'var(--warning-500)' }} />
+            <span className="e-icons e-coffee e-mx-auto e-mb-16" style={{ fontSize: '64px', color: 'var(--warning-500)', display: 'block' }}></span>
           ) : (
-            <Mail className="e-mx-auto e-mb-16" style={{ height: '80px', width: '80px', color: 'var(--primary-500)' }} />
+            <span className="e-icons e-mail e-mx-auto e-mb-16" style={{ fontSize: '64px', color: 'var(--primary-500)', display: 'block' }}></span>
           )}
           <h1 className="e-text-2xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
             {phase === 'physical' ? '🧘 Pausdags!' : '📧 Mejl-batch'}

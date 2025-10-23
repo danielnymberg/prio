@@ -6,14 +6,7 @@ import { Project } from '@/lib/types';
 import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { useNavigate } from 'react-router-dom';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
-import {
-  Calendar,
-  Clock,
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle2,
-  Sparkles
-} from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { CapacityTimeline } from '@/components/capacity/CapacityTimeline';
 
 type TimeHorizon = '1' | '3' | '6' | '12';
@@ -191,7 +184,7 @@ export function OverviewView() {
           borderWidth: '2px'
         }}>
           <div className="e-flex e-align-center e-gap-4 e-mb-4">
-            <Sparkles style={{ height: '16px', width: '16px', color: 'var(--primary-600)' }} />
+            <span className="e-icons e-star" style={{ fontSize: '16px', color: 'var(--primary-600)' }}></span>
             <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
               Totalt
             </span>
@@ -205,7 +198,7 @@ export function OverviewView() {
           borderWidth: '2px'
         }}>
           <div className="e-flex e-align-center e-gap-4 e-mb-4">
-            <CheckCircle2 style={{ height: '16px', width: '16px', color: '#10b981' }} />
+            <span className="e-icons e-check" style={{ fontSize: '16px', color: '#10b981' }}></span>
             <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
               Klara
             </span>
@@ -219,7 +212,7 @@ export function OverviewView() {
           borderWidth: '2px'
         }}>
           <div className="e-flex e-align-center e-gap-4 e-mb-4">
-            <Clock style={{ height: '16px', width: '16px', color: 'var(--warning-500)' }} />
+            <span className="e-icons e-time" style={{ fontSize: '16px', color: 'var(--warning-500)' }}></span>
             <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
               Totalt
             </span>
@@ -233,7 +226,7 @@ export function OverviewView() {
           borderWidth: '2px'
         }}>
           <div className="e-flex e-align-center e-gap-4 e-mb-4">
-            <TrendingUp style={{ height: '16px', width: '16px', color: '#8b5cf6' }} />
+            <span className="e-icons e-arrow-up" style={{ fontSize: '16px', color: '#8b5cf6' }}></span>
             <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
               Budget
             </span>
@@ -255,7 +248,7 @@ export function OverviewView() {
               borderWidth: '2px'
             }}>
               <div className="e-flex e-align-center e-gap-4 e-mb-8">
-                <AlertTriangle style={{ height: '16px', width: '16px', color: 'var(--warning-600)' }} />
+                <span className="e-icons e-warning" style={{ fontSize: '16px', color: 'var(--warning-600)' }}></span>
                 <h3 className="e-font-bold e-m-0 e-text-sm" style={{ color: '#78350f' }}>
                   Brådskande deadlines
                 </h3>
@@ -287,7 +280,7 @@ export function OverviewView() {
               borderWidth: '2px'
             }}>
               <div className="e-flex e-align-center e-gap-4 e-mb-8">
-                <AlertTriangle style={{ height: '16px', width: '16px', color: '#dc2626' }} />
+                <span className="e-icons e-warning" style={{ fontSize: '16px', color: '#dc2626' }}></span>
                 <h3 className="e-font-bold e-m-0 e-text-sm" style={{ color: '#7f1d1d' }}>
                   Budgetöverskridning
                 </h3>
@@ -317,7 +310,7 @@ export function OverviewView() {
       {/* Projekttidslinje */}
       <div className="e-border e-rounded-lg e-p-16">
         <h2 className="e-text-lg e-font-bold e-mb-12 e-flex e-align-center e-gap-8">
-          <Calendar style={{ height: '20px', width: '20px' }} />
+          <span className="e-icons e-schedule" style={{ fontSize: '16px' }}></span>
           Projekttidslinje
         </h2>
 

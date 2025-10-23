@@ -37,7 +37,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     {
       id: '3',
       name: 'Kalender',
-      iconCss: 'e-icons e-schedule',
+      iconCss: 'e-icons e-timeline-today',
       url: '/calendar'
     },
     {
@@ -61,13 +61,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {
           id: '6-1',
           name: 'Q4 2025',
-          iconCss: 'e-icons e-calendar',
+          iconCss: 'e-icons e-timeline-day',
           url: '/planning/q4'
         },
         {
           id: '6-2',
           name: 'Q1 2026',
-          iconCss: 'e-icons e-calendar',
+          iconCss: 'e-icons e-timeline-day',
           url: '/planning/q1'
         },
       ],

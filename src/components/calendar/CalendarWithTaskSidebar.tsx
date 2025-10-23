@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import { closest } from '@syncfusion/ej2-base';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
@@ -223,7 +223,7 @@ export function CalendarWithTaskSidebar() {
                   variant="primary"
                   className="e-w-full e-flex e-align-center e-justify-center e-gap-8"
                 >
-                  <Calendar style={{ height: '1rem', width: '1rem' }} />
+                  <span className="e-icons e-schedule" style={{ fontSize: '12px' }}></span>
                   {`Schemalägg ${checkedTaskIds.length} valda`}
                 </Button>
                 <button
@@ -315,9 +315,9 @@ export function CalendarWithTaskSidebar() {
         }}
       >
         {showSidebar ? (
-          <ChevronLeft style={{ height: '1rem', width: '1rem', color: 'var(--e-text-secondary)' }} />
+          <span className="e-icons e-chevron-left" style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}></span>
         ) : (
-          <ChevronRight style={{ height: '1rem', width: '1rem', color: 'var(--e-text-secondary)' }} />
+          <span className="e-icons e-chevron-right" style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}></span>
         )}
       </button>
 

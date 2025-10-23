@@ -1,5 +1,5 @@
 import React, { Component, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 interface Props {
   children: ReactNode;
@@ -74,7 +74,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div style={{ minHeight: '100vh', backgroundColor: 'var(--e-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div style={{ maxWidth: '448px', width: '100%', backgroundColor: 'var(--e-surface)', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', margin: '0 auto 16px', backgroundColor: '#ef4444', opacity: 0.1, borderRadius: '50%' }}>
-              <AlertTriangle style={{ width: '32px', height: '32px', color: '#ef4444' }} />
+              <span className="e-icons e-warning" style={{ fontSize: '32px', color: '#ef4444' }}></span>
             </div>
 
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', color: 'var(--e-text)', marginBottom: '8px' }}>
@@ -105,7 +105,7 @@ export class ErrorBoundary extends Component<Props, State> {
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
             >
-              <RefreshCw style={{ width: '20px', height: '20px' }} />
+              <span className="e-icons e-refresh" style={{ fontSize: '16px' }}></span>
               Ladda om appen
             </button>
 

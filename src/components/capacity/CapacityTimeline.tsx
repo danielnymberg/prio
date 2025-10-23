@@ -5,7 +5,7 @@ import { useAbsencePeriods } from '@/hooks/useAbsencePeriods';
 import { useCapacitySettings } from '@/hooks/useCapacitySettings';
 import { ZoomLevel } from '@/lib/types';
 import { calculatePeriodCapacity, generatePeriods } from '@/lib/capacityCalculations';
-import { Loader2, TrendingUp, AlertCircle, Calendar } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 export function CapacityTimeline() {
   const { tasks } = useTasks();
@@ -48,7 +48,7 @@ export function CapacityTimeline() {
   if (absenceLoading || settingsLoading || loading) {
     return (
       <div className="e-flex e-align-center e-justify-center" style={{ height: '16rem' }}>
-        <Loader2 className="e-animate-spin" style={{ width: '2rem', height: '2rem', color: 'var(--primary-600)' }} />
+        <span className="e-icons e-loader e-animate-spin" style={{ fontSize: '32px', color: 'var(--primary-600)' }}></span>
       </div>
     );
   }
@@ -99,33 +99,32 @@ export function CapacityTimeline() {
           {
             label: 'Snittbeläggning',
             value: `${avgUtilization}%`,
-            icon: TrendingUp,
+            iconCss: 'e-icons e-arrow-up',
             color: avgUtilization >= settings.capacity_thresholds.over ? '#ef4444' : avgUtilization >= settings.capacity_thresholds.sweet_start ? '#10b981' : 'var(--primary-600)',
             bgColor: avgUtilization >= settings.capacity_thresholds.over ? '#fef2f2' : avgUtilization >= settings.capacity_thresholds.sweet_start ? '#f0fdf4' : '#fef3e8',
           },
           {
             label: 'Överbelagda',
             value: overloadedPeriods,
-            icon: AlertCircle,
+            iconCss: 'e-icons e-alert',
             color: '#ef4444',
             bgColor: '#fef2f2',
           },
           {
             label: 'Sweetspot',
             value: sweetspotPeriods,
-            icon: Calendar,
+            iconCss: 'e-icons e-schedule',
             color: '#10b981',
             bgColor: '#f0fdf4',
           },
           {
             label: 'Ledigt',
             value: `${totalAvailableHours}h`,
-            icon: Calendar,
+            iconCss: 'e-icons e-schedule',
             color: 'var(--primary-500)',
             bgColor: '#eff6ff',
           },
         ].map((stat, i) => {
-          const Icon = stat.icon;
           return (
             <div
               key={i}
@@ -139,7 +138,7 @@ export function CapacityTimeline() {
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div style={{ color: stat.color, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Icon style={{ width: '1rem', height: '1rem' }} />
+                  <span className={stat.iconCss} style={{ fontSize: '16px', color: stat.color }}></span>
                   <p style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--e-text-secondary)' }}>{stat.label}</p>
                 </div>
                 <p style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'var(--e-text)' }}>

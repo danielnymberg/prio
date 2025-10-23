@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Inbox } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { showToast } from '@/services/toast';
 import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import type { Task } from '@/lib/types';
@@ -147,7 +147,7 @@ export function InboxView() {
       {inboxTasks.length === 0 ? (
         <div className="e-flex-1 e-flex e-align-center e-justify-center">
           <EmptyState
-            icon={<Inbox style={{ height: '64px', width: '64px' }} />}
+            icon={<span className="e-icons e-inbox" style={{ fontSize: '64px' }}></span>}
             title="Inbox är tom!"
             description="Nya uppgifter från röstassistent hamnar här för bedömning"
           />

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Textarea } from '@/components/ui/Textarea';
-import { Plus, Zap, X, MessageSquare, Sparkles, Trash2 } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
@@ -265,7 +265,7 @@ export function QuickNoteInput() {
         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
       >
-        <Zap style={{ height: '24px', width: '24px' }} />
+        <span className="e-icons e-lightning" style={{ fontSize: '24px' }}></span>
       </button>
     );
   }
@@ -318,7 +318,7 @@ export function QuickNoteInput() {
               if (mode !== 'ai') e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
-            <Sparkles style={{ height: '16px', width: '16px' }} />
+            <span className="e-icons e-lightning" style={{ fontSize: '12px' }}></span>
             AI
           </button>
           <button
@@ -344,7 +344,7 @@ export function QuickNoteInput() {
               if (mode !== 'note') e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
-            <Plus style={{ height: '16px', width: '16px' }} />
+            <span className="e-icons e-plus" style={{ fontSize: '12px' }}></span>
             Anteckning
           </button>
         </div>
@@ -365,7 +365,7 @@ export function QuickNoteInput() {
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-hover, #f5f5f4)'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
-          <X style={{ height: '16px', width: '16px', color: 'var(--e-text-secondary, #6b7280)' }} />
+          <span className="e-icons e-close" style={{ fontSize: '12px', color: 'var(--e-text-secondary, #6b7280)' }}></span>
         </button>
       </div>
 
@@ -423,7 +423,7 @@ export function QuickNoteInput() {
           minHeight: '200px'
         }}>
           <div style={{ textAlign: 'center', color: 'var(--e-text-secondary, #6b7280)' }}>
-            <Sparkles style={{ height: '48px', width: '48px', margin: '0 auto 12px', opacity: 0.5 }} />
+            <span className="e-icons e-lightning" style={{ fontSize: '48px', margin: '0 auto 12px', opacity: 0.5, display: 'block' }}></span>
             <p style={{ fontSize: '14px', fontWeight: '500', marginBottom: '4px' }}>Fråga AI-assistenten</p>
             <p style={{ fontSize: '12px' }}>
               Skapa uppgifter, få hjälp med prioritering,<br />eller fråga vad som helst!
@@ -448,7 +448,7 @@ export function QuickNoteInput() {
                 fontSize: '12px'
               }}
             >
-              <Trash2 style={{ height: '12px', width: '12px', marginRight: '4px' }} />
+              <span className="e-icons e-delete" style={{ fontSize: '12px', marginRight: '4px' }}></span>
               Rensa chat
             </Button>
           </div>
@@ -500,12 +500,12 @@ export function QuickNoteInput() {
                 </>
               ) : mode === 'note' ? (
                 <>
-                  <Plus style={{ height: '16px', width: '16px', marginRight: '4px' }} />
+                  <span className="e-icons e-plus" style={{ fontSize: '12px', marginRight: '4px' }}></span>
                   {isProcessing ? 'Lägger till...' : 'Lägg till'}
                 </>
               ) : (
                 <>
-                  <MessageSquare style={{ height: '16px', width: '16px', marginRight: '4px' }} />
+                  <span className="e-icons e-comment" style={{ fontSize: '12px', marginRight: '4px' }}></span>
                   Skicka
                 </>
               )}

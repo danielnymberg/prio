@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Dialog } from '@/components/ui/Dialog';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
-import { Calendar, Clock, X, Layers } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { FreeTimeSlot, blockCalendarTime, planWorkSessions, blockMultipleSessions, SessionPlan } from '@/services/microsoft-graph';
 import { toast } from 'react-hot-toast';
 
@@ -135,13 +135,12 @@ export function AutoBookModal({
           border: '1px solid var(--e-border, #e7e5e4)'
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <Calendar style={{
-              height: '20px',
-              width: '20px',
+            <span className="e-icons e-schedule" style={{
+              fontSize: '16px',
               color: 'var(--primary-600)',
               flexShrink: 0,
               marginTop: '2px'
-            }} />
+            }}></span>
             <div style={{ flex: '1' }}>
               <h3 style={{
                 fontWeight: '600',
@@ -151,12 +150,11 @@ export function AutoBookModal({
                 {taskTitle}
               </h3>
               <p style={{ fontSize: '14px', color: 'var(--e-text)' }}>
-                <Clock style={{
+                <span className="e-icons e-time" style={{
                   display: 'inline',
-                  height: '16px',
-                  width: '16px',
+                  fontSize: '12px',
                   marginRight: '4px'
-                }} />
+                }}></span>
                 {Math.floor(durationMinutes / 60)}h {durationMinutes % 60}min totalt
               </p>
               {useMultipleSessions && (
@@ -165,12 +163,11 @@ export function AutoBookModal({
                   color: 'var(--e-text)',
                   marginTop: '4px'
                 }}>
-                  <Layers style={{
+                  <span className="e-icons e-layer" style={{
                     display: 'inline',
-                    height: '12px',
-                    width: '12px',
+                    fontSize: '12px',
                     marginRight: '4px'
-                  }} />
+                  }}></span>
                   Delas upp i flera sessioner (max {maxSessionHours}h/session)
                 </p>
               )}
@@ -390,14 +387,14 @@ export function AutoBookModal({
                     </>
                   ) : (
                     <>
-                      <Calendar style={{ height: '16px', width: '16px', marginRight: '8px' }} />
+                      <span className="e-icons e-schedule" style={{ fontSize: '12px', marginRight: '8px' }}></span>
                       Boka alla {sessionPlan.sessions.length} sessioner
                     </>
                   )}
                   </Button>
                 </div>
                 <Button variant="ghost" onClick={onClose}>
-                  <X style={{ height: '16px', width: '16px', marginRight: '4px' }} />
+                  <span className="e-icons e-close" style={{ fontSize: '12px', marginRight: '4px' }}></span>
                   Avbryt
                 </Button>
               </div>
@@ -556,13 +553,13 @@ export function AutoBookModal({
                   </>
                 ) : (
                   <>
-                    <Calendar style={{ height: '16px', width: '16px', marginRight: '8px' }} />
+                    <span className="e-icons e-schedule" style={{ fontSize: '12px', marginRight: '8px' }}></span>
                     Boka vald tid
                   </>
                 )}
               </Button>
               <Button variant="ghost" onClick={onClose}>
-                <X style={{ height: '16px', width: '16px', marginRight: '4px' }} />
+                <span className="e-icons e-close" style={{ fontSize: '12px', marginRight: '4px' }}></span>
                 Hoppa över
               </Button>
             </div>

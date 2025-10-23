@@ -1,15 +1,9 @@
-import { Moon, Sun } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { useTheme } from '@/contexts/ThemeContext';
 import { SyncButton as Button } from './SyncButton';
-import { CSSProperties } from 'react';
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
-
-  const iconStyle: CSSProperties = {
-    height: '20px',
-    width: '20px',
-  };
 
   return (
     <Button
@@ -20,9 +14,9 @@ export function ThemeToggle() {
       aria-label="Toggle theme"
     >
       {theme === 'dark' ? (
-        <Sun style={iconStyle} />
+        <span className="e-icons e-sun" style={{ fontSize: '16px' }}></span>
       ) : (
-        <Moon style={iconStyle} />
+        <span className="e-icons e-moon" style={{ fontSize: '16px' }}></span>
       )}
     </Button>
   );

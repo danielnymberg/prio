@@ -1,7 +1,7 @@
 import { useTasks } from '@/hooks/useTasks';
 import { Task } from '@/lib/types';
 import { useDndContext, DragOverlay } from '@dnd-kit/core';
-import { Clock } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { formatDuration } from '@/lib/utils';
 
 export function TaskDragOverlay() {
@@ -32,7 +32,7 @@ export function TaskDragOverlay() {
         {task.estimated_duration && (
           <div className="e-flex e-align-center e-gap-4 e-text-xs"
             style={{ color: 'var(--e-text-secondary, #57534e)' }}>
-            <Clock style={{ height: '12px', width: '12px' }} />
+            <span className="e-icons e-time" style={{ fontSize: '12px' }}></span>
             {formatDuration(task.estimated_duration)}
           </div>
         )}

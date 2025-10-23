@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { Plus, Camera } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 
 export function QuickCaptureBar() {
@@ -49,11 +49,6 @@ export function QuickCaptureBar() {
     minHeight: '60px',
   };
 
-  const iconStyle: CSSProperties = {
-    height: '24px',
-    width: '24px',
-  };
-
   const textStyle: CSSProperties = {
     fontSize: '12px',
   };
@@ -80,7 +75,7 @@ export function QuickCaptureBar() {
             style={primaryButtonStyle}
             title="Skapa task"
           >
-            <Plus style={iconStyle} />
+            <span className="e-icons e-plus" style={{ fontSize: '24px' }}></span>
             <span style={textStyle}>Ny task</span>
           </Button>
 
@@ -91,7 +86,7 @@ export function QuickCaptureBar() {
             style={secondaryButtonStyle}
             title="Foto (kommer snart)"
           >
-            <Camera style={iconStyle} />
+            <span className="e-icons e-camera" style={{ fontSize: '24px' }}></span>
             <span style={textStyle}>Foto</span>
           </Button>
         </div>

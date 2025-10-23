@@ -31,7 +31,7 @@ import {
 } from '@/services/microsoft-graph';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
-import { AlertCircle } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 // Import CLDR data
 import * as numberingSystems from 'cldr-data/supplemental/numberingSystems.json';
@@ -356,12 +356,12 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
             backgroundColor: 'var(--e-surface)',
             borderColor: 'var(--e-border)'
           }}>
-          <AlertCircle className="e-mx-auto e-mb-16"
+          <span className="e-icons e-alert e-mx-auto e-mb-16"
             style={{
-              width: '48px',
-              height: '48px',
-              color: 'var(--primary-500)'
-            }} />
+              fontSize: '48px',
+              color: 'var(--primary-500)',
+              display: 'block'
+            }}></span>
           <h3 className="e-text-xl e-font-bold e-mb-8"
             style={{ color: 'var(--e-text)' }}>
             Microsoft Kalender Ej Ansluten

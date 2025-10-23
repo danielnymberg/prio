@@ -1,4 +1,4 @@
-import { Clock } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { CSSProperties } from 'react';
 
 interface DurationPickerProps {
@@ -29,11 +29,6 @@ export function DurationPicker({ value, onChange }: DurationPickerProps) {
     fontSize: '14px',
     fontWeight: '500',
     color: 'var(--e-text)',
-  };
-
-  const iconStyle: CSSProperties = {
-    height: '16px',
-    width: '16px',
   };
 
   const gridStyle: CSSProperties = {
@@ -67,7 +62,7 @@ export function DurationPicker({ value, onChange }: DurationPickerProps) {
   return (
     <div style={containerStyle}>
       <label style={labelStyle}>
-        <Clock style={iconStyle} />
+        <span className="e-icons e-time" style={{ fontSize: '12px' }}></span>
         Uppskattad tid
       </label>
       <div style={gridStyle}>

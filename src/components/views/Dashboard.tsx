@@ -1,7 +1,7 @@
 import { useTasks } from '@/hooks/useTasks';
 import { Stats } from '@/components/ui/Stats';
 import { isToday, isPast } from 'date-fns';
-import { Target } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 export function Dashboard() {
   const { tasks } = useTasks();
@@ -35,11 +35,10 @@ export function Dashboard() {
             <div className="e-p-12 e-rounded-md e-opacity-75" style={{
               backgroundColor: 'var(--error-500, #ef4444)'
             }}>
-              <Target style={{
-                width: '24px',
-                height: '24px',
+              <span className="e-icons e-target" style={{
+                fontSize: '24px',
                 color: 'var(--error-500, #ef4444)'
-              }} />
+              }}></span>
             </div>
             <div className="e-flex-1">
               <h2 className="e-text-lg e-font-bold e-mb-4" style={{ color: 'var(--error-500, #ef4444)' }}>

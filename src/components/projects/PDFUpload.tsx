@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Upload, FileText, X, Loader2, Sparkles } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import toast from 'react-hot-toast';
 
 interface PDFUploadProps {
@@ -167,11 +167,11 @@ VIKTIGT:
         border: '2px dashed var(--warning-500)',
         backgroundColor: 'rgba(245, 158, 11, 0.1)'
       }}>
-        <Loader2 className="e-animate-spin e-mx-auto e-mb-16" style={{
-          height: '48px',
-          width: '48px',
-          color: 'var(--warning-500)'
-        }} />
+        <span className="e-icons e-loader e-animate-spin e-mx-auto e-mb-16" style={{
+          fontSize: '48px',
+          color: 'var(--warning-500)',
+          display: 'block'
+        }}></span>
         <p className="e-text-lg e-font-semibold e-mb-8 e-mt-0" style={{ color: 'var(--warning-500)' }}>
           Analyserar PDF med AI...
         </p>
@@ -190,11 +190,10 @@ VIKTIGT:
       }}>
         <div className="e-flex e-align-center e-justify-between">
           <div className="e-flex e-align-center e-gap-12">
-            <FileText style={{
-              height: '32px',
-              width: '32px',
+            <span className="e-icons e-file" style={{
+              fontSize: '32px',
               color: 'var(--warning-500)'
-            }} />
+            }}></span>
             <div>
               <p className="e-font-semibold e-m-0" style={{ color: 'var(--warning-500)' }}>
                 {uploadedFile.name}
@@ -214,11 +213,10 @@ VIKTIGT:
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <X style={{
-              height: '20px',
-              width: '20px',
+            <span className="e-icons e-close" style={{
+              fontSize: '16px',
               color: 'var(--warning-500)'
-            }} />
+            }}></span>
           </button>
         </div>
       </div>
@@ -246,16 +244,14 @@ VIKTIGT:
       <label htmlFor="pdf-upload" className="e-cursor-pointer">
         <div className="e-text-center">
           <div className="e-flex e-align-center e-justify-center e-gap-8 e-mb-16">
-            <Upload style={{
-              height: '48px',
-              width: '48px',
+            <span className="e-icons e-upload" style={{
+              fontSize: '48px',
               color: 'var(--warning-500)'
-            }} />
-            <Sparkles className="e-animate-pulse" style={{
-              height: '24px',
-              width: '24px',
+            }}></span>
+            <span className="e-icons e-lightning e-animate-pulse" style={{
+              fontSize: '24px',
               color: 'var(--warning-500)'
-            }} />
+            }}></span>
           </div>
           <p className="e-text-lg e-font-semibold e-mb-8 e-mt-0" style={{ color: 'var(--e-text)' }}>
             Dra och släpp offert-PDF här
@@ -264,7 +260,7 @@ VIKTIGT:
             eller klicka för att välja fil
           </p>
           <p className="e-text-xs e-mt-12 e-mb-0 e-flex e-align-center e-justify-center e-gap-4" style={{ color: 'var(--warning-500)' }}>
-            <Sparkles style={{ height: '16px', width: '16px' }} />
+            <span className="e-icons e-lightning" style={{ fontSize: '12px' }}></span>
             AI extraherar automatiskt timmar, pris och deadline
           </p>
         </div>

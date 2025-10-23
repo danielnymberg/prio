@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Input } from '@/components/ui/Input';
 import { toast } from 'react-hot-toast';
-import { Zap, DollarSign, TrendingUp, AlertCircle, Key, Lock } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 interface ApiUsage {
   claude_requests_today: number;
@@ -214,7 +214,7 @@ export function ApiUsageView() {
               backgroundColor: 'rgba(233, 213, 255, 0.5)',
               color: 'var(--primary-700)'
             }}>
-              <Key style={{ height: '12px', width: '12px' }} />
+              <span className="e-icons e-key" style={{ fontSize: '12px' }}></span>
               Egen API-nyckel
             </span>
           )}
@@ -236,7 +236,7 @@ export function ApiUsageView() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ padding: '8px', backgroundColor: 'var(--primary-100)', borderRadius: '8px' }}>
-              <Zap style={{ height: '20px', width: '20px', color: 'var(--primary-600)' }} />
+              <span className="e-icons e-lightning" style={{ fontSize: '16px', color: 'var(--primary-600)' }}></span>
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Idag
@@ -273,7 +273,7 @@ export function ApiUsageView() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ padding: '8px', backgroundColor: 'rgba(254, 243, 199, 0.5)', borderRadius: '8px' }}>
-              <TrendingUp style={{ height: '20px', width: '20px', color: 'var(--warning-500, var(--warning-500))' }} />
+              <span className="e-icons e-arrow-up" style={{ fontSize: '16px', color: 'var(--warning-500, var(--warning-500))' }}></span>
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Denna månad
@@ -310,7 +310,7 @@ export function ApiUsageView() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ padding: '8px', backgroundColor: 'rgba(220, 252, 231, 0.5)', borderRadius: '8px' }}>
-              <DollarSign style={{ height: '20px', width: '20px', color: 'var(--success-500, #10b981)' }} />
+              <span className="e-icons e-dollar" style={{ fontSize: '16px', color: 'var(--success-500, #10b981)' }}></span>
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Kostnad idag
@@ -333,7 +333,7 @@ export function ApiUsageView() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
             <div style={{ padding: '8px', backgroundColor: 'rgba(254, 226, 226, 0.5)', borderRadius: '8px' }}>
-              <DollarSign style={{ height: '20px', width: '20px', color: 'var(--error-500, #ef4444)' }} />
+              <span className="e-icons e-dollar" style={{ fontSize: '16px', color: 'var(--error-500, #ef4444)' }}></span>
             </div>
             <span style={{ fontSize: '12px', color: 'var(--e-text-secondary, #78716c)' }}>
               Kostnad månad
@@ -397,7 +397,7 @@ export function ApiUsageView() {
               padding: '16px'
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <AlertCircle style={{ height: '20px', width: '20px', color: 'var(--warning-500, var(--warning-500))', marginTop: '2px' }} />
+                <span className="e-icons e-alert" style={{ fontSize: '16px', color: 'var(--warning-500, var(--warning-500))', marginTop: '2px' }}></span>
                 <div>
                   <h4 style={{ fontWeight: '600', color: '#b45309' }}>
                     Nära daglig gräns
@@ -418,7 +418,7 @@ export function ApiUsageView() {
               padding: '16px'
             }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <AlertCircle style={{ height: '20px', width: '20px', color: 'var(--error-500, #ef4444)', marginTop: '2px' }} />
+                <span className="e-icons e-alert" style={{ fontSize: '16px', color: 'var(--error-500, #ef4444)', marginTop: '2px' }}></span>
                 <div>
                   <h4 style={{ fontWeight: '600', color: '#991b1b' }}>
                     Nära månadsgräns
@@ -459,7 +459,7 @@ export function ApiUsageView() {
               border: '1px solid #bbf7d0',
               borderRadius: '8px'
             }}>
-              <Lock style={{ height: '16px', width: '16px', color: 'var(--success-500, #10b981)' }} />
+              <span className="e-icons e-lock" style={{ fontSize: '12px', color: 'var(--success-500, #10b981)' }}></span>
               <span style={{ fontSize: '14px', color: 'var(--success-700, #15803d)', fontWeight: '500' }}>
                 Egen API-nyckel aktiv
               </span>
@@ -480,7 +480,7 @@ export function ApiUsageView() {
           <>
             {!showApiKeyInput ? (
               <Button onClick={() => setShowApiKeyInput(true)}>
-                <Key style={{ height: '16px', width: '16px', marginRight: '8px' }} />
+                <span className="e-icons e-key" style={{ fontSize: '12px', marginRight: '8px' }}></span>
                 Lägg till egen API-nyckel
               </Button>
             ) : (

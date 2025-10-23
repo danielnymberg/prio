@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Archive } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { showToast } from '@/services/toast';
 import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import type { Task } from '@/lib/types';
@@ -168,7 +168,7 @@ export function ArchiveView() {
       {completedTasks.length === 0 ? (
         <div className="e-flex-1 e-flex e-align-center e-justify-center">
           <EmptyState
-            icon={<Archive style={{ width: '64px', height: '64px' }} />}
+            icon={<span className="e-icons e-folder" style={{ fontSize: '64px' }}></span>}
             title="Inget i arkivet"
             description="Du har inga slutförda uppgifter än. När du markerar uppgifter som klara hamnar de här."
           />

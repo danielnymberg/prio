@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, LogOut, LogIn, Info, Bell, BellOff, Mail } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import {
   loginToMicrosoft,
@@ -309,11 +309,10 @@ export function SettingsView() {
             backgroundColor: 'var(--e-surface)',
             borderRadius: '8px'
           }}>
-            <Calendar style={{
-              height: '1.5rem',
-              width: '1.5rem',
+            <span className="e-icons e-schedule" style={{
+              fontSize: '24px',
               color: 'var(--primary-500)'
-            }} />
+            }}></span>
           </div>
 
           <div style={{ flex: 1 }}>
@@ -334,13 +333,12 @@ export function SettingsView() {
               marginBottom: '1rem'
             }}>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Info style={{
-                  height: '1.25rem',
-                  width: '1.25rem',
+                <span className="e-icons e-info" style={{
+                  fontSize: '16px',
                   color: 'var(--primary-600)',
                   flexShrink: 0,
                   marginTop: '0.125rem'
-                }} />
+                }}></span>
                 <div style={{
                   fontSize: '0.875rem',
                   color: 'var(--e-text)'
@@ -397,11 +395,10 @@ export function SettingsView() {
                     onClick={handleMicrosoftLogout}
                     disabled={isLoading}
                   >
-                    <LogOut style={{
-                      height: '1rem',
-                      width: '1rem',
+                    <span className="e-icons e-logout" style={{
+                      fontSize: '16px',
                       marginRight: '0.25rem'
-                    }} />
+                    }}></span>
                     Koppla från
                   </Button>
                 </>
@@ -412,11 +409,10 @@ export function SettingsView() {
                   onClick={handleMicrosoftLogin}
                   disabled={isLoading || !import.meta.env.VITE_AZURE_CLIENT_ID}
                 >
-                  <LogIn style={{
-                    height: '1rem',
-                    width: '1rem',
+                  <span className="e-icons e-login" style={{
+                    fontSize: '16px',
                     marginRight: '0.5rem'
-                  }} />
+                  }}></span>
                   {isLoading ? 'Ansluter...' : 'Anslut Microsoft-konto'}
                 </Button>
               )}
@@ -457,11 +453,10 @@ export function SettingsView() {
             backgroundColor: 'var(--primary-100)',
             borderRadius: '8px'
           }}>
-            <Mail style={{
-              height: '1.5rem',
-              width: '1.5rem',
+            <span className="e-icons e-mail" style={{
+              fontSize: '24px',
               color: 'var(--primary-600)'
-            }} />
+            }}></span>
           </div>
 
           <div style={{ flex: 1 }}>
@@ -482,13 +477,12 @@ export function SettingsView() {
               marginBottom: '1rem'
             }}>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Info style={{
-                  height: '1.25rem',
-                  width: '1.25rem',
+                <span className="e-icons e-info" style={{
+                  fontSize: '16px',
                   color: 'var(--primary-600)',
                   flexShrink: 0,
                   marginTop: '0.125rem'
-                }} />
+                }}></span>
                 <div style={{
                   fontSize: '0.875rem',
                   color: 'var(--e-text)'
@@ -745,11 +739,10 @@ export function SettingsView() {
             backgroundColor: 'var(--primary-100)',
             borderRadius: '8px'
           }}>
-            <Bell style={{
-              height: '1.5rem',
-              width: '1.5rem',
+            <span className="e-icons e-bell" style={{
+              fontSize: '24px',
               color: 'var(--primary-600)'
-            }} />
+            }}></span>
           </div>
 
           <div style={{ flex: 1 }}>
@@ -847,13 +840,12 @@ export function SettingsView() {
                 padding: '1rem'
               }}>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <BellOff style={{
-                    height: '1.25rem',
-                    width: '1.25rem',
+                  <span className="e-icons e-notification-off" style={{
+                    fontSize: '16px',
                     color: 'var(--error-500, #ef4444)',
                     flexShrink: 0,
                     marginTop: '0.125rem'
-                  }} />
+                  }}></span>
                   <div>
                     <p style={{
                       fontSize: '0.875rem',
@@ -880,11 +872,10 @@ export function SettingsView() {
                 size="md"
                 onClick={handleRequestNotificationPermission}
               >
-                <Bell style={{
-                  height: '1rem',
-                  width: '1rem',
+                <span className="e-icons e-bell" style={{
+                  fontSize: '16px',
                   marginRight: '0.5rem'
-                }} />
+                }}></span>
                 Aktivera notifieringar
               </Button>
             )}

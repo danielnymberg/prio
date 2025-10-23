@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Project, ProjectMetrics } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import toast from 'react-hot-toast';
-import { AlertTriangle, TrendingUp, Calendar } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 
 interface ProjectProgressSliderProps {
   project: Project;
@@ -105,11 +105,10 @@ export function ProjectProgressSlider({
         backgroundColor: 'var(--e-surface)'
       }}>
         <div className="e-flex e-align-center e-gap-8 e-mb-8">
-          <TrendingUp style={{
-            height: '20px',
-            width: '20px',
+          <span className="e-icons e-arrow-up" style={{
+            fontSize: '16px',
             color: 'var(--primary-600)'
-          }} />
+          }}></span>
           <h3 className="e-font-bold e-text-lg e-m-0" style={{ color: 'var(--e-text)' }}>
             Beräknad återstående insats
           </h3>
@@ -132,11 +131,10 @@ export function ProjectProgressSlider({
           border: '2px solid #ef4444'
         }}>
           <div className="e-flex e-align-center e-gap-8 e-mb-8">
-            <AlertTriangle style={{
-              height: '20px',
-              width: '20px',
+            <span className="e-icons e-warning" style={{
+              fontSize: '16px',
               color: '#ef4444'
-            }} />
+            }}></span>
             <h3 className="e-font-bold e-m-0" style={{ color: '#ef4444' }}>
               Budgetöverskridning!
             </h3>
@@ -171,11 +169,10 @@ export function ProjectProgressSlider({
           border: '2px solid var(--warning-500)'
         }}>
           <div className="e-flex e-align-center e-gap-8 e-mb-8">
-            <AlertTriangle style={{
-              height: '20px',
-              width: '20px',
+            <span className="e-icons e-warning" style={{
+              fontSize: '16px',
               color: 'var(--warning-500)'
-            }} />
+            }}></span>
             <h3 className="e-font-bold e-m-0" style={{ color: 'var(--warning-500)' }}>
               Tight budget!
             </h3>
@@ -203,7 +200,7 @@ export function ProjectProgressSlider({
         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-700)'}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
       >
-        <Calendar style={{ height: '20px', width: '20px' }} />
+        <span className="e-icons e-schedule" style={{ fontSize: '16px' }}></span>
         Planera in {metrics.estimated_remaining_hours}h i kalendern
       </button>
 

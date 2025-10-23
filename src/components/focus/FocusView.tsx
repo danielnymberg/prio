@@ -5,7 +5,7 @@ import { getNextTask, getTaskQueue, hasEmergencyTasks, calculatePartialWork } fr
 import { Task, UserContext, DailyCheckIn } from '@/lib/types';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { formatDuration, formatRelativeTime } from '@/lib/utils';
-import { Play, ChevronRight, AlertTriangle, CheckCircle, SkipForward, Clock, Plus } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { toast } from 'react-hot-toast';
 import { MorningBriefing } from './MorningBriefing';
 import { DependencyAlert } from '@/components/alerts/DependencyAlert';
@@ -225,7 +225,7 @@ export function FocusView() {
                       Skapa din första uppgift för att komma igång med smart prioritering.
                     </p>
                     <Button onClick={() => navigate('/all')} size="lg">
-                      <Plus style={{ height: '20px', width: '20px', marginRight: '0.5rem' }} />
+                      <span className="e-icons e-plus" style={{ fontSize: '16px', marginRight: '0.5rem' }}></span>
                       Skapa första uppgiften
                     </Button>
                   </>
@@ -303,7 +303,7 @@ export function FocusView() {
       {/* Emergency Banner */}
       {isEmergency && (
         <div className="e-text-center e-font-semibold" style={{ padding: '12px 24px', backgroundColor: 'var(--e-warning-bg)', color: 'var(--e-warning-text)' }}>
-          <AlertTriangle style={{ display: 'inline', height: '20px', width: '20px', marginRight: '8px', verticalAlign: 'middle' }} />
+          <span className="e-icons e-warning" style={{ display: 'inline', fontSize: '16px', marginRight: '8px', verticalAlign: 'middle' }}></span>
           Du har uppgifter med deadline inom 24 timmar!
         </div>
       )}
@@ -383,7 +383,7 @@ export function FocusView() {
                         {formatDuration(task.estimated_duration)}
                       </p>
                     </div>
-                    <Play style={{ height: '20px', width: '20px' }} />
+                    <span className="e-icons e-play" style={{ fontSize: '16px' }}></span>
                   </div>
                 ))}
               </div>
@@ -408,7 +408,7 @@ export function FocusView() {
               return (
                 <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <AlertTriangle style={{ height: '24px', width: '24px', flexShrink: 0, marginTop: '0.25rem' }} />
+                    <span className="e-icons e-warning" style={{ fontSize: '24px', flexShrink: 0, marginTop: '0.25rem' }}></span>
                     <div>
                       <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                         🚨 FÖRSENAD - {hoursOverdue < 24 ? `${hoursOverdue}h` : `${Math.floor(hoursOverdue / 24)} dagar`} sen!
@@ -427,7 +427,7 @@ export function FocusView() {
               return (
                 <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <AlertTriangle style={{ height: '24px', width: '24px', flexShrink: 0, marginTop: '0.25rem' }} />
+                    <span className="e-icons e-warning" style={{ fontSize: '24px', flexShrink: 0, marginTop: '0.25rem' }}></span>
                     <div>
                       <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                         ⚡ AKUT - Deadline om {hoursUntil}h
@@ -480,7 +480,7 @@ export function FocusView() {
           {(nextTask as any).isTooLate && (
             <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <AlertTriangle style={{ height: '24px', width: '24px', flexShrink: 0, marginTop: '0.25rem' }} />
+                <span className="e-icons e-warning" style={{ fontSize: '24px', flexShrink: 0, marginTop: '0.25rem' }}></span>
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                     🚨 För sent att påbörja denna uppgift
@@ -510,7 +510,7 @@ export function FocusView() {
            nextTask.estimated_duration > context.availableTime && (
             <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <Clock style={{ height: '24px', width: '24px', flexShrink: 0, marginTop: '0.25rem' }} />
+                <span className="e-icons e-time" style={{ fontSize: '24px', flexShrink: 0, marginTop: '0.25rem' }}></span>
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                     ⏱️ Uppgiften tar längre än tillgänglig tid
@@ -540,7 +540,7 @@ export function FocusView() {
                 onClick={handleStartSession}
                 style={{ flex: 1, height: '64px', fontSize: '1.125rem', fontWeight: '600' }}
               >
-                <Play style={{ height: '24px', width: '24px', marginRight: '0.75rem' }} />
+                <span className="e-icons e-play" style={{ fontSize: '24px', marginRight: '0.75rem' }}></span>
                 Starta nu
               </Button>
               <Button
@@ -548,7 +548,7 @@ export function FocusView() {
                 onClick={handleMarkDone}
                 style={{ height: '64px', padding: '0 2rem' }}
               >
-                <CheckCircle style={{ height: '24px', width: '24px' }} />
+                <span className="e-icons e-check" style={{ fontSize: '24px' }}></span>
               </Button>
             </div>
 
@@ -557,7 +557,7 @@ export function FocusView() {
               onClick={handleSkipTask}
               style={{ width: '100%' }}
             >
-              <SkipForward style={{ height: '16px', width: '16px', marginRight: '0.5rem' }} />
+              <span className="e-icons e-skip-forward" style={{ fontSize: '12px', marginRight: '0.5rem' }}></span>
               Hoppa över (visa nästa)
             </Button>
           </div>
@@ -579,7 +579,7 @@ export function FocusView() {
             >
               <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Därefter:</span>
               <span style={{ fontSize: '1rem', fontWeight: '600' }}>{queue[0].title}</span>
-              <ChevronRight style={{ height: '20px', width: '20px' }} />
+              <span className="e-icons e-chevron-right" style={{ fontSize: '16px' }}></span>
             </button>
           </div>
         )}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, X } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { checkVersion, clearAllCaches } from '../utils/version';
 
 export function VersionBanner() {
@@ -32,7 +32,7 @@ export function VersionBanner() {
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '12px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <RefreshCw style={{ width: '20px', height: '20px', flexShrink: 0 }} />
+            <span className="e-icons e-refresh" style={{ fontSize: '16px', flexShrink: 0 }}></span>
             <div>
               <p style={{ fontWeight: '500' }}>Ny version tillgänglig!</p>
               <p style={{ fontSize: '14px', color: 'var(--sand-100)' }}>
@@ -57,7 +57,7 @@ export function VersionBanner() {
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               aria-label="Stäng"
             >
-              <X style={{ width: '20px', height: '20px' }} />
+              <span className="e-icons e-close" style={{ fontSize: '16px' }}></span>
             </button>
           </div>
         </div>

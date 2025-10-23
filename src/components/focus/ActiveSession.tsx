@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { Task } from '@/lib/types';
-import { CheckCircle, Pause, XCircle } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { toast } from 'react-hot-toast';
 
 export function ActiveSession() {
@@ -146,7 +146,7 @@ export function ActiveSession() {
             onClick={handleMarkDone}
             style={{ height: '64px' }}
           >
-            <CheckCircle style={{ height: '24px', width: '24px', marginRight: '8px' }} />
+            <span className="e-icons e-check" style={{ fontSize: '24px', marginRight: '8px' }}></span>
             Klar
           </Button>
           <Button
@@ -154,7 +154,7 @@ export function ActiveSession() {
             onClick={() => setIsPaused(!isPaused)}
             style={{ height: '64px' }}
           >
-            <Pause style={{ height: '24px', width: '24px', marginRight: '8px' }} />
+            <span className="e-icons e-pause" style={{ fontSize: '24px', marginRight: '8px' }}></span>
             {isPaused ? 'Fortsätt' : 'Paus'}
           </Button>
           <Button
@@ -162,7 +162,7 @@ export function ActiveSession() {
             onClick={handleCancel}
             style={{ height: '64px' }}
           >
-            <XCircle style={{ height: '24px', width: '24px', marginRight: '8px' }} />
+            <span className="e-icons e-close" style={{ fontSize: '24px', marginRight: '8px' }}></span>
             Avbryt
           </Button>
         </div>

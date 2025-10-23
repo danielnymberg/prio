@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
 import { Dialog } from '@/components/ui/Dialog';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
-import { Star } from 'lucide-react';
+// Lucide icons replaced with SyncFusion e-icons
 import { toast } from 'react-hot-toast';
 
 export function ResultImpactModal() {
@@ -89,7 +89,7 @@ export function ResultImpactModal() {
 
         <div className="e-flex e-gap-12">
           <Button onClick={handleSubmit} className="e-flex-1">
-            <Star style={{ height: '16px', width: '16px', marginRight: '8px' }} />
+            <span className="e-icons e-star" style={{ fontSize: '12px', marginRight: '8px' }}></span>
             Spara bedömning
           </Button>
           <Button variant="secondary" onClick={handleSkip}>
