@@ -6,7 +6,6 @@ import { GridComponent, ColumnsDirective, ColumnDirective, Page, Sort, Inject } 
 import { DialogComponent } from '@syncfusion/ej2-react-popups';
 import { DateRangePickerComponent } from '@syncfusion/ej2-react-calendars';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
-import { AlertTriangle } from 'lucide-react';
 
 interface ResursplaneringViewProps {
   period: 'Q4' | 'Q1';
@@ -167,7 +166,7 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
           borderWidth: '2px'
         }}>
           <div className="e-flex e-align-center e-gap-8">
-            <AlertTriangle style={{ height: '20px', width: '20px', color: '#dc2626' }} />
+            <span className="e-icons e-warning" style={{ fontSize: '16px', color: '#dc2626' }}></span>
             <div>
               <p className="e-font-bold e-text-sm e-m-0" style={{ color: '#7f1d1d' }}>
                 Överbelastad period!
