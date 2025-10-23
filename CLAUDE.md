@@ -50,6 +50,10 @@ return <DialogComponent visible={true} ... />
 - Inga CSS-overrides på SyncFusion-komponenter
 - Låt Fluent2-tema göra jobbet
 - Använd endast SF utility-klasser (`e-flex`, `e-text-sm` etc)
+- Använd SF's inbyggda props istället för custom CSS:
+  - `rowHeight`, `headerRowHeight` för Grid
+  - `height="auto"` för Grid i scrollbar main-container
+  - ALDRIG `height: '100vh'` eller custom scroll-containers
 
 ### 6. SVENSKA NAMN för nya komponenter
 - Nya filer: `UppgiftRegistrering.tsx`, `DagligCheckIn.tsx`
@@ -139,16 +143,36 @@ Dessa fraser indikerar att du gör för mycket:
 - **Data:** GridComponent, ScheduleComponent
 - **Layout:** Flex utilities (`e-flex`, `e-flex-column`, `e-gap-*`)
 
-### Grid Height Best Practice
-SyncFusion Grid **kräver explicit höjd** på parent:
+### Grid Best Practice - UPPDATERAD 2025-10-23
+**VIKTIGT:** Grid i scrollande main-container (AppLayout):
+
+✅ **RÄTT:**
 ```tsx
+// AppLayout har redan e-overflow-y-auto på main
+<>
+  <div className="e-mb-16">Header</div>
+  <GridComponent
+    height="auto"
+    rowHeight={30}
+    headerRowHeight={20}
+  />
+</>
+```
+
+❌ **FEL:**
+```tsx
+// Skapar dubbel scroll!
 <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-  <div>Header</div>
   <div style={{ flex: 1, minHeight: 0 }}>
     <GridComponent height="100%" />
   </div>
 </div>
 ```
+
+**Kompakta layouter:**
+- `headerRowHeight={20}` - Tight header
+- `rowHeight={30}` - Kompakta rader (istället för 60px default)
+- Bold headers: `headerTemplate={() => <span className="e-font-bold">Text</span>}`
 
 ### Responsive Design
 - Desktop: Sidebar synlig, 2-kolumns layout
