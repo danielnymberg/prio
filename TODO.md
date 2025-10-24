@@ -15,31 +15,35 @@
 - [x] "Task slutförd" → "Uppgift slutförd" + SF formatering
 - [ ] **PROBLEM:** Ändringarna syns inte i webbläsaren trots build + dev-server omstart på ny port!
 
-#### 2. Projekt-vyn
-- [x] Header: Fixa layout (sök + knapp till höger)
-- [x] Grid filter-rader: Ta bort filter för Off.tim, Timpris, Budget, Edit
-- [x] Status-filter: Ändra till DropDown med fast värden
-- [x] Edit-dialog: Fixa rubrik, lägg till Status-fält, lägg till Radera-knapp med varning
-- [x] Ta bort "Öga"-ikon (leder ingenstans)
+#### 2. Projekt-vyn (ARBETAD: ProjectsView.tsx)
+- [~] Header, Grid filters, Status-filter dropdown, Edit-dialog, Radera "Öga"-ikon
+- Utility-klasser → inline styles
+- Behöver iteration och testas i webbläsare
 
-#### 3. Översikt
-- [x] Undersök vad som är trasigt
-- [x] Återställ med SF Fluent2 (inkl CapacityTimeline)
+#### 3. Översikt (ARBETAD: OverviewView.tsx + CapacityTimeline.tsx)
+- [~] SF card struktur implementerad
+- [~] Utility-klasser → inline styles
+- Behöver iteration och testas i webbläsare
 
-#### 4. Kalender (vänster kolumn)
-- [x] "Ej schemalagda uppgifter": SF formatering
+#### 4. Kalender (ARBETAD: CalendarWithTaskSidebar.tsx)
+- [~] "Ej schemalagda uppgifter" sidebar formatering
+- Utility-klasser → inline styles
+- Behöver iteration och testas i webbläsare
 
 ### 🟡 Prioritet 2: MINDRE FIXAR
 
-#### 5. Uppgifter
-- [x] Undersök typsnitt och formatering (utility-klasser ersatta med inline styles)
+#### 5. Uppgifter (ARBETAD: AllTasksView.tsx)
+- [~] Header, Snabbis-sektion, templates
+- Utility-klasser → inline styles
+- Behöver iteration och testas i webbläsare
 
 #### 6. Gantt
 - [ ] Dagens datum-linje + centrera vy på dagens datum (OM SF BP)
 
-#### 7. Resursallokering/Q1/Q4
-- [x] Header formatering (grid fungerar)
-- [ ] ResursplaneringView - Återstående utility-klasser i listningar och dialog (delvis fixat: templates, header, summary)
+#### 7. Resursallokering/Q1/Q4 (ARBETAD: ResursallokeringAllView.tsx, ResursplaneringView.tsx)
+- [~] ResursallokeringAllView: Header och instruktioner fixade
+- [~] ResursplaneringView: Templates, header, summary (DELVIS - 456 rader, många utility-klasser kvar i listningar/dialog)
+- Behöver fortsatt iteration
 
 ### 🟢 Prioritet 3: STRUKTUR
 
