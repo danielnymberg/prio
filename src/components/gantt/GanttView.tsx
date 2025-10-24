@@ -24,15 +24,10 @@ export function GanttView() {
       // Använd projektets start_date eller dagens datum
       const startDate = project.start_date ? new Date(project.start_date) : new Date();
 
-      // Använd project_deadline eller beräkna baserat på quoted_hours
-      let endDate: Date;
-      if (project.project_deadline) {
-        endDate = new Date(project.project_deadline);
-      } else {
-        // Uppskatta deadline baserat på timmar (40h/vecka)
-        const weeks = Math.ceil(project.quoted_hours / 40);
-        endDate = addDays(startDate, weeks * 7);
-      }
+      // Använd project_deadline om satt, annars +90 dagar från start
+      const endDate = project.project_deadline
+        ? new Date(project.project_deadline)
+        : addDays(startDate, 90);
 
       // Beräkna arbetsdagar mellan start och slut
       const msPerDay = 24 * 60 * 60 * 1000;
@@ -77,30 +72,7 @@ export function GanttView() {
             duration: 'Duration',
             progress: 'Progress',
           }}
-          height="600px"
-          allowSelection={true}
-          allowSorting={false}
-          allowFiltering={false}
-          allowResizing={false}
-          enableContextMenu={false}
-          enableVirtualization={false}
-          timelineSettings={{
-            timelineViewMode: 'Month',
-            topTier: {
-              unit: 'Month',
-              format: 'MMM yyyy'
-            },
-            bottomTier: {
-              unit: 'Week',
-              format: 'dd MMM'
-            }
-          }}
-          labelSettings={{
-            leftLabel: 'TaskName',
-            rightLabel: 'Progress'
-          }}
-          projectStartDate={new Date('2025-01-01')}
-          projectEndDate={new Date('2025-12-31')}
+          rowHeight={36}
         >
           <Inject services={[Selection, DayMarkers, Edit, Filter, Sort, Toolbar, Resize]} />
         </GanttComponent>

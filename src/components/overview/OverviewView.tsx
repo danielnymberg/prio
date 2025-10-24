@@ -49,15 +49,17 @@ export function OverviewView() {
 
   if (loading) {
     return (
-      <div className="e-flex e-align-center e-justify-center" style={{
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         minHeight: '100vh',
         backgroundColor: 'var(--e-surface)'
       }}>
-        <div className="e-animate-spin e-rounded-full" style={{
+        <div style={{
           height: '48px',
-          width: '48px',
-          borderBottom: '2px solid var(--primary-500)'
-        }} />
+          width: '48px'
+        }}>Laddar...</div>
       </div>
     );
   }
@@ -121,18 +123,23 @@ export function OverviewView() {
   return (
     <>
       {/* Header */}
-      <div className="e-flex e-align-center e-justify-between e-mb-16">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '16px'
+      }}>
         <div>
-          <h1 className="e-text-2xl e-font-bold e-mb-4">
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
             Översikt
           </h1>
-          <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+          <p style={{ fontSize: '14px', color: 'var(--e-text-secondary)' }}>
             Planera {timeHorizon} månad{parseInt(timeHorizon) > 1 ? 'er' : ''} framåt
           </p>
         </div>
 
         {/* Tidshoriont-väljare */}
-        <div className="e-flex e-gap-8">
+        <div style={{ display: 'flex', gap: '8px' }}>
           {(['1', '3', '6', '12'] as TimeHorizon[]).map((horizon) => (
             <button
               key={horizon}
@@ -150,7 +157,7 @@ export function OverviewView() {
       </div>
 
       {/* Filter */}
-      <div className="e-flex e-gap-8 e-mb-16">
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <DropDownListComponent
           dataSource={[{ value: 'all', text: 'Alla klienter' }, ...clients.map(c => ({ value: c, text: c }))]}
           fields={{ text: 'text', value: 'value' }}
@@ -176,131 +183,135 @@ export function OverviewView() {
       </div>
 
       {/* Statistik-kort */}
-      <div className="e-grid e-gap-8 e-mb-16" style={{
+      <div style={{
+        display: 'grid',
+        gap: '8px',
+        marginBottom: '16px',
         gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))'
       }}>
-        <div className="e-p-12 e-border e-rounded-lg" style={{
-          borderColor: 'var(--primary-500)',
-          borderWidth: '2px'
-        }}>
-          <div className="e-flex e-align-center e-gap-4 e-mb-4">
-            <span className="e-icons e-star" style={{ fontSize: '16px', color: 'var(--primary-600)' }}></span>
-            <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
-              Totalt
-            </span>
+        <div className="e-card" style={{ borderColor: 'var(--e-primary)', borderWidth: '2px' }}>
+          <div className="e-card-content" style={{ padding: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+              <span className="e-icons e-star" style={{ fontSize: '16px', color: 'var(--e-primary)' }}></span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+                Totalt
+              </span>
+            </div>
+            <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{stats.total}</p>
+            <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>projekt</p>
           </div>
-          <p className="e-text-xl e-font-bold e-m-0">{stats.total}</p>
-          <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>projekt</p>
         </div>
 
-        <div className="e-p-12 e-border e-rounded-lg" style={{
-          borderColor: '#10b981',
-          borderWidth: '2px'
-        }}>
-          <div className="e-flex e-align-center e-gap-4 e-mb-4">
-            <span className="e-icons e-check" style={{ fontSize: '16px', color: '#10b981' }}></span>
-            <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
-              Klara
-            </span>
+        <div className="e-card" style={{ borderColor: 'var(--e-success)', borderWidth: '2px' }}>
+          <div className="e-card-content" style={{ padding: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+              <span className="e-icons e-check" style={{ fontSize: '16px', color: 'var(--e-success)' }}></span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+                Klara
+              </span>
+            </div>
+            <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{stats.completed}</p>
+            <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>projekt</p>
           </div>
-          <p className="e-text-xl e-font-bold e-m-0">{stats.completed}</p>
-          <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>projekt</p>
         </div>
 
-        <div className="e-p-12 e-border e-rounded-lg" style={{
-          borderColor: 'var(--warning-500)',
-          borderWidth: '2px'
-        }}>
-          <div className="e-flex e-align-center e-gap-4 e-mb-4">
-            <span className="e-icons e-time" style={{ fontSize: '16px', color: 'var(--warning-500)' }}></span>
-            <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
-              Totalt
-            </span>
+        <div className="e-card" style={{ borderColor: 'var(--e-warning)', borderWidth: '2px' }}>
+          <div className="e-card-content" style={{ padding: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+              <span className="e-icons e-time" style={{ fontSize: '16px', color: 'var(--e-warning)' }}></span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+                Totalt
+              </span>
+            </div>
+            <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{stats.totalQuotedHours}h</p>
+            <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>offererat</p>
           </div>
-          <p className="e-text-xl e-font-bold e-m-0">{stats.totalQuotedHours}h</p>
-          <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>offererat</p>
         </div>
 
-        <div className="e-p-12 e-border e-rounded-lg" style={{
-          borderColor: '#8b5cf6',
-          borderWidth: '2px'
-        }}>
-          <div className="e-flex e-align-center e-gap-4 e-mb-4">
-            <span className="e-icons e-arrow-up" style={{ fontSize: '16px', color: '#8b5cf6' }}></span>
-            <span className="e-text-xs e-font-medium" style={{ color: 'var(--e-text-secondary)' }}>
-              Budget
-            </span>
+        <div className="e-card" style={{ borderColor: 'var(--e-info)', borderWidth: '2px' }}>
+          <div className="e-card-content" style={{ padding: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+              <span className="e-icons e-arrow-up" style={{ fontSize: '16px', color: 'var(--e-info)' }}></span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+                Budget
+              </span>
+            </div>
+            <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{(stats.totalBudget / 1000).toFixed(0)}k</p>
+            <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>kr totalt</p>
           </div>
-          <p className="e-text-xl e-font-bold e-m-0">{(stats.totalBudget / 1000).toFixed(0)}k</p>
-          <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>kr totalt</p>
         </div>
       </div>
 
       {/* Varningar */}
       {(urgentProjects.length > 0 || overBudgetProjects.length > 0) && (
-        <div className="e-grid e-gap-8 e-mb-16" style={{
-          gridTemplateColumns: 'repeat(auto-fit, minmin(250px, 1fr))'
+        <div style={{
+          display: 'grid',
+          gap: '8px',
+          marginBottom: '16px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))'
         }}>
           {urgentProjects.length > 0 && (
-            <div className="e-p-12 e-border e-rounded-lg" style={{
-              backgroundColor: '#fef3c7',
-              borderColor: 'var(--warning-500)',
-              borderWidth: '2px'
+            <div className="e-card" style={{
+              borderColor: 'var(--e-warning)',
+              borderWidth: '2px',
+              backgroundColor: '#fef3c7'
             }}>
-              <div className="e-flex e-align-center e-gap-4 e-mb-8">
-                <span className="e-icons e-warning" style={{ fontSize: '16px', color: 'var(--warning-600)' }}></span>
-                <h3 className="e-font-bold e-m-0 e-text-sm" style={{ color: '#78350f' }}>
-                  Brådskande deadlines
-                </h3>
-              </div>
-              <p className="e-text-xs e-mb-8" style={{ color: '#92400e' }}>
-                {urgentProjects.length} projekt med deadline inom 2 veckor
-              </p>
-              <div className="e-flex e-flex-column e-gap-4">
-                {urgentProjects.slice(0, 3).map(project => (
-                  <div
-                    key={project.id}
-                    onClick={() => navigate(`/projects/${project.id}`)}
-                    className="e-text-xs e-cursor-pointer"
-                    style={{ color: '#78350f' }}
-                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                    onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-                  >
-                    • {project.name}
-                  </div>
-                ))}
+              <div className="e-card-content" style={{ padding: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
+                  <span className="e-icons e-warning" style={{ fontSize: '16px', color: 'var(--e-warning)' }}></span>
+                  <h3 style={{ fontWeight: 'bold', margin: 0, fontSize: '14px', color: '#78350f' }}>
+                    Brådskande deadlines
+                  </h3>
+                </div>
+                <p style={{ fontSize: '12px', marginBottom: '8px', color: '#92400e' }}>
+                  {urgentProjects.length} projekt med deadline inom 2 veckor
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {urgentProjects.slice(0, 3).map(project => (
+                    <div
+                      key={project.id}
+                      onClick={() => navigate(`/projects/${project.id}`)}
+                      style={{ fontSize: '12px', cursor: 'pointer', color: '#78350f' }}
+                      onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                      onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                    >
+                      • {project.name}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
           {overBudgetProjects.length > 0 && (
-            <div className="e-p-12 e-border e-rounded-lg" style={{
-              backgroundColor: '#fee2e2',
-              borderColor: '#ef4444',
-              borderWidth: '2px'
+            <div className="e-card" style={{
+              borderColor: 'var(--e-error)',
+              borderWidth: '2px',
+              backgroundColor: '#fee2e2'
             }}>
-              <div className="e-flex e-align-center e-gap-4 e-mb-8">
-                <span className="e-icons e-warning" style={{ fontSize: '16px', color: '#dc2626' }}></span>
-                <h3 className="e-font-bold e-m-0 e-text-sm" style={{ color: '#7f1d1d' }}>
-                  Budgetöverskridning
-                </h3>
-              </div>
-              <p className="e-text-xs e-mb-8" style={{ color: '#991b1b' }}>
-                {overBudgetProjects.length} projekt över budget
-              </p>
-              <div className="e-flex e-flex-column e-gap-4">
-                {overBudgetProjects.slice(0, 3).map(project => (
-                  <div
-                    key={project.id}
-                    onClick={() => navigate(`/projects/${project.id}`)}
-                    className="e-text-xs e-cursor-pointer"
-                    style={{ color: '#7f1d1d' }}
-                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                    onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-                  >
-                    • {project.name}
-                  </div>
-                ))}
+              <div className="e-card-content" style={{ padding: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
+                  <span className="e-icons e-warning" style={{ fontSize: '16px', color: 'var(--e-error)' }}></span>
+                  <h3 style={{ fontWeight: 'bold', margin: 0, fontSize: '14px', color: '#7f1d1d' }}>
+                    Budgetöverskridning
+                  </h3>
+                </div>
+                <p style={{ fontSize: '12px', marginBottom: '8px', color: '#991b1b' }}>
+                  {overBudgetProjects.length} projekt över budget
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {overBudgetProjects.slice(0, 3).map(project => (
+                    <div
+                      key={project.id}
+                      onClick={() => navigate(`/projects/${project.id}`)}
+                      style={{ fontSize: '12px', cursor: 'pointer', color: '#7f1d1d' }}
+                      onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                      onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                    >
+                      • {project.name}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -308,20 +319,23 @@ export function OverviewView() {
       )}
 
       {/* Projekttidslinje */}
-      <div className="e-border e-rounded-lg e-p-16">
-        <h2 className="e-text-lg e-font-bold e-mb-12 e-flex e-align-center e-gap-8">
-          <span className="e-icons e-schedule" style={{ fontSize: '16px' }}></span>
-          Projekttidslinje
-        </h2>
+      <div className="e-card" style={{ marginBottom: '16px' }}>
+        <div className="e-card-header">
+          <div className="e-card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="e-icons e-schedule" style={{ fontSize: '16px' }}></span>
+            Projekttidslinje
+          </div>
+        </div>
+        <div className="e-card-content">
 
         {filteredProjects.length === 0 ? (
-          <div className="e-text-center e-py-32">
+          <div style={{ textAlign: 'center', padding: '32px 0' }}>
             <p style={{ color: 'var(--e-text-secondary)' }}>
               Inga projekt i denna tidsperiod
             </p>
           </div>
         ) : (
-          <div className="e-flex e-flex-column e-gap-8">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {filteredProjects.map(project => {
               const projectTasks = tasks.filter(t => t.project_id === project.id);
               const metrics = calculateProjectMetrics(project, projectTasks);
@@ -343,29 +357,41 @@ export function OverviewView() {
               return (
                 <div
                   key={project.id}
+                  className="e-card"
                   onClick={() => navigate(`/projects/${project.id}`)}
-                  className="e-p-12 e-border e-rounded-lg e-cursor-pointer e-transition"
                   style={{
                     borderColor: project.color,
-                    borderWidth: '2px'
+                    borderWidth: '2px',
+                    cursor: 'pointer',
+                    transition: 'box-shadow 0.2s'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
                 >
-                  <div className="e-flex e-align-start e-justify-between e-mb-8">
-                    <div className="e-flex-1">
-                      <h3 className="e-font-bold e-text-base e-m-0">
+                  <div className="e-card-content" style={{ padding: '12px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    marginBottom: '8px'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontWeight: 'bold', fontSize: '16px', margin: 0 }}>
                         {project.name}
                       </h3>
                       {project.client_name && (
-                        <p className="e-text-xs e-m-0" style={{ color: 'var(--e-text-secondary)' }}>
+                        <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>
                           {project.client_name}
                         </p>
                       )}
                     </div>
 
                     {project.status === 'completed' && (
-                      <span className="e-px-8 e-py-2 e-rounded-full e-text-xs e-font-medium" style={{
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: '16px',
+                        fontSize: '12px',
+                        fontWeight: '500',
                         backgroundColor: '#d1fae5',
                         color: '#065f46'
                       }}>
@@ -374,7 +400,11 @@ export function OverviewView() {
                     )}
 
                     {deadlineStyle && (
-                      <span className="e-px-8 e-py-2 e-rounded-full e-text-xs e-font-medium" style={{
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: '16px',
+                        fontSize: '12px',
+                        fontWeight: '500',
                         backgroundColor: deadlineStyle.bg,
                         color: deadlineStyle.color
                       }}>
@@ -387,73 +417,81 @@ export function OverviewView() {
                     )}
                   </div>
 
-                  <div className="e-grid e-gap-8 e-mt-8" style={{
+                  <div style={{
+                    display: 'grid',
+                    gap: '8px',
+                    marginTop: '8px',
                     gridTemplateColumns: 'repeat(4, 1fr)'
                   }}>
                     <div>
-                      <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
                         Färdigt
                       </span>
-                      <p className="e-text-base e-font-semibold e-m-0">
+                      <p style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
                         {project.completion_percentage}%
                       </p>
                     </div>
 
                     <div>
-                      <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
                         Loggat
                       </span>
-                      <p className="e-text-base e-font-semibold e-m-0">
+                      <p style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
                         {metrics.logged_hours}h
                       </p>
                     </div>
 
                     <div>
-                      <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
                         Återstår
                       </span>
-                      <p className="e-text-base e-font-semibold e-m-0">
+                      <p style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
                         {metrics.estimated_remaining_hours}h
                       </p>
                     </div>
 
                     <div>
-                      <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
                         Budget
                       </span>
-                      <p className="e-text-base e-font-semibold e-m-0">
+                      <p style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
                         {(project.total_budget / 1000).toFixed(0)}k
                       </p>
                     </div>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="e-mt-8 e-rounded-full e-overflow-hidden" style={{
+                  <div style={{
+                    marginTop: '8px',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
                     height: '6px',
                     backgroundColor: 'var(--e-border)'
                   }}>
                     <div
-                      className="e-transition"
                       style={{
                         height: '100%',
                         backgroundColor: metrics.is_over_budget
-                          ? '#ef4444'
+                          ? 'var(--e-error)'
                           : project.completion_percentage >= 80
-                          ? '#10b981'
-                          : 'var(--primary-500)',
-                        width: `${Math.min(project.completion_percentage, 100)}%`
+                          ? 'var(--e-success)'
+                          : 'var(--e-primary)',
+                        width: `${Math.min(project.completion_percentage, 100)}%`,
+                        transition: 'width 0.3s'
                       }}
                     />
+                  </div>
                   </div>
                 </div>
               );
             })}
           </div>
         )}
+        </div>
       </div>
 
       {/* Capacity Timeline */}
-      <div className="e-mt-16">
+      <div style={{ marginTop: '16px' }}>
         <CapacityTimeline />
       </div>
     </>

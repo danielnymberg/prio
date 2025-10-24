@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '@/hooks/useTasks';
-import { getNextTask, getTaskQueue, hasEmergencyTasks, calculatePartialWork } from '@/lib/focusAlgorithm';
+import { getNextTask, getTaskQueue } from '@/lib/focusAlgorithm';
 import { Task, UserContext, DailyCheckIn } from '@/lib/types';
-import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
+import { AccordionComponent, AccordionItemDirective, AccordionItemsDirective } from '@syncfusion/ej2-react-navigations';
 import { formatDuration, formatRelativeTime } from '@/lib/utils';
-// Lucide icons replaced with SyncFusion e-icons
 import { toast } from 'react-hot-toast';
-import { MorningBriefing } from './MorningBriefing';
-import { DependencyAlert } from '@/components/alerts/DependencyAlert';
-import { findCriticalDependencyChains } from '@/lib/dependencyAnalyzer';
 import { DagligCheckIn } from './DagligCheckIn';
+import { TimerModal } from './TimerModal';
 
 export function FocusView() {
   const navigate = useNavigate();
@@ -18,68 +16,36 @@ export function FocusView() {
   const [context, setContext] = useState<UserContext | null>(null);
   const [nextTask, setNextTask] = useState<Task | null>(null);
   const [queue, setQueue] = useState<Task[]>([]);
-  const [isEmergency, setIsEmergency] = useState(false);
   const [checkInData, setCheckInData] = useState<DailyCheckIn | null>(null);
   const [skippedTaskIds, setSkippedTaskIds] = useState<string[]>([]);
-  const [showMorningBriefing, setShowMorningBriefing] = useState(false);
-  const [criticalChains, setCriticalChains] = useState<ReturnType<typeof findCriticalDependencyChains>>([]);
   const [showCheckInDialog, setShowCheckInDialog] = useState(false);
+  const [timerTask, setTimerTask] = useState<Task | null>(null);
+  const [showTimer, setShowTimer] = useState(false);
 
-  // Helper functions for morning briefing
-  const isMorningTime = () => {
-    const hour = new Date().getHours();
-    return hour >= 6 && hour < 10;
-  };
-
-  const hasSeenBriefingToday = () => {
-    const lastBriefing = localStorage.getItem('last_briefing_date');
-    if (!lastBriefing) return false;
-    const today = new Date().toDateString();
-    return lastBriefing === today;
-  };
-
-  // Check if morning briefing should be shown (run once on mount)
-  useEffect(() => {
-    if (isMorningTime() && !hasSeenBriefingToday()) {
-      setShowMorningBriefing(true);
-    }
-  }, []); // Run only once on mount
-
-  // Hämta dagens check-in
+  // Hämta dagens check-in från localStorage
   useEffect(() => {
     const stored = localStorage.getItem('prio-daily-checkin');
-    const today = new Date().toISOString().split('T')[0];
-
-    if (!stored) {
-      // Ingen check-in gjord, visa dialog
-      setShowCheckInDialog(true);
-      return;
-    }
+    if (!stored) return;
 
     const checkIn: DailyCheckIn = JSON.parse(stored);
+    const today = new Date().toISOString().split('T')[0];
 
-    if (checkIn.date !== today) {
-      // Gammal check-in, visa dialog
-      setShowCheckInDialog(true);
-      return;
+    if (checkIn.date === today) {
+      setCheckInData(checkIn);
+      setContext({
+        availableTime: checkIn.availableTime,
+        energyLevel: checkIn.energyLevel,
+        strategy: checkIn.strategy,
+        currentDate: new Date(),
+        nextBlockDuration: 90
+      });
     }
-
-    // Sätt context
-    setCheckInData(checkIn);
-    setContext({
-      availableTime: checkIn.availableTime,
-      energyLevel: checkIn.energyLevel,
-      strategy: checkIn.strategy,
-      currentDate: new Date(),
-      nextBlockDuration: 90
-    });
   }, []);
 
   // Beräkna nästa task när context eller tasks ändras
   useEffect(() => {
     if (!context || tasks.length === 0) return;
 
-    // Filtrera bort skippade tasks OCH Snabbis (≤2 min) - de hanteras separat
     const availableTasks = tasks.filter(t =>
       !skippedTaskIds.includes(t.id) &&
       (t.estimated_duration || 999) > 2
@@ -87,32 +53,62 @@ export function FocusView() {
 
     const next = getNextTask(availableTasks, context);
     const upcoming = getTaskQueue(availableTasks, context, 5);
-    const emergency = hasEmergencyTasks(availableTasks);
 
     setNextTask(next);
-    setQueue(upcoming.slice(1)); // Skippa första (det är nextTask)
-    setIsEmergency(emergency);
-
-    // Find critical dependency chains
-    const chains = findCriticalDependencyChains(tasks, 40);
-    setCriticalChains(chains);
+    setQueue(upcoming.slice(1));
   }, [context, tasks, skippedTaskIds]);
 
-  const handleStartSession = () => {
-    if (!nextTask) return;
-    navigate(`/session/${nextTask.id}`);
+  // Beräkna statistik
+  const now = new Date();
+  const activeTasks = tasks.filter(t => t.status !== 'done');
+
+  const todayTasks = activeTasks.filter(t => {
+    if (!t.deadline) return false;
+    const deadlineDate = new Date(t.deadline);
+    return (
+      deadlineDate.getDate() === now.getDate() &&
+      deadlineDate.getMonth() === now.getMonth() &&
+      deadlineDate.getFullYear() === now.getFullYear()
+    );
+  });
+
+  const overdueTasks = activeTasks.filter(t => {
+    if (!t.deadline) return false;
+    return new Date(t.deadline) < now;
+  });
+
+  const urgentTasks = activeTasks.filter(t => {
+    if (!t.deadline) return false;
+    const deadline = new Date(t.deadline);
+    const hoursUntil = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60);
+    return hoursUntil > 0 && hoursUntil < 24;
+  });
+
+  const blockedTasks = activeTasks.filter(t =>
+    t.blocked_by_task_ids &&
+    t.blocked_by_task_ids.length > 0 &&
+    t.blocked_by_task_ids.some(blockerId => {
+      const blocker = tasks.find(bt => bt.id === blockerId);
+      return blocker && blocker.status !== 'done';
+    })
+  );
+
+  const snabbisTasks = activeTasks.filter(t =>
+    t.estimated_duration && t.estimated_duration <= 2
+  );
+
+  // Handlers
+  const handleStartSession = (task: Task) => {
+    setTimerTask(task);
+    setShowTimer(true);
   };
 
-  const handleMarkDone = async () => {
-    if (!nextTask) return;
-
+  const handleMarkDone = async (task: Task) => {
     try {
-      await updateTask(nextTask.id, { status: 'done', completed_at: new Date().toISOString() });
-      toast.success('Uppgift markerad som klar!');
-
-      // Visa result impact modal efter en kort delay
+      await updateTask(task.id, { status: 'done', completed_at: new Date().toISOString() });
+      toast.success('Uppgift slutförd!');
       setTimeout(() => {
-        navigate(`/task/${nextTask.id}/impact`);
+        navigate(`/task/${task.id}/impact`);
       }, 500);
     } catch (error) {
       console.error('Error marking task done:', error);
@@ -120,19 +116,8 @@ export function FocusView() {
     }
   };
 
-  const handleShowNext = () => {
-    if (queue.length === 0) {
-      toast('Inga fler uppgifter i kön!', { icon: '🎉' });
-      return;
-    }
-    // I framtiden: visa modal med hela kön
-    toast('Nästa uppgifter listas snart!');
-  };
-
   const handleSkipTask = () => {
     if (!nextTask) return;
-
-    // Lägg till current task i skipped-listan
     setSkippedTaskIds(prev => [...prev, nextTask.id]);
     toast.success('Uppgift överhoppad - visar nästa');
   };
@@ -149,443 +134,399 @@ export function FocusView() {
     setShowCheckInDialog(false);
   };
 
-  // Show morning briefing BEFORE check-in prompt
-  if (showMorningBriefing) {
-    return (
-      <>
-        <div className="e-flex e-align-center e-justify-center e-h-screen e-p-16">
-          <div className="e-w-full" style={{ maxWidth: '42rem' }}>
-            <MorningBriefing
-              tasks={tasks}
-              onStartDay={() => {
-                localStorage.setItem('last_briefing_date', new Date().toDateString());
-                setShowMorningBriefing(false);
-                navigate('/daily-checkin');
-              }}
-              onDismiss={() => {
-                localStorage.setItem('last_briefing_date', new Date().toDateString());
-                setShowMorningBriefing(false);
-              }}
-            />
-          </div>
-        </div>
+  const handleTimerComplete = (taskId: string) => {
+    navigate(`/task/${taskId}/impact`);
+  };
 
-      </>
+  const handleTaskClick = (taskId: string) => {
+    navigate(`/all?task=${taskId}`);
+  };
+
+  // === RENDER ===
+
+  // Tom state - Inga tasks alls
+  if (tasks.length === 0) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', minHeight: '60vh' }}>
+        <div style={{ textAlign: 'center', maxWidth: '28rem' }}>
+          <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎉</div>
+          <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
+            GRATTIS! DU. ÄR. KLAR.
+          </h2>
+          <p style={{ marginBottom: '24px' }}>
+            Ta tag i något som du glömt bort, ta en promenad, en powernap eller en lidag dag.
+          </p>
+          <p style={{ fontWeight: '600' }}>
+            För det är du värd!
+          </p>
+        </div>
+      </div>
     );
   }
 
+  // Ingen context - be om avstämning
   if (!context) {
     return (
       <>
-        <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '60vh' }}>
-          <div className="e-text-center" style={{ maxWidth: '28rem', padding: '0 24px' }}>
-            <div className="e-text-2xl e-mb-16" style={{ fontSize: '60px' }}>☀️</div>
-            <h2 className="e-text-xl e-font-bold e-mb-16">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', minHeight: '60vh' }}>
+          <div style={{ textAlign: 'center', maxWidth: '28rem' }}>
+            <div style={{ fontSize: '60px', marginBottom: '16px' }}>☀️</div>
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
               Börja din dag!
             </h2>
-            <p className="e-mb-24">
-              Gör din dagliga avstämning för att få din första uppgift.
+            <p style={{ marginBottom: '24px' }}>
+              Gör din dagliga avstämning för att få din första uppgift. Använd "Avstämning" i menyn ovan.
             </p>
-            <Button onClick={() => setShowCheckInDialog(true)} size="lg">
-              Starta avstämning
-            </Button>
           </div>
         </div>
-
+        <DagligCheckIn
+          isOpen={showCheckInDialog}
+          onClose={() => setShowCheckInDialog(false)}
+          onComplete={handleCheckInComplete}
+        />
       </>
     );
   }
 
-  if (!nextTask) {
-    return (
-      <>
-        <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '60vh' }}>
-          <div className="e-text-center" style={{ maxWidth: '28rem', padding: '0 24px' }}>
-            {(() => {
-              const activeTasks = tasks.filter(t => t.status !== 'done');
-              const blockedTasks = activeTasks.filter(t =>
-                t.blocked_by_task_ids && t.blocked_by_task_ids.length > 0 &&
-                t.blocked_by_task_ids.some(blockerId => {
-                  const blocker = tasks.find(bt => bt.id === blockerId);
-                  return blocker && blocker.status !== 'done';
-                })
-              );
-              const tooLongTasks = context ? activeTasks.filter(t =>
-                t.estimated_duration && t.estimated_duration > context.availableTime
-              ) : [];
-
-              if (tasks.length === 0) {
-                return (
-                  <>
-                    <div className="e-mb-16" style={{ fontSize: '60px' }}>📝</div>
-                    <h2 className="e-text-xl e-font-bold e-mb-16">
-                      Inga uppgifter ännu!
-                    </h2>
-                    <p className="e-mb-24">
-                      Skapa din första uppgift för att komma igång med smart prioritering.
-                    </p>
-                    <Button onClick={() => navigate('/all')} size="lg">
-                      <span className="e-icons e-plus" style={{ fontSize: '16px', marginRight: '0.5rem' }}></span>
-                      Skapa första uppgiften
-                    </Button>
-                  </>
-                );
-              }
-
-              if (blockedTasks.length === activeTasks.length) {
-                return (
-                  <>
-                    <div className="e-mb-16" style={{ fontSize: '60px' }}>🔒</div>
-                    <h2 className="e-text-xl e-font-bold e-mb-16">
-                      Alla uppgifter är blockerade
-                    </h2>
-                    <p className="e-mb-24">
-                      {blockedTasks.length} uppgifter väntar på att andra uppgifter ska bli klara.
-                    </p>
-                    <Button onClick={() => navigate('/all')} variant="primary">
-                      Granska dependencies
-                    </Button>
-                  </>
-                );
-              }
-
-              if (activeTasks.length > 0 && tooLongTasks.length === activeTasks.length && context) {
-                return (
-                  <>
-                    <div className="e-mb-16" style={{ fontSize: '60px' }}>⏰</div>
-                    <h2 className="e-text-xl e-font-bold e-mb-16">
-                      Alla uppgifter tar för lång tid
-                    </h2>
-                    <p className="e-mb-24">
-                      Du har {activeTasks.length} uppgifter men alla kräver mer än {Math.floor(context.availableTime / 60)}h.
-                    </p>
-                    <div className="e-flex e-gap-12 e-justify-center">
-                      <Button onClick={() => setShowCheckInDialog(true)} variant="primary">
-                        Uppdatera tillgänglig tid
-                      </Button>
-                      <Button onClick={() => navigate('/all')} variant="secondary">
-                        Dela upp uppgifter
-                      </Button>
-                    </div>
-                  </>
-                );
-              }
-
-              return (
-                <>
-                  <div className="e-mb-16" style={{ fontSize: '60px' }}>🤷</div>
-                  <h2 className="e-text-xl e-font-bold e-mb-16">
-                    Inga uppgifter tillgängliga just nu
-                  </h2>
-                  <p className="e-mb-24">
-                    Det finns uppgifter men ingen passar dina nuvarande filter.
-                  </p>
-                  <div className="e-flex e-gap-12 e-justify-center">
-                    <Button onClick={() => setShowCheckInDialog(true)} variant="primary">
-                      Uppdatera avstämning
-                    </Button>
-                    <Button onClick={() => navigate('/all')} variant="secondary">
-                      Visa alla uppgifter
-                    </Button>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-
-      </>
-    );
-  }
-
+  // Huvudvy
   return (
-    <div>
-      {/* Emergency Banner */}
-      {isEmergency && (
-        <div className="e-text-center e-font-semibold" style={{ padding: '12px 24px', backgroundColor: 'var(--e-warning-bg)', color: 'var(--e-warning-text)' }}>
-          <span className="e-icons e-warning" style={{ display: 'inline', fontSize: '16px', marginRight: '8px', verticalAlign: 'middle' }}></span>
-          Du har uppgifter med deadline inom 24 timmar!
+    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+
+      {/* === 1. STATISTIK-SEKTION === */}
+      <div className="e-card" style={{ marginBottom: '24px' }}>
+        <div className="e-card-header">
+          <div className="e-card-title">Översikt</div>
+        </div>
+        <div className="e-card-content">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '16px',
+            marginBottom: checkInData ? '16px' : '0'
+          }}>
+            <div style={{
+              padding: '16px',
+              border: '2px solid var(--e-border)',
+              borderRadius: '8px',
+              backgroundColor: 'var(--e-surface-alt)'
+            }}>
+              <div style={{ fontSize: '12px', color: 'var(--e-text-secondary)', marginBottom: '4px' }}>
+                Deadline idag
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{todayTasks.length}</div>
+            </div>
+            <div style={{
+              padding: '16px',
+              border: '2px solid var(--e-border)',
+              borderRadius: '8px',
+              backgroundColor: 'var(--e-surface-alt)'
+            }}>
+              <div style={{ fontSize: '12px', color: 'var(--e-text-secondary)', marginBottom: '4px' }}>
+                Försenade
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{overdueTasks.length}</div>
+            </div>
+            <div style={{
+              padding: '16px',
+              border: '2px solid var(--e-border)',
+              borderRadius: '8px',
+              backgroundColor: 'var(--e-surface-alt)'
+            }}>
+              <div style={{ fontSize: '12px', color: 'var(--e-text-secondary)', marginBottom: '4px' }}>
+                Blockerade
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{blockedTasks.length}</div>
+            </div>
+            {checkInData && (
+              <div style={{
+                padding: '16px',
+                border: '2px solid var(--e-border)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--e-surface-alt)'
+              }}>
+                <div style={{ fontSize: '12px', color: 'var(--e-text-secondary)', marginBottom: '4px' }}>
+                  Tillgänglig tid
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                  {formatDuration(checkInData.availableTime)}
+                </div>
+              </div>
+            )}
+          </div>
+          {checkInData && (
+            <div style={{ display: 'flex', gap: '8px', fontSize: '14px', alignItems: 'center' }}>
+              <span>
+                {checkInData.energyLevel === 'low' ? '🔋' : checkInData.energyLevel === 'medium' ? '🔋🔋' : '🔋🔋🔋'}
+              </span>
+              <span>•</span>
+              <span>
+                {checkInData.strategy === 'quick_wins' && 'Quick Wins'}
+                {checkInData.strategy === 'deep_work' && 'Deep Work'}
+                {checkInData.strategy === 'balanced' && 'Balanserad'}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* === 2. VARNINGAR (ACCORDION) === */}
+      {(urgentTasks.length > 0 || overdueTasks.length > 0) && (
+        <div style={{ marginBottom: '24px' }}>
+          <AccordionComponent>
+            <AccordionItemsDirective>
+              {urgentTasks.length > 0 && (
+                <AccordionItemDirective
+                  header={`Akuta uppgifter (${urgentTasks.length}) - deadline inom 24h`}
+                  content={() => (
+                    <div style={{ padding: '8px 0' }}>
+                      {urgentTasks.map(task => (
+                        <div
+                          key={task.id}
+                          onClick={() => handleTaskClick(task.id)}
+                          style={{
+                            padding: '12px',
+                            marginBottom: '8px',
+                            backgroundColor: 'var(--e-surface-alt)',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            border: '1px solid var(--e-warning)'
+                          }}
+                        >
+                          <div style={{ fontWeight: '500', marginBottom: '4px' }}>{task.title}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
+                            Deadline: {formatRelativeTime(task.deadline!)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                />
+              )}
+              {overdueTasks.length > 0 && (
+                <AccordionItemDirective
+                  header={`Försenade uppgifter (${overdueTasks.length})`}
+                  content={() => (
+                    <div style={{ padding: '8px 0' }}>
+                      {overdueTasks.map(task => (
+                        <div
+                          key={task.id}
+                          onClick={() => handleTaskClick(task.id)}
+                          style={{
+                            padding: '12px',
+                            marginBottom: '8px',
+                            backgroundColor: 'var(--e-surface-alt)',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            border: '1px solid var(--e-error)'
+                          }}
+                        >
+                          <div style={{ fontWeight: '500', marginBottom: '4px' }}>{task.title}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
+                            Deadline: {formatRelativeTime(task.deadline!)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                />
+              )}
+            </AccordionItemsDirective>
+          </AccordionComponent>
         </div>
       )}
 
-      {/* Dependency Alerts */}
-      {criticalChains.length > 0 && (
-        <div className="e-border-b e-p-16">
-          <div className="e-mx-auto">
-            <h2 className="e-text-lg e-font-semibold e-mb-12">
-              ⚠️ Kritiska blockeringskedjor ({criticalChains.length})
+      {/* === 3. SNABBIS-SEKTION === */}
+      {snabbisTasks.length > 0 && (
+        <div className="e-card" style={{ marginBottom: '24px' }}>
+          <div className="e-card-header">
+            <div className="e-card-title">Snabbis ({snabbisTasks.length}) - Gör direkt!</div>
+          </div>
+          <div className="e-card-content">
+            <p style={{ fontSize: '14px', marginBottom: '12px', color: 'var(--e-text-secondary)' }}>
+              Uppgifter som tar ≤ 2 min - klara av dem först!
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {snabbisTasks.map(task => (
+                <div
+                  key={task.id}
+                  style={{
+                    padding: '12px',
+                    backgroundColor: 'var(--e-surface-alt)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    border: '1px solid transparent'
+                  }}
+                  onClick={() => handleStartSession(task)}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--e-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                >
+                  <div>
+                    <p style={{ fontWeight: '500', marginBottom: '4px', margin: 0 }}>{task.title}</p>
+                    <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>
+                      {formatDuration(task.estimated_duration)}
+                    </p>
+                  </div>
+                  <span className="e-icons e-play" style={{ fontSize: '16px' }}></span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === 4. HUVUDKORT - NÄSTA UPPGIFT === */}
+      {nextTask ? (
+        <div className="e-card" style={{ marginBottom: '24px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}>
+          <div className="e-card-header">
+            <div className="e-card-title">Just Nu</div>
+          </div>
+          <div className="e-card-content">
+            <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '16px', margin: '0 0 16px 0' }}>
+              {nextTask.title}
             </h2>
-            {criticalChains.map((chain, index) => (
-              <DependencyAlert key={index} chain={chain} />
-            ))}
+
+            {nextTask.description && (
+              <p style={{ marginBottom: '24px', lineHeight: '1.5', margin: '0 0 24px 0' }}>
+                {nextTask.description}
+              </p>
+            )}
+
+            {/* Metadata */}
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+              {nextTask.estimated_duration && (
+                <div style={{
+                  padding: '12px',
+                  backgroundColor: 'var(--e-surface-alt)',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--e-text-secondary)' }}>
+                    Uppskattad tid
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: '600' }}>
+                    {formatDuration(nextTask.estimated_duration)}
+                  </div>
+                </div>
+              )}
+              {nextTask.deadline && (
+                <div style={{
+                  padding: '12px',
+                  backgroundColor: 'var(--e-surface-alt)',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--e-text-secondary)' }}>
+                    Deadline
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: '600' }}>
+                    {formatRelativeTime(nextTask.deadline)}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <ButtonComponent
+                  cssClass="e-primary"
+                  onClick={() => handleStartSession(nextTask)}
+                  style={{ flex: 1, height: '56px', fontSize: '18px', fontWeight: '600' }}
+                >
+                  <span className="e-icons e-play" style={{ fontSize: '20px', marginRight: '8px' }}></span>
+                  Starta nu
+                </ButtonComponent>
+                <ButtonComponent
+                  cssClass="e-outline"
+                  onClick={() => handleMarkDone(nextTask)}
+                  style={{ height: '56px', padding: '0 24px' }}
+                >
+                  <span className="e-icons e-check" style={{ fontSize: '20px' }}></span>
+                </ButtonComponent>
+              </div>
+
+              <ButtonComponent
+                cssClass="e-flat"
+                onClick={handleSkipTask}
+                style={{ width: '100%' }}
+              >
+                <span className="e-icons e-skip-forward" style={{ fontSize: '12px', marginRight: '8px' }}></span>
+                Hoppa över (visa nästa)
+              </ButtonComponent>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="e-card" style={{ marginBottom: '24px' }}>
+          <div className="e-card-content" style={{ textAlign: 'center', padding: '48px 24px' }}>
+            <div style={{ fontSize: '60px', marginBottom: '16px' }}>🤷</div>
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
+              Inga uppgifter tillgängliga just nu
+            </h2>
+            <p style={{ marginBottom: '24px' }}>
+              Det finns uppgifter men ingen passar dina nuvarande filter.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <ButtonComponent cssClass="e-primary" onClick={() => setShowCheckInDialog(true)}>
+                Uppdatera avstämning
+              </ButtonComponent>
+              <ButtonComponent cssClass="e-outline" onClick={() => navigate('/all')}>
+                Visa alla uppgifter
+              </ButtonComponent>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Header */}
-      <div className="e-border-b e-p-16">
-        <div className="e-mx-auto e-flex e-justify-between e-align-center">
-          <div>
-            <h1 className="e-text-xl e-font-bold" style={{ margin: 0 }}>
-              🎯 Just Nu
-            </h1>
-            <p className="e-text-sm" style={{ margin: 0 }}>
-              {context.availableTime} min kvar idag • {context.energyLevel === 'low' ? '🔋' : context.energyLevel === 'medium' ? '🔋🔋' : '🔋🔋🔋'}
-              {checkInData?.strategy === 'quick_wins' && ' • ⚡ Quick Wins'}
-              {checkInData?.strategy === 'deep_work' && ' • 🧠 Deep Work'}
-              {checkInData?.strategy === 'balanced' && ' • ⚖️ Balanced'}
-            </p>
+      {/* === 5. KOMMANDE UPPGIFTER === */}
+      {queue.length > 0 && (
+        <div className="e-card">
+          <div className="e-card-header">
+            <div className="e-card-title">Kommande uppgifter</div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowCheckInDialog(true)}
-          >
-            Ny avstämning
-          </Button>
-        </div>
-      </div>
-
-      {/* Snabbis-sektion - Uppgifter <= 2 min */}
-      {(() => {
-        const snabbis = tasks.filter(t =>
-          t.status !== 'done' &&
-          t.estimated_duration &&
-          t.estimated_duration <= 2
-        );
-
-        if (snabbis.length === 0) return null;
-
-        return (
-          <div className="e-p-24 e-pt-24" style={{ paddingBottom: 0 }}>
-            <div className="e-border e-rounded-lg e-p-16">
-              <div className="e-flex e-align-center e-gap-8 e-mb-12">
-                <span className="e-text-xl">⚡</span>
-                <h3 className="e-text-lg e-font-bold" style={{ margin: 0 }}>
-                  Snabbis ({snabbis.length}) - Gör direkt!
-                </h3>
-              </div>
-              <p className="e-text-sm e-mb-12">
-                💡 Uppgifter som tar ≤ 2 min - klara av dem först!
-              </p>
-              <div className="e-flex e-flex-column e-gap-8">
-                {snabbis.map(task => (
-                  <div
-                    key={task.id}
-                    className="e-rounded-md e-p-12 e-flex e-align-center e-justify-between e-cursor-pointer e-transition"
-                    onClick={() => navigate(`/session/${task.id}`)}
-                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)'}
-                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
-                  >
-                    <div>
-                      <p className="e-font-medium" style={{ margin: 0 }}>{task.title}</p>
-                      <p className="e-text-xs" style={{ margin: 0 }}>
-                        {formatDuration(task.estimated_duration)}
-                      </p>
-                    </div>
-                    <span className="e-icons e-play" style={{ fontSize: '16px' }}></span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Main Focus Card */}
-      <div className="e-p-24">
-        <div className="e-rounded-xl e-p-32" style={{ boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}>
-          {/* Deadline Warnings */}
-          {nextTask.deadline && (() => {
-            const deadline = new Date(nextTask.deadline);
-            const now = new Date();
-            const hoursUntil = Math.floor((deadline.getTime() - now.getTime()) / (1000 * 60 * 60));
-            const isOverdue = hoursUntil < 0;
-            const isEmergency = hoursUntil >= 0 && hoursUntil < 24 && (nextTask.time_sensitivity || 5) >= 7;
-
-            if (isOverdue) {
-              const hoursOverdue = Math.abs(hoursUntil);
-              return (
-                <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <span className="e-icons e-warning" style={{ fontSize: '24px', flexShrink: 0, marginTop: '0.25rem' }}></span>
-                    <div>
-                      <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                        🚨 FÖRSENAD - {hoursOverdue < 24 ? `${hoursOverdue}h` : `${Math.floor(hoursOverdue / 24)} dagar`} sen!
-                      </h3>
-                      <p style={{ fontSize: '0.875rem' }}>
-                        Deadline var {deadline.toLocaleDateString('sv-SE')} kl {deadline.toLocaleTimeString('sv-SE', {hour: '2-digit', minute: '2-digit'})}.
-                        Denna uppgift bör prioriteras högst.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            if (isEmergency) {
-              return (
-                <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <span className="e-icons e-warning" style={{ fontSize: '24px', flexShrink: 0, marginTop: '0.25rem' }}></span>
-                    <div>
-                      <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                        ⚡ AKUT - Deadline om {hoursUntil}h
-                      </h3>
-                      <p style={{ fontSize: '0.875rem' }}>
-                        Deadline: {deadline.toLocaleDateString('sv-SE')} kl {deadline.toLocaleTimeString('sv-SE', {hour: '2-digit', minute: '2-digit'})}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            return null;
-          })()}
-
-          {/* Title */}
-          <h2 style={{ fontSize: '2.25rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-            {nextTask.title}
-          </h2>
-
-          {/* Description */}
-          {nextTask.description && (
-            <p style={{ fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: '1.75' }}>
-              {nextTask.description}
-            </p>
-          )}
-
-          {/* Metadata */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-            {nextTask.estimated_duration && (
-              <div style={{ borderRadius: '0.5rem', padding: '1rem' }}>
-                <div style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}>Uppskattad tid</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>
-                  {formatDuration(nextTask.estimated_duration)}
-                </div>
-              </div>
-            )}
-            {nextTask.deadline && (
-              <div style={{ borderRadius: '0.5rem', padding: '1rem' }}>
-                <div style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}>Deadline</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: '600' }}>
-                  {formatRelativeTime(nextTask.deadline)}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Too Late Warning */}
-          {(nextTask as any).isTooLate && (
-            <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <span className="e-icons e-warning" style={{ fontSize: '24px', flexShrink: 0, marginTop: '0.25rem' }}></span>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                    🚨 För sent att påbörja denna uppgift
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-                    {(nextTask as any).tooLateReason}
-                  </p>
-                  <div style={{ borderRadius: '0.5rem', padding: '0.75rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: '600' }}>
-                      💡 Förslag:
-                    </p>
-                    <ul style={{ fontSize: '0.875rem', marginTop: '0.25rem', paddingLeft: '1rem' }}>
-                      <li>• Omförhandla deadline med beställare</li>
-                      <li>• Delegera uppgiften till någon annan</li>
-                      <li>• Dela upp i mindre delar och gör det viktigaste först</li>
-                      <li>• Markera som "ej genomförbar" och dokumentera varför</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Partial Work Warning */}
-          {nextTask.estimated_duration &&
-           context &&
-           nextTask.estimated_duration > context.availableTime && (
-            <div style={{ borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <span className="e-icons e-time" style={{ fontSize: '24px', flexShrink: 0, marginTop: '0.25rem' }}></span>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                    ⏱️ Uppgiften tar längre än tillgänglig tid
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-                    Uppgiften tar {formatDuration(nextTask.estimated_duration)},
-                    du har {formatDuration(context.availableTime)} kvar idag.
-                  </p>
-                  <div style={{ borderRadius: '0.5rem', padding: '0.75rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: '600' }}>
-                      💡 Förslag: {calculatePartialWork(
-                        nextTask.estimated_duration,
-                        context.availableTime
-                      ).suggestion}
+          <div className="e-card-content">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {queue.slice(0, 5).map((task, index) => (
+                <div
+                  key={task.id}
+                  onClick={() => handleTaskClick(task.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px',
+                    backgroundColor: 'var(--e-surface-alt)',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    border: '1px solid transparent'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--e-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                >
+                  <span style={{ fontWeight: 'bold', minWidth: '24px' }}>{index + 2}.</span>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontWeight: '500', margin: 0 }}>{task.title}</p>
+                    <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>
+                      {task.estimated_duration && `${formatDuration(task.estimated_duration)}`}
+                      {task.deadline && ` • ${formatRelativeTime(task.deadline)}`}
                     </p>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          )}
-
-
-          {/* Actions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <Button
-                onClick={handleStartSession}
-                style={{ flex: 1, height: '64px', fontSize: '1.125rem', fontWeight: '600' }}
-              >
-                <span className="e-icons e-play" style={{ fontSize: '24px', marginRight: '0.75rem' }}></span>
-                Starta nu
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={handleMarkDone}
-                style={{ height: '64px', padding: '0 2rem' }}
-              >
-                <span className="e-icons e-check" style={{ fontSize: '24px' }}></span>
-              </Button>
-            </div>
-
-            <Button
-              variant="ghost"
-              onClick={handleSkipTask}
-              style={{ width: '100%' }}
-            >
-              <span className="e-icons e-skip-forward" style={{ fontSize: '12px', marginRight: '0.5rem' }}></span>
-              Hoppa över (visa nästa)
-            </Button>
           </div>
         </div>
+      )}
 
-        {/* Next in Queue */}
-        {queue.length > 0 && (
-          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-            <button
-              onClick={handleShowNext}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Därefter:</span>
-              <span style={{ fontSize: '1rem', fontWeight: '600' }}>{queue[0].title}</span>
-              <span className="e-icons e-chevron-right" style={{ fontSize: '16px' }}></span>
-            </button>
-          </div>
-        )}
-      </div>
+      {/* === MODALS === */}
+      <TimerModal
+        isOpen={showTimer}
+        task={timerTask}
+        onClose={() => setShowTimer(false)}
+        onComplete={handleTimerComplete}
+      />
 
-      {/* Daglig avstämning */}
       <DagligCheckIn
         isOpen={showCheckInDialog}
         onClose={() => setShowCheckInDialog(false)}

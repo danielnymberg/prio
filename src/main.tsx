@@ -33,9 +33,8 @@ import '@syncfusion/ej2-richtexteditor/styles/fluent2.css';
 import '@syncfusion/ej2-treegrid/styles/fluent2.css';
 import '@syncfusion/ej2-gantt/styles/fluent2.css';
 
-// Then import our custom CSS
+// Then import our custom CSS (minimal body/root styling only)
 import './index.css';
-import './styles/app.css';
 
 // Import app components AFTER license registration
 import App from './App.tsx';

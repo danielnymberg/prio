@@ -150,43 +150,45 @@ export function CalendarWithTaskSidebar() {
   };
 
   return (
-    <div className="e-flex e-h-full e-gap-16 e-relative e-overflow-hidden">
+    <div style={{ display: 'flex', height: '100%', gap: '16px', position: 'relative', overflow: 'hidden' }}>
       {/* Sidebar med tasks */}
       <div
         style={{
           width: showSidebar ? '320px' : '0',
           flexShrink: 0,
-          transition: 'all 0.3s'
+          transition: 'all 0.3s',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }}
-        className="e-overflow-hidden e-flex e-flex-column"
       >
-        <div className="e-h-full e-rounded-lg e-border e-p-16 e-flex e-flex-column e-overflow-hidden"
-          style={{
-            backgroundColor: 'var(--e-surface)',
-            borderRadius: '12px',
-            borderColor: 'var(--e-border)'
-          }}>
-          <div className="e-mb-16" style={{ flexShrink: 0 }}>
-            <h3 className="e-text-lg e-font-semibold e-mb-8"
-              style={{ color: 'var(--e-text)' }}>
+        <div style={{
+          height: '100%',
+          backgroundColor: 'var(--e-surface)',
+          borderRadius: '12px',
+          border: '1px solid var(--e-border)',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
+          <div style={{ marginBottom: '16px', flexShrink: 0 }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: 'var(--e-text)' }}>
               Ej schemalagt
             </h3>
-            <p className="e-text-xs e-mb-8"
-              style={{ color: 'var(--e-text-secondary)' }}>
+            <p style={{ fontSize: '12px', marginBottom: '8px', color: 'var(--e-text-secondary)' }}>
               Dra uppgifter till kalendern för att planera när du ska jobba på dem. Klicka för detaljer.
             </p>
-            <p className="e-text-xs e-mb-4"
-              style={{ color: 'var(--e-text-secondary)', fontStyle: 'italic' }}>
+            <p style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--e-text-secondary)', fontStyle: 'italic' }}>
               📊 Sorterade efter priority (högst först)
             </p>
-            <p className="e-text-xs"
-              style={{ color: 'var(--e-text-secondary)', fontStyle: 'italic' }}>
+            <p style={{ fontSize: '12px', color: 'var(--e-text-secondary)', fontStyle: 'italic' }}>
               💡 För att ta bort från schema: Klicka på uppgift i kalendern → "Ta bort från schema"
             </p>
 
             {/* Batch scheduling button */}
             {checkedTaskIds.length > 0 && (
-              <div className="e-mt-12 e-flex e-flex-column e-gap-8">
+              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <Button
                   onClick={() => {
                     const selectedTasks = tasks.filter(t => checkedTaskIds.includes(t.id));
@@ -196,14 +198,14 @@ export function CalendarWithTaskSidebar() {
 
                     DialogUtility.confirm({
                       title: `Schemalägg ${checkedTaskIds.length} uppgifter?`,
-                      content: `<div class="e-flex e-flex-column e-gap-8">
+                      content: `<div style="display: flex; flex-direction: column; gap: 8px">
                         <p><strong>Valda tasks:</strong></p>
-                        <ul class="e-text-sm" style="list-style: disc; padding-left: 1.25rem">
+                        <ul style="font-size: 14px; list-style: disc; padding-left: 1.25rem">
                           ${selectedTasks.slice(0, 3).map(t => `<li>${t.title} (~${Math.round((t.estimated_duration || 60)/60)}h)</li>`).join('')}
                           ${selectedTasks.length > 3 ? `<li><em>...och ${selectedTasks.length - 3} till</em></li>` : ''}
                         </ul>
-                        <p class="e-text-sm e-mt-8"><strong>Total tid:</strong> ${hours}h ${mins}min</p>
-                        <p class="e-text-sm" style="color: var(--e-text-secondary)">Tasks kommer placeras i nästa lediga tider, sorterade efter prioritet.</p>
+                        <p style="font-size: 14px; margin-top: 8px"><strong>Total tid:</strong> ${hours}h ${mins}min</p>
+                        <p style="font-size: 14px; color: var(--e-text-secondary)">Tasks kommer placeras i nästa lediga tider, sorterade efter prioritet.</p>
                       </div>`,
                       okButton: {
                         text: '✓ Schemalägg',
@@ -221,15 +223,17 @@ export function CalendarWithTaskSidebar() {
                     });
                   }}
                   variant="primary"
-                  className="e-w-full e-flex e-align-center e-justify-center e-gap-8"
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
                   <span className="e-icons e-schedule" style={{ fontSize: '12px' }}></span>
                   {`Schemalägg ${checkedTaskIds.length} valda`}
                 </Button>
                 <button
                   onClick={() => setCheckedTaskIds([])}
-                  className="e-w-full e-text-xs e-cursor-pointer"
                   style={{
+                    width: '100%',
+                    fontSize: '12px',
+                    cursor: 'pointer',
                     color: 'var(--e-text-secondary)',
                     background: 'none',
                     border: 'none'
@@ -241,10 +245,10 @@ export function CalendarWithTaskSidebar() {
             )}
           </div>
 
-          <div className="e-flex-1 e-overflow-y-auto" id="tree-container">
+          <div style={{ flex: '1', overflowY: 'auto' }} id="tree-container">
             {treeData.length === 0 ? (
-              <div className="e-text-center e-py-32">
-                <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+              <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                <p style={{ fontSize: '14px', color: 'var(--e-text-secondary)' }}>
                   Alla uppgifter är schemalagda! 🎉
                 </p>
               </div>
@@ -264,30 +268,34 @@ export function CalendarWithTaskSidebar() {
                   setCheckedTaskIds(checked);
                 }}
                 nodeTemplate={(data: any) => (
-                  <div className="e-p-8 e-cursor-pointer e-rounded e-transition"
-                    style={{ transitionProperty: 'background-color' }}>
-                    <div className="e-flex e-align-start e-gap-8">
-                      <div className="e-font-medium e-text-sm e-flex-1 e-min-w-0"
-                        style={{
-                          color: 'var(--e-text)',
-                          wordBreak: 'break-word'
-                        }}>
+                  <div style={{ padding: '8px', cursor: 'pointer', borderRadius: '4px', transition: 'background-color 0.2s' }}>
+                    <div style={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
+                      <div style={{
+                        fontWeight: '500',
+                        fontSize: '14px',
+                        flex: '1',
+                        minWidth: '0',
+                        color: 'var(--e-text)',
+                        wordBreak: 'break-word'
+                      }}>
                         {data.Name}
                       </div>
                       {data.Priority !== undefined && (
-                        <div className="e-text-xs e-font-semibold e-rounded e-flex-none"
-                          style={{
-                            padding: '0.125rem 0.5rem',
-                            backgroundColor: 'var(--primary-400)',
-                            color: 'var(--primary-900)'
-                          }}>
+                        <div style={{
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          borderRadius: '4px',
+                          flexShrink: '0',
+                          padding: '0.125rem 0.5rem',
+                          backgroundColor: 'var(--primary-400)',
+                          color: 'var(--primary-900)'
+                        }}>
                           {data.Priority}
                         </div>
                       )}
                     </div>
                     {data.Duration && (
-                      <div className="e-text-xs e-mt-4"
-                        style={{ color: 'var(--e-text-secondary)' }}>
+                      <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--e-text-secondary)' }}>
                         ~{Math.round(data.Duration / 60)}h
                       </div>
                     )}
@@ -302,14 +310,17 @@ export function CalendarWithTaskSidebar() {
       {/* Toggle button */}
       <button
         onClick={() => setShowSidebar(!showSidebar)}
-        className="e-absolute e-z-10 e-border e-p-8 e-cursor-pointer"
         style={{
+          position: 'absolute',
+          zIndex: 10,
           left: showSidebar ? '320px' : '0px',
           top: '50%',
           transform: 'translateY(-50%)',
           backgroundColor: 'var(--e-surface)',
-          borderColor: 'var(--e-border)',
+          border: '1px solid var(--e-border)',
           borderRadius: '0 8px 8px 0',
+          padding: '8px',
+          cursor: 'pointer',
           boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
           transition: 'left 0.3s'
         }}
@@ -322,7 +333,7 @@ export function CalendarWithTaskSidebar() {
       </button>
 
       {/* Kalendervy */}
-      <div className="e-flex-1 e-min-w-0">
+      <div style={{ flex: '1', minWidth: '0' }}>
         <WeekCalendarView
           onScheduleReady={setScheduleRef}
           tasks={tasks}

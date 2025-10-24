@@ -5,6 +5,7 @@ import { Project } from '@/lib/types';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/services/toast';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
+import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import {
   GridComponent,
   ColumnsDirective,
@@ -107,8 +108,92 @@ export function ProjectsView() {
         console.error('Error deleting project:', error);
         showToast.error('Kunde inte radera projekt');
       }
-    } else if (args.requestType === 'beginEdit') {
-      // User started editing
+    } else if (args.requestType === 'beginEdit' || args.requestType === 'add') {
+      // Customize edit dialog
+      const dialog = args.dialog;
+      if (dialog) {
+        // Set dialog header
+        dialog.header = args.requestType === 'beginEdit'
+          ? `Redigera projekt: ${args.rowData.name}`
+          : 'Nytt projekt';
+
+        // Add custom buttons including delete
+        if (args.requestType === 'beginEdit') {
+          dialog.buttons = [
+            {
+              buttonModel: {
+                content: 'Radera',
+                cssClass: 'e-danger',
+                iconCss: 'e-icons e-delete'
+              },
+              click: async () => {
+                if (confirm(`Är du säker på att du vill radera projektet "${args.rowData.name}"?`)) {
+                  try {
+                    const { error } = await supabase
+                      .from('projects')
+                      .delete()
+                      .eq('id', args.rowData.id);
+
+                    if (error) throw error;
+                    showToast.success('Projekt raderat');
+                    dialog.hide();
+                    fetchProjects();
+                  } catch (error) {
+                    console.error('Error deleting:', error);
+                    showToast.error('Kunde inte radera projekt');
+                  }
+                }
+              }
+            },
+            {
+              buttonModel: {
+                content: 'Avbryt',
+                cssClass: 'e-flat'
+              },
+              click: () => {
+                dialog.hide();
+              }
+            },
+            {
+              buttonModel: {
+                content: 'Spara',
+                cssClass: 'e-primary',
+                isPrimary: true
+              },
+              click: () => {
+                if (gridRef.current) {
+                  gridRef.current.endEdit();
+                }
+              }
+            }
+          ];
+        } else {
+          // For add mode, just Cancel and Save
+          dialog.buttons = [
+            {
+              buttonModel: {
+                content: 'Avbryt',
+                cssClass: 'e-flat'
+              },
+              click: () => {
+                dialog.hide();
+              }
+            },
+            {
+              buttonModel: {
+                content: 'Skapa',
+                cssClass: 'e-primary',
+                isPrimary: true
+              },
+              click: () => {
+                if (gridRef.current) {
+                  gridRef.current.endEdit();
+                }
+              }
+            }
+          ];
+        }
+      }
     }
   };
 
@@ -148,16 +233,6 @@ export function ProjectsView() {
   };
 
   const commands: CommandModel[] = [
-    {
-      buttonOption: {
-        iconCss: 'e-icons e-eye',
-        cssClass: 'e-flat',
-        click: (args: any) => {
-          const rowData = args.rowData || args;
-          navigate(`/projects/${rowData.id}`);
-        }
-      }
-    },
     { type: 'Edit', buttonOption: { iconCss: 'e-icons e-edit', cssClass: 'e-flat' } },
     { type: 'Delete', buttonOption: { iconCss: 'e-icons e-delete', cssClass: 'e-flat' } },
   ];
@@ -165,7 +240,7 @@ export function ProjectsView() {
   // Actions template för extra knappar
   const actionsTemplate = (props: Project) => {
     return (
-      <div className="e-flex e-align-center e-gap-4 e-justify-center">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
         {props.status !== 'completed' && (
           <button
             onClick={(e) => {
@@ -228,10 +303,44 @@ export function ProjectsView() {
 
   const pageSettings = { pageSize: 20, pageSizes: [10, 20, 50] };
 
+  // Filter template for Status dropdown
+  const statusFilterTemplate: any = {
+    create: () => {
+      const elem = document.createElement('select');
+      elem.id = 'statusDDL';
+      return elem;
+    },
+    write: () => {
+      const statusData = [
+        { text: 'Alla', value: '' },
+        { text: 'Aktiv', value: 'active' },
+        { text: 'Slutförd', value: 'completed' },
+        { text: 'Arkiverad', value: 'archived' }
+      ];
+
+      const dropdownlist = new DropDownListComponent({
+        dataSource: statusData,
+        fields: { text: 'text', value: 'value' },
+        placeholder: 'Välj status',
+        value: '',
+        change: (e: any) => {
+          if (gridRef.current) {
+            if (e.value) {
+              gridRef.current.filterByColumn('status', 'equal', e.value);
+            } else {
+              gridRef.current.removeFilteredColsByField('status');
+            }
+          }
+        }
+      });
+      dropdownlist.appendTo('#statusDDL');
+    }
+  };
+
   // Budget template (formatted currency) - OK, budget is NOT editable
   const budgetTemplate = (props: any) => {
     return (
-      <span className="e-font-medium">
+      <span style={{ fontWeight: '500' }}>
         {props.total_budget.toLocaleString('sv-SE')} kr
       </span>
     );
@@ -239,21 +348,26 @@ export function ProjectsView() {
 
   // Header template for bold text
   const headerTemplate = (headerText: string) => {
-    return () => <span className="e-font-bold">{headerText}</span>;
+    return () => <span style={{ fontWeight: 'bold' }}>{headerText}</span>;
   };
 
   // Actions header with icon
   const actionsHeaderTemplate = () => {
-    return <span className="e-icons e-check e-font-bold" style={{ color: '#10b981', fontSize: '16px' }}></span>;
+    return <span className="e-icons e-check" style={{ color: '#10b981', fontSize: '16px', fontWeight: 'bold' }}></span>;
   };
 
   if (loading) {
     return (
-      <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '100vh' }}>
-        <div className="e-animate-spin e-rounded-full" style={{
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh'
+      }}>
+        <div style={{
           height: '48px',
           width: '48px'
-        }} />
+        }}>Laddar...</div>
       </div>
     );
   }
@@ -261,16 +375,21 @@ export function ProjectsView() {
   return (
     <>
       {/* Header */}
-      <div className="e-mb-16 e-flex e-align-center e-justify-between">
+      <div style={{
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
         <div>
-          <h1 className="e-text-2xl e-font-bold e-mb-4">
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
             Projekt
           </h1>
-          <p className="e-text-sm">
+          <p style={{ fontSize: '14px', color: 'var(--e-text-secondary)' }}>
             {projects.length} projekt totalt
           </p>
         </div>
-        <div className="e-flex e-gap-8 e-align-center">
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <div style={{ width: '320px' }}>
             <TextBoxComponent
               placeholder="Sök projekt..."
@@ -289,15 +408,11 @@ export function ProjectsView() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="e-text-center e-mt-64">
-          <p className="e-mb-16">Inga projekt än</p>
+        <div style={{ textAlign: 'center', marginTop: '64px' }}>
+          <p style={{ marginBottom: '16px' }}>Inga projekt än</p>
           <button
             onClick={() => navigate('/projects/new')}
-            className="e-px-24 e-py-12 e-rounded-lg e-text-base e-font-medium e-transition"
-            style={{
-              border: 'none',
-              cursor: 'pointer'
-            }}
+            className="e-btn e-primary"
           >
             Skapa ditt första projekt
           </button>
@@ -350,6 +465,7 @@ export function ProjectsView() {
               format="N0"
               textAlign="Center"
               validationRules={{ required: true, min: 0 }}
+              allowFiltering={false}
             />
             <ColumnDirective
               field="hourly_rate"
@@ -360,6 +476,7 @@ export function ProjectsView() {
               format="N0"
               textAlign="Right"
               validationRules={{ required: true, min: 0 }}
+              allowFiltering={false}
             />
             <ColumnDirective
               field="total_budget"
@@ -369,6 +486,7 @@ export function ProjectsView() {
               template={budgetTemplate}
               allowEditing={false}
               textAlign="Right"
+              allowFiltering={false}
             />
             <ColumnDirective
               field="completion_percentage"
@@ -381,11 +499,33 @@ export function ProjectsView() {
               textAlign="Center"
             />
             <ColumnDirective
-              field="status_display"
+              field="status"
               headerText="Status"
               headerTemplate={headerTemplate("Status")}
               width="90"
-              allowEditing={false}
+              editType="dropdownedit"
+              filterBarTemplate={statusFilterTemplate}
+              edit={{
+                params: {
+                  dataSource: [
+                    { text: 'Aktiv', value: 'active' },
+                    { text: 'Slutförd', value: 'completed' },
+                    { text: 'Arkiverad', value: 'archived' }
+                  ],
+                  fields: { text: 'text', value: 'value' }
+                }
+              }}
+              valueAccessor={(field: string, data: any) => {
+                if (field === 'status') {
+                  const statusMap: Record<string, string> = {
+                    'active': 'Aktiv',
+                    'completed': 'Slutförd',
+                    'archived': 'Arkiverad'
+                  };
+                  return statusMap[data.status] || data.status;
+                }
+                return data[field];
+              }}
             />
             <ColumnDirective
               field="start_date"
@@ -493,6 +633,7 @@ export function ProjectsView() {
               width="80"
               commands={commands}
               textAlign="Center"
+              allowFiltering={false}
             />
           </ColumnsDirective>
           <Inject services={[Page, Sort, Filter, Edit, CommandColumn]} />

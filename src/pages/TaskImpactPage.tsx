@@ -61,7 +61,7 @@ export function TaskImpactPage() {
         alignItems: 'center',
         marginBottom: '2rem'
       }}>
-        <h2 style={{ margin: 0, color: 'var(--e-text)' }}>Task slutförd! 🎉</h2>
+        <h2 style={{ margin: 0, color: 'var(--e-text)' }}>Uppgift slutförd! 🎉</h2>
         <ButtonComponent
           cssClass="e-small e-round"
           iconCss="e-icons e-close"
@@ -82,7 +82,7 @@ export function TaskImpactPage() {
         </p>
 
         <div className="e-flex e-flex-column e-gap-16">
-          <label className="e-block e-text-sm e-font-medium" style={{ color: 'var(--e-text)' }}>
+          <label className="e-text-sm e-font-medium" style={{ display: 'block', color: 'var(--e-text)' }}>
             Faktisk påverkan (1-10):
           </label>
 
@@ -91,8 +91,9 @@ export function TaskImpactPage() {
               <button
                 key={value}
                 onClick={() => setImpact(value)}
-                className="e-rounded-md e-font-semibold e-transition e-cursor-pointer"
+                className="e-rounded-md e-font-semibold e-transition"
                 style={{
+                  cursor: 'pointer',
                   width: '40px',
                   height: '40px',
                   backgroundColor: impact >= value ? 'var(--warning-500, var(--warning-400))' : 'var(--e-hover, #e5e7eb)',
@@ -122,8 +123,9 @@ export function TaskImpactPage() {
 
         <div className="e-flex e-gap-12">
           <ButtonComponent
-            cssClass="e-primary e-round e-flex-1"
+            cssClass="e-primary e-round"
             onClick={handleSubmit}
+            style={{ flex: 1 }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span className="e-icons e-star" style={{ fontSize: '12px', marginRight: '8px' }}></span>

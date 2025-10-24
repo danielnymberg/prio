@@ -209,8 +209,8 @@ export function AllTasksView() {
     const colors = getColor();
 
     return (
-      <div className="e-flex e-align-center e-gap-8 e-rounded-full e-text-xs e-font-medium" style={{ display: 'inline-flex', padding: '4px 8px', backgroundColor: colors.bg, color: colors.color }}>
-        <span className="e-font-bold">{Math.round(props.priority)}</span>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', borderRadius: '9999px', fontSize: '12px', fontWeight: '500', padding: '4px 8px', backgroundColor: colors.bg, color: colors.color }}>
+        <span style={{ fontWeight: 'bold' }}>{Math.round(props.priority)}</span>
         <span>{props.priorityCategory}</span>
       </div>
     );
@@ -225,7 +225,7 @@ export function AllTasksView() {
     const colors = getStatusStyle();
 
     return (
-      <span className="e-rounded-full e-text-xs" style={{ padding: '4px 8px', backgroundColor: colors.bg, color: colors.color }}>
+      <span style={{ borderRadius: '9999px', fontSize: '12px', padding: '4px 8px', backgroundColor: colors.bg, color: colors.color }}>
         {props.statusLabel}
       </span>
     );
@@ -238,9 +238,9 @@ export function AllTasksView() {
     const isOverdue = isPast(deadline) && !isToday(deadline);
 
     return (
-      <div className="e-text-sm" style={{ color: isOverdue ? '#dc2626' : 'var(--e-text)', fontWeight: isOverdue ? '600' : 'normal' }}>
+      <div style={{ fontSize: '14px', color: isOverdue ? '#dc2626' : 'var(--e-text)', fontWeight: isOverdue ? '600' : 'normal' }}>
         <div>{props.deadlineFormatted}</div>
-        <div className="e-text-xs e-opacity-75">{props.deadlineDistance}</div>
+        <div style={{ fontSize: '12px', opacity: 0.75 }}>{props.deadlineDistance}</div>
       </div>
     );
   };
@@ -248,9 +248,9 @@ export function AllTasksView() {
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
-      <div className="e-flex e-align-center e-justify-between">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="e-text-2xl e-font-bold" style={{ color: 'var(--e-text)', margin: 0 }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
             Alla uppgifter
           </h1>
           <p style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
@@ -261,19 +261,24 @@ export function AllTasksView() {
 
       {/* Snabbis-sektion */}
       {snabbis.length > 0 && (
-        <div className="e-rounded-lg e-p-16" style={{ backgroundColor: 'var(--primary-50)', border: '1px solid var(--primary-200)' }}>
-          <div className="e-flex e-align-center e-gap-8 e-mb-12">
+        <div style={{ borderRadius: '8px', padding: '16px', backgroundColor: 'var(--primary-50)', border: '1px solid var(--primary-200)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
             <span style={{ fontSize: '20px' }}>⚡</span>
-            <h3 className="e-font-bold" style={{ margin: 0 }}>
+            <h3 style={{ fontWeight: 'bold', margin: 0 }}>
               Snabbis ({snabbis.length}) - Gör direkt!
             </h3>
           </div>
-          <div className="e-flex e-gap-8 e-flex-wrap">
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {snabbis.map(task => (
               <div
                 key={task.id}
-                className="e-rounded-md e-p-12 e-cursor-pointer"
-                style={{ backgroundColor: 'white', border: '1px solid var(--primary-200)' }}
+                style={{
+                  borderRadius: '6px',
+                  padding: '12px',
+                  cursor: 'pointer',
+                  backgroundColor: 'white',
+                  border: '1px solid var(--primary-200)'
+                }}
                 onClick={() => {
                   setSelectedTask(task);
                   setIsFormOpen(true);
@@ -281,8 +286,8 @@ export function AllTasksView() {
                 onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
               >
-                <p className="e-font-medium e-text-sm" style={{ margin: 0 }}>{task.title}</p>
-                <p className="e-text-xs" style={{ margin: '4px 0 0 0', color: 'var(--e-text-secondary)' }}>
+                <p style={{ fontWeight: '500', fontSize: '14px', margin: 0 }}>{task.title}</p>
+                <p style={{ fontSize: '12px', margin: '4px 0 0 0', color: 'var(--e-text-secondary)' }}>
                   {task.estimated_duration}min
                 </p>
               </div>
@@ -292,7 +297,7 @@ export function AllTasksView() {
       )}
 
       {/* Grid */}
-      <div className="e-rounded-lg" style={{ backgroundColor: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ borderRadius: '8px', backgroundColor: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <GridComponent
           ref={gridRef}
           dataSource={gridData}

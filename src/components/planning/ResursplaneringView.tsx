@@ -64,7 +64,7 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
   };
 
   // Header template
-  const headerTemplate = (text: string) => () => <span className="e-font-bold">{text}</span>;
+  const headerTemplate = (text: string) => () => <span style={{ fontWeight: 'bold' }}>{text}</span>;
 
   // Week number template
   const weekNumberTemplate = (props: any) => {
@@ -75,16 +75,16 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
     const endWeek = deadline ? getWeekNumber(deadline) : startWeek;
 
     if (startWeek === endWeek) {
-      return <span className="e-text-xs e-font-medium">V{startWeek}</span>;
+      return <span style={{ fontSize: '12px', fontWeight: '500' }}>V{startWeek}</span>;
     }
-    return <span className="e-text-xs e-font-medium">V{startWeek}-{endWeek}</span>;
+    return <span style={{ fontSize: '12px', fontWeight: '500' }}>V{startWeek}-{endWeek}</span>;
   };
 
   // Remaining hours template - använd calculateProjectMetrics
   const remainingTemplate = (props: any) => {
     const projectTasks = tasks.filter(t => t.project_id === props.id);
     const metrics = calculateProjectMetrics(props, projectTasks);
-    return <span className="e-font-medium">{metrics.estimated_remaining_hours.toFixed(0)}h</span>;
+    return <span style={{ fontWeight: '500' }}>{metrics.estimated_remaining_hours.toFixed(0)}h</span>;
   };
 
   // Weeks required template - använd calculateProjectMetrics
@@ -102,7 +102,7 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
     const color = hoursPerWeek > 20 ? '#ef4444' : hoursPerWeek > 10 ? '#f59e0b' : '#10b981';
 
     return (
-      <span className="e-font-medium" style={{ color }}>
+      <span style={{ fontWeight: '500', color }}>
         {hoursPerWeek.toFixed(1)}h/v
       </span>
     );
@@ -111,12 +111,12 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
   return (
     <>
       {/* Header */}
-      <div className="e-mb-16 e-flex e-align-center e-justify-between">
+      <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="e-text-2xl e-font-bold e-mb-4">
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
             {periodName} Resursplanering
           </h1>
-          <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+          <p style={{ fontSize: '14px', color: 'var(--e-text-secondary)' }}>
             {startDate.toLocaleDateString('sv-SE')} - {endDate.toLocaleDateString('sv-SE')}
           </p>
         </div>
@@ -129,29 +129,28 @@ export function ResursplaneringView({ period }: ResursplaneringViewProps) {
       </div>
 
       {/* Sammanfattning */}
-      <div className="e-grid e-gap-8 e-mb-16" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
-        <div className="e-p-12 e-border e-rounded-lg">
-          <p className="e-text-xs e-mb-4" style={{ color: 'var(--e-text-secondary)' }}>Arbetsveckor</p>
-          <p className="e-text-xl e-font-bold e-m-0">{workingWeeks.length}</p>
+      <div style={{ display: 'grid', gap: '8px', marginBottom: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
+        <div style={{ padding: '12px', border: '1px solid var(--e-border)', borderRadius: '8px' }}>
+          <p style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--e-text-secondary)' }}>Arbetsveckor</p>
+          <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{workingWeeks.length}</p>
         </div>
-        <div className="e-p-12 e-border e-rounded-lg">
-          <p className="e-text-xs e-mb-4" style={{ color: 'var(--e-text-secondary)' }}>Kvarvarande timmar</p>
-          <p className="e-text-xl e-font-bold e-m-0">{totalRemaining.toFixed(0)}h</p>
+        <div style={{ padding: '12px', border: '1px solid var(--e-border)', borderRadius: '8px' }}>
+          <p style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--e-text-secondary)' }}>Kvarvarande timmar</p>
+          <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{totalRemaining.toFixed(0)}h</p>
         </div>
-        <div className="e-p-12 e-border e-rounded-lg" style={{
-          borderColor: avgPerWeek > 32 ? '#ef4444' : '#10b981',
-          borderWidth: '2px'
+        <div style={{
+          padding: '12px',
+          border: `2px solid ${avgPerWeek > 32 ? '#ef4444' : '#10b981'}`,
+          borderRadius: '8px'
         }}>
-          <p className="e-text-xs e-mb-4" style={{ color: 'var(--e-text-secondary)' }}>Snitt/vecka</p>
-          <p className="e-text-xl e-font-bold e-m-0" style={{
-            color: avgPerWeek > 32 ? '#ef4444' : '#10b981'
-          }}>
+          <p style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--e-text-secondary)' }}>Snitt/vecka</p>
+          <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0, color: avgPerWeek > 32 ? '#ef4444' : '#10b981' }}>
             {avgPerWeek.toFixed(1)}h/v
           </p>
         </div>
-        <div className="e-p-12 e-border e-rounded-lg">
-          <p className="e-text-xs e-mb-4" style={{ color: 'var(--e-text-secondary)' }}>Ledighet</p>
-          <p className="e-text-xl e-font-bold e-m-0">{weeks.length - workingWeeks.length}v</p>
+        <div style={{ padding: '12px', border: '1px solid var(--e-border)', borderRadius: '8px' }}>
+          <p style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--e-text-secondary)' }}>Ledighet</p>
+          <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{weeks.length - workingWeeks.length}v</p>
         </div>
       </div>
 

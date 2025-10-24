@@ -1,5 +1,66 @@
 # TODO - Framtida förbättringar
 
+## 🔥 AKUT: Återställ Fluent2 efter app.css-borttagning (2025-10-24)
+
+**BAKGRUND:** app.css (512 rader custom CSS) togs bort för att fixa Gantt alignment-problem. Global CSS-reset (`* { padding: 0 }`) bröt SF-komponenter. Nu måste alla vyer återställas med ren SF Fluent2.
+
+**STRATEGI:** EN komponent → Fixa → Build → Test → Nästa
+
+### 🔴 Prioritet 1: KRITISKA KOLLAPSER
+
+#### 1. Focus-vyn
+- [x] Startsida: Ta bort "Starta avstämning"-knapp
+- [x] Uppgiftslista: SF formatering (tog bort e-mx-auto, e-pt-24, e-cursor-pointer, e-rounded-xl)
+- [x] Timer-modal: Fluent2 knappar och layout
+- [x] "Task slutförd" → "Uppgift slutförd" + SF formatering
+- [ ] **PROBLEM:** Ändringarna syns inte i webbläsaren trots build + dev-server omstart på ny port!
+
+#### 2. Projekt-vyn
+- [x] Header: Fixa layout (sök + knapp till höger)
+- [x] Grid filter-rader: Ta bort filter för Off.tim, Timpris, Budget, Edit
+- [x] Status-filter: Ändra till DropDown med fast värden
+- [x] Edit-dialog: Fixa rubrik, lägg till Status-fält, lägg till Radera-knapp med varning
+- [x] Ta bort "Öga"-ikon (leder ingenstans)
+
+#### 3. Översikt
+- [x] Undersök vad som är trasigt
+- [x] Återställ med SF Fluent2 (inkl CapacityTimeline)
+
+#### 4. Kalender (vänster kolumn)
+- [x] "Ej schemalagda uppgifter": SF formatering
+
+### 🟡 Prioritet 2: MINDRE FIXAR
+
+#### 5. Uppgifter
+- [x] Undersök typsnitt och formatering (utility-klasser ersatta med inline styles)
+
+#### 6. Gantt
+- [ ] Dagens datum-linje + centrera vy på dagens datum (OM SF BP)
+
+#### 7. Resursallokering/Q1/Q4
+- [x] Header formatering (grid fungerar)
+- [ ] ResursplaneringView - Återstående utility-klasser i listningar och dialog (delvis fixat: templates, header, summary)
+
+### 🟢 Prioritet 3: STRUKTUR
+
+#### 8. Planering-menyn
+- [ ] Lägg ut 4 funktioner direkt i menyn med respektive ikoner
+- [ ] Ta bort "Planering" som överrubrik
+
+### ⏸️ För senare
+
+#### 9. Avancerat
+- [ ] Import fungerar inte, skippa tills vidare
+
+**REGLER:**
+- ✅ Endast SF utility-klasser (e-flex, e-gap-*, e-text-*, e-btn)
+- ✅ Build + test efter varje fix
+- ✅ EN komponent i taget
+- ❌ INGA custom CSS
+- ❌ INGA nya wrappers
+
+---
+
 ## 🚧 PÅGÅENDE (Högsta prioritet)
 
 ### 1. Resursplanering Q4/Q1 (PÅGÅENDE)

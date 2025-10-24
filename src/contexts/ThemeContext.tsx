@@ -20,9 +20,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
     const isDark = theme === 'dark';
 
-    // Update Tailwind dark mode class
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
+    // Add/remove dark class for CSS variables in index.css
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
 
     // Sync with Syncfusion theme system
     applySyncfusionTheme(isDark);

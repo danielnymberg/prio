@@ -22,6 +22,14 @@ MinPrio är en personlig uppgiftshanterare byggd med SyncFusion Fluent2 React-ko
 - Om något fungerar - ÄNDRA INTE
 - Refactoring endast om explicit efterfrågat
 
+### 5. INGA GLOBALA CSS-RESETS
+- ❌ SKAPA ALDRIG `app.css`, `global.css` eller liknande med `* { padding: 0; margin: 0; }`
+- ❌ INGA globala CSS-regler som påverkar `*`, `th`, `td`, `tr`, `div` etc
+- ✅ SF Fluent2 har redan ALL styling vi behöver
+- ✅ Endast `index.css` för minimal body/root styling
+- **VARFÖR:** Global CSS-reset (`* { padding: 0 }`) bryter SF-komponenter som Gantt, Grid, Schedule
+- **EXEMPEL PÅ FEL:** Gantt grid och timeline blir misalignerade om global padding-reset finns
+
 ## 🟢 ALLTID GÖR
 
 ### 1. Importera direkt från SyncFusion
@@ -46,20 +54,22 @@ return <DialogComponent visible={true} ... />
 - Välj korrekt Fluent2-komponent enligt SF best practice
 - Spara tid genom att göra rätt från början
 
-### 5. REN FLUENT2 ÖVERALLT
-- Inga CSS-overrides på SyncFusion-komponenter
-- Låt Fluent2-tema göra jobbet
-- Använd endast SF utility-klasser (`e-flex`, `e-text-sm` etc)
-- Använd SF's inbyggda props istället för custom CSS:
+### 6. REN FLUENT2 ÖVERALLT
+- ❌ Inga CSS-overrides på SyncFusion-komponenter
+- ❌ INGA globala CSS-filer utöver `index.css`
+- ❌ ALDRIG skapa `app.css`, `global.css`, `styles.css` med custom resets
+- ✅ Låt Fluent2-tema göra ALLT styling-jobb
+- ✅ Använd endast SF utility-klasser (`e-flex`, `e-text-sm` etc)
+- ✅ Använd SF's inbyggda props istället för custom CSS:
   - `rowHeight`, `headerRowHeight` för Grid
   - `height="auto"` för Grid i scrollbar main-container
   - ALDRIG `height: '100vh'` eller custom scroll-containers
 
-### 6. SVENSKA NAMN för nya komponenter
+### 7. SVENSKA NAMN för nya komponenter
 - Nya filer: `UppgiftRegistrering.tsx`, `DagligCheckIn.tsx`
 - Appen är endast för svensk användare
 
-### 7. SYNCFUSION LICENSE & CSS - OBLIGATORISKT
+### 8. SYNCFUSION LICENSE & CSS - OBLIGATORISKT
 - **License key**:
   - Registreras i `main.tsx` via `registerLicense()`
   - Läses från `.env.local`: `VITE_SYNCFUSION_LICENSE_KEY`
@@ -71,7 +81,7 @@ return <DialogComponent visible={true} ... />
 - **VIKTIGT**: CSS-import FÖRE komponenten används första gången
 - **Format**: Alltid `/styles/fluent2.css` (konsekvent med resten)
 
-### 8. NYA SF-KOMPONENTER - OBLIGATORISK PROCESS
+### 9. NYA SF-KOMPONENTER - OBLIGATORISK PROCESS
 **FÖRE implementation:**
 1. ✅ Läs SF dokumentation för komponenten
 2. ✅ Hitta minimal working example i SF docs
@@ -87,7 +97,7 @@ return <DialogComponent visible={true} ... />
 - ❌ Lägga till flera features samtidigt
 - ❌ Commita utan att testa i webbläsare
 
-### 9. GRID EDITING - SF BEST PRACTICE
+### 10. GRID EDITING - SF BEST PRACTICE
 
 **Batch Edit Mode (för många cell-edits):**
 ```tsx
@@ -124,7 +134,7 @@ const toolbar = ['Update', 'Cancel'];
 - ✅ Använd `queryCellInfo` för styling istället för template
 - ✅ `format="N1"` på kolumn + i edit params för konsistens
 
-### 10. TEMPLATE RESTRICTIONS - När template BLOCKERAR SF
+### 11. TEMPLATE RESTRICTIONS - När template BLOCKERAR SF
 
 **Templates blockerar SF funktionalitet:**
 - ❌ Editerbara kolumner med template → editing fungerar INTE

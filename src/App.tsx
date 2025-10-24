@@ -25,7 +25,6 @@ const ImportView = lazy(() => import('./components/views/ImportView').then(m => 
 const AllTasksView = lazy(() => import('./components/views/AllTasksView').then(m => ({ default: m.AllTasksView })));
 const InboxView = lazy(() => import('./components/views/InboxView').then(m => ({ default: m.InboxView })));
 const FocusView = lazy(() => import('./components/focus/FocusView').then(m => ({ default: m.FocusView })));
-const ActiveSession = lazy(() => import('./components/focus/ActiveSession').then(m => ({ default: m.ActiveSession })));
 const BreakView = lazy(() => import('./components/focus/BreakView').then(m => ({ default: m.BreakView })));
 const TaskImpactPage = lazy(() => import('./pages/TaskImpactPage').then(m => ({ default: m.TaskImpactPage })));
 const ShareHandler = lazy(() => import('./components/share/ShareHandler').then(m => ({ default: m.ShareHandler })));
@@ -38,6 +37,7 @@ const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSi
 const Q4ResursplaneringView = lazy(() => import('./components/planning/Q4ResursplaneringView').then(m => ({ default: m.Q4ResursplaneringView })));
 const Q1ResursplaneringView = lazy(() => import('./components/planning/Q1ResursplaneringView').then(m => ({ default: m.Q1ResursplaneringView })));
 const ResursallokeringAllView = lazy(() => import('./components/allocation/ResursallokeringAllView').then(m => ({ default: m.ResursallokeringAllView })));
+const TestView = lazy(() => import('./components/test/TestView').then(m => ({ default: m.TestView })));
 const GanttView = lazy(() => import('./components/gantt/GanttView').then(m => ({ default: m.GanttView })));
 
 // Loading fallback component
@@ -383,16 +383,6 @@ function App() {
           }
         />
         <Route
-          path="/session/:taskId"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <ActiveSession />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/break"
           element={
             <ProtectedRoute>
@@ -441,6 +431,17 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <OverviewView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Test View - SF Fluent2 Reference */}
+        <Route
+          path="/test"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <TestView />
               </Suspense>
             </ProtectedRoute>
           }

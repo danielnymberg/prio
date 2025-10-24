@@ -60,16 +60,16 @@ export function ResursallokeringAllView() {
   return (
     <>
       {/* Header */}
-      <div className="e-mb-16 e-flex e-align-center e-justify-between">
+      <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="e-text-2xl e-font-bold e-mb-4">
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
             Resursallokering
           </h1>
-          <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+          <p style={{ fontSize: '14px', color: 'var(--e-text-secondary)' }}>
             Planera timmar per projekt och vecka
           </p>
         </div>
-        <div className="e-flex e-gap-8 e-align-center">
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <DropDownListComponent
             dataSource={periodOptions}
             fields={{ text: 'text', value: 'value' }}
@@ -93,17 +93,20 @@ export function ResursallokeringAllView() {
       </div>
 
       {/* Instructions */}
-      <div className="e-mb-16 e-p-12 e-border e-rounded-lg" style={{
-        backgroundColor: '#eff6ff',
-        borderColor: '#3b82f6'
+      <div style={{
+        marginBottom: '16px',
+        padding: '12px',
+        border: '1px solid #3b82f6',
+        borderRadius: '8px',
+        backgroundColor: '#eff6ff'
       }}>
-        <div className="e-flex e-align-center e-gap-8">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span className="e-icons e-info" style={{ fontSize: '16px', color: '#3b82f6' }}></span>
           <div>
-            <p className="e-font-bold e-text-sm e-m-0" style={{ color: '#1e40af' }}>
+            <p style={{ fontWeight: 'bold', fontSize: '14px', margin: 0, color: '#1e40af' }}>
               Så här fungerar det:
             </p>
-            <ul className="e-text-xs e-m-0 e-mt-4 e-pl-16" style={{ color: '#1e3a8a' }}>
+            <ul style={{ fontSize: '12px', margin: 0, marginTop: '4px', paddingLeft: '16px', color: '#1e3a8a' }}>
               <li>Klicka på en cell för att allokera timmar</li>
               <li>Grön = ok kapacitet, Orange = tight, Röd = överbelastad</li>
               <li>Dubbelklicka på projekt för att se detaljer</li>
