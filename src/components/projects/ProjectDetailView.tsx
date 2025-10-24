@@ -116,15 +116,17 @@ export function ProjectDetailView() {
             }
           }}
         >
-          <h1 className="e-mb-8 e-font-bold" style={{
+          <h1 style={{
             fontSize: '30px',
+            fontWeight: 'bold',
+            marginBottom: '8px',
             color: 'var(--e-text)'
           }}>{project.name}</h1>
         </InPlaceEditorComponent>
 
-        <div className="e-flex e-flex-wrap e-gap-16 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '14px', color: 'var(--e-text-secondary)' }}>
           {project.client_name && (
-            <div className="e-flex e-align-center e-gap-8">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="e-icons e-user" style={{ fontSize: '12px' }}></span>
               <InPlaceEditorComponent
                 mode="Inline"
@@ -145,7 +147,7 @@ export function ProjectDetailView() {
           )}
 
           {project.project_deadline && (
-            <div className="e-flex e-align-center e-gap-8">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="e-icons e-schedule" style={{ fontSize: '12px' }}></span>
               <span>
                 Deadline: {new Date(project.project_deadline).toLocaleDateString('sv-SE')}
@@ -153,7 +155,7 @@ export function ProjectDetailView() {
             </div>
           )}
 
-          <div className="e-flex e-align-center e-gap-8">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="e-icons e-time" style={{ fontSize: '12px' }}></span>
             <span>{projectTasks.length} tasks kopplade</span>
           </div>
@@ -175,7 +177,7 @@ export function ProjectDetailView() {
               }
             }}
           >
-            <p className="e-mt-16" style={{ color: 'var(--e-text-secondary)' }}>
+            <p style={{ marginTop: '16px', color: 'var(--e-text-secondary)' }}>
               {project.description}
             </p>
           </InPlaceEditorComponent>
@@ -191,31 +193,38 @@ export function ProjectDetailView() {
 
       {/* Kopplade tasks */}
       {projectTasks.length > 0 && (
-        <div className="e-mt-32">
-          <h2 className="e-text-xl e-font-bold e-mb-16" style={{ color: 'var(--e-text)' }}>
+        <div style={{ marginTop: '32px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', color: 'var(--e-text)' }}>
             Kopplade tasks
           </h2>
-          <div className="e-flex e-flex-column e-gap-8">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {projectTasks.map(task => (
               <div
                 key={task.id}
-                className="e-p-16 e-border e-rounded-lg e-transition"
-                style={{ background: 'var(--e-surface)' }}
+                style={{
+                  padding: '16px',
+                  border: '1px solid var(--e-border)',
+                  borderRadius: '8px',
+                  background: 'var(--e-surface)',
+                  transition: 'background-color 0.2s'
+                }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}
               >
-                <div className="e-flex e-align-start e-justify-between">
-                  <div className="e-flex-1">
-                    <h3 className="e-font-semibold" style={{ color: 'var(--e-text)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontWeight: '600', color: 'var(--e-text)' }}>
                       {task.title}
                     </h3>
                     {task.description && (
-                      <p className="e-text-sm e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
+                      <p style={{ fontSize: '14px', marginTop: '4px', color: 'var(--e-text-secondary)' }}>
                         {task.description}
                       </p>
                     )}
-                    <div className="e-flex e-align-center e-gap-16 e-mt-8 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
-                      <span className="e-px-8 e-py-4 e-rounded" style={{
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '14px', color: 'var(--e-text-secondary)' }}>
+                      <span style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
                         backgroundColor: task.status === 'done'
                           ? '#10b981'
                           : task.status === 'in_progress'
@@ -241,20 +250,21 @@ export function ProjectDetailView() {
       )}
 
       {projectTasks.length === 0 && (
-        <div className="e-mt-32 e-p-32 e-rounded-lg e-text-center" style={{ border: '2px dashed var(--e-border)' }}>
-          <p className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>
+        <div style={{ marginTop: '32px', padding: '32px', borderRadius: '8px', textAlign: 'center', border: '2px dashed var(--e-border)' }}>
+          <p style={{ marginBottom: '16px', color: 'var(--e-text-secondary)' }}>
             Inga tasks kopplade till detta projekt än
           </p>
           <button
             onClick={() => setIsTaskFormOpen(true)}
-            className="e-px-16 e-py-8 e-rounded-lg e-text-base e-font-medium e-transition e-cursor-pointer"
+            className="e-btn e-primary"
             style={{
-              backgroundColor: 'var(--primary-600)',
-              color: '#ffffff',
-              border: 'none'
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-700)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-600)'}
           >
             Skapa task och koppla till projekt
           </button>
