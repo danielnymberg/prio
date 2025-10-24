@@ -50,11 +50,14 @@ export function ProjectDetailView() {
 
   if (loading) {
     return (
-      <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '100vh' }}>
-        <div className="e-animate-spin e-rounded-full" style={{
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div style={{
           height: '48px',
           width: '48px',
+          border: '2px solid transparent',
           borderBottom: '2px solid var(--primary-600)',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
         }} />
       </div>
     );
@@ -62,8 +65,8 @@ export function ProjectDetailView() {
 
   if (!project) {
     return (
-      <div className="e-mx-auto e-p-24" style={{ maxWidth: '896px' }}>
-        <p className="e-text-center" style={{ color: 'var(--e-text-secondary)' }}>Projekt hittades inte</p>
+      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
+        <p style={{ textAlign: 'center', color: 'var(--e-text-secondary)' }}>Projekt hittades inte</p>
       </div>
     );
   }
@@ -72,15 +75,22 @@ export function ProjectDetailView() {
   const metrics = calculateProjectMetrics(project, tasks);
 
   return (
-    <div className="e-mx-auto e-p-24" style={{ maxWidth: '896px' }}>
+    <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
       {/* Header */}
       <button
         onClick={() => navigate('/projects')}
-        className="e-flex e-align-center e-gap-8 e-mb-24 e-p-0 e-text-base e-transition-colors e-cursor-pointer"
         style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '24px',
+          padding: 0,
+          fontSize: '16px',
           color: 'var(--e-text-secondary)',
           background: 'none',
-          border: 'none'
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'color 0.2s'
         }}
         onMouseEnter={(e) => e.currentTarget.style.color = 'var(--e-text)'}
         onMouseLeave={(e) => e.currentTarget.style.color = 'var(--e-text-secondary)'}
@@ -89,7 +99,7 @@ export function ProjectDetailView() {
         Tillbaka till projekt
       </button>
 
-      <div className="e-mb-24">
+      <div style={{ marginBottom: '24px' }}>
         <InPlaceEditorComponent
           mode="Inline"
           type="Text"
