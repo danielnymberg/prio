@@ -428,6 +428,7 @@ export function ProjectsView() {
           pageSettings={pageSettings}
           actionComplete={actionComplete}
           actionBegin={actionBegin}
+          recordDoubleClick={(args: any) => navigate(`/projects/${args.rowData.id}`)}
           height="auto"
           rowHeight={30}
           gridLines="Horizontal"
