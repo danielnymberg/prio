@@ -20,6 +20,7 @@ import {
   ExcelExport,
   ICalendarExport,
 } from '@syncfusion/ej2-react-schedule';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
 import type { Task, UpdateTaskInput } from '@/lib/types';
 import {
@@ -31,7 +32,6 @@ import {
 } from '@/services/microsoft-graph';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
-// Lucide icons replaced with SyncFusion e-icons
 
 // Import CLDR data
 import * as numberingSystems from 'cldr-data/supplemental/numberingSystems.json';
@@ -333,16 +333,18 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
   if (loading) {
     return (
-      <div className="e-flex e-align-center e-justify-center e-h-full">
-        <div className="e-text-center">
-          <div className="e-rounded-full e-mx-auto e-mb-16 e-animate-spin"
-            style={{
-              width: '48px',
-              height: '48px',
-              border: '2px solid transparent',
-              borderBottomColor: 'var(--primary-500)'
-            }}></div>
-          <p style={{ color: 'var(--e-text)' }}>Laddar kalender...</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '2px solid transparent',
+            borderBottomColor: 'var(--color-sf-primary)',
+            borderRadius: '50%',
+            margin: '0 auto 16px auto',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p style={{ color: 'var(--color-sf-black)' }}>Laddar kalender...</p>
         </div>
       </div>
     );
@@ -350,24 +352,34 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
 
   if (!isMsftConnected) {
     return (
-      <div className="e-flex e-align-center e-justify-center e-h-full">
-        <div className="e-rounded-lg e-p-32 e-max-w-md e-text-center e-border"
-          style={{
-            backgroundColor: 'var(--e-surface)',
-            borderColor: 'var(--e-border)'
-          }}>
-          <span className="e-icons e-alert e-mx-auto e-mb-16"
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+        <div style={{
+          borderRadius: '8px',
+          padding: '32px',
+          maxWidth: '28rem',
+          textAlign: 'center',
+          border: '1px solid var(--color-sf-border)',
+          backgroundColor: 'var(--color-sf-white)'
+        }}>
+          <span className="e-icons e-warning e-medium"
             style={{
               fontSize: '48px',
-              color: 'var(--primary-500)',
-              display: 'block'
+              color: 'var(--color-sf-primary)',
+              display: 'block',
+              margin: '0 auto 16px auto'
             }}></span>
-          <h3 className="e-text-xl e-font-bold e-mb-8"
-            style={{ color: 'var(--e-text)' }}>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            marginBottom: '8px',
+            color: 'var(--color-sf-black)'
+          }}>
             Microsoft Kalender Ej Ansluten
           </h3>
-          <p className="e-mb-24"
-            style={{ color: 'var(--e-text)' }}>
+          <p style={{
+            marginBottom: '24px',
+            color: 'var(--color-sf-black)'
+          }}>
             Anslut ditt Microsoft-konto för att synka kalender och schemalägga fokustid.
           </p>
         </div>
@@ -395,81 +407,59 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
   };
 
   return (
-    <div className="e-w-full e-h-full">
+    <div style={{ width: '100%', height: '100%' }}>
       {/* Header section - Legend and export buttons */}
-      <div className="e-p-16 e-border-b"
-        style={{
-          backgroundColor: 'var(--e-surface)',
-          borderColor: 'var(--e-border)'
-        }}>
-        <div className="e-flex e-justify-between e-align-center e-flex-wrap e-gap-16">
-          <div className="e-flex e-gap-24 e-align-center e-flex-wrap">
-            <div className="e-flex e-align-center e-gap-8">
-              <div className="e-rounded"
-                style={{
-                  backgroundColor: 'var(--primary-500)',
-                  width: '16px',
-                  height: '16px'
-                }} />
-              <span className="e-text-sm" style={{ color: 'var(--e-text)' }}>Externa möten</span>
+      <div style={{
+        padding: '16px',
+        borderBottom: '1px solid var(--color-sf-border-light)',
+        backgroundColor: 'var(--color-sf-white)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{
+                backgroundColor: 'var(--color-sf-primary)',
+                width: '16px',
+                height: '16px',
+                borderRadius: '4px'
+              }} />
+              <span style={{ fontSize: '14px', color: 'var(--color-sf-black)' }}>Externa möten</span>
             </div>
-            <div className="e-flex e-align-center e-gap-8">
-              <div className="e-rounded"
-                style={{
-                  backgroundColor: '#ef4444',
-                  width: '16px',
-                  height: '16px'
-                }} />
-              <span className="e-text-sm" style={{ color: 'var(--e-text)' }}>Schemalagda tasks</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{
+                backgroundColor: '#ef4444',
+                width: '16px',
+                height: '16px',
+                borderRadius: '4px'
+              }} />
+              <span style={{ fontSize: '14px', color: 'var(--color-sf-black)' }}>Schemalagda tasks</span>
             </div>
-            <div className="e-text-sm e-opacity-75"
-              style={{ color: 'var(--e-text)', fontSize: '13px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--color-sf-black)', opacity: 0.75 }}>
               💡 Byt vy med knapparna i kalendern: Dag, Vecka, Arbetsvecka, Månad, Agenda, Timeline
             </div>
           </div>
-          <div className="e-flex e-gap-8">
-            <button
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <ButtonComponent
               onClick={handleExcelExport}
-              className="e-px-16 e-py-8 e-border e-rounded-md e-cursor-pointer e-text-sm e-font-medium"
-              style={{
-                backgroundColor: 'var(--e-surface)',
-                borderColor: 'var(--e-border)',
-                color: 'var(--e-text)'
-              }}
-              title="Exportera till Excel"
-            >
-              📊 Excel
-            </button>
-            <button
+              cssClass="e-outline"
+              content="📊 Excel"
+            />
+            <ButtonComponent
               onClick={handleICalExport}
-              className="e-px-16 e-py-8 e-border e-rounded-md e-cursor-pointer e-text-sm e-font-medium"
-              style={{
-                backgroundColor: 'var(--e-surface)',
-                borderColor: 'var(--e-border)',
-                color: 'var(--e-text)'
-              }}
-              title="Exportera till iCalendar (.ics)"
-            >
-              📅 iCal
-            </button>
-            <button
+              cssClass="e-outline"
+              content="📅 iCal"
+            />
+            <ButtonComponent
               onClick={handlePrint}
-              className="e-px-16 e-py-8 e-border e-rounded-md e-cursor-pointer e-text-sm e-font-medium"
-              style={{
-                backgroundColor: 'var(--e-surface)',
-                borderColor: 'var(--e-border)',
-                color: 'var(--e-text)'
-              }}
-              title="Skriv ut"
-            >
-              🖨️ Print
-            </button>
+              cssClass="e-outline"
+              content="🖨️ Print"
+            />
           </div>
         </div>
       </div>
 
       {/* Schedule container - NO padding, clean structure */}
-      <div className="e-w-full" style={{ height: 'calc(100% - 70px)' }}>
+      <div style={{ width: '100%', height: 'calc(100% - 70px)' }}>
         <ScheduleComponent
           ref={scheduleRef}
           height="550px"
