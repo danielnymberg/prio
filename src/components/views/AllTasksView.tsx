@@ -18,6 +18,7 @@ import {
   SortSettingsModel,
   GroupSettingsModel
 } from '@syncfusion/ej2-react-grids';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { toast } from 'react-hot-toast';
@@ -201,15 +202,22 @@ export function AllTasksView() {
 
   // Templates för custom rendering
   const priorityTemplate = (props: any) => {
-    const getColor = () => {
-      if (props.priorityCategory === 'Hög') return { bg: '#fee2e2', color: '#b91c1c' };
-      if (props.priorityCategory === 'Medel') return { bg: '#fef3c7', color: '#b45309' };
-      return { bg: '#f3f4f6', color: '#374151' };
-    };
-    const colors = getColor();
+    const isHigh = props.priorityCategory === 'Hög';
+    const isMed = props.priorityCategory === 'Medel';
 
     return (
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', borderRadius: '9999px', fontSize: '12px', fontWeight: '500', padding: '4px 8px', backgroundColor: colors.bg, color: colors.color }}>
+      <div style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        borderRadius: '12px',
+        fontSize: '12px',
+        fontWeight: '500',
+        padding: '4px 8px',
+        backgroundColor: isHigh ? 'var(--color-sf-danger)' : isMed ? 'var(--color-sf-warning)' : 'var(--color-sf-border-light)',
+        color: 'var(--color-sf-white)',
+        opacity: isHigh || isMed ? 1 : 0.8
+      }}>
         <span style={{ fontWeight: 'bold' }}>{Math.round(props.priority)}</span>
         <span>{props.priorityCategory}</span>
       </div>
@@ -217,30 +225,37 @@ export function AllTasksView() {
   };
 
   const statusTemplate = (props: any) => {
-    const getStatusStyle = () => {
-      if (props.status === 'not_started') return { bg: '#f3f4f6', color: '#374151' };
-      if (props.status === 'in_progress') return { bg: '#dbeafe', color: '#1e40af' };
-      return { bg: '#d1fae5', color: '#065f46' };
-    };
-    const colors = getStatusStyle();
+    const isInProgress = props.status === 'in_progress';
+    const isDone = props.status === 'done';
 
     return (
-      <span style={{ borderRadius: '9999px', fontSize: '12px', padding: '4px 8px', backgroundColor: colors.bg, color: colors.color }}>
+      <span style={{
+        borderRadius: '12px',
+        fontSize: '12px',
+        padding: '4px 8px',
+        backgroundColor: isDone ? 'var(--color-sf-success)' : isInProgress ? 'var(--color-sf-info)' : 'var(--color-sf-border-light)',
+        color: isDone || isInProgress ? 'var(--color-sf-white)' : 'var(--color-sf-black)',
+        opacity: isDone || isInProgress ? 1 : 0.8
+      }}>
         {props.statusLabel}
       </span>
     );
   };
 
   const deadlineTemplate = (props: any) => {
-    if (!props.deadline) return <span style={{ color: 'var(--e-text-secondary)' }}>-</span>;
+    if (!props.deadline) return <span style={{ color: 'var(--color-sf-black)', opacity: 0.4 }}>-</span>;
 
     const deadline = new Date(props.deadline);
     const isOverdue = isPast(deadline) && !isToday(deadline);
 
     return (
-      <div style={{ fontSize: '14px', color: isOverdue ? '#dc2626' : 'var(--e-text)', fontWeight: isOverdue ? '600' : 'normal' }}>
+      <div style={{
+        fontSize: '14px',
+        color: isOverdue ? 'var(--color-sf-danger)' : 'var(--color-sf-black)',
+        fontWeight: isOverdue ? '600' : 'normal'
+      }}>
         <div>{props.deadlineFormatted}</div>
-        <div style={{ fontSize: '12px', opacity: 0.75 }}>{props.deadlineDistance}</div>
+        <div style={{ fontSize: '12px', opacity: 0.6 }}>{props.deadlineDistance}</div>
       </div>
     );
   };
@@ -250,55 +265,59 @@ export function AllTasksView() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-sf-black)', margin: 0 }}>
             Alla uppgifter
           </h1>
-          <p style={{ color: 'var(--e-text-secondary)', margin: 0 }}>
+          <p style={{ color: 'var(--color-sf-black)', opacity: 0.6, margin: 0 }}>
             {activeTasks.length} aktiva uppgifter {snabbis.length > 0 && `(inkl. ${snabbis.length} snabbis)`}
           </p>
         </div>
+        <ButtonComponent
+          onClick={() => {
+            setSelectedTask(null);
+            setIsFormOpen(true);
+          }}
+          cssClass="e-primary"
+          iconCss="e-icons e-plus"
+          content="Ny uppgift"
+        />
       </div>
 
       {/* Snabbis-sektion */}
       {snabbis.length > 0 && (
-        <div style={{ borderRadius: '8px', padding: '16px', backgroundColor: 'var(--primary-50)', border: '1px solid var(--primary-200)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-            <span style={{ fontSize: '20px' }}>⚡</span>
-            <h3 style={{ fontWeight: 'bold', margin: 0 }}>
-              Snabbis ({snabbis.length}) - Gör direkt!
-            </h3>
+        <div className="e-card">
+          <div className="e-card-header">
+            <div className="e-card-title">⚡ Snabbis ({snabbis.length}) - Gör direkt!</div>
           </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {snabbis.map(task => (
-              <div
-                key={task.id}
-                style={{
-                  borderRadius: '6px',
-                  padding: '12px',
-                  cursor: 'pointer',
-                  backgroundColor: 'white',
-                  border: '1px solid var(--primary-200)'
-                }}
-                onClick={() => {
-                  setSelectedTask(task);
-                  setIsFormOpen(true);
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)'}
-                onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
-              >
-                <p style={{ fontWeight: '500', fontSize: '14px', margin: 0 }}>{task.title}</p>
-                <p style={{ fontSize: '12px', margin: '4px 0 0 0', color: 'var(--e-text-secondary)' }}>
-                  {task.estimated_duration}min
-                </p>
-              </div>
-            ))}
+          <div className="e-card-content" style={{ padding: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {snabbis.map(task => (
+                <div
+                  key={task.id}
+                  className="e-card"
+                  style={{ cursor: 'pointer', transition: 'box-shadow 0.2s' }}
+                  onClick={() => {
+                    setSelectedTask(task);
+                    setIsFormOpen(true);
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+                >
+                  <div className="e-card-content" style={{ padding: '12px' }}>
+                    <p style={{ fontWeight: '500', fontSize: '14px', margin: '0 0 4px 0' }}>{task.title}</p>
+                    <p style={{ fontSize: '12px', margin: 0, opacity: 0.6 }}>
+                      {task.estimated_duration}min
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       {/* Grid */}
-      <div style={{ borderRadius: '8px', backgroundColor: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <GridComponent
+      <GridComponent
           ref={gridRef}
           dataSource={gridData}
           allowPaging={true}
@@ -380,7 +399,6 @@ export function AllTasksView() {
           </ColumnsDirective>
           <Inject services={[Page, Sort, Filter, Group, Toolbar, ExcelExport, ColumnChooser]} />
         </GridComponent>
-      </div>
 
       {/* UppgiftRegistrering */}
       <UppgiftRegistrering
