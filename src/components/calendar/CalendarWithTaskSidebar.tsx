@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
@@ -7,6 +8,7 @@ import { ToastComponent } from '@syncfusion/ej2-react-notifications';
 import { toast } from 'react-hot-toast';
 
 export function CalendarWithTaskSidebar() {
+  const navigate = useNavigate();
   const { tasks, updateTask } = useTasks();
   // const [showSidebar, setShowSidebar] = useState(true);
   const scheduleRef = useRef<any>(null);
@@ -116,8 +118,14 @@ export function CalendarWithTaskSidebar() {
   };
 
   // Hantera click på task i sidebar
-  const onNodeClick = (_: any) => {
-    // TaskForm removed
+  const onNodeClick = (args: any) => {
+    if (args.node && args.node.dataset) {
+      const taskId = args.node.dataset.uid;
+      const taskData = treeData.find(t => t.Id === taskId);
+      if (taskData && taskData.TaskId) {
+        navigate(`/all?task=${taskData.TaskId}`);
+      }
+    }
   };
 
   // Sätt schedule ref från child
