@@ -1,11 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { WeekCalendarView } from './WeekCalendarView';
 import { useTasks } from '@/hooks/useTasks';
-// Lucide icons replaced with SyncFusion e-icons
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import { closest } from '@syncfusion/ej2-base';
-import { SyncButton as Button } from '@/components/ui/SyncButton';
-import { DialogUtility } from '@syncfusion/ej2-popups';
 import { ToastComponent } from '@syncfusion/ej2-react-notifications';
 import { toast } from 'react-hot-toast';
 
@@ -15,7 +12,6 @@ export function CalendarWithTaskSidebar() {
   const scheduleRef = useRef<any>(null);
   const toastRef = useRef<ToastComponent>(null);
   const [treeData, setTreeData] = useState<any[]>([]);
-  const [checkedTaskIds, setCheckedTaskIds] = useState<string[]>([]);
 
   // Ej schemalagda uppgifter (uppgifter utan scheduled_start som kan dras till kalendern)
   // Exkludera Snabbis (≤2 min) från kalenderplanering
@@ -162,91 +158,31 @@ export function CalendarWithTaskSidebar() {
           flexDirection: 'column'
         }}
       >
-        <div style={{
-          height: '100%',
-          backgroundColor: 'var(--color-sf-white)',
-          borderRadius: '12px',
-          border: '1px solid var(--color-sf-border-light)',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
-          <div style={{ marginBottom: '16px', flexShrink: 0 }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: 'var(--color-sf-black)' }}>
-              Ej schemalagt
-            </h3>
-            <p style={{ fontSize: '12px', marginBottom: '8px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
-              Dra uppgifter till kalendern för att planera när du ska jobba på dem. Klicka för detaljer.
+        <div className="e-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div className="e-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="e-card-title">Ej schemalagt</div>
+            <button
+              onClick={() => setShowSidebar(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <span className="e-icons e-close e-small" style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}></span>
+            </button>
+          </div>
+          <div className="e-card-content" style={{ padding: '12px 16px 16px 16px', flexShrink: 0 }}>
+            <p style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6, margin: 0 }}>
+              Dra uppgifter till kalendern för att schemalägga. Sorterade efter prioritet.
             </p>
-            <p style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--color-sf-black)', opacity: 0.6, fontStyle: 'italic' }}>
-              📊 Sorterade efter priority (högst först)
-            </p>
-            <p style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6, fontStyle: 'italic' }}>
-              💡 För att ta bort från schema: Klicka på uppgift i kalendern → "Ta bort från schema"
-            </p>
-
-            {/* Batch scheduling button */}
-            {checkedTaskIds.length > 0 && (
-              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <Button
-                  onClick={() => {
-                    const selectedTasks = tasks.filter(t => checkedTaskIds.includes(t.id));
-                    const totalMinutes = selectedTasks.reduce((sum, t) => sum + (t.estimated_duration || 60), 0);
-                    const hours = Math.floor(totalMinutes / 60);
-                    const mins = totalMinutes % 60;
-
-                    DialogUtility.confirm({
-                      title: `Schemalägg ${checkedTaskIds.length} uppgifter?`,
-                      content: `<div style="display: flex; flex-direction: column; gap: 8px">
-                        <p><strong>Valda tasks:</strong></p>
-                        <ul style="font-size: 14px; list-style: disc; padding-left: 1.25rem">
-                          ${selectedTasks.slice(0, 3).map(t => `<li>${t.title} (~${Math.round((t.estimated_duration || 60)/60)}h)</li>`).join('')}
-                          ${selectedTasks.length > 3 ? `<li><em>...och ${selectedTasks.length - 3} till</em></li>` : ''}
-                        </ul>
-                        <p style="font-size: 14px; margin-top: 8px"><strong>Total tid:</strong> ${hours}h ${mins}min</p>
-                        <p style="font-size: 14px; color: var(--color-sf-black); opacity: 0.6">Tasks kommer placeras i nästa lediga tider, sorterade efter prioritet.</p>
-                      </div>`,
-                      okButton: {
-                        text: '✓ Schemalägg',
-                        click: () => {
-                          // Trigger auto-schedule
-                          if (scheduleRef.current?.handleAutoScheduleSelected) {
-                            scheduleRef.current.handleAutoScheduleSelected(checkedTaskIds);
-                          }
-                          setCheckedTaskIds([]);
-                        }
-                      },
-                      cancelButton: { text: '✗ Avbryt' },
-                      cssClass: 'e-dlg-center',
-                      width: '450px'
-                    });
-                  }}
-                  variant="primary"
-                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                >
-                  <span className="e-icons e-clock e-small" style={{ fontSize: '12px' }}></span>
-                  {`Schemalägg ${checkedTaskIds.length} valda`}
-                </Button>
-                <button
-                  onClick={() => setCheckedTaskIds([])}
-                  style={{
-                    width: '100%',
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                    color: 'var(--color-sf-black)',
-                    opacity: 0.6,
-                    background: 'none',
-                    border: 'none'
-                  }}
-                >
-                  Rensa urval
-                </button>
-              </div>
-            )}
           </div>
 
-          <div style={{ flex: '1', overflowY: 'auto' }} id="tree-container">
+          <div style={{ flex: '1', overflowY: 'auto', padding: '0 16px 16px 16px' }} id="tree-container">
             {treeData.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '32px 0' }}>
                 <p style={{ fontSize: '14px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
@@ -260,46 +196,55 @@ export function CalendarWithTaskSidebar() {
                 dragArea="[style*='display: flex'][style*='height: 100%']"
                 nodeDragStop={onTreeDragStop}
                 nodeClicked={onNodeClick}
-                showCheckBox={true}
-                autoCheck={false}
-                checkedNodes={checkedTaskIds}
-                nodeChecked={(args: any) => {
-                  // args.data innehåller array av checkade nodes
-                  const checked = args.data?.map((node: any) => node.id || node.Id) || [];
-                  setCheckedTaskIds(checked);
-                }}
                 nodeTemplate={(data: any) => (
-                  <div style={{ padding: '8px', cursor: 'pointer', borderRadius: '4px', transition: 'background-color 0.2s' }}>
-                    <div style={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
-                      <div style={{
-                        fontWeight: '500',
-                        fontSize: '14px',
-                        flex: '1',
-                        minWidth: '0',
-                        color: 'var(--color-sf-black)',
-                        wordBreak: 'break-word'
-                      }}>
-                        {data.Name}
-                      </div>
-                      {data.Priority !== undefined && (
+                  <div
+                    className="e-card"
+                    style={{
+                      cursor: 'grab',
+                      transition: 'box-shadow 0.2s, transform 0.2s',
+                      marginBottom: '8px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <div className="e-card-content" style={{ padding: '6px 8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
                         <div style={{
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          borderRadius: '4px',
-                          flexShrink: '0',
-                          padding: '0.125rem 0.5rem',
-                          backgroundColor: 'var(--color-sf-primary-light)',
-                          color: 'var(--color-sf-primary-darker)'
+                          fontWeight: '500',
+                          fontSize: '14px',
+                          flex: '1',
+                          minWidth: '0',
+                          color: 'var(--color-sf-black)',
+                          wordBreak: 'break-word'
                         }}>
-                          {data.Priority}
+                          {data.Name}
+                        </div>
+                        {data.Priority !== undefined && (
+                          <div style={{
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            borderRadius: '4px',
+                            flexShrink: '0',
+                            padding: '0.125rem 0.5rem',
+                            backgroundColor: 'var(--color-sf-primary-light)',
+                            color: 'var(--color-sf-primary-darker)'
+                          }}>
+                            {data.Priority}
+                          </div>
+                        )}
+                      </div>
+                      {data.Duration && (
+                        <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
+                          ~{Math.round(data.Duration / 60)}h
                         </div>
                       )}
                     </div>
-                    {data.Duration && (
-                      <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
-                        ~{Math.round(data.Duration / 60)}h
-                      </div>
-                    )}
                   </div>
                 )}
               />
@@ -309,29 +254,26 @@ export function CalendarWithTaskSidebar() {
       </div>
 
       {/* Toggle button */}
-      <button
-        onClick={() => setShowSidebar(!showSidebar)}
-        style={{
-          position: 'absolute',
-          zIndex: 10,
-          left: showSidebar ? '320px' : '0px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          backgroundColor: 'var(--color-sf-white)',
-          border: '1px solid var(--color-sf-border-light)',
-          borderRadius: '0 8px 8px 0',
-          padding: '8px',
-          cursor: 'pointer',
-          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-          transition: 'left 0.3s'
-        }}
-      >
-        {showSidebar ? (
-          <span className="e-icons e-chevron-left e-small" style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}></span>
-        ) : (
+      {!showSidebar && (
+        <button
+          onClick={() => setShowSidebar(true)}
+          style={{
+            position: 'absolute',
+            zIndex: 10,
+            left: '0px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            backgroundColor: 'var(--color-sf-white)',
+            border: '1px solid var(--color-sf-border-light)',
+            borderRadius: '0 8px 8px 0',
+            padding: '8px',
+            cursor: 'pointer',
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+          }}
+        >
           <span className="e-icons e-chevron-right e-small" style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}></span>
-        )}
-      </button>
+        </button>
+      )}
 
       {/* Kalendervy */}
       <div style={{ flex: '1', minWidth: '0' }}>

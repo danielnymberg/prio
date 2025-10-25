@@ -306,9 +306,18 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     }
   };
 
-  // Blockera default popups
+  // Custom popup för att visa event-detaljer
   const onPopupOpen = (args: PopupOpenEventArgs) => {
-    args.cancel = true;
+    if (args.type === 'Editor') {
+      // Blockera editor-popup (vi vill inte edit-formulär)
+      args.cancel = true;
+      return;
+    }
+
+    if (args.type === 'QuickInfo') {
+      // Visa QuickInfo med custom knappar
+      args.cancel = false; // Tillåt QuickInfo popup
+    }
   };
 
   // Custom rendering av events (sätt färger)
@@ -474,7 +483,58 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
             interval: 30,
             slotCount: 2
           }}
-          showQuickInfo={false}
+          showQuickInfo={true}
+          quickInfoTemplates={{
+            header: (props: any) => {
+              const event = props as CalendarEvent;
+              return (
+                <div style={{ padding: '8px' }}>
+                  <div style={{ fontWeight: '600', fontSize: '16px', color: 'var(--color-sf-black)' }}>
+                    {event.Subject}
+                  </div>
+                </div>
+              );
+            },
+            content: (props: any) => {
+              const event = props as CalendarEvent;
+              return (
+                <div style={{ padding: '8px' }}>
+                  <div style={{ marginBottom: '8px' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}>Tid:</span>
+                    <div style={{ fontSize: '14px', color: 'var(--color-sf-black)' }}>
+                      {event.StartTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })} - {event.EndTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}>Typ:</span>
+                    <div style={{ fontSize: '14px', color: 'var(--color-sf-black)' }}>
+                      {event.EventType === 'meeting' ? 'Externt möte (read-only)' : 'Schemalagd task'}
+                    </div>
+                  </div>
+                </div>
+              );
+            },
+            footer: (props: any) => {
+              const event = props as CalendarEvent;
+              if (event.EventType === 'task') {
+                return (
+                  <div style={{ padding: '8px', display: 'flex', gap: '8px' }}>
+                    <ButtonComponent
+                      cssClass="e-danger e-outline"
+                      content="Ta bort från schema"
+                      onClick={() => {
+                        if (scheduleRef.current) {
+                          scheduleRef.current.deleteEvent(event);
+                          scheduleRef.current.closeQuickInfoPopup();
+                        }
+                      }}
+                    />
+                  </div>
+                );
+              }
+              return null;
+            }
+          }}
           eventSettings={eventSettings}
           actionComplete={onActionComplete}
           popupOpen={onPopupOpen}
