@@ -5,6 +5,7 @@ import { useTasks } from '@/hooks/useTasks';
 import { TreeViewComponent, DragAndDropEventArgs } from '@syncfusion/ej2-react-navigations';
 import { closest } from '@syncfusion/ej2-base';
 import { SyncButton as Button } from '@/components/ui/SyncButton';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DialogUtility } from '@syncfusion/ej2-popups';
 import { ToastComponent } from '@syncfusion/ej2-react-notifications';
 import { toast } from 'react-hot-toast';
