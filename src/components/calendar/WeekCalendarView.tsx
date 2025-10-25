@@ -16,12 +16,10 @@ import {
   PopupOpenEventArgs,
   Resize,
   DragAndDrop,
-  Print,
-  ExcelExport,
-  ICalendarExport,
 } from '@syncfusion/ej2-react-schedule';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
+import { useNavigate } from 'react-router-dom';
 import type { Task, UpdateTaskInput } from '@/lib/types';
 import {
   getExternalMeetings,
@@ -105,6 +103,7 @@ interface WeekCalendarViewProps {
 }
 
 export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCalendarViewProps) {
+  const navigate = useNavigate();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMsftConnected, setIsMsftConnected] = useState(false);
@@ -157,7 +156,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           StartTime: new Date(m.start),
           EndTime: new Date(m.end),
           IsReadonly: true,
-          CategoryColor: 'var(--primary-500)',
+          CategoryColor: 'var(--color-sf-primary)',
           EventType: 'meeting' as const,
         })),
         // Schemalagda tasks (röd, editable)
@@ -396,73 +395,33 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
     );
   }
 
-  // Handle export actions
-  const handleExcelExport = () => {
-    if (scheduleRef.current) {
-      scheduleRef.current.exportToExcel();
-    }
-  };
-
-  const handleICalExport = () => {
-    if (scheduleRef.current) {
-      scheduleRef.current.exportToICalendar();
-    }
-  };
-
-  const handlePrint = () => {
-    if (scheduleRef.current) {
-      scheduleRef.current.print();
-    }
-  };
 
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      {/* Header section - Legend and export buttons */}
+      {/* Header section - Legend */}
       <div style={{
-        padding: '16px',
+        padding: '12px 16px',
         borderBottom: '1px solid var(--color-sf-border-light)',
         backgroundColor: 'var(--color-sf-white)'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                backgroundColor: 'var(--color-sf-primary)',
-                width: '16px',
-                height: '16px',
-                borderRadius: '4px'
-              }} />
-              <span style={{ fontSize: '14px', color: 'var(--color-sf-black)' }}>Externa möten</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                backgroundColor: '#ef4444',
-                width: '16px',
-                height: '16px',
-                borderRadius: '4px'
-              }} />
-              <span style={{ fontSize: '14px', color: 'var(--color-sf-black)' }}>Schemalagda tasks</span>
-            </div>
-            <div style={{ fontSize: '13px', color: 'var(--color-sf-black)', opacity: 0.75 }}>
-              💡 Byt vy med knapparna i kalendern: Dag, Vecka, Arbetsvecka, Månad, Agenda, Timeline
-            </div>
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              backgroundColor: 'var(--color-sf-primary)',
+              width: '16px',
+              height: '16px',
+              borderRadius: '4px'
+            }} />
+            <span style={{ fontSize: '14px', color: 'var(--color-sf-black)' }}>Externa möten</span>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <ButtonComponent
-              onClick={handleExcelExport}
-              cssClass="e-outline"
-              content="📊 Excel"
-            />
-            <ButtonComponent
-              onClick={handleICalExport}
-              cssClass="e-outline"
-              content="📅 iCal"
-            />
-            <ButtonComponent
-              onClick={handlePrint}
-              cssClass="e-outline"
-              content="🖨️ Print"
-            />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              backgroundColor: '#ef4444',
+              width: '16px',
+              height: '16px',
+              borderRadius: '4px'
+            }} />
+            <span style={{ fontSize: '14px', color: 'var(--color-sf-black)' }}>Schemalagda uppgifter</span>
           </div>
         </div>
       </div>
@@ -475,13 +434,19 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
           width="100%"
           locale="sv"
           firstDayOfWeek={1}
-          startHour="07:00"
-          endHour="20:00"
+          startHour="00:00"
+          endHour="24:00"
+          workDays={[1, 2, 3, 4, 5]}
+          workHours={{
+            highlight: true,
+            start: '06:00',
+            end: '18:00'
+          }}
           currentView="Week"
           timeScale={{
             enable: true,
-            interval: 30,
-            slotCount: 2
+            interval: 60,
+            slotCount: 1
           }}
           showQuickInfo={true}
           quickInfoTemplates={{
@@ -518,7 +483,17 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
               const event = props as CalendarEvent;
               if (event.EventType === 'task') {
                 return (
-                  <div style={{ padding: '8px', display: 'flex', gap: '8px' }}>
+                  <div style={{ padding: '8px', display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
+                    <ButtonComponent
+                      cssClass="e-primary"
+                      content="Öppna uppgift"
+                      onClick={() => {
+                        navigate(`/all?task=${event.TaskId}`);
+                        if (scheduleRef.current) {
+                          scheduleRef.current.closeQuickInfoPopup();
+                        }
+                      }}
+                    />
                     <ButtonComponent
                       cssClass="e-danger e-outline"
                       content="Ta bort från schema"
@@ -565,10 +540,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
             TimelineViews,
             TimelineMonth,
             DragAndDrop,
-            Resize,
-            Print,
-            ExcelExport,
-            ICalendarExport
+            Resize
           ]} />
         </ScheduleComponent>
       </div>

@@ -197,50 +197,14 @@ export function CalendarWithTaskSidebar() {
                 nodeDragStop={onTreeDragStop}
                 nodeClicked={onNodeClick}
                 nodeTemplate={(data: any) => (
-                  <div
-                    className="e-card"
-                    style={{
-                      cursor: 'grab',
-                      transition: 'box-shadow 0.2s, transform 0.2s',
-                      marginBottom: '8px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = 'none';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
-                  >
-                    <div className="e-card-content" style={{ padding: '6px 8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'start', gap: '8px' }}>
-                        <div style={{
-                          fontWeight: '500',
-                          fontSize: '14px',
-                          flex: '1',
-                          minWidth: '0',
-                          color: 'var(--color-sf-black)',
-                          wordBreak: 'break-word'
-                        }}>
-                          {data.Name}
-                        </div>
-                        {data.Priority !== undefined && (
-                          <div style={{
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            borderRadius: '4px',
-                            flexShrink: '0',
-                            padding: '0.125rem 0.5rem',
-                            backgroundColor: 'var(--color-sf-primary-light)',
-                            color: 'var(--color-sf-primary-darker)'
-                          }}>
-                            {data.Priority}
-                          </div>
-                        )}
+                  <div className="e-card" style={{ marginBottom: '8px' }}>
+                    <div className="e-card-content">
+                      <div>
+                        {data.Name}
+                        {data.Priority !== undefined && ` (${data.Priority})`}
                       </div>
                       {data.Duration && (
-                        <div style={{ fontSize: '12px', marginTop: '4px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
+                        <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.7 }}>
                           ~{Math.round(data.Duration / 60)}h
                         </div>
                       )}
