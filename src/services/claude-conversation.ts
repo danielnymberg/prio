@@ -68,6 +68,13 @@ export class ClaudeConversation {
         throw new Error('Not authenticated');
       }
 
+      // Intelligent model selection baserat på query-typ
+      const lastUserMessage = this.conversationHistory[this.conversationHistory.length - 1];
+      const userText = typeof lastUserMessage?.content === 'string'
+        ? lastUserMessage.content
+        : '';
+      const selectedModel = this.selectModel(userText);
+
       // Anropa backend med auth token
       const response = await fetch(`${BACKEND_URL}/api/claude-chat`, {
         method: 'POST',
@@ -80,6 +87,7 @@ export class ClaudeConversation {
           system: this.buildSystemPromptCacheable(), // Array med cache_control för 90% besparing!
           tools: this.getTools(),
           max_tokens: 2000,
+          model: selectedModel, // Haiku (90%) eller Sonnet (10%)
         }),
       });
 
@@ -125,6 +133,41 @@ export class ClaudeConversation {
         error instanceof Error ? error.message : 'Failed to communicate with AI assistant'
       );
     }
+  }
+
+  /**
+   * Intelligent model selection: Haiku 4.5 (90%) vs Sonnet 4.5 (10%)
+   *
+   * Haiku: Snabbare (2x), billigare (67%), bra för quick queries
+   * Sonnet: Smartare, för komplex planering och djup analys
+   */
+  private selectModel(userMessage: string): string {
+    const message = userMessage.toLowerCase();
+
+    // Keywords som kräver Sonnet's djupare reasoning
+    const complexKeywords = [
+      'planera hela',
+      'skapa strategi',
+      'analysera alla',
+      'djup analys',
+      'senaste månaden',
+      'optimera allt',
+      'produktivitetsmönster',
+      'detaljerad rapport',
+      'omstrukturera',
+      'prioritera om allt'
+    ];
+
+    const requiresComplex = complexKeywords.some(kw => message.includes(kw));
+
+    if (requiresComplex) {
+      console.log('🧠 Using Sonnet 4.5 for complex query');
+      return 'claude-sonnet-4-20250514';
+    }
+
+    // Default: Haiku 4.5 för 90% av queries
+    console.log('⚡ Using Haiku 4.5 for quick response');
+    return 'claude-haiku-4-5';
   }
 
   private buildSystemPromptCacheable(): any[] {

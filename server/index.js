@@ -360,7 +360,10 @@ app.post('/api/claude-chat', authenticateUser, rateLimiter, async (req, res) => 
     console.log('Body keys:', Object.keys(req.body || {}));
     console.log('Body:', JSON.stringify(req.body || {}).substring(0, 500));
 
-    const { messages, system, tools, max_tokens = 2000 } = req.body || {};
+    const { messages, system, tools, max_tokens = 2000, model } = req.body || {};
+
+    // Intelligent model selection: Haiku 4.5 (default) vs Sonnet 4.5
+    const selectedModel = model || 'claude-haiku-4-5';
 
     if (!messages || !Array.isArray(messages)) {
       console.error('Invalid request: messages not array');
@@ -392,12 +395,14 @@ app.post('/api/claude-chat', authenticateUser, rateLimiter, async (req, res) => 
       }
 
       const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: selectedModel,
         max_tokens,
         system: systemParam,
         messages,
         tools: tools || [],
       }, { signal: controller.signal });
+
+      console.log(`✅ Claude ${selectedModel} response: ${response.usage.input_tokens} input, ${response.usage.output_tokens} output tokens`);
 
       clearTimeout(timeout);
       res.json(response);
