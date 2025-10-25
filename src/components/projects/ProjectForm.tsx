@@ -74,20 +74,27 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="e-flex e-flex-column e-gap-24">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* PDF Upload sektion */}
       <div className="e-mb-24">
-        <div className="e-flex e-align-center e-justify-between e-mb-16">
+        <div className="e-mb-16" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h3 className="e-text-lg e-font-semibold">
             Skapa från offert
           </h3>
           <button
             type="button"
             onClick={() => setShowPDFUpload(!showPDFUpload)}
-            className="e-flex e-align-center e-gap-8 e-px-16 e-py-8 e-text-sm e-font-medium e-rounded-lg e-transition e-cursor-pointer"
+            className="e-text-sm e-font-medium"
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              borderRadius: '8px',
               backgroundColor: 'transparent',
-              border: 'none'
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
             }}
           >
             <span className="e-icons e-file" style={{ fontSize: '12px' }}></span>
@@ -113,9 +120,9 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           Projektinformation
         </h3>
 
-        <div className="e-flex e-flex-column e-gap-24">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8">
+            <label className="e-text-sm e-font-medium e-mb-8" style={{ display: 'block' }}>
               Projektnamn *
             </label>
             <TextBoxComponent
@@ -127,7 +134,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8">
+            <label className="e-text-sm e-font-medium e-mb-8" style={{ display: 'block' }}>
               Klient/Beställare
             </label>
             <TextBoxComponent
@@ -138,9 +145,9 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             />
           </div>
 
-          <div className="e-grid e-grid-cols-2 e-gap-16">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
             <div>
-              <label className="e-block e-text-sm e-font-medium e-mb-8">
+              <label className="e-text-sm e-font-medium e-mb-8" style={{ display: 'block' }}>
                 Offererade timmar *
               </label>
               <NumericTextBoxComponent
@@ -155,7 +162,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             </div>
 
             <div>
-              <label className="e-block e-text-sm e-font-medium e-mb-8">
+              <label className="e-text-sm e-font-medium e-mb-8" style={{ display: 'block' }}>
                 Timpris (kr) *
               </label>
               <NumericTextBoxComponent
@@ -171,7 +178,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8">
+            <label className="e-text-sm e-font-medium e-mb-8" style={{ display: 'block' }}>
               Övriga kostnader (resor, externa tjänster, kr)
             </label>
             <NumericTextBoxComponent
@@ -198,9 +205,9 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             </div>
           </div>
 
-          <div className="e-grid e-grid-cols-2 e-gap-16">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
             <div>
-              <label className="e-block e-text-sm e-font-medium e-mb-8">
+              <label className="e-text-sm e-font-medium e-mb-8" style={{ display: 'block' }}>
                 Startdatum
               </label>
               <DatePickerComponent
@@ -212,7 +219,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
               />
             </div>
             <div>
-              <label className="e-block e-text-sm e-font-medium e-mb-8">
+              <label className="e-text-sm e-font-medium e-mb-8" style={{ display: 'block' }}>
                 Deadline
               </label>
               <DatePickerComponent
@@ -226,7 +233,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
           </div>
 
           <div>
-            <label className="e-block e-text-sm e-font-medium e-mb-8">
+            <label className="e-text-sm e-font-medium e-mb-8" style={{ display: 'block' }}>
               Beskrivning
             </label>
             <TextBoxComponent
@@ -238,7 +245,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
             />
           </div>
 
-          <div className="e-flex e-gap-12">
+          <div style={{ display: 'flex', gap: '12px' }}>
             <div style={{ flex: 1 }} onClick={(e) => {
               e.preventDefault();
               if (!loading) {

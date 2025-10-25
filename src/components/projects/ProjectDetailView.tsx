@@ -8,7 +8,8 @@ import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { ProjectProgressSlider } from './ProjectProgressSlider';
 import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import { InPlaceEditorComponent } from '@syncfusion/ej2-react-inplace-editor';
-// Lucide icons replaced with SyncFusion e-icons
+import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import toast from 'react-hot-toast';
 
 export function ProjectDetailView() {
@@ -19,6 +20,7 @@ export function ProjectDetailView() {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
     if (user && id) {
@@ -48,9 +50,54 @@ export function ProjectDetailView() {
     }
   };
 
+  const handleStatusChange = async (newStatus: 'not_started' | 'active' | 'completed' | 'archived') => {
+    if (!project) return;
+
+    try {
+      const updateData: any = { status: newStatus };
+      if (newStatus === 'completed') {
+        updateData.completion_percentage = 100;
+      }
+
+      const { error } = await supabase
+        .from('projects')
+        .update(updateData)
+        .eq('id', project.id);
+
+      if (error) throw error;
+      toast.success('Status uppdaterad!');
+      fetchProject();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error('Kunde inte uppdatera status');
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!project) return;
+
+    if (!confirm(`Är du säker på att du vill radera projektet "${project.name}"? Detta går inte att ångra.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', project.id);
+
+      if (error) throw error;
+      toast.success('Projekt raderat');
+      navigate('/projects');
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast.error('Kunde inte radera projekt');
+    }
+  };
+
   if (loading) {
     return (
-      <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '100vh' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
         <div style={{
           height: '48px',
           width: '48px',
@@ -75,64 +122,65 @@ export function ProjectDetailView() {
   const metrics = calculateProjectMetrics(project, tasks);
 
   return (
-    <div style={{ maxWidth: '896px' }} className="e-m-auto e-p-24">
+    <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
       {/* Header */}
-      <button
-        onClick={() => navigate('/projects')}
-        className="e-flex e-align-center e-gap-8 e-mb-24"
-        style={{
-          padding: 0,
-          fontSize: '16px',
-          color: 'var(--e-text-secondary)',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          transition: 'color 0.2s'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--e-text)'}
-        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--e-text-secondary)'}
-      >
-        <span className="e-icons e-arrow-left" style={{ fontSize: '16px' }}></span>
-        Tillbaka till projekt
-      </button>
+      <div style={{ marginBottom: '12px' }}>
+        <ButtonComponent
+          onClick={() => navigate('/projects')}
+          cssClass="e-flat e-small"
+          iconCss="e-icons e-arrow-left"
+          content="Tillbaka till projekt"
+        />
+      </div>
 
-      <div className="e-mb-24">
-        <InPlaceEditorComponent
-          mode="Inline"
-          type="Text"
-          value={project.name}
-          emptyText="Projektnamn"
-          actionOnBlur="Submit"
-          change={async (e: any) => {
-            try {
-              await supabase.from('projects').update({ name: e.value }).eq('id', project.id);
-              toast.success('Projektnamn uppdaterat');
-              fetchProject();
-            } catch (error) {
-              toast.error('Kunde inte uppdatera');
-            }
-          }}
-        >
-          <h1 className="e-mb-8" style={{
-            fontSize: '30px',
-            fontWeight: 'bold',
-            color: 'var(--e-text)'
-          }}>{project.name}</h1>
-        </InPlaceEditorComponent>
-
-        <div className="e-flex e-flex-wrap e-gap-16 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
+      {/* Projektnamn + Kund + Spiris ID (Read-only från Spiris) */}
+      <div style={{ marginBottom: '16px' }}>
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          margin: '0 0 4px 0',
+          color: 'var(--color-sf-black)'
+        }}>{project.name}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           {project.client_name && (
-            <div className="e-flex e-align-center e-gap-8">
-              <span className="e-icons e-user" style={{ fontSize: '12px' }}></span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span className="e-icons e-small e-user"></span>
+              <span style={{ fontSize: '14px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
+                {project.client_name}
+              </span>
+            </div>
+          )}
+          {project.spiris_project_id && (
+            <span style={{ fontSize: '11px', color: 'var(--color-sf-black)', opacity: 0.4 }}>
+              Spiris: {project.spiris_project_id}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Start + Deadline (Editable) */}
+      <div className="e-card" style={{ marginBottom: '16px' }}>
+        <div className="e-card-content" style={{ padding: '12px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '16px'
+          }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                Startdatum
+              </label>
               <InPlaceEditorComponent
                 mode="Inline"
-                type="Text"
-                value={project.client_name}
-                emptyText="Kund"
+                type="Date"
+                value={project.start_date ? new Date(project.start_date) : null}
+                emptyText="Inget startdatum"
                 actionOnBlur="Submit"
                 change={async (e: any) => {
                   try {
-                    await supabase.from('projects').update({ client_name: e.value }).eq('id', project.id);
+                    const dateValue = e.value ? new Date(e.value).toISOString().split('T')[0] : null;
+                    await supabase.from('projects').update({ start_date: dateValue }).eq('id', project.id);
+                    toast.success('Startdatum uppdaterat');
                     fetchProject();
                   } catch (error) {
                     toast.error('Kunde inte uppdatera');
@@ -140,53 +188,105 @@ export function ProjectDetailView() {
                 }}
               />
             </div>
-          )}
-
-          {project.start_date && (
-            <div className="e-flex e-align-center e-gap-8">
-              <span className="e-icons e-calendar" style={{ fontSize: '12px' }}></span>
-              <span>
-                Start: {new Date(project.start_date).toLocaleDateString('sv-SE')}
-              </span>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>
+                Deadline
+              </label>
+              <InPlaceEditorComponent
+                mode="Inline"
+                type="Date"
+                value={project.project_deadline ? new Date(project.project_deadline) : null}
+                emptyText="Ingen deadline"
+                actionOnBlur="Submit"
+                change={async (e: any) => {
+                  try {
+                    const dateValue = e.value ? new Date(e.value).toISOString().split('T')[0] : null;
+                    await supabase.from('projects').update({ project_deadline: dateValue }).eq('id', project.id);
+                    toast.success('Deadline uppdaterad');
+                    fetchProject();
+                  } catch (error) {
+                    toast.error('Kunde inte uppdatera');
+                  }
+                }}
+              />
             </div>
-          )}
-
-          {project.project_deadline && (
-            <div className="e-flex e-align-center e-gap-8">
-              <span className="e-icons e-schedule" style={{ fontSize: '12px' }}></span>
-              <span>
-                Deadline: {new Date(project.project_deadline).toLocaleDateString('sv-SE')}
-              </span>
-            </div>
-          )}
-
-          <div className="e-flex e-align-center e-gap-8">
-            <span className="e-icons e-time" style={{ fontSize: '12px' }}></span>
-            <span>{projectTasks.length} tasks kopplade</span>
           </div>
         </div>
+      </div>
 
-        {project.description && (
-          <InPlaceEditorComponent
-            mode="Inline"
-            type="Text"
-            value={project.description}
-            emptyText="Beskrivning"
-            actionOnBlur="Submit"
-            change={async (e: any) => {
-              try {
-                await supabase.from('projects').update({ description: e.value }).eq('id', project.id);
-                fetchProject();
-              } catch (error) {
-                toast.error('Kunde inte uppdatera');
-              }
-            }}
-          >
-            <p className="e-mt-16" style={{ color: 'var(--e-text-secondary)' }}>
-              {project.description}
-            </p>
-          </InPlaceEditorComponent>
-        )}
+      {/* Status (Kanban-style buttons) */}
+      <div className="e-card" style={{ marginBottom: '16px' }}>
+        <div className="e-card-header">
+          <div className="e-card-title">Projektstatus</div>
+        </div>
+        <div className="e-card-content" style={{ padding: '12px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <ButtonComponent
+              onClick={() => handleStatusChange('active')}
+              cssClass={project.status === 'active' ? 'e-primary' : 'e-outline'}
+              content="Aktiv"
+            />
+            <ButtonComponent
+              onClick={() => handleStatusChange('completed')}
+              cssClass={project.status === 'completed' ? 'e-success' : 'e-success e-outline'}
+              iconCss="e-icons e-check"
+              content="Slutförd"
+            />
+            <ButtonComponent
+              onClick={() => handleStatusChange('archived')}
+              cssClass={project.status === 'archived' ? 'e-flat' : 'e-outline'}
+              iconCss="e-icons e-folder"
+              content="Arkiverad"
+            />
+            <div style={{ marginLeft: 'auto' }}>
+              <ButtonComponent
+                onClick={handleDeleteProject}
+                cssClass="e-danger e-outline"
+                iconCss="e-icons e-trash"
+                content="Radera"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Ekonomi (Read-only från Spiris) */}
+      <div className="e-card" style={{ marginBottom: '16px' }}>
+        <div className="e-card-header">
+          <div className="e-card-title">Ekonomi</div>
+        </div>
+        <div className="e-card-content" style={{ padding: '12px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '16px'
+          }}>
+            <div>
+              <p style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6, margin: '0 0 4px 0' }}>
+                Offererade timmar
+              </p>
+              <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
+                {project.quoted_hours}h
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6, margin: '0 0 4px 0' }}>
+                Timpris
+              </p>
+              <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
+                {project.hourly_rate.toLocaleString('sv-SE')} kr/h
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6, margin: '0 0 4px 0' }}>
+                Övriga kostnader
+              </p>
+              <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
+                {project.external_costs.toLocaleString('sv-SE')} kr
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Progress slider */}
@@ -196,56 +296,71 @@ export function ProjectDetailView() {
         onUpdate={fetchProject}
       />
 
-      {/* Kopplade tasks */}
+      {/* Kopplade uppgifter */}
       {projectTasks.length > 0 && (
-        <div className="e-mt-32">
-          <h2 className="e-mb-16" style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--e-text)' }}>
-            Kopplade tasks
-          </h2>
-          <div className="e-flex e-flex-column e-gap-8">
+        <div style={{ marginTop: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
+              Kopplade uppgifter
+            </h2>
+            <ButtonComponent
+              onClick={() => {
+                setSelectedTask(null);
+                setIsTaskFormOpen(true);
+              }}
+              cssClass="e-primary"
+              iconCss="e-icons e-plus"
+              content="Skapa uppgift i projekt"
+            />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {projectTasks.map(task => (
               <div
                 key={task.id}
-                className="e-p-16"
-                style={{
-                  border: '1px solid var(--e-border)',
-                  borderRadius: '8px',
-                  background: 'var(--e-surface)',
-                  transition: 'background-color 0.2s'
+                className="e-card"
+                style={{ cursor: 'pointer', transition: 'box-shadow 0.2s' }}
+                onClick={() => {
+                  setSelectedTask(task);
+                  setIsTaskFormOpen(true);
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div className="e-flex e-align-start e-justify-between">
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ fontWeight: '600', color: 'var(--e-text)' }}>
-                      {task.title}
-                    </h3>
-                    {task.description && (
-                      <p className="e-text-sm e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
-                        {task.description}
-                      </p>
-                    )}
-                    <div className="e-flex e-align-center e-gap-16 e-mt-8 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
-                      <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: task.status === 'done'
-                          ? '#10b981'
-                          : task.status === 'in_progress'
-                          ? 'var(--warning-500)'
-                          : 'var(--e-surface)',
-                        color: task.status === 'done' || task.status === 'in_progress'
-                          ? '#ffffff'
-                          : 'var(--e-text)'
-                      }}>
-                        {task.status === 'done' ? 'Klar' :
-                         task.status === 'in_progress' ? 'Pågående' : 'Ej påbörjad'}
+                <div className="e-card-content" style={{ padding: '12px' }}>
+                  <h3 style={{ fontWeight: '600', margin: '0 0 4px 0' }}>
+                    {task.title}
+                  </h3>
+                  {task.description && (
+                    <p style={{ fontSize: '14px', color: 'var(--color-sf-black)', opacity: 0.6, margin: '0 0 8px 0' }}>
+                      {task.description}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px' }}>
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      backgroundColor: task.status === 'done'
+                        ? 'var(--color-sf-success)'
+                        : task.status === 'in_progress'
+                        ? 'var(--color-sf-warning)'
+                        : 'var(--color-sf-black)',
+                      color: '#ffffff',
+                      opacity: task.status === 'not_started' ? 0.5 : 1
+                    }}>
+                      {task.status === 'done' ? 'Klar' :
+                       task.status === 'in_progress' ? 'Pågående' : 'Ej påbörjad'}
+                    </span>
+                    {task.estimated_duration && (
+                      <span style={{ color: 'var(--color-sf-black)', opacity: 0.6 }}>
+                        {Math.round(task.estimated_duration / 60 * 10) / 10}h
                       </span>
-                      {task.estimated_duration && (
-                        <span>{Math.round(task.estimated_duration / 60 * 10) / 10}h</span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -255,27 +370,30 @@ export function ProjectDetailView() {
       )}
 
       {projectTasks.length === 0 && (
-        <div className="e-mt-32 e-p-32 e-text-center" style={{
-          borderRadius: '8px',
-          border: '2px dashed var(--e-border)'
-        }}>
-          <p className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>
-            Inga tasks kopplade till detta projekt än
-          </p>
-          <button
-            onClick={() => setIsTaskFormOpen(true)}
-            className="e-btn e-primary"
-          >
-            Skapa task och koppla till projekt
-          </button>
+        <div className="e-card" style={{ marginTop: '16px', textAlign: 'center' }}>
+          <div className="e-card-content" style={{ padding: '24px' }}>
+            <p style={{ marginBottom: '16px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
+              Inga uppgifter kopplade till detta projekt än
+            </p>
+            <ButtonComponent
+              onClick={() => setIsTaskFormOpen(true)}
+              cssClass="e-primary"
+              iconCss="e-icons e-plus"
+              content="Skapa uppgift och koppla till projekt"
+            />
+          </div>
         </div>
       )}
 
       {/* UppgiftRegistrering */}
       <UppgiftRegistrering
         isOpen={isTaskFormOpen}
-        onClose={() => setIsTaskFormOpen(false)}
+        onClose={() => {
+          setIsTaskFormOpen(false);
+          setSelectedTask(null);
+        }}
         defaultProjectId={project?.id}
+        taskToEdit={selectedTask}
       />
     </div>
   );
