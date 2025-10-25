@@ -175,6 +175,52 @@ const toolbar = ['Update', 'Cancel'];
 />
 ```
 
+### 12. BADGES - Använd SF CSS-klasser (INTE inline styles)
+
+**KRITISK LÄRDOM (2025-10-25):** Custom inline-styled badges renderas som streckade block i Grid!
+
+**FEL - Custom inline styles:**
+```tsx
+// ❌ Renderas som streckade block i Grid templates!
+<span style={{
+  padding: '4px 8px',
+  borderRadius: '12px',
+  backgroundColor: '#dc2626',
+  color: 'white'
+}}>
+  Hög
+</span>
+```
+
+**RÄTT - SF Badge-klasser:**
+```tsx
+// ✅ Fungerar perfekt i Grid templates
+<span className="e-badge e-badge-pill e-badge-danger">
+  200 Hög
+</span>
+
+// Färgvarianter:
+e-badge-primary        // Blå
+e-badge-success        // Grön (slutförd, ok)
+e-badge-danger         // Röd (hög prio, försenad)
+e-badge-warning        // Orange (medel prio, varning)
+e-badge-info           // Cyan (pågående, info)
+e-badge-secondary      // Grå (låg prio, neutral)
+
+// Shape-varianter:
+e-badge-pill           // Rundad pill (standard för status/prio)
+e-badge-circle         // Cirkel (för nummer)
+e-badge-ghost          // Outline-style
+```
+
+**CSS redan importerad:**
+```tsx
+// main.tsx rad 29
+import '@syncfusion/ej2-notifications/styles/fluent2.css';
+```
+
+**Badge är CSS-only** - ingen BadgeComponent finns! Använd bara `<span>` med klasser.
+
 ## ⚠️ KRITISKA KOMPONENTER - FUNGERAR, ÄNDRA EJ
 
 - `GridComponent` i AllTasksView, ArchiveView

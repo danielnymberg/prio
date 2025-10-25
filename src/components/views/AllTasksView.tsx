@@ -7,24 +7,20 @@ import {
   Sort,
   Filter,
   Group,
-  Toolbar,
-  ExcelExport,
-  ColumnChooser,
   Inject,
   FilterSettingsModel,
-  ToolbarItems,
-  SearchSettingsModel,
   PageSettingsModel,
   SortSettingsModel,
   GroupSettingsModel
 } from '@syncfusion/ej2-react-grids';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
+import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
 import { useTasks } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { toast } from 'react-hot-toast';
 import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import type { Task } from '@/lib/types';
-import { formatDistanceToNow, format, isToday, isTomorrow, isPast } from 'date-fns';
+import { formatDistanceToNow, format, isToday, isPast } from 'date-fns';
 import { sv } from 'date-fns/locale';
 
 export function AllTasksView() {
@@ -33,6 +29,7 @@ export function AllTasksView() {
   const gridRef = useRef<GridComponent>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [searchText, setSearchText] = useState('');
 
   // Alla aktiva uppgifter (inkl. Snabbis)
   const activeTasks = tasks.filter(t => t.status !== 'done');
@@ -42,22 +39,43 @@ export function AllTasksView() {
     t.estimated_duration && t.estimated_duration <= 2
   );
 
-  // Förbered data med extra kolumner för visning
-  const gridData = activeTasks.map(task => {
+  // Förbered data med extra kolumner för visning + client-side search
+  const gridData = activeTasks
+    .filter(task => {
+      if (!searchText) return true;
+      const search = searchText.toLowerCase();
+      const project = projects.find(p => p.id === task.project_id);
+      return (
+        task.title?.toLowerCase().includes(search) ||
+        task.description?.toLowerCase().includes(search) ||
+        project?.name?.toLowerCase().includes(search) ||
+        project?.client_name?.toLowerCase().includes(search)
+      );
+    })
+    .map(task => {
     const project = projects.find(p => p.id === task.project_id);
 
     // Deadline-gruppering
-    let deadlineGroup = 'Ingen deadline';
+    let deadlineGroup = 'Någon gång';
     if (task.deadline) {
       const deadline = new Date(task.deadline);
+      const now = new Date();
+      const daysUntil = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
       if (isPast(deadline) && !isToday(deadline)) {
-        deadlineGroup = '🔴 Försenad';
-      } else if (isToday(deadline)) {
-        deadlineGroup = '🟠 Idag';
-      } else if (isTomorrow(deadline)) {
-        deadlineGroup = '🟡 Imorgon';
+        deadlineGroup = 'Försenade 🔴';
+      } else if (daysUntil <= 1) {
+        deadlineGroup = 'Idag 🟠';
+      } else if (daysUntil <= 3) {
+        deadlineGroup = 'Imorgon 🟡';
+      } else if (daysUntil <= 7) {
+        deadlineGroup = 'Inom 7 dagar 📅';
+      } else if (daysUntil <= 14) {
+        deadlineGroup = 'Inom 14 dagar 📅';
+      } else if (daysUntil <= 30) {
+        deadlineGroup = 'Inom 30 dagar 📅';
       } else {
-        deadlineGroup = '🟢 Framtid';
+        deadlineGroup = 'Någon gång';
       }
     }
 
@@ -112,34 +130,14 @@ export function AllTasksView() {
 
   const groupSettings: GroupSettingsModel = {
     showDropArea: true,
-    columns: ['deadlineGroup']
+    columns: ['deadlineGroup'],
+    captionTemplate: '${key} - ${count} Objekt'
   };
 
-  const searchSettings: SearchSettingsModel = {
-    fields: ['title', 'description', 'projectName', 'clientName'],
-    ignoreCase: true
-  };
 
-  const toolbarItems: ToolbarItems[] = [
-    'Search',
-    'ExcelExport',
-    'ColumnChooser',
-    { text: 'Ny uppgift', prefixIcon: 'e-add', id: 'add_task' } as any
-  ];
-
-  // Spara och ladda grid state från localStorage
+  // Rensa gammal grid state (pga kolumn-ändringar)
   useEffect(() => {
-    const savedState = localStorage.getItem('allTasksViewGridState');
-    if (savedState && gridRef.current) {
-      try {
-        const state = JSON.parse(savedState);
-        if (state.columns) {
-          gridRef.current.setProperties({ columns: state.columns });
-        }
-      } catch (e) {
-        console.warn('Could not load grid state:', e);
-      }
-    }
+    localStorage.removeItem('allTasksViewGridState');
   }, []);
 
   const saveGridState = () => {
@@ -164,14 +162,7 @@ export function AllTasksView() {
     }
   };
 
-  const toolbarClick = (args: any) => {
-    if (args.item.id === 'grid_excelexport') {
-      gridRef.current?.excelExport();
-    } else if (args.item.id === 'add_task') {
-      setSelectedTask(null);
-      setIsFormOpen(true);
-    }
-  };
+
 
   const handleKeyDown = (args: any) => {
     // Space för att öppna task
@@ -202,41 +193,26 @@ export function AllTasksView() {
 
   // Templates för custom rendering
   const priorityTemplate = (props: any) => {
-    const isHigh = props.priorityCategory === 'Hög';
-    const isMed = props.priorityCategory === 'Medel';
+    const badgeClass =
+      props.priorityCategory === 'Hög' ? 'e-badge-danger' :
+      props.priorityCategory === 'Medel' ? 'e-badge-warning' :
+      'e-badge-secondary';
 
     return (
-      <div style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '8px',
-        borderRadius: '12px',
-        fontSize: '12px',
-        fontWeight: '500',
-        padding: '4px 8px',
-        backgroundColor: isHigh ? 'var(--color-sf-danger)' : isMed ? 'var(--color-sf-warning)' : 'var(--color-sf-border-light)',
-        color: 'var(--color-sf-white)',
-        opacity: isHigh || isMed ? 1 : 0.8
-      }}>
-        <span style={{ fontWeight: 'bold' }}>{Math.round(props.priority)}</span>
-        <span>{props.priorityCategory}</span>
-      </div>
+      <span className={`e-badge e-badge-pill ${badgeClass}`}>
+        {Math.round(props.priority)} {props.priorityCategory}
+      </span>
     );
   };
 
   const statusTemplate = (props: any) => {
-    const isInProgress = props.status === 'in_progress';
-    const isDone = props.status === 'done';
+    const badgeClass =
+      props.status === 'done' ? 'e-badge-success' :
+      props.status === 'in_progress' ? 'e-badge-info' :
+      'e-badge-secondary';
 
     return (
-      <span style={{
-        borderRadius: '12px',
-        fontSize: '12px',
-        padding: '4px 8px',
-        backgroundColor: isDone ? 'var(--color-sf-success)' : isInProgress ? 'var(--color-sf-info)' : 'var(--color-sf-border-light)',
-        color: isDone || isInProgress ? 'var(--color-sf-white)' : 'var(--color-sf-black)',
-        opacity: isDone || isInProgress ? 1 : 0.8
-      }}>
+      <span className={`e-badge e-badge-pill ${badgeClass}`}>
         {props.statusLabel}
       </span>
     );
@@ -249,38 +225,48 @@ export function AllTasksView() {
     const isOverdue = isPast(deadline) && !isToday(deadline);
 
     return (
-      <div style={{
-        fontSize: '14px',
+      <span style={{
         color: isOverdue ? 'var(--color-sf-danger)' : 'var(--color-sf-black)',
         fontWeight: isOverdue ? '600' : 'normal'
       }}>
-        <div>{props.deadlineFormatted}</div>
-        <div style={{ fontSize: '12px', opacity: 0.6 }}>{props.deadlineDistance}</div>
-      </div>
+        {props.deadlineFormatted}
+      </span>
     );
+  };
+
+  // Header template for bold text (som ProjectsView)
+  const headerTemplate = (headerText: string) => {
+    return () => <span className="e-font-bold">{headerText}</span>;
   };
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-sf-black)', margin: 0 }}>
-            Alla uppgifter
-          </h1>
-          <p style={{ color: 'var(--color-sf-black)', opacity: 0.6, margin: 0 }}>
-            {activeTasks.length} aktiva uppgifter {snabbis.length > 0 && `(inkl. ${snabbis.length} snabbis)`}
-          </p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
+          Alla uppgifter <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--color-sf-black)', opacity: 0.6 }}>
+            ({activeTasks.length})
+          </span>
+        </h1>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ width: '280px' }}>
+            <TextBoxComponent
+              placeholder="Sök uppgifter..."
+              showClearButton={true}
+              input={(e: any) => setSearchText(e.value)}
+              cssClass="e-outline"
+            />
+          </div>
+          <ButtonComponent
+            onClick={() => {
+              setSelectedTask(null);
+              setIsFormOpen(true);
+            }}
+            cssClass="e-primary"
+            iconCss="e-icons e-plus"
+            content="Ny uppgift"
+          />
         </div>
-        <ButtonComponent
-          onClick={() => {
-            setSelectedTask(null);
-            setIsFormOpen(true);
-          }}
-          cssClass="e-primary"
-          iconCss="e-icons e-plus"
-          content="Ny uppgift"
-        />
       </div>
 
       {/* Snabbis-sektion */}
@@ -324,22 +310,17 @@ export function AllTasksView() {
           allowSorting={true}
           allowFiltering={true}
           allowGrouping={true}
-          allowExcelExport={true}
-          allowTextWrap={true}
-          showColumnChooser={true}
+          allowTextWrap={false}
           pageSettings={pageSettings}
           filterSettings={filterSettings}
           sortSettings={sortSettings}
           groupSettings={groupSettings}
-          searchSettings={searchSettings}
-          toolbar={toolbarItems}
-          toolbarClick={toolbarClick}
           recordDoubleClick={handleRecordDoubleClick}
           keyPressed={handleKeyDown}
           columnMenuClick={saveGridState}
           resizeStop={saveGridState}
-          height="100%"
-          rowHeight={60}
+          height="auto"
+          rowHeight={30}
           gridLines="Horizontal"
           enableHover={true}
           enableStickyHeader={true}
@@ -349,12 +330,14 @@ export function AllTasksView() {
             <ColumnDirective
               field="title"
               headerText="Uppgift"
+              headerTemplate={headerTemplate("Uppgift")}
               width="250"
               clipMode="EllipsisWithTooltip"
             />
             <ColumnDirective
               field="priority"
               headerText="Prioritet"
+              headerTemplate={headerTemplate("Prioritet")}
               width="140"
               template={priorityTemplate}
               allowFiltering={false}
@@ -362,24 +345,28 @@ export function AllTasksView() {
             <ColumnDirective
               field="deadlineFormatted"
               headerText="Deadline"
+              headerTemplate={headerTemplate("Deadline")}
               width="140"
               template={deadlineTemplate}
             />
             <ColumnDirective
               field="status"
               headerText="Status"
+              headerTemplate={headerTemplate("Status")}
               width="120"
               template={statusTemplate}
             />
             <ColumnDirective
               field="projectName"
               headerText="Projekt"
+              headerTemplate={headerTemplate("Projekt")}
               width="150"
               clipMode="Ellipsis"
             />
             <ColumnDirective
               field="clientName"
               headerText="Kund"
+              headerTemplate={headerTemplate("Kund")}
               width="150"
               clipMode="Ellipsis"
               visible={false}
@@ -387,17 +374,19 @@ export function AllTasksView() {
             <ColumnDirective
               field="durationFormatted"
               headerText="Tid"
+              headerTemplate={headerTemplate("Tid")}
               width="80"
               textAlign="Center"
             />
             <ColumnDirective
               field="deadlineGroup"
               headerText="Tidsgrupp"
+              headerTemplate={headerTemplate("Tidsgrupp")}
               width="120"
               visible={false}
             />
           </ColumnsDirective>
-          <Inject services={[Page, Sort, Filter, Group, Toolbar, ExcelExport, ColumnChooser]} />
+          <Inject services={[Page, Sort, Filter, Group]} />
         </GridComponent>
 
       {/* UppgiftRegistrering */}

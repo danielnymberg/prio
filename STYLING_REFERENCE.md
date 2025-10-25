@@ -61,6 +61,31 @@ e-large                // 24px
 
 **517 ikoner finns totalt** - verifiera ALLTID innan användning!
 
+### **Badges:**
+```tsx
+e-badge                // Base class (REQUIRED)
+e-badge-primary        // Blue
+e-badge-success        // Green
+e-badge-danger         // Red
+e-badge-warning        // Orange/Yellow
+e-badge-info           // Cyan/Blue
+e-badge-secondary      // Gray
+e-badge-light          // Light gray
+e-badge-dark           // Dark gray
+
+// Shape modifiers
+e-badge-pill           // Rounded pill shape
+e-badge-circle         // Circle (för nummer/ikoner)
+e-badge-dot            // Small dot indicator
+e-badge-ghost          // Outline style
+
+// Notification badges
+e-badge-notification   // Position on element
+e-badge-overlap        // Overlap parent element
+```
+
+**VIKTIGT:** Badge är CSS-only - ingen BadgeComponent finns! Använd `<span className="e-badge e-badge-pill e-badge-success">Text</span>`
+
 ---
 
 ## 🎨 STYLING APPROACH
