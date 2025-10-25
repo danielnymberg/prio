@@ -5,10 +5,11 @@ export function calculateProjectMetrics(
   tasks: Task[]
 ): ProjectMetrics {
   // Summera loggad tid från alla tasks kopplade till projektet
+  // Använd actual_duration om tillgänglig, annars fallback till estimated_duration
   const logged_hours = tasks
     .filter(task => task.project_id === project.id && task.status === 'done')
     .reduce((sum, task) => {
-      const duration = task.estimated_duration || 0;
+      const duration = task.actual_duration || task.estimated_duration || 0;
       return sum + (duration / 60); // Konvertera minuter till timmar
     }, 0);
 

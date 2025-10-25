@@ -57,6 +57,7 @@ export function ProjectForm({ onSuccess, onCancel }: ProjectFormProps) {
         .from('projects')
         .insert({
           ...formData,
+          total_budget: calculatedBudget, // Beräkna och spara manuellt
           user_id: user.id
         });
 

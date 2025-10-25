@@ -50,7 +50,7 @@ export function ProjectDetailView() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div className="e-flex e-align-center e-justify-center" style={{ minHeight: '100vh' }}>
         <div style={{
           height: '48px',
           width: '48px',
@@ -65,8 +65,8 @@ export function ProjectDetailView() {
 
   if (!project) {
     return (
-      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
-        <p style={{ textAlign: 'center', color: 'var(--e-text-secondary)' }}>Projekt hittades inte</p>
+      <div style={{ maxWidth: '896px' }} className="e-m-auto e-p-24">
+        <p className="e-text-center" style={{ color: 'var(--e-text-secondary)' }}>Projekt hittades inte</p>
       </div>
     );
   }
@@ -75,15 +75,12 @@ export function ProjectDetailView() {
   const metrics = calculateProjectMetrics(project, tasks);
 
   return (
-    <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
+    <div style={{ maxWidth: '896px' }} className="e-m-auto e-p-24">
       {/* Header */}
       <button
         onClick={() => navigate('/projects')}
+        className="e-flex e-align-center e-gap-8 e-mb-24"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          marginBottom: '24px',
           padding: 0,
           fontSize: '16px',
           color: 'var(--e-text-secondary)',
@@ -99,7 +96,7 @@ export function ProjectDetailView() {
         Tillbaka till projekt
       </button>
 
-      <div style={{ marginBottom: '24px' }}>
+      <div className="e-mb-24">
         <InPlaceEditorComponent
           mode="Inline"
           type="Text"
@@ -116,17 +113,16 @@ export function ProjectDetailView() {
             }
           }}
         >
-          <h1 style={{
+          <h1 className="e-mb-8" style={{
             fontSize: '30px',
             fontWeight: 'bold',
-            marginBottom: '8px',
             color: 'var(--e-text)'
           }}>{project.name}</h1>
         </InPlaceEditorComponent>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '14px', color: 'var(--e-text-secondary)' }}>
+        <div className="e-flex e-flex-wrap e-gap-16 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
           {project.client_name && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="e-flex e-align-center e-gap-8">
               <span className="e-icons e-user" style={{ fontSize: '12px' }}></span>
               <InPlaceEditorComponent
                 mode="Inline"
@@ -146,8 +142,17 @@ export function ProjectDetailView() {
             </div>
           )}
 
+          {project.start_date && (
+            <div className="e-flex e-align-center e-gap-8">
+              <span className="e-icons e-calendar" style={{ fontSize: '12px' }}></span>
+              <span>
+                Start: {new Date(project.start_date).toLocaleDateString('sv-SE')}
+              </span>
+            </div>
+          )}
+
           {project.project_deadline && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="e-flex e-align-center e-gap-8">
               <span className="e-icons e-schedule" style={{ fontSize: '12px' }}></span>
               <span>
                 Deadline: {new Date(project.project_deadline).toLocaleDateString('sv-SE')}
@@ -155,7 +160,7 @@ export function ProjectDetailView() {
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="e-flex e-align-center e-gap-8">
             <span className="e-icons e-time" style={{ fontSize: '12px' }}></span>
             <span>{projectTasks.length} tasks kopplade</span>
           </div>
@@ -177,7 +182,7 @@ export function ProjectDetailView() {
               }
             }}
           >
-            <p style={{ marginTop: '16px', color: 'var(--e-text-secondary)' }}>
+            <p className="e-mt-16" style={{ color: 'var(--e-text-secondary)' }}>
               {project.description}
             </p>
           </InPlaceEditorComponent>
@@ -193,16 +198,16 @@ export function ProjectDetailView() {
 
       {/* Kopplade tasks */}
       {projectTasks.length > 0 && (
-        <div style={{ marginTop: '32px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', color: 'var(--e-text)' }}>
+        <div className="e-mt-32">
+          <h2 className="e-mb-16" style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--e-text)' }}>
             Kopplade tasks
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="e-flex e-flex-column e-gap-8">
             {projectTasks.map(task => (
               <div
                 key={task.id}
+                className="e-p-16"
                 style={{
-                  padding: '16px',
                   border: '1px solid var(--e-border)',
                   borderRadius: '8px',
                   background: 'var(--e-surface)',
@@ -211,17 +216,17 @@ export function ProjectDetailView() {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface-hover)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--e-surface)'}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div className="e-flex e-align-start e-justify-between">
                   <div style={{ flex: 1 }}>
                     <h3 style={{ fontWeight: '600', color: 'var(--e-text)' }}>
                       {task.title}
                     </h3>
                     {task.description && (
-                      <p style={{ fontSize: '14px', marginTop: '4px', color: 'var(--e-text-secondary)' }}>
+                      <p className="e-text-sm e-mt-4" style={{ color: 'var(--e-text-secondary)' }}>
                         {task.description}
                       </p>
                     )}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '14px', color: 'var(--e-text-secondary)' }}>
+                    <div className="e-flex e-align-center e-gap-16 e-mt-8 e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
                       <span style={{
                         padding: '4px 8px',
                         borderRadius: '4px',
@@ -250,21 +255,16 @@ export function ProjectDetailView() {
       )}
 
       {projectTasks.length === 0 && (
-        <div style={{ marginTop: '32px', padding: '32px', borderRadius: '8px', textAlign: 'center', border: '2px dashed var(--e-border)' }}>
-          <p style={{ marginBottom: '16px', color: 'var(--e-text-secondary)' }}>
+        <div className="e-mt-32 e-p-32 e-text-center" style={{
+          borderRadius: '8px',
+          border: '2px dashed var(--e-border)'
+        }}>
+          <p className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>
             Inga tasks kopplade till detta projekt än
           </p>
           <button
             onClick={() => setIsTaskFormOpen(true)}
             className="e-btn e-primary"
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s'
-            }}
           >
             Skapa task och koppla till projekt
           </button>

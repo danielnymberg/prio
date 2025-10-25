@@ -43,7 +43,8 @@ export interface Task {
   calendar_event_id: string | null;    // Microsoft Calendar event ID (för synk)
   status: TaskStatus;
   project_id: string | null;
-  estimated_duration: number | null;  // Minuter
+  estimated_duration: number | null;  // Minuter (uppskattad)
+  actual_duration: number | null;     // Minuter (faktisk loggad tid)
   created_at: string;
   updated_at: string;
   completed_at: string | null;
