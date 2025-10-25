@@ -1,6 +1,6 @@
 ---
 name: syncfusion-verified
-description: Use when implementing, editing, or discussing any SyncFusion EJ2 React component (Grid, Gantt, Schedule, Kanban, Dialog, etc). Contains only officially verified best practices from SyncFusion documentation. Theme-agnostic rules that work with Fluent2, Material, Bootstrap, etc.
+description: Use when implementing, editing, or discussing any SyncFusion EJ2 React component (Grid, Gantt, Schedule, Kanban, Dialog, etc). Contains only officially verified best practices from SyncFusion documentation. For styling/layout/icons, also use syncfusion-styling skill. Theme-agnostic rules that work with Fluent2, Material, Bootstrap, etc.
 allowed-tools: Read, Grep, Glob, WebFetch
 ---
 
@@ -515,7 +515,9 @@ All rules in this skill are **theme-agnostic**:
 
 ---
 
-**Skill Version:** 1.0 (Verified)
+**Skill Version:** 1.1 (Verified)
 **Created:** 2025-10-25
+**Updated:** 2025-10-25 (added styling skill reference)
 **Verification:** All rules verified against SyncFusion official documentation
 **Theme:** Theme-agnostic (tested with Fluent2)
+**Related Skills:** syncfusion-styling (for layout/colors/icons)

@@ -30,59 +30,33 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
     {
       id: '2',
-      name: 'Översikt',
-      iconCss: 'e-icons e-chart',
-      url: '/overview'
-    },
-    {
-      id: '3',
       name: 'Kalender',
-      iconCss: 'e-icons e-timeline-today',
+      iconCss: 'e-icons e-clock',
       url: '/calendar'
     },
     {
-      id: '4',
+      id: '3',
       name: `Uppgifter (${activeTasks.length})`,
       iconCss: 'e-icons e-list-unordered',
       url: '/all'
     },
     {
-      id: '5',
+      id: '4',
       name: 'Projekt',
       iconCss: 'e-icons e-folder-open',
       url: '/projects'
     },
     {
+      id: '5',
+      name: 'Gantt Timeline',
+      iconCss: 'e-icons e-agenda-date-range',
+      url: '/gantt'
+    },
+    {
       id: '6',
-      name: 'Planering',
-      iconCss: 'e-icons e-chart',
-      expanded: false,
-      subChild: [
-        {
-          id: '6-1',
-          name: 'Gantt Timeline',
-          iconCss: 'e-icons e-agenda-date-range',
-          url: '/gantt'
-        },
-        {
-          id: '6-2',
-          name: 'Resursallokering',
-          iconCss: 'e-icons e-between',
-          url: '/allocation'
-        },
-        {
-          id: '6-3',
-          name: 'Q4 2025',
-          iconCss: 'e-icons e-timeline-day',
-          url: '/planning/q4'
-        },
-        {
-          id: '6-4',
-          name: 'Q1 2026',
-          iconCss: 'e-icons e-timeline-day',
-          url: '/planning/q1'
-        },
-      ],
+      name: 'Resursallokering',
+      iconCss: 'e-icons e-play',
+      url: '/allocation'
     },
     {
       id: '7',
@@ -105,10 +79,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {
           id: '8-2',
           name: 'Arkiv',
-          iconCss: 'e-icons e-archive',
+          iconCss: 'e-icons e-folder',
           url: '/archive'
         },
       ],
+    },
+    {
+      id: '9',
+      name: 'Översikt',
+      iconCss: 'e-icons e-chart',
+      url: '/overview'
     },
   ];
 

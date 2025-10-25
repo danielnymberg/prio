@@ -3,6 +3,17 @@
 ## 🎯 Projektöversikt
 MinPrio är en personlig uppgiftshanterare byggd med SyncFusion Fluent2 React-komponenter. Ensam användare, svensk app.
 
+## 📚 VIKTIGA REFERENSER (LÄS FÖRST!)
+
+**INNAN du implementerar NÅGOT med SyncFusion:**
+1. **STYLING_REFERENCE.md** - Komplett styling-guide (inline styles, ikoner, färger)
+2. **TestView.tsx** - Minimal korrekt SF-implementation
+3. **ProjectDetailView.tsx** - Komplett exempel efter 4h felsökning
+4. **.claude/skills/syncfusion-styling/** - Auto-aktiv skill för styling
+5. **.claude/skills/syncfusion-verified/** - SF component best practices
+
+**KRITISK INSIKT:** SF har INGA utility-klasser som `e-flex`, `e-gap-*`, `e-mb-*`. Dessa finns INTE och gör ingenting. Använd inline styles!
+
 ## 🔴 ABSOLUTA FÖRBUD
 
 ### 1. INGA WRAPPERS
@@ -59,11 +70,16 @@ return <DialogComponent visible={true} ... />
 - ❌ INGA globala CSS-filer utöver `index.css`
 - ❌ ALDRIG skapa `app.css`, `global.css`, `styles.css` med custom resets
 - ✅ Låt Fluent2-tema göra ALLT styling-jobb
-- ✅ Använd endast SF utility-klasser (`e-flex`, `e-text-sm` etc)
+- ✅ **INLINE STYLES för all layout** (`display: flex`, `gap`, `margin`, `padding`)
+- ✅ **ENDAST äkta SF-klasser:** `e-card`, `e-btn`, `e-icons`, `e-primary`
+- ❌ **INGA påhittade utility-klasser:** `e-flex`, `e-gap-*`, `e-mb-*`, `e-text-sm` etc FINNS INTE!
 - ✅ Använd SF's inbyggda props istället för custom CSS:
   - `rowHeight`, `headerRowHeight` för Grid
   - `height="auto"` för Grid i scrollbar main-container
+  - `cssClass` för ButtonComponent styling
   - ALDRIG `height: '100vh'` eller custom scroll-containers
+
+**KRITISKT:** SF har INGA Tailwind-liknande utility-klasser. Använd inline styles enligt STYLING_REFERENCE.md och TestView.tsx.
 
 ### 7. SVENSKA NAMN för nya komponenter
 - Nya filer: `UppgiftRegistrering.tsx`, `DagligCheckIn.tsx`
@@ -338,7 +354,7 @@ npm run preview      # Testa production build
 - [ ] Inga nya CSS-overrides på SF-komponenter
 - [ ] Inga nya wrappers (använd SF direkt)
 - [ ] Svenska namn för nya komponenter
-- [ ] Följer SyncFusion Fluent2 best practice
+- [ ] Följer SyncFusion Fluent2 best practice (se STYLING_REFERENCE.md)
 
 ### För nya SF-komponenter (extra viktigt!):
 - [ ] SF dokumentation läst FÖRE implementation
@@ -348,3 +364,12 @@ npm run preview      # Testa production build
 - [ ] CSS import tillagd i `main.tsx`
 - [ ] INGA templates på editerbara kolumner
 - [ ] `showSpinButton: false` om NumericTextBox i Grid
+
+### För styling (KRITISKT!):
+- [ ] Använt ButtonComponent (inte native `<button>`)
+- [ ] Använt e-card för grupperad content
+- [ ] Använt inline styles för layout/spacing (INGA utility-klasser!)
+- [ ] Verifierat alla ikoner finns i fluent2.scss
+- [ ] Använt SF CSS-variabler (--color-sf-*)
+- [ ] Använt icon size-klasser (e-small/medium/large)
+- [ ] Layout fungerar i webbläsare (inga kollapsade sektioner)

@@ -6,8 +6,7 @@ import { Project } from '@/lib/types';
 import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { useNavigate } from 'react-router-dom';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
-// Lucide icons replaced with SyncFusion e-icons
-import { CapacityTimeline } from '@/components/capacity/CapacityTimeline';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 
 type TimeHorizon = '1' | '3' | '6' | '12';
 
@@ -133,7 +132,7 @@ export function OverviewView() {
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
             Översikt
           </h1>
-          <p style={{ fontSize: '14px', color: 'var(--e-text-secondary)' }}>
+          <p style={{ fontSize: '14px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
             Planera {timeHorizon} månad{parseInt(timeHorizon) > 1 ? 'er' : ''} framåt
           </p>
         </div>
@@ -141,17 +140,12 @@ export function OverviewView() {
         {/* Tidshoriont-väljare */}
         <div style={{ display: 'flex', gap: '8px' }}>
           {(['1', '3', '6', '12'] as TimeHorizon[]).map((horizon) => (
-            <button
+            <ButtonComponent
               key={horizon}
               onClick={() => setTimeHorizon(horizon)}
-              className={`e-btn ${timeHorizon === horizon ? 'e-primary' : 'e-outline'}`}
-              style={{
-                padding: '4px 12px',
-                minHeight: '28px'
-              }}
-            >
-              {horizon} mån
-            </button>
+              cssClass={timeHorizon === horizon ? 'e-primary e-small' : 'e-outline e-small'}
+              content={`${horizon} mån`}
+            />
           ))}
         </div>
       </div>
@@ -189,55 +183,55 @@ export function OverviewView() {
         marginBottom: '16px',
         gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))'
       }}>
-        <div className="e-card" style={{ borderColor: 'var(--e-primary)', borderWidth: '2px' }}>
+        <div className="e-card" style={{ borderColor: 'var(--color-sf-primary)', borderWidth: '2px' }}>
           <div className="e-card-content" style={{ padding: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-              <span className="e-icons e-star" style={{ fontSize: '16px', color: 'var(--e-primary)' }}></span>
-              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+              <span className="e-icons e-medium e-star-filled" style={{ color: 'var(--color-sf-primary)' }}></span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--color-sf-black)', opacity: 0.6 }}>
                 Totalt
               </span>
             </div>
             <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{stats.total}</p>
-            <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>projekt</p>
+            <p style={{ fontSize: '12px', margin: 0, color: 'var(--color-sf-black)', opacity: 0.6 }}>projekt</p>
           </div>
         </div>
 
-        <div className="e-card" style={{ borderColor: 'var(--e-success)', borderWidth: '2px' }}>
+        <div className="e-card" style={{ borderColor: 'var(--color-sf-success)', borderWidth: '2px' }}>
           <div className="e-card-content" style={{ padding: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-              <span className="e-icons e-check" style={{ fontSize: '16px', color: 'var(--e-success)' }}></span>
-              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+              <span className="e-icons e-medium e-check" style={{ color: 'var(--color-sf-success)' }}></span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--color-sf-black)', opacity: 0.6 }}>
                 Klara
               </span>
             </div>
             <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{stats.completed}</p>
-            <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>projekt</p>
+            <p style={{ fontSize: '12px', margin: 0, color: 'var(--color-sf-black)', opacity: 0.6 }}>projekt</p>
           </div>
         </div>
 
-        <div className="e-card" style={{ borderColor: 'var(--e-warning)', borderWidth: '2px' }}>
+        <div className="e-card" style={{ borderColor: 'var(--color-sf-warning)', borderWidth: '2px' }}>
           <div className="e-card-content" style={{ padding: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-              <span className="e-icons e-time" style={{ fontSize: '16px', color: 'var(--e-warning)' }}></span>
-              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+              <span className="e-icons e-medium e-clock" style={{ color: 'var(--color-sf-warning)' }}></span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--color-sf-black)', opacity: 0.6 }}>
                 Totalt
               </span>
             </div>
             <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{stats.totalQuotedHours}h</p>
-            <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>offererat</p>
+            <p style={{ fontSize: '12px', margin: 0, color: 'var(--color-sf-black)', opacity: 0.6 }}>offererat</p>
           </div>
         </div>
 
-        <div className="e-card" style={{ borderColor: 'var(--e-info)', borderWidth: '2px' }}>
+        <div className="e-card" style={{ borderColor: 'var(--color-sf-info)', borderWidth: '2px' }}>
           <div className="e-card-content" style={{ padding: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-              <span className="e-icons e-arrow-up" style={{ fontSize: '16px', color: 'var(--e-info)' }}></span>
-              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--e-text-secondary)' }}>
+              <span className="e-icons e-medium e-arrow-up" style={{ color: 'var(--color-sf-info)' }}></span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--color-sf-black)', opacity: 0.6 }}>
                 Budget
               </span>
             </div>
             <p style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{(stats.totalBudget / 1000).toFixed(0)}k</p>
-            <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>kr totalt</p>
+            <p style={{ fontSize: '12px', margin: 0, color: 'var(--color-sf-black)', opacity: 0.6 }}>kr totalt</p>
           </div>
         </div>
       </div>
@@ -252,13 +246,13 @@ export function OverviewView() {
         }}>
           {urgentProjects.length > 0 && (
             <div className="e-card" style={{
-              borderColor: 'var(--e-warning)',
+              borderColor: 'var(--color-sf-warning)',
               borderWidth: '2px',
               backgroundColor: '#fef3c7'
             }}>
               <div className="e-card-content" style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
-                  <span className="e-icons e-warning" style={{ fontSize: '16px', color: 'var(--e-warning)' }}></span>
+                  <span className="e-icons e-warning" style={{ fontSize: '16px', color: 'var(--color-sf-warning)' }}></span>
                   <h3 style={{ fontWeight: 'bold', margin: 0, fontSize: '14px', color: '#78350f' }}>
                     Brådskande deadlines
                   </h3>
@@ -285,13 +279,13 @@ export function OverviewView() {
 
           {overBudgetProjects.length > 0 && (
             <div className="e-card" style={{
-              borderColor: 'var(--e-error)',
+              borderColor: 'var(--color-sf-danger)',
               borderWidth: '2px',
               backgroundColor: '#fee2e2'
             }}>
               <div className="e-card-content" style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
-                  <span className="e-icons e-warning" style={{ fontSize: '16px', color: 'var(--e-error)' }}></span>
+                  <span className="e-icons e-warning" style={{ fontSize: '16px', color: 'var(--color-sf-danger)' }}></span>
                   <h3 style={{ fontWeight: 'bold', margin: 0, fontSize: '14px', color: '#7f1d1d' }}>
                     Budgetöverskridning
                   </h3>
@@ -322,7 +316,7 @@ export function OverviewView() {
       <div className="e-card" style={{ marginBottom: '16px' }}>
         <div className="e-card-header">
           <div className="e-card-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="e-icons e-schedule" style={{ fontSize: '16px' }}></span>
+            <span className="e-icons e-medium e-clock"></span>
             Projekttidslinje
           </div>
         </div>
@@ -330,7 +324,7 @@ export function OverviewView() {
 
         {filteredProjects.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px 0' }}>
-            <p style={{ color: 'var(--e-text-secondary)' }}>
+            <p style={{ color: 'var(--color-sf-black)', opacity: 0.6 }}>
               Inga projekt i denna tidsperiod
             </p>
           </div>
@@ -380,7 +374,7 @@ export function OverviewView() {
                         {project.name}
                       </h3>
                       {project.client_name && (
-                        <p style={{ fontSize: '12px', margin: 0, color: 'var(--e-text-secondary)' }}>
+                        <p style={{ fontSize: '12px', margin: 0, color: 'var(--color-sf-black)', opacity: 0.6 }}>
                           {project.client_name}
                         </p>
                       )}
@@ -424,7 +418,7 @@ export function OverviewView() {
                     gridTemplateColumns: 'repeat(4, 1fr)'
                   }}>
                     <div>
-                      <span style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
                         Färdigt
                       </span>
                       <p style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
@@ -433,7 +427,7 @@ export function OverviewView() {
                     </div>
 
                     <div>
-                      <span style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
                         Loggat
                       </span>
                       <p style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
@@ -442,7 +436,7 @@ export function OverviewView() {
                     </div>
 
                     <div>
-                      <span style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
                         Återstår
                       </span>
                       <p style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
@@ -451,7 +445,7 @@ export function OverviewView() {
                     </div>
 
                     <div>
-                      <span style={{ fontSize: '12px', color: 'var(--e-text-secondary)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
                         Budget
                       </span>
                       <p style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
@@ -472,10 +466,10 @@ export function OverviewView() {
                       style={{
                         height: '100%',
                         backgroundColor: metrics.is_over_budget
-                          ? 'var(--e-error)'
+                          ? 'var(--color-sf-danger)'
                           : project.completion_percentage >= 80
-                          ? 'var(--e-success)'
-                          : 'var(--e-primary)',
+                          ? 'var(--color-sf-success)'
+                          : 'var(--color-sf-primary)',
                         width: `${Math.min(project.completion_percentage, 100)}%`,
                         transition: 'width 0.3s'
                       }}
@@ -490,10 +484,6 @@ export function OverviewView() {
         </div>
       </div>
 
-      {/* Capacity Timeline */}
-      <div style={{ marginTop: '16px' }}>
-        <CapacityTimeline />
-      </div>
     </>
   );
 }

@@ -34,8 +34,6 @@ const ProjectDetailView = lazy(() => import('./components/projects/ProjectDetail
 const NewProjectPage = lazy(() => import('./pages/NewProjectPage').then(m => ({ default: m.NewProjectPage })));
 const OverviewView = lazy(() => import('./components/overview/OverviewView').then(m => ({ default: m.OverviewView })));
 const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSidebar').then(m => ({ default: m.CalendarWithTaskSidebar })));
-const Q4ResursplaneringView = lazy(() => import('./components/planning/Q4ResursplaneringView').then(m => ({ default: m.Q4ResursplaneringView })));
-const Q1ResursplaneringView = lazy(() => import('./components/planning/Q1ResursplaneringView').then(m => ({ default: m.Q1ResursplaneringView })));
 const ResursallokeringAllView = lazy(() => import('./components/allocation/ResursallokeringAllView').then(m => ({ default: m.ResursallokeringAllView })));
 const TestView = lazy(() => import('./components/test/TestView').then(m => ({ default: m.TestView })));
 const GanttView = lazy(() => import('./components/gantt/GanttView').then(m => ({ default: m.GanttView })));
@@ -484,28 +482,6 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <CalendarView />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        {/* Q4 Resursplanering */}
-        <Route
-          path="/planning/q4"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <Q4ResursplaneringView />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        {/* Q1 Resursplanering */}
-        <Route
-          path="/planning/q1"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <Q1ResursplaneringView />
               </Suspense>
             </ProtectedRoute>
           }
