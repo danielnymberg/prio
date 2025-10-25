@@ -21,11 +21,6 @@ export function ProjectProgressSlider({
   );
   const [updating, setUpdating] = useState(false);
 
-  // Auto-beräkna completion_percentage från loggad tid
-  const autoPercentage = Math.min(
-    Math.round((metrics.logged_hours / metrics.quoted_hours) * 100),
-    100
-  );
 
   const handleUpdate = async (newPercentage: number) => {
     setCompletionPercentage(newPercentage);

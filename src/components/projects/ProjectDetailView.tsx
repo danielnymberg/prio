@@ -8,9 +8,9 @@ import { calculateProjectMetrics } from '@/lib/projectMetrics';
 import { ProjectProgressSlider } from './ProjectProgressSlider';
 import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
 import { InPlaceEditorComponent } from '@syncfusion/ej2-react-inplace-editor';
-import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import toast from 'react-hot-toast';
+import type { Task } from '@/lib/types';
 
 export function ProjectDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -173,7 +173,7 @@ export function ProjectDetailView() {
               <InPlaceEditorComponent
                 mode="Inline"
                 type="Date"
-                value={project.start_date ? new Date(project.start_date) : null}
+                value={project.start_date ? new Date(project.start_date) : undefined}
                 emptyText="Inget startdatum"
                 actionOnBlur="Submit"
                 change={async (e: any) => {
@@ -195,7 +195,7 @@ export function ProjectDetailView() {
               <InPlaceEditorComponent
                 mode="Inline"
                 type="Date"
-                value={project.project_deadline ? new Date(project.project_deadline) : null}
+                value={project.project_deadline ? new Date(project.project_deadline) : undefined}
                 emptyText="Ingen deadline"
                 actionOnBlur="Submit"
                 change={async (e: any) => {

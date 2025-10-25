@@ -79,7 +79,7 @@ export function GanttView() {
           rowHeight={36}
           dataBound={() => {
             if (ganttRef.current) {
-              ganttRef.current.scrollToDate(new Date());
+              ganttRef.current.scrollToDate(new Date().toISOString().split('T')[0]);
             }
           }}
         >

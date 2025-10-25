@@ -45,7 +45,7 @@ function getWeekNumber(dateString: string): number {
 export function AllocationGrid({ startDate, endDate }: AllocationGridProps) {
   const { projects } = useProjects();
   const { tasks } = useTasks();
-  const { allocations, setAllocation, getTotalHoursForWeek } = useProjectAllocations();
+  const { allocations, setAllocation } = useProjectAllocations();
 
   // Generate weeks
   const weeks = useMemo(() => generateWeeks(startDate, endDate), [startDate, endDate]);
