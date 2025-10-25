@@ -1,0 +1,433 @@
+/**
+ * PushToTalkAssistant - WhatsApp-style röstassistent
+ *
+ * Push-to-talk conversation flow:
+ * 1. Håll in knapp → Start recording
+ * 2. Prata → Se live transcript
+ * 3. Släpp knapp → Auto-send till Claude
+ * 4. Få röst/text-svar
+ * 5. Repetera för konversation
+ */
+
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { VoicePushToTalkButton } from './VoicePushToTalkButton';
+import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
+import { ClaudeConversation } from '@/services/claude-conversation';
+import { useTasks } from '@/hooks/useTasks';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'react-hot-toast';
+
+interface Message {
+  role: 'user' | 'assistant';
+  text: string;
+  timestamp: Date;
+}
+
+export function PushToTalkAssistant() {
+  const [isListening, setIsListening] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [partialText, setPartialText] = useState('');
+  const [finalText, setFinalText] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const sttRef = useRef<SpeechmaticsSTT | null>(null);
+  const claudeRef = useRef<ClaudeConversation | null>(null);
+  const { tasks, createTask, updateTask, deleteTask } = useTasks();
+  const { user } = useAuth();
+
+  /**
+   * Initialize services
+   */
+  useEffect(() => {
+    if (!user) return;
+
+    const initServices = async () => {
+      try {
+        // Initialize STT
+        sttRef.current = new SpeechmaticsSTT();
+
+        // Initialize Claude with context
+        let calendarEvents: any[] = [];
+        let projects: any[] = [];
+
+        try {
+          const { getCalendarEvents, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
+          const isLoggedIn = await isMicrosoftLoggedIn();
+
+          if (isLoggedIn) {
+            const now = new Date();
+            const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            calendarEvents = await getCalendarEvents(now, endDate);
+          }
+        } catch (err) {
+          console.error('Failed to fetch calendar:', err);
+        }
+
+        try {
+          const { supabase } = await import('@/lib/supabase');
+          const { data } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('user_id', user.id);
+          if (data) projects = data;
+        } catch (err) {
+          console.error('Failed to fetch projects:', err);
+        }
+
+        claudeRef.current = new ClaudeConversation(
+          {
+            tasks,
+            projects,
+            calendarEvents,
+            recentFiles: [],
+            userId: user.id,
+          },
+          {
+            onTaskCreate: createTask,
+            onTaskUpdate: updateTask,
+            onTaskDelete: deleteTask,
+          }
+        );
+
+      } catch (err) {
+        console.error('Failed to initialize services:', err);
+        setError('Kunde inte initialisera röstassistent');
+      }
+    };
+
+    initServices();
+
+    return () => {
+      sttRef.current?.stopListening(false);
+      sttRef.current = null;
+      claudeRef.current = null;
+    };
+  }, [user]);
+
+  /**
+   * Update Claude context when tasks change
+   */
+  useEffect(() => {
+    if (claudeRef.current && tasks) {
+      claudeRef.current.updateContext({ tasks });
+    }
+  }, [tasks]);
+
+  /**
+   * START recording - när användaren håller in knappen
+   */
+  const handleRecordingStart = useCallback(async () => {
+    if (!sttRef.current) {
+      toast.error('Röstigenkänning inte tillgänglig');
+      return;
+    }
+
+    try {
+      console.log('🎤 Starting STT...');
+      setIsListening(true);
+      setPartialText('');
+      setFinalText('');
+      setError(null);
+
+      await sttRef.current.startListening((text, isFinal) => {
+        console.log('📝 Transcript:', { text, isFinal });
+
+        if (isFinal) {
+          // Final transcript - ackumulera
+          setFinalText(prev => prev + (prev ? ' ' : '') + text);
+          setPartialText('');
+        } else {
+          // Partial - visa live
+          setPartialText(text);
+        }
+      });
+
+    } catch (err) {
+      console.error('Failed to start listening:', err);
+      setError('Kunde inte starta mikrofon');
+      setIsListening(false);
+      toast.error('Mikrofon-åtkomst nekad');
+    }
+  }, []);
+
+  /**
+   * STOP recording - när användaren släpper knappen
+   * AUTO-SEND till Claude!
+   */
+  const handleRecordingStop = useCallback(async () => {
+    console.log('🛑 Stopping STT...');
+    setIsListening(false);
+
+    // Stoppa STT
+    sttRef.current?.stopListening(false);
+
+    // Kombinera final + partial
+    const fullTranscript = (finalText + (partialText ? ' ' : '') + partialText).trim();
+
+    if (!fullTranscript) {
+      console.warn('⚠️ No transcript captured');
+      toast('Inget ljud upptäcktes', { icon: '🎤' });
+      setPartialText('');
+      setFinalText('');
+      return;
+    }
+
+    console.log('✅ Full transcript:', fullTranscript);
+
+    // Lägg till user message
+    const userMessage: Message = {
+      role: 'user',
+      text: fullTranscript,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMessage]);
+
+    // Rensa transcript
+    setPartialText('');
+    setFinalText('');
+
+    // Send till Claude
+    await sendToClaude(fullTranscript);
+
+  }, [finalText, partialText]);
+
+  /**
+   * Send message to Claude and get response
+   */
+  const sendToClaude = async (userMessage: string) => {
+    if (!claudeRef.current) {
+      toast.error('AI-assistent inte tillgänglig');
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Update context med senaste kalender
+      let calendarEvents: any[] = [];
+      try {
+        const { getCalendarEvents, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
+        const isLoggedIn = await isMicrosoftLoggedIn();
+
+        if (isLoggedIn) {
+          const now = new Date();
+          const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+          calendarEvents = await getCalendarEvents(now, endDate);
+        }
+      } catch (err) {
+        console.error('Failed to fetch calendar:', err);
+      }
+
+      claudeRef.current.updateContext({ tasks, calendarEvents });
+
+      // Send till Claude
+      console.log('🤖 Sending to Claude:', userMessage);
+      const response = await claudeRef.current.chat(userMessage);
+
+      // Lägg till assistant message
+      const assistantMessage: Message = {
+        role: 'assistant',
+        text: response,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+
+      // TODO: TTS här senare
+      toast.success('AI svarade!', { duration: 2000 });
+
+    } catch (err) {
+      console.error('Claude error:', err);
+      setError('Kunde inte få svar från AI');
+      toast.error('AI-fel: ' + (err instanceof Error ? err.message : 'Okänt fel'));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  /**
+   * Clear conversation
+   */
+  const clearConversation = () => {
+    setMessages([]);
+    claudeRef.current?.clearHistory();
+    setPartialText('');
+    setFinalText('');
+    toast.success('Konversation rensad');
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '24px',
+      gap: '24px',
+      maxWidth: '600px',
+      margin: '0 auto'
+    }}>
+      {/* Title */}
+      <div style={{ textAlign: 'center' }}>
+        <h2 style={{
+          fontSize: '24px',
+          fontWeight: 600,
+          color: 'var(--e-text)',
+          margin: '0 0 8px 0'
+        }}>
+          🎤 AI Röstassistent
+        </h2>
+        <p style={{
+          fontSize: '14px',
+          color: 'var(--e-text-secondary)',
+          margin: 0
+        }}>
+          Håll knappen och prata - släpp för att skicka
+        </p>
+      </div>
+
+      {/* Conversation History */}
+      {messages.length > 0 && (
+        <div style={{
+          width: '100%',
+          background: 'var(--e-surface)',
+          borderRadius: '12px',
+          padding: '16px',
+          maxHeight: '400px',
+          overflowY: 'auto',
+          border: '1px solid var(--e-border)'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '16px'
+          }}>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--e-text-secondary)',
+              textTransform: 'uppercase'
+            }}>
+              Konversation
+            </span>
+            <button
+              onClick={clearConversation}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--e-text-secondary)',
+                cursor: 'pointer',
+                fontSize: '11px',
+                padding: '4px 8px'
+              }}
+            >
+              Rensa
+            </button>
+          </div>
+
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                marginBottom: i < messages.length - 1 ? '12px' : '0'
+              }}
+            >
+              <div style={{
+                maxWidth: '80%',
+                padding: '12px 16px',
+                borderRadius: '16px',
+                background: msg.role === 'user' ? 'var(--primary-600)' : 'var(--e-surface-variant)',
+                color: msg.role === 'user' ? '#ffffff' : 'var(--e-text)',
+                border: msg.role === 'assistant' ? '1px solid var(--e-border)' : 'none'
+              }}>
+                <p style={{ fontSize: '14px', margin: '0 0 4px 0', lineHeight: 1.5 }}>
+                  {msg.text}
+                </p>
+                <p style={{
+                  fontSize: '11px',
+                  opacity: 0.7,
+                  margin: 0
+                }}>
+                  {msg.timestamp.toLocaleTimeString('sv-SE', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Error display */}
+      {error && (
+        <div style={{
+          width: '100%',
+          padding: '12px 16px',
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '2px solid #ef4444',
+          borderRadius: '8px',
+          color: '#ef4444',
+          fontSize: '14px'
+        }}>
+          ❌ {error}
+        </div>
+      )}
+
+      {/* Push-to-Talk Button */}
+      <VoicePushToTalkButton
+        onRecordingStart={handleRecordingStart}
+        onRecordingStop={handleRecordingStop}
+        disabled={!sttRef.current || !claudeRef.current}
+        isProcessing={isProcessing}
+        partialTranscript={partialText || finalText}
+      />
+
+      {/* Processing status */}
+      {isProcessing && (
+        <div style={{
+          fontSize: '14px',
+          color: 'var(--primary-600)',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span className="e-icons e-spinner" style={{
+            fontSize: '16px',
+            animation: 'spin 1s linear infinite'
+          }} />
+          AI tänker...
+        </div>
+      )}
+
+      {/* Empty state */}
+      {messages.length === 0 && !isListening && !isProcessing && (
+        <div style={{
+          textAlign: 'center',
+          color: 'var(--e-text-secondary)',
+          padding: '32px 16px'
+        }}>
+          <span className="e-icons e-comment" style={{
+            fontSize: '48px',
+            display: 'block',
+            margin: '0 auto 16px',
+            opacity: 0.3
+          }} />
+          <p style={{ fontSize: '16px', margin: '0 0 8px 0', fontWeight: 600 }}>
+            Redo att hjälpa dig!
+          </p>
+          <p style={{ fontSize: '14px', margin: 0 }}>
+            Håll knappen och säg vad du vill göra
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

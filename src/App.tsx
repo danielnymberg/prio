@@ -37,6 +37,7 @@ const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSi
 const ResursallokeringAllView = lazy(() => import('./components/allocation/ResursallokeringAllView').then(m => ({ default: m.ResursallokeringAllView })));
 const TestView = lazy(() => import('./components/test/TestView').then(m => ({ default: m.TestView })));
 const GanttView = lazy(() => import('./components/gantt/GanttView').then(m => ({ default: m.GanttView })));
+const PushToTalkAssistant = lazy(() => import('./components/voice/PushToTalkAssistant').then(m => ({ default: m.PushToTalkAssistant })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -504,6 +505,17 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <GanttView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        {/* Voice Test - Push-to-Talk Assistant */}
+        <Route
+          path="/voice-test"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <PushToTalkAssistant />
               </Suspense>
             </ProtectedRoute>
           }

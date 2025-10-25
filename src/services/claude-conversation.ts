@@ -77,7 +77,7 @@ export class ClaudeConversation {
         },
         body: JSON.stringify({
           messages: this.conversationHistory,
-          system: this.buildSystemPrompt(),
+          system: this.buildSystemPromptCacheable(), // Array med cache_control för 90% besparing!
           tools: this.getTools(),
           max_tokens: 2000,
         }),
@@ -125,6 +125,29 @@ export class ClaudeConversation {
         error instanceof Error ? error.message : 'Failed to communicate with AI assistant'
       );
     }
+  }
+
+  private buildSystemPromptCacheable(): any[] {
+    const systemText = this.buildSystemPrompt();
+
+    // Split system prompt into cacheable parts
+    // Static instructions (samma för alla samtal) - cacheas
+    const staticInstructions = systemText.split('BEFINTLIGA UPPGIFTER:')[0];
+
+    // Dynamic context (ändras per samtal) - cacheas INTE
+    const dynamicContext = 'BEFINTLIGA UPPGIFTER:' + systemText.split('BEFINTLIGA UPPGIFTER:')[1];
+
+    return [
+      {
+        type: 'text',
+        text: staticInstructions.trim(),
+        cache_control: { type: 'ephemeral' } // 5 min cache, 90% billigare!
+      },
+      {
+        type: 'text',
+        text: dynamicContext.trim()
+      }
+    ];
   }
 
   private buildSystemPrompt(): string {
@@ -231,16 +254,28 @@ SVARA ANVÄNDAREN:
 - Med kalenderbokning: "✅ Uppgift skapad + [X timmar] bokad i kalendern!"
 
 KALENDER-INTEGRATION (MICROSOFT GRAPH):
-När användaren frågar om slutdatum baserat på tillgänglig tid:
 
-1. "Når kan jag leverera X som tar Y timmar?"
-   → Använd calculate_realistic_deadline med required_hours
+VIKTIGA KALENDERFUNKTIONER:
+- list_calendar_events: Se vad som är bokat (ANVÄND ALLTID INNAN du bokar ny tid!)
+- get_daily_overview: Se dagens schema + uppgifter (för "vad har jag idag?")
+- analyze_calendar_capacity: Analysera lediga tider för längre projekt
+- block_calendar_time: Boka fokustid i kalendern
+- calculate_realistic_deadline: Beräkna realistiskt slutdatum baserat på tillgänglig tid
 
-2. "Hur mycket tid har jag kommande veckan?"
-   → Använd analyze_calendar_capacity
+WORKFLOW FÖR KALENDERBOKNING (KRITISKT!):
+1. ALLTID kolla befintliga bokningar med list_calendar_events INNAN du bokar ny tid
+2. Om det finns konflikt - informera användaren och föreslå alternativ tid
+3. Om det är klart - använd block_calendar_time
+4. Bekräfta med formaterad output inklusive datum, tid och tasknamn
 
-3. "Boka in tid för X"
-   → Använd block_calendar_time
+EXEMPEL:
+User: "Boka in presentationen kl 14 imorgon"
+Du: [använder list_calendar_events för imorgon] → Ser möte 13-15
+Svar: "⚠️ Du har redan ett möte 13:00-15:00 imorgon. Vill du boka efter mötet, kl 15:00 istället?"
+
+User: "När kan jag leverera X som tar 32 timmar?"
+Du: [använder calculate_realistic_deadline med 32h]
+Svar: "Baserat på din kalender har du 45h ledigt de kommande 14 dagarna. Med 20% buffert kan du realistiskt leverera senast [datum]. Vill du att jag bokar in fokustid?"
 
 VIKTIGT: Om användaren INTE är inloggad på Microsoft, förklara att de behöver logga in i inställningar för att använda kalender- och mejlfunktioner.
 
@@ -376,9 +411,15 @@ Assistant: [Använder list_projects + CPM-analys] "Baserat på CPM-värden och d
 Vill du att jag bokar in fokustid för dessa?"
 
 BEFINTLIGA UPPGIFTER:
-${this.context.tasks.filter(t => t.status !== 'done').slice(0, 10).map(t =>
-  `- [ID: ${t.id}] ${t.title} (value: ${t.value_score || 5}, time: ${t.time_sensitivity || 5}) ${t.deadline ? `slutdatum: ${t.deadline}` : ''}`
-).join('\n')}`;
+${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
+  const effort = t.estimated_duration
+    ? `${Math.floor(t.estimated_duration / 60)}h ${t.estimated_duration % 60}min`
+    : `effort: ${t.effort || '?'}`;
+  const deadline = t.deadline ? new Date(t.deadline).toLocaleString('sv-SE', {
+    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+  }) : 'ingen deadline';
+  return `- [ID: ${t.id}] ${t.title} (${effort}, deadline: ${deadline}, value: ${t.value_score || 5})`;
+}).join('\n')}`;
   }
 
   private getTools(): any[] {

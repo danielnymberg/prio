@@ -379,10 +379,22 @@ app.post('/api/claude-chat', authenticateUser, rateLimiter, async (req, res) => 
     const timeout = setTimeout(() => controller.abort(), 60000);
 
     try {
+      // Prepare system parameter with prompt caching support
+      let systemParam;
+      if (Array.isArray(system)) {
+        // Client sent system as array (for caching)
+        systemParam = system;
+      } else if (typeof system === 'string' && system) {
+        // Legacy: string system prompt (no caching)
+        systemParam = system;
+      } else {
+        systemParam = '';
+      }
+
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens,
-        system: system || '',
+        system: systemParam,
         messages,
         tools: tools || [],
       }, { signal: controller.signal });
