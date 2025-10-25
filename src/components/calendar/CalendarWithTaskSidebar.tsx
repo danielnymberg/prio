@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 
 export function CalendarWithTaskSidebar() {
   const { tasks, updateTask } = useTasks();
-  const [showSidebar, setShowSidebar] = useState(true);
+  // const [showSidebar, setShowSidebar] = useState(true);
   const scheduleRef = useRef<any>(null);
   const toastRef = useRef<ToastComponent>(null);
   const [treeData, setTreeData] = useState<any[]>([]);
@@ -146,9 +146,9 @@ export function CalendarWithTaskSidebar() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100%', gap: '16px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100%', gap: '16px' }}>
       {/* Sidebar med tasks */}
-      <div
+      {/* <div
         style={{
           width: showSidebar ? '320px' : '0',
           flexShrink: 0,
@@ -157,11 +157,11 @@ export function CalendarWithTaskSidebar() {
           display: 'flex',
           flexDirection: 'column'
         }}
-      >
-        <div className="e-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <div className="e-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      > */}
+        <div className="e-card" style={{ width: '320px', flexShrink: 0 }}>
+          <div className="e-card-header">
             <div className="e-card-title">Ej schemalagt</div>
-            <button
+            {/* <button
               onClick={() => setShowSidebar(false)}
               style={{
                 background: 'none',
@@ -174,15 +174,16 @@ export function CalendarWithTaskSidebar() {
               }}
             >
               <span className="e-icons e-close e-small" style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}></span>
-            </button>
+            </button> */}
           </div>
-          <div className="e-card-content" style={{ padding: '12px 16px 16px 16px', flexShrink: 0 }}>
+          {/* <div className="e-card-content" style={{ padding: '12px 16px 16px 16px', flexShrink: 0 }}>
             <p style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6, margin: 0 }}>
               Dra uppgifter till kalendern för att schemalägga. Sorterade efter prioritet.
             </p>
-          </div>
+          </div> */}
 
-          <div style={{ flex: '1', overflowY: 'auto', padding: '0 16px 16px 16px' }} id="tree-container">
+          {/* <div style={{ flex: '1', overflowY: 'auto', padding: '0 16px 16px 16px' }} id="tree-container"> */}
+          <div className="e-card-content">
             {treeData.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '32px 0' }}>
                 <p style={{ fontSize: '14px', color: 'var(--color-sf-black)', opacity: 0.6 }}>
@@ -197,28 +198,49 @@ export function CalendarWithTaskSidebar() {
                 nodeDragStop={onTreeDragStop}
                 nodeClicked={onNodeClick}
                 nodeTemplate={(data: any) => (
-                  <div className="e-card" style={{ marginBottom: '8px' }}>
-                    <div className="e-card-content">
-                      <div>
-                        {data.Name}
-                        {data.Priority !== undefined && ` (${data.Priority})`}
-                      </div>
-                      {data.Duration && (
-                        <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.7 }}>
-                          ~{Math.round(data.Duration / 60)}h
-                        </div>
+                  <div style={{
+                    padding: '12px',
+                    backgroundColor: 'var(--color-sf-white)',
+                    border: '1px solid var(--color-sf-border-light)',
+                    borderRadius: '4px',
+                    marginBottom: '8px',
+                    cursor: 'grab'
+                  }}>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      marginBottom: data.Duration ? '4px' : '0'
+                    }}>
+                      {data.Name}
+                      {data.Priority !== undefined && (
+                        <span style={{
+                          marginLeft: '8px',
+                          fontSize: '12px',
+                          opacity: 0.6
+                        }}>
+                          ({data.Priority})
+                        </span>
                       )}
                     </div>
+                    {data.Duration && (
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'var(--color-sf-black)',
+                        opacity: 0.7
+                      }}>
+                        ~{Math.round(data.Duration / 60)}h
+                      </div>
+                    )}
                   </div>
                 )}
               />
             )}
           </div>
         </div>
-      </div>
+      {/* </div> */}
 
       {/* Toggle button */}
-      {!showSidebar && (
+      {/* {!showSidebar && (
         <button
           onClick={() => setShowSidebar(true)}
           style={{
@@ -237,7 +259,7 @@ export function CalendarWithTaskSidebar() {
         >
           <span className="e-icons e-chevron-right e-small" style={{ fontSize: '12px', color: 'var(--color-sf-black)', opacity: 0.6 }}></span>
         </button>
-      )}
+      )} */}
 
       {/* Kalendervy */}
       <div style={{ flex: '1', minWidth: '0' }}>
