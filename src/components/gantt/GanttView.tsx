@@ -7,14 +7,17 @@ import {
   Filter,
   Sort,
   Toolbar,
-  Resize
+  Resize,
+  EventMarkersDirective,
+  EventMarkerDirective
 } from '@syncfusion/ej2-react-gantt';
 import { useProjects } from '@/hooks/useProjects';
-import { useMemo } from 'react';
-import { addDays } from 'date-fns';
+import { useMemo, useRef } from 'react';
+import { addDays, startOfWeek } from 'date-fns';
 
 export function GanttView() {
   const { projects } = useProjects();
+  const ganttRef = useRef<GanttComponent>(null);
 
   // Konvertera projekt till Gantt-format
   const ganttData = useMemo(() => {
@@ -49,20 +52,19 @@ export function GanttView() {
   }, [projects]);
 
   return (
-    <>
-      <div className="e-mb-16 e-flex e-align-center e-justify-between">
-        <div>
-          <h1 className="e-text-2xl e-font-bold e-mb-4">
-            Projektöversikt - Gantt
-          </h1>
-          <p className="e-text-sm" style={{ color: 'var(--e-text-secondary)' }}>
-            {ganttData.length} aktiva projekt
-          </p>
-        </div>
+    <div style={{ padding: '16px' }}>
+      <div style={{ marginBottom: '16px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
+          Gantt Timeline
+        </h1>
+        <p style={{ fontSize: '14px', color: 'var(--color-sf-black)', opacity: 0.6, marginTop: '4px' }}>
+          {ganttData.length} aktiva projekt
+        </p>
       </div>
 
       {ganttData.length > 0 ? (
         <GanttComponent
+          ref={ganttRef}
           dataSource={ganttData}
           taskFields={{
             id: 'TaskID',
@@ -72,15 +74,32 @@ export function GanttView() {
             duration: 'Duration',
             progress: 'Progress',
           }}
+          projectStartDate={startOfWeek(new Date(), { weekStartsOn: 1 })}
+          highlightWeekends={true}
           rowHeight={36}
+          dataBound={() => {
+            if (ganttRef.current) {
+              ganttRef.current.scrollToDate(new Date());
+            }
+          }}
         >
+          <EventMarkersDirective>
+            <EventMarkerDirective
+              day={new Date()}
+              label="Idag"
+            />
+          </EventMarkersDirective>
           <Inject services={[Selection, DayMarkers, Edit, Filter, Sort, Toolbar, Resize]} />
         </GanttComponent>
       ) : (
-        <div className="e-text-center e-mt-64">
-          <p>Inga aktiva projekt att visa</p>
+        <div className="e-card" style={{ textAlign: 'center' }}>
+          <div className="e-card-content" style={{ padding: '48px' }}>
+            <p style={{ color: 'var(--color-sf-black)', opacity: 0.6 }}>
+              Inga aktiva projekt att visa
+            </p>
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

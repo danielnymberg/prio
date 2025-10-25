@@ -124,30 +124,6 @@ export function AllocationGrid({ startDate, endDate }: AllocationGridProps) {
 
   return (
     <>
-      {/* Summary row */}
-      <div className="e-mb-16 e-p-12 e-border e-rounded-lg" style={{ backgroundColor: 'var(--e-surface)' }}>
-        <div className="e-flex e-gap-16 e-flex-wrap">
-          {weeks.map(weekStart => {
-            const total = getTotalHoursForWeek(weekStart);
-            const capacity = 40;
-            const utilization = total / capacity;
-            const weekNum = getWeekNumber(weekStart);
-
-            let color = '#10b981'; // Green
-            if (utilization > 1.1) color = '#ef4444'; // Red
-            else if (utilization > 0.9) color = '#f59e0b'; // Orange
-
-            return (
-              <div key={weekStart} className="e-flex e-flex-column e-align-center">
-                <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>V{weekNum}</span>
-                <span className="e-font-bold" style={{ color }}>{total.toFixed(0)}h</span>
-                <span className="e-text-xs" style={{ color: 'var(--e-text-secondary)' }}>/{capacity}h</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Grid - Ren SF, inga custom overrides */}
       <GridComponent
         dataSource={gridData}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AllocationGrid } from './AllocationGrid';
+import { CapacityTimeline } from '@/components/capacity/CapacityTimeline';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { DateRangePickerComponent } from '@syncfusion/ej2-react-calendars';
 
@@ -92,27 +93,9 @@ export function ResursallokeringAllView() {
         </div>
       </div>
 
-      {/* Instructions */}
-      <div style={{
-        marginBottom: '16px',
-        padding: '12px',
-        border: '1px solid #3b82f6',
-        borderRadius: '8px',
-        backgroundColor: '#eff6ff'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="e-icons e-info" style={{ fontSize: '16px', color: '#3b82f6' }}></span>
-          <div>
-            <p style={{ fontWeight: 'bold', fontSize: '14px', margin: 0, color: '#1e40af' }}>
-              Så här fungerar det:
-            </p>
-            <ul style={{ fontSize: '12px', margin: 0, marginTop: '4px', paddingLeft: '16px', color: '#1e3a8a' }}>
-              <li>Klicka på en cell för att allokera timmar</li>
-              <li>Grön = ok kapacitet, Orange = tight, Röd = överbelastad</li>
-              <li>Dubbelklicka på projekt för att se detaljer</li>
-            </ul>
-          </div>
-        </div>
+      {/* Capacity Overview */}
+      <div style={{ marginBottom: '12px' }}>
+        <CapacityTimeline />
       </div>
 
       {/* Grid */}
