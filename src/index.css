@@ -125,3 +125,12 @@ body:not(.e-modal-open) .e-dlg-overlay {
   pointer-events: none !important;
 }
 
+/* TreeView: Reduce left padding for compact list */
+.e-treeview .e-list-item {
+  padding-left: 0 !important;
+}
+
+.e-treeview .e-text-content {
+  padding-left: 0 !important;
+}
+

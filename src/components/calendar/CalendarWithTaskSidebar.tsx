@@ -198,39 +198,10 @@ export function CalendarWithTaskSidebar() {
                 nodeDragStop={onTreeDragStop}
                 nodeClicked={onNodeClick}
                 nodeTemplate={(data: any) => (
-                  <div style={{
-                    padding: '12px',
-                    backgroundColor: 'var(--color-sf-white)',
-                    border: '1px solid var(--color-sf-border-light)',
-                    borderRadius: '4px',
-                    marginBottom: '8px',
-                    cursor: 'grab'
-                  }}>
-                    <div style={{
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      marginBottom: data.Duration ? '4px' : '0'
-                    }}>
-                      {data.Name}
-                      {data.Priority !== undefined && (
-                        <span style={{
-                          marginLeft: '8px',
-                          fontSize: '12px',
-                          opacity: 0.6
-                        }}>
-                          ({data.Priority})
-                        </span>
-                      )}
-                    </div>
-                    {data.Duration && (
-                      <div style={{
-                        fontSize: '12px',
-                        color: 'var(--color-sf-black)',
-                        opacity: 0.7
-                      }}>
-                        ~{Math.round(data.Duration / 60)}h
-                      </div>
-                    )}
+                  <div>
+                    {data.Name}
+                    {data.Priority !== undefined && ` (${data.Priority})`}
+                    {data.Duration && ` · ${Math.round(data.Duration / 60)}h`}
                   </div>
                 )}
               />
