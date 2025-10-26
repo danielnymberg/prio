@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/node';
 import Anthropic from '@anthropic-ai/sdk';
 import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
 import { createClient } from '@supabase/supabase-js';
+import fetch from 'node-fetch';
 
 const app = express();
 
