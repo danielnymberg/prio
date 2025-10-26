@@ -567,26 +567,6 @@ app.post('/api/azure-tts', authenticateUser, rateLimiter, async (req, res) => {
   }
 });
 
-// Proxy endpoint för SMHI väder (undviker CORS)
-app.get('/api/weather', async (req, res) => {
-  try {
-    const { lat, lon } = req.query;
-
-    if (!lat || !lon) {
-      return res.status(400).json({ error: 'lat and lon required' });
-    }
-
-    const url = `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    res.json(data);
-  } catch (error) {
-    console.error('Weather proxy error:', error);
-    res.status(500).json({ error: 'Failed to fetch weather' });
-  }
-});
-
 // Proxy endpoint för ZenQuotes (undviker CORS)
 app.get('/api/quote', async (req, res) => {
   try {

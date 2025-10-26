@@ -5,86 +5,13 @@
 import { useState, useEffect } from 'react';
 import { PushToTalkAssistant } from '@/components/voice/PushToTalkAssistant';
 
-interface WeatherData {
-  temperature: number;
-  windSpeed: number;
-  description: string;
-}
-
 interface Quote {
   q: string;
   a: string;
 }
 
 export function HomeView() {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
   const [quote, setQuote] = useState<Quote | null>(null);
-  const [location, setLocation] = useState<string>('');
-
-  // Fetch väder
-  useEffect(() => {
-    const fetchWeather = async (lon: number, lat: number, locationName: string) => {
-      try {
-        console.log('🌤️ Fetching weather for:', locationName, { lon, lat });
-        const url = `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`;
-        console.log('🌤️ URL:', url);
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error(`SMHI API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('🌤️ Weather data:', data.timeSeries?.[0]);
-
-        // Första timmen i timeSeries
-        const current = data.timeSeries[0];
-        const temp = current.parameters.find((p: any) => p.name === 't')?.values[0];
-        const wind = current.parameters.find((p: any) => p.name === 'ws')?.values[0];
-        const weatherSymbol = current.parameters.find((p: any) => p.name === 'Wsymb2')?.values[0];
-
-        // Enkel väder-beskrivning baserat på symbol (1-27)
-        const getWeatherDesc = (symbol: number) => {
-          if (symbol <= 2) return 'Klart';
-          if (symbol <= 7) return 'Lätt molnighet';
-          if (symbol <= 15) return 'Mulet';
-          if (symbol <= 21) return 'Regn';
-          return 'Oväder';
-        };
-
-        setWeather({
-          temperature: Math.round(temp),
-          windSpeed: Math.round(wind * 10) / 10,
-          description: getWeatherDesc(weatherSymbol)
-        });
-        setLocation(locationName);
-      } catch (error) {
-        console.error('Väder-fetch error:', error);
-      }
-    };
-
-    // Använd geolocation med fallback till Visby
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          // VIKTIGT: Ordning är lon, lat (inte lat, lon!)
-          fetchWeather(
-            pos.coords.longitude,
-            pos.coords.latitude,
-            'Din plats'
-          );
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          // Fallback: Visby (lon=18.2948, lat=57.6348)
-          fetchWeather(18.2948, 57.6348, 'Visby');
-        }
-      );
-    } else {
-      // Ingen geolocation support - Visby
-      fetchWeather(18.2948, 57.6348, 'Visby');
-    }
-  }, []);
 
   // Fetch dagens citat (2/dag: kl 00 + kl 12)
   useEffect(() => {
@@ -143,49 +70,6 @@ export function HomeView() {
       flexDirection: 'column',
       gap: '16px'
     }}>
-
-      {/* Väder Chip - Tight */}
-      {weather && (
-        <div className="e-card" style={{
-          padding: '8px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '12px'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
-              {weather.temperature}°C
-            </span>
-            <span style={{ fontSize: '12px', opacity: 0.7 }}>
-              {weather.description}
-            </span>
-          </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '11px',
-              opacity: 0.6
-            }}>
-              <span className="e-icons e-small e-play" style={{ transform: 'rotate(270deg)' }}></span>
-              <span>{weather.windSpeed} m/s</span>
-            </div>
-            <span style={{ fontSize: '10px', opacity: 0.5 }}>
-              {location}
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* Dagens Citat */}
       {quote && (

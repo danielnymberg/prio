@@ -122,50 +122,60 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         <div className="e-appbar-spacer"></div>
 
-        {/* Right: Status + Actions */}
-        <div
-          onClick={() => navigate('/settings')}
-          className="e-flex e-align-center e-gap-8 e-px-12 e-py-8 e-rounded e-cursor-pointer"
-          style={{ backgroundColor: 'var(--e-surface-secondary)' }}
-          title={isMicrosoftConnected ? 'Microsoft Calendar ansluten' : 'Ej ansluten'}
-        >
-          <div className="e-rounded-full" style={{
-            width: '8px',
-            height: '8px',
-            backgroundColor: isMicrosoftConnected ? 'var(--success-500)' : 'var(--error-500)'
-          }} />
-          <span className="e-text-xs">MSFT</span>
-        </div>
+        {/* Right: Actions - Responsiv layout */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Microsoft status - Dold på mobil */}
+          <div
+            onClick={() => navigate('/settings')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              backgroundColor: 'var(--e-surface-secondary)',
+              cursor: 'pointer'
+            }}
+            title={isMicrosoftConnected ? 'Microsoft Calendar ansluten' : 'Ej ansluten'}
+          >
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: isMicrosoftConnected ? 'var(--success-500)' : 'var(--error-500)'
+            }} />
+            <span style={{ fontSize: '12px', display: window.innerWidth < 768 ? 'none' : 'inline' }}>MSFT</span>
+          </div>
 
-        <ButtonComponent
-          cssClass="e-inherit"
-          iconCss="e-icons e-settings"
-          onClick={() => navigate('/settings')}
-        />
+          {/* Avstämning - Endast ikon på mobil */}
+          <div className="e-relative e-inline-block">
+            <ButtonComponent
+              cssClass="e-outline"
+              iconCss="e-icons e-refresh"
+              onClick={() => setIsCheckInOpen(true)}
+              content={window.innerWidth < 768 ? '' : 'Avstämning'}
+            />
+            {needsCheckIn && (
+              <span className="e-badge e-badge-danger e-badge-notification e-badge-overlap">!</span>
+            )}
+          </div>
 
-        <div className="e-relative e-inline-block">
+          {/* Ny uppgift - Endast ikon på mobil */}
           <ButtonComponent
-            cssClass="e-outline"
-            iconCss="e-icons e-refresh"
-            onClick={() => setIsCheckInOpen(true)}
-            content="Avstämning"
+            cssClass="e-primary"
+            iconCss="e-icons e-plus"
+            content={window.innerWidth < 768 ? '' : 'Ny uppgift'}
+            onClick={() => {
+              setSelectedTask(undefined);
+              setIsTaskFormOpen(true);
+            }}
           />
-          {needsCheckIn && (
-            <span className="e-badge e-badge-danger e-badge-notification e-badge-overlap">!</span>
-          )}
+
+          {/* ThemeToggle - Dold på små skärmar */}
+          <div style={{ display: window.innerWidth < 640 ? 'none' : 'block' }}>
+            <ThemeToggle />
+          </div>
         </div>
-
-        <ButtonComponent
-          cssClass="e-primary"
-          iconCss="e-icons e-plus"
-          content="Ny uppgift"
-          onClick={() => {
-            setSelectedTask(undefined);
-            setIsTaskFormOpen(true);
-          }}
-        />
-
-        <ThemeToggle />
 
         {user && (
           <DropDownButtonComponent
