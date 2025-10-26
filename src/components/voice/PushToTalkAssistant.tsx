@@ -193,8 +193,8 @@ export function PushToTalkAssistant() {
   const handleRecordingStop = useCallback(async () => {
     console.log('🛑 Stopping STT...');
 
-    // Stoppa STT
-    sttRef.current?.stopListening(false);
+    // Stoppa STT och VÄNTA på EndOfTranscript från Speechmatics
+    await sttRef.current?.stopListening(false);
 
     // Kombinera final + partial
     const fullTranscript = (finalText + (partialText ? ' ' : '') + partialText).trim();

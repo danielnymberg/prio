@@ -7,6 +7,8 @@ export class SpeechmaticsSTT {
   private stream: MediaStream | null = null;
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
   private accumulatedTranscript: string = ''; // Accumulate final transcript parts
+  private onEndOfTranscriptCallback?: () => void;
+  private lastSeqNo: number = 0;
 
   constructor() {}
 
@@ -46,6 +48,11 @@ export class SpeechmaticsSTT {
           const data = JSON.parse(event.data);
           console.log('📨 Received message:', data.message, data);
 
+          // Track sequence numbers från AudioAdded
+          if (data.message === 'AudioAdded' && data.seq_no) {
+            this.lastSeqNo = data.seq_no;
+          }
+
           if (data.message === 'AddPartialTranscript') {
             // Partial (live transcription) - använd metadata.transcript
             console.log('📝 Partial transcript:', data.metadata.transcript);
@@ -63,12 +70,11 @@ export class SpeechmaticsSTT {
 
             // Skicka INTE final transcript ännu - vänta på EndOfTranscript
           } else if (data.message === 'EndOfTranscript') {
-            // När hela transcripten är klar, skicka den ackumulerade texten
-            console.log('🏁 EndOfTranscript - sending accumulated:', this.accumulatedTranscript);
-            if (this.accumulatedTranscript.trim()) {
-              this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-              this.accumulatedTranscript = ''; // Reset för nästa transcript
-            }
+            // När hela transcripten är klar från Speechmatics
+            console.log('🏁 EndOfTranscript received, accumulated:', this.accumulatedTranscript);
+
+            // Trigga callback för att signalera att vi är klara
+            this.onEndOfTranscriptCallback?.();
           } else if (data.message === 'Error') {
             console.error('Speechmatics error:', data);
             const errorMsg = data.reason || 'Okänt fel från Speechmatics';
@@ -132,29 +138,50 @@ export class SpeechmaticsSTT {
     return int16;
   }
 
-  stopListening(sendAccumulated: boolean = true) {
-    // Skicka eventuell ackumulerad transcript endast om användaren vill det
+  async stopListening(sendAccumulated: boolean = true): Promise<void> {
+    console.log('🛑 stopListening called');
+
+    // 1. Stoppa mikrofon OMEDELBART (ingen NY audio spelas in)
+    this.stopMicrophone();
+
+    // 2. Skicka EndOfStream till Speechmatics OMEDELBART
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      console.log('📤 Sending EndOfStream to Speechmatics');
+      this.ws.send(JSON.stringify({
+        message: 'EndOfStream',
+        last_seq_no: this.lastSeqNo
+      }));
+
+      // 3. VÄNTA på EndOfTranscript (Speechmatics processar sista ljuden)
+      await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+          console.warn('⏱️ Timeout waiting for EndOfTranscript (2s)');
+          resolve();
+        }, 2000);
+
+        this.onEndOfTranscriptCallback = () => {
+          console.log('✅ EndOfTranscript received - all audio processed!');
+          clearTimeout(timeout);
+          resolve();
+        };
+      });
+    }
+
+    // 4. Nu har vi HELA transcriptet - skicka om önskat
     if (sendAccumulated && this.accumulatedTranscript.trim()) {
-      console.log('🏁 stopListening - sending accumulated:', this.accumulatedTranscript);
+      console.log('📨 Sending complete transcript:', this.accumulatedTranscript);
       this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
     } else if (!sendAccumulated) {
-      console.log('🚫 stopListening - DISCARDING accumulated:', this.accumulatedTranscript);
+      console.log('🚫 Discarding transcript (sendAccumulated: false)');
     }
 
+    // 5. Cleanup
     this.accumulatedTranscript = '';
+    this.cleanup();
+  }
 
-    // Stop and clean up WebSocket
-    if (this.ws) {
-      // Backend skickar EndOfStream när client disconnectar
-      this.ws.close();
-      this.ws.onopen = null;
-      this.ws.onmessage = null;
-      this.ws.onerror = null;
-      this.ws.onclose = null;
-      this.ws = null;
-    }
-
-    // Disconnect audio nodes
+  private stopMicrophone() {
+    // Disconnect audio nodes (stoppar mikrofon-streaming)
     if (this.processor) {
       this.processor.onaudioprocess = null;
       this.processor.disconnect();
@@ -178,13 +205,26 @@ export class SpeechmaticsSTT {
       this.mediaRecorder = null;
     }
 
-    // Stop all media stream tracks (important for releasing microphone)
+    // Stop all media stream tracks (release microphone)
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
     }
+  }
 
-    // Clear callback
+  private cleanup() {
+    // Close WebSocket
+    if (this.ws) {
+      this.ws.close();
+      this.ws.onopen = null;
+      this.ws.onmessage = null;
+      this.ws.onerror = null;
+      this.ws.onclose = null;
+      this.ws = null;
+    }
+
+    // Clear callbacks
     this.onTranscriptCallback = undefined;
+    this.onEndOfTranscriptCallback = undefined;
   }
 }

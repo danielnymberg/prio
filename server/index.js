@@ -614,7 +614,7 @@ wss.on('connection', (clientWs) => {
         transcription_config: {
           language: 'sv',
           enable_partials: true,
-          max_delay: 5, // Längre fördröjning så hela meningar hinner sägas
+          max_delay: 1.0, // Optimerat för low-latency (<5% accuracy loss enligt Speechmatics)
           max_delay_mode: 'flexible', // Flexibel så den väntar på naturliga pauser
           operating_point: 'enhanced',
           punctuation_overrides: {
