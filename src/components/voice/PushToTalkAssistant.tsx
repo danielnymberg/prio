@@ -112,7 +112,8 @@ export function PushToTalkAssistant() {
     initServices();
 
     return () => {
-      sttRef.current?.stopListening(false);
+      // Disconnect STT session helt (stänger WebSocket)
+      sttRef.current?.disconnect();
       sttRef.current = null;
       claudeRef.current = null;
     };
@@ -193,8 +194,8 @@ export function PushToTalkAssistant() {
   const handleRecordingStop = useCallback(async () => {
     console.log('🛑 Stopping STT...');
 
-    // Stoppa STT och VÄNTA på EndOfTranscript från Speechmatics
-    await sttRef.current?.stopListening(false);
+    // Stoppa STT och VÄNTA på EndOfUtterance från Speechmatics
+    await sttRef.current?.stopListening(true);  // ✅ true = använd accumulated transcript!
 
     // Kombinera final + partial
     const fullTranscript = (finalText + (partialText ? ' ' : '') + partialText).trim();

@@ -1,6 +1,5 @@
 export class SpeechmaticsSTT {
   private ws: WebSocket | null = null;
-  private mediaRecorder: MediaRecorder | null = null;
   private audioContext: AudioContext | null = null;
   private processor: ScriptProcessorNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
@@ -8,27 +7,37 @@ export class SpeechmaticsSTT {
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
   private accumulatedTranscript: string = ''; // Accumulate final transcript parts
   private onEndOfTranscriptCallback?: () => void;
+  private onEndOfUtteranceCallback?: () => void;
   private lastSeqNo: number = 0;
+  private isStreaming: boolean = false;
 
   constructor() {}
 
   async startListening(onTranscript: (text: string, isFinal: boolean) => void) {
     this.onTranscriptCallback = onTranscript;
+    this.accumulatedTranscript = ''; // Reset för ny utterance
+    this.isStreaming = true;
 
     try {
-      // 1. Få mikrofon access
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 16000,
-        }
-      });
+      // Återanvänd stream om den finns
+      if (!this.stream) {
+        // 1. Få mikrofon access första gången
+        this.stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            sampleRate: 16000,
+          }
+        });
+      }
 
-      // 2. Koppla till vår backend som proxar till Speechmatics
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'wss://prio-backend.onrender.com';
-      this.ws = new WebSocket(backendUrl);
+      // Återanvänd WebSocket om den finns och är öppen
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        console.log('🔌 Opening new WebSocket connection');
+        // 2. Koppla till vår backend som proxar till Speechmatics
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'wss://prio-backend.onrender.com';
+        this.ws = new WebSocket(backendUrl);
 
       this.ws.onopen = () => {
         console.log('🔌 WebSocket opened to backend');
@@ -69,9 +78,20 @@ export class SpeechmaticsSTT {
             }
 
             // Skicka INTE final transcript ännu - vänta på EndOfTranscript
+          } else if (data.message === 'EndOfUtterance') {
+            // User slutade prata (0.7s tystnad) - skicka accumulated transcript
+            console.log('🏁 EndOfUtterance received, accumulated:', this.accumulatedTranscript);
+
+            if (this.accumulatedTranscript.trim()) {
+              this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+              this.accumulatedTranscript = ''; // Reset för nästa utterance
+            }
+
+            // Trigga callback (för UI-feedback om behövs)
+            this.onEndOfUtteranceCallback?.();
           } else if (data.message === 'EndOfTranscript') {
-            // När hela transcripten är klar från Speechmatics
-            console.log('🏁 EndOfTranscript received, accumulated:', this.accumulatedTranscript);
+            // Session helt avslutad (endast vid disconnect)
+            console.log('🏁 EndOfTranscript received - session ending');
 
             // Trigga callback för att signalera att vi är klara
             this.onEndOfTranscriptCallback?.();
@@ -93,18 +113,23 @@ export class SpeechmaticsSTT {
         throw new Error('Kunde inte ansluta till röstigenkänning');
       };
 
-      this.ws.onclose = (event) => {
-        // När WebSocket stängs, skicka eventuellt ackumulerad transcript
-        if (this.accumulatedTranscript.trim()) {
-          console.log('🏁 WebSocket closing - sending accumulated:', this.accumulatedTranscript);
-          this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-          this.accumulatedTranscript = '';
-        }
+        this.ws.onclose = (event) => {
+          // När WebSocket stängs helt (endast vid app unmount)
+          if (this.accumulatedTranscript.trim()) {
+            console.log('🏁 WebSocket closing - sending accumulated:', this.accumulatedTranscript);
+            this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+            this.accumulatedTranscript = '';
+          }
 
-        if (!event.wasClean) {
-          console.error('WebSocket closed unexpectedly:', event);
-        }
-      };
+          if (!event.wasClean) {
+            console.error('WebSocket closed unexpectedly:', event);
+          }
+        };
+      } else {
+        // WebSocket redan öppen - återanvänd för ny turn!
+        console.log('🔄 Reusing existing WebSocket connection');
+        this.startAudioStream(this.stream!);
+      }
 
     } catch (error) {
       console.error('Failed to start listening:', error);
@@ -113,12 +138,23 @@ export class SpeechmaticsSTT {
   }
 
   private startAudioStream(stream: MediaStream) {
-    this.audioContext = new AudioContext({ sampleRate: 16000 });
+    // Återanvänd AudioContext om den finns
+    if (!this.audioContext || this.audioContext.state === 'closed') {
+      console.log('🎵 Creating new AudioContext');
+      this.audioContext = new AudioContext({ sampleRate: 16000 });
+    }
+
+    // Resume om suspended (iOS fix)
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
+    }
+
+    // Skapa nya nodes (måste göras varje gång efter disconnect)
     this.source = this.audioContext.createMediaStreamSource(stream);
     this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
 
     this.processor.onaudioprocess = (e) => {
-      if (this.ws?.readyState === WebSocket.OPEN) {
+      if (this.isStreaming && this.ws?.readyState === WebSocket.OPEN) {
         const float32Audio = e.inputBuffer.getChannelData(0);
         const int16Audio = this.convertFloat32ToInt16(float32Audio);
         this.ws.send(int16Audio);
@@ -127,6 +163,8 @@ export class SpeechmaticsSTT {
 
     this.source.connect(this.processor);
     this.processor.connect(this.audioContext.destination);
+
+    console.log('🎵 Audio streaming started');
   }
 
   private convertFloat32ToInt16(buffer: Float32Array): Int16Array {
@@ -139,49 +177,44 @@ export class SpeechmaticsSTT {
   }
 
   async stopListening(sendAccumulated: boolean = true): Promise<void> {
-    console.log('🛑 stopListening called');
+    console.log('🛑 stopListening called - pausing audio stream');
 
     // 1. Stoppa mikrofon OMEDELBART (ingen NY audio spelas in)
     this.stopMicrophone();
+    this.isStreaming = false;
 
-    // 2. Skicka EndOfStream till Speechmatics OMEDELBART
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      console.log('📤 Sending EndOfStream to Speechmatics');
-      this.ws.send(JSON.stringify({
-        message: 'EndOfStream',
-        last_seq_no: this.lastSeqNo
-      }));
+    // 2. VÄNTA på EndOfUtterance (Speechmatics detekterar 0.7s tystnad)
+    console.log('⏳ Waiting for EndOfUtterance (auto-detected after 0.7s silence)...');
 
-      // 3. VÄNTA på EndOfTranscript (Speechmatics processar sista ljuden)
-      await new Promise<void>((resolve) => {
-        const timeout = setTimeout(() => {
-          console.warn('⏱️ Timeout waiting for EndOfTranscript (2s)');
-          resolve();
-        }, 2000);
+    await new Promise<void>((resolve) => {
+      const timeout = setTimeout(() => {
+        console.warn('⏱️ Timeout waiting for EndOfUtterance (2s) - using accumulated anyway');
 
-        this.onEndOfTranscriptCallback = () => {
-          console.log('✅ EndOfTranscript received - all audio processed!');
-          clearTimeout(timeout);
-          resolve();
-        };
-      });
-    }
+        // FALLBACK: Använd accumulated även om timeout
+        if (sendAccumulated && this.accumulatedTranscript.trim()) {
+          this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+          this.accumulatedTranscript = '';
+        }
 
-    // 4. Nu har vi HELA transcriptet - skicka om önskat
-    if (sendAccumulated && this.accumulatedTranscript.trim()) {
-      console.log('📨 Sending complete transcript:', this.accumulatedTranscript);
-      this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-    } else if (!sendAccumulated) {
-      console.log('🚫 Discarding transcript (sendAccumulated: false)');
-    }
+        resolve();
+      }, 2000);
 
-    // 5. Cleanup
-    this.accumulatedTranscript = '';
-    this.cleanup();
+      this.onEndOfUtteranceCallback = () => {
+        console.log('✅ EndOfUtterance received!');
+        clearTimeout(timeout);
+        resolve();
+        // accumulatedTranscript redan skickad i EndOfUtterance handler
+      };
+    });
+
+    // WebSocket FÖRBLIR ÖPPEN för nästa turn! ✅
+    console.log('🔌 WebSocket kept open for next turn');
   }
 
   private stopMicrophone() {
-    // Disconnect audio nodes (stoppar mikrofon-streaming)
+    console.log('🎤 Pausing microphone (keeping stream for reuse)');
+
+    // Disconnect audio nodes (stoppar audio-streaming)
     if (this.processor) {
       this.processor.onaudioprocess = null;
       this.processor.disconnect();
@@ -193,23 +226,47 @@ export class SpeechmaticsSTT {
       this.source = null;
     }
 
-    // Close audio context
-    if (this.audioContext) {
-      this.audioContext.close();
-      this.audioContext = null;
+    // BEHÅLL AudioContext och MediaStream för återanvändning!
+    // De stängs endast vid disconnect()
+  }
+
+  /**
+   * Disconnect - stäng WebSocket och release alla resurser
+   * Anropas endast vid app unmount
+   */
+  async disconnect(): Promise<void> {
+    console.log('🔌 Disconnecting STT session completely');
+
+    // Stoppa mic om den stremar
+    if (this.isStreaming) {
+      this.stopMicrophone();
+      this.isStreaming = false;
     }
 
-    // Stop media recorder
-    if (this.mediaRecorder) {
-      this.mediaRecorder.stop();
-      this.mediaRecorder = null;
+    // Skicka EndOfStream till Speechmatics
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      console.log('📤 Sending EndOfStream (session ending)');
+      this.ws.send(JSON.stringify({
+        message: 'EndOfStream',
+        last_seq_no: this.lastSeqNo
+      }));
+
+      // Vänta på EndOfTranscript
+      await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+          console.warn('⏱️ Timeout waiting for EndOfTranscript');
+          resolve();
+        }, 1500);
+
+        this.onEndOfTranscriptCallback = () => {
+          console.log('✅ EndOfTranscript - session closed');
+          clearTimeout(timeout);
+          resolve();
+        };
+      });
     }
 
-    // Stop all media stream tracks (release microphone)
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
-    }
+    this.cleanup();
   }
 
   private cleanup() {
@@ -223,8 +280,21 @@ export class SpeechmaticsSTT {
       this.ws = null;
     }
 
+    // Close audio context
+    if (this.audioContext && this.audioContext.state !== 'closed') {
+      this.audioContext.close();
+      this.audioContext = null;
+    }
+
+    // Release microphone
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+
     // Clear callbacks
     this.onTranscriptCallback = undefined;
     this.onEndOfTranscriptCallback = undefined;
+    this.onEndOfUtteranceCallback = undefined;
   }
 }
