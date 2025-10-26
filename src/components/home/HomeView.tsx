@@ -184,22 +184,25 @@ export function HomeView() {
       {/* Dagens Citat */}
       {quote && (
         <div className="e-card" style={{
-          padding: '16px',
-          fontStyle: 'italic',
+          padding: '12px',
           borderLeft: '3px solid var(--color-sf-primary)'
         }}>
           <p style={{
-            fontSize: '14px',
-            lineHeight: '1.6',
-            margin: '0 0 8px 0'
+            fontSize: '13px',
+            lineHeight: '1.5',
+            margin: '0 0 6px 0',
+            color: '#000',
+            fontWeight: 'bold'
           }}>
             "{quote.q}"
           </p>
           <p style={{
-            fontSize: '12px',
-            opacity: 0.7,
+            fontSize: '11px',
+            color: '#000',
+            opacity: 0.6,
             margin: 0,
-            textAlign: 'right'
+            textAlign: 'right',
+            fontWeight: 'normal'
           }}>
             — {quote.a}
           </p>
