@@ -620,10 +620,10 @@ wss.on('connection', (clientWs) => {
           punctuation_overrides: {
             permitted_marks: ['.', ',', '?', '!', ':', ';'],
             sensitivity: 0.5
+          },
+          conversation_config: {
+            end_of_utterance_silence_trigger: 0.7  // NESTED inside transcription_config!
           }
-        },
-        conversation_config: {
-          end_of_utterance_silence_trigger: 0.7  // Auto-detect när user slutat (700ms tystnad)
         }
       };
 
