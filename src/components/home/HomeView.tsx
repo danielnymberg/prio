@@ -25,9 +25,11 @@ export function HomeView() {
   useEffect(() => {
     const fetchWeather = async (lat: number, lon: number, locationName: string) => {
       try {
+        console.log('🌤️ Fetching weather for:', locationName, { lat, lon });
         const url = `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`;
         const response = await fetch(url);
         const data = await response.json();
+        console.log('🌤️ Weather data:', data.timeSeries[0]);
 
         // Första timmen i timeSeries
         const current = data.timeSeries[0];
@@ -80,8 +82,10 @@ export function HomeView() {
   useEffect(() => {
     const fetchQuote = async () => {
       try {
+        console.log('💬 Fetching quote from ZenQuotes...');
         const response = await fetch('https://zenquotes.io/api/random');
         const data = await response.json();
+        console.log('💬 Quote data:', data);
         if (data && data[0]) {
           const newQuote = { q: data[0].q, a: data[0].a };
 

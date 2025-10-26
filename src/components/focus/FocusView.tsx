@@ -139,6 +139,11 @@ export function FocusView() {
       nextBlockDuration: 90
     });
     setShowCheckInDialog(false);
+
+    // Navigera till focus efter avstämning
+    if (window.location.pathname !== '/focus') {
+      navigate('/focus');
+    }
   };
 
   const handleTimerComplete = (taskId: string) => {
@@ -154,20 +159,13 @@ export function FocusView() {
   // Tom state - Inga tasks alls
   if (tasks.length === 0) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', minHeight: '60vh' }}>
-        <div style={{ textAlign: 'center', maxWidth: '28rem' }}>
-          <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎉</div>
-          <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
-            GRATTIS! DU. ÄR. KLAR.
-          </h2>
-          <p style={{ marginBottom: '24px' }}>
-            Ta tag i något som du glömt bort, ta en promenad, en powernap eller en lidag dag.
-          </p>
-          <p style={{ fontWeight: '600' }}>
-            För det är du värd!
-          </p>
-        </div>
-      </div>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '60vh',
+        background: '#ffffff'
+      }}></div>
     );
   }
 
