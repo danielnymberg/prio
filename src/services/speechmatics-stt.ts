@@ -6,8 +6,7 @@ export class SpeechmaticsSTT {
   private stream: MediaStream | null = null;
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
   private accumulatedTranscript: string = ''; // Accumulate final transcript parts
-  private onEndOfTranscriptCallback?: () => void;
-  private onEndOfUtteranceCallback?: () => void;  // Callback för EndOfUtterance (conversation mode)
+  private onEndOfTranscriptCallback?: () => void;  // Callback för EndOfTranscript (SM's ACK på EndOfStream)
   private lastSeqNo: number = 0;
   private isStreaming: boolean = false;
 
@@ -85,18 +84,12 @@ export class SpeechmaticsSTT {
               console.log('✅ Accumulated:', this.accumulatedTranscript);
             }
 
-            // Skicka INTE final transcript ännu - vänta på EndOfUtterance
-          } else if (data.message === 'EndOfUtterance') {
-            // ✅ Utterance klar - Speechmatics har processat allt efter EndOfStream!
-            console.log('✅ EndOfUtterance received - utterance complete!');
-
-            // Trigga callback för att skicka accumulated transcript
-            this.onEndOfUtteranceCallback?.();
+            // Skicka INTE final transcript ännu - vänta på EndOfTranscript
           } else if (data.message === 'EndOfTranscript') {
-            // Session helt avslutad (endast vid disconnect)
-            console.log('🏁 EndOfTranscript received - session ending');
+            // SM's ACK på EndOfStream - alla AddTranscript har skickats!
+            console.log('✅ EndOfTranscript received - SM bekräftar utterance klar');
 
-            // Trigga callback för att signalera att vi är klara
+            // Trigga callback (används både för turn-slutsignal OCH session-slut)
             this.onEndOfTranscriptCallback?.();
           } else if (data.message === 'Error') {
             console.error('Speechmatics error:', data);
@@ -193,9 +186,9 @@ export class SpeechmaticsSTT {
 
     // STEG 2: Skicka EndOfStream till Speechmatics
     if (this.ws?.readyState === WebSocket.OPEN) {
-      // Vänta 150ms för "in flight" audio att nå Speechmatics
-      console.log('⏳ Waiting 150ms for in-flight audio to reach Speechmatics...');
-      await new Promise(r => setTimeout(r, 150));
+      // Vänta 200ms för "in flight" audio att nå Speechmatics
+      console.log('⏳ Waiting 200ms for in-flight audio to reach Speechmatics...');
+      await new Promise(r => setTimeout(r, 200));
 
       // NU är det säkert att skicka EndOfStream
       console.log('📤 Sending EndOfStream to Speechmatics');
@@ -204,21 +197,21 @@ export class SpeechmaticsSTT {
         last_seq_no: this.lastSeqNo
       }));
 
-      // STEG 3: Vänta på EndOfUtterance från Speechmatics
-      console.log('⏳ Waiting for EndOfUtterance...');
+      // STEG 3: Vänta på EndOfTranscript från Speechmatics (SM's ACK på EndOfStream)
+      console.log('⏳ Waiting for EndOfTranscript (SM ACK)...');
       const startTime = Date.now();
 
       await new Promise<void>((resolve) => {
-        // Säkerhetstimeout: 2s (bör ALDRIG användas i normala fall)
+        // Säkerhetstimeout: 2s (för dålig uppkoppling)
         const timeout = setTimeout(() => {
-          console.warn('⚠️ Timeout waiting for EndOfUtterance (2s) - using accumulated anyway');
+          console.warn('⚠️ Timeout waiting for EndOfTranscript (2s) - using accumulated anyway');
           resolve();
         }, 2000);
 
-        this.onEndOfUtteranceCallback = () => {
+        this.onEndOfTranscriptCallback = () => {
           clearTimeout(timeout);
           const elapsed = Date.now() - startTime;
-          console.log(`✅ EndOfUtterance received (${elapsed}ms)`);
+          console.log(`✅ EndOfTranscript received (${elapsed}ms) - SM bekräftar alla AddTranscript skickade!`);
           resolve();
         };
       });

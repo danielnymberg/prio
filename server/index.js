@@ -628,7 +628,7 @@ wss.on('connection', (clientWs) => {
             sensitivity: 0.5
           },
           conversation_config: {
-            end_of_utterance_silence_trigger: 0.7  // 700ms tystnad → EndOfUtterance (conversation mode)
+            end_of_utterance_silence_trigger: 0  // DISABLE auto-trigger (använder EndOfStream istället)
           }
         }
       };
