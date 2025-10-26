@@ -141,16 +141,17 @@ export function VoicePushToTalkButton({
 
   /**
    * Touch handlers - Mobil
-   * KRITISKT: preventDefault() i touchstart blockerar touch på vissa browsers!
-   * Använd touchAction: 'none' i CSS istället (se rad 221)
+   * KRITISKT FIX: preventDefault() + stopPropagation() för att förhindra avbrott
    */
-  const handleTouchStart = () => {
-    // TA BORT preventDefault() här - touchAction: 'none' hanterar scroll/zoom
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault(); // Förhindra scroll/zoom under touch
+    e.stopPropagation(); // Förhindra event bubbling
     handleStart();
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault(); // Behåll här för att förhindra "ghost clicks"
+    e.preventDefault(); // Förhindra "ghost clicks"
+    e.stopPropagation(); // Förhindra event bubbling
     handleStop();
   };
 
