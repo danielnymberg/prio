@@ -19,7 +19,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
-import { FabComponent } from '@syncfusion/ej2-react-buttons';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -561,14 +560,28 @@ export function PushToTalkAssistant() {
         </button>
       )}
 
-      {/* Text Input FAB - Fixed position */}
+      {/* Text Input Button - Temporary replacement for FAB */}
       {!isProcessing && (
-        <FabComponent
-          iconCss="e-icons e-edit"
-          position="BottomLeft"
+        <button
           onClick={() => setShowTextInput(true)}
+          className="e-btn e-primary e-round"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '24px',
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            zIndex: 1000
+          }}
           title="Skriv meddelande till AI"
-        />
+        >
+          <span className="e-icons e-edit" style={{ fontSize: '20px' }}></span>
+        </button>
       )}
 
       {/* Text Input Dialog */}
