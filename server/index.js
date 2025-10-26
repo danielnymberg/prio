@@ -347,6 +347,157 @@ Svara ENDAST med valid JSON i detta format:
   }
 });
 
+// Endpoint för Claude chat STREAMING (för voice assistant)
+app.post('/api/claude-stream', authenticateUser, rateLimiter, async (req, res) => {
+  try {
+    if (!ANTHROPIC_API_KEY) {
+      return res.status(503).json({ error: 'Claude API not configured' });
+    }
+
+    const { messages, system, tools, max_tokens = 2000, model } = req.body || {};
+    const selectedModel = model || 'claude-haiku-4-5';
+
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Messages array required' });
+    }
+
+    // Set up Server-Sent Events
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Nginx buffering fix
+
+    // Prepare system parameter
+    let systemParam = Array.isArray(system) ? system : (system || '');
+
+    try {
+      // Stream from Claude
+      const stream = await anthropic.messages.stream({
+        model: selectedModel,
+        max_tokens,
+        system: systemParam,
+        messages,
+        tools: tools || [],
+      });
+
+      // Handle streaming events
+      stream.on('text', (text) => {
+        // Send text chunks to client
+        res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
+      });
+
+      stream.on('message', (message) => {
+        // Send final message (with tool calls if any)
+        res.write(`data: ${JSON.stringify({ type: 'message', message })}\n\n`);
+      });
+
+      stream.on('error', (error) => {
+        console.error('Stream error:', error);
+        res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
+        res.end();
+      });
+
+      stream.on('end', () => {
+        res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+        res.end();
+      });
+
+    } catch (streamError) {
+      console.error('Streaming error:', streamError);
+      res.write(`data: ${JSON.stringify({ type: 'error', error: streamError.message })}\n\n`);
+      res.end();
+    }
+
+  } catch (error) {
+    console.error('Claude stream endpoint error:', error);
+
+    // If headers not sent yet, send error as JSON
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message || 'Failed to start stream' });
+    } else {
+      // Headers already sent, send as SSE
+      res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
+      res.end();
+    }
+  }
+});
+
+// Endpoint för Claude chat streaming (real-time responses)
+app.post('/api/claude-stream', authenticateUser, rateLimiter, async (req, res) => {
+  try {
+    if (!ANTHROPIC_API_KEY) {
+      return res.status(503).json({ error: 'Claude API not configured' });
+    }
+
+    console.log('Claude stream request received');
+
+    const { messages, system, tools, max_tokens = 2000, model } = req.body || {};
+    const selectedModel = model || 'claude-haiku-4-5';
+
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Messages array required' });
+    }
+
+    // Setup SSE headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Nginx fix
+
+    try {
+      const stream = await anthropic.messages.stream({
+        model: selectedModel,
+        max_tokens,
+        system: Array.isArray(system) ? system : (system || ''),
+        messages,
+        tools: tools || []
+      });
+
+      let totalInputTokens = 0;
+      let totalOutputTokens = 0;
+
+      for await (const event of stream) {
+        // Send olika event types till frontend
+        if (event.type === 'message_start') {
+          res.write(`data: ${JSON.stringify({ type: 'start', usage: event.message.usage })}\n\n`);
+          totalInputTokens = event.message.usage.input_tokens;
+        }
+        else if (event.type === 'content_block_start') {
+          res.write(`data: ${JSON.stringify({ type: 'content_start' })}\n\n`);
+        }
+        else if (event.type === 'content_block_delta') {
+          if (event.delta.type === 'text_delta') {
+            res.write(`data: ${JSON.stringify({ type: 'text', text: event.delta.text })}\n\n`);
+          }
+        }
+        else if (event.type === 'message_delta') {
+          if (event.usage) {
+            totalOutputTokens = event.usage.output_tokens;
+          }
+          res.write(`data: ${JSON.stringify({ type: 'delta', stop_reason: event.delta.stop_reason })}\n\n`);
+        }
+        else if (event.type === 'message_stop') {
+          res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+        }
+      }
+
+      console.log(`✅ Claude ${selectedModel} streaming: ${totalInputTokens} input, ${totalOutputTokens} output tokens`);
+      res.end();
+
+    } catch (streamError) {
+      console.error('Stream error:', streamError);
+      res.write(`data: ${JSON.stringify({ type: 'error', error: streamError.message })}\n\n`);
+      res.end();
+    }
+
+  } catch (error) {
+    console.error('Claude stream error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+});
+
 // Endpoint för Claude chat (stödjer PDF-analys med document content)
 app.post('/api/claude-chat', authenticateUser, rateLimiter, async (req, res) => {
   try {

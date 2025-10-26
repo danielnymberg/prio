@@ -262,30 +262,68 @@ export function PushToTalkAssistant() {
 
       claudeRef.current.updateContext({ tasks, calendarEvents });
 
-      // Send till Claude
-      console.log('🤖 Sending to Claude:', userMessage);
-      const response = await claudeRef.current.chat(userMessage);
+      // Send till Claude MED STREAMING
+      console.log('🤖 Streaming from Claude:', userMessage);
 
-      // Lägg till assistant message
-      const assistantMessage: Message = {
-        role: 'assistant',
-        text: response,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, assistantMessage]);
+      let fullResponse = '';
+      let currentSentence = '';
 
-      // Spela upp svar med TTS
-      if (ttsRef.current && response) {
-        try {
-          setIsSpeaking(true);
-          await ttsRef.current.speak(response);
-          setIsSpeaking(false);
-        } catch (ttsError) {
-          console.warn('TTS failed, showing text only:', ttsError);
-          setIsSpeaking(false);
-          // Fail gracefully - användaren ser svaret ändå i messages
+      await claudeRef.current.chatStreaming(userMessage, (chunk) => {
+        // Chunk kommer in löpande från Claude
+        fullResponse += chunk;
+        currentSentence += chunk;
+
+        // Uppdatera UI i realtid
+        setMessages(prev => {
+          const lastMsg = prev[prev.length - 1];
+          if (lastMsg && lastMsg.role === 'assistant') {
+            // Uppdatera sista meddelandet
+            return [
+              ...prev.slice(0, -1),
+              { ...lastMsg, text: fullResponse }
+            ];
+          } else {
+            // Nytt assistant message
+            return [
+              ...prev,
+              { role: 'assistant', text: fullResponse, timestamp: new Date() }
+            ];
+          }
+        });
+
+        // När mening är klar, lägg till i TTS-kö
+        if (/[.!?]\s*$/.test(currentSentence.trim()) && currentSentence.trim().length > 10) {
+          console.log('🔊 Queuing sentence:', currentSentence.trim());
+
+          if (ttsRef.current) {
+            setIsSpeaking(true);
+            // Använd queued för att meningar spelas upp i ordning
+            ttsRef.current.speakQueued(currentSentence.trim()).catch(err => {
+              console.warn('TTS error:', err);
+            });
+          }
+
+          currentSentence = '';
         }
+      });
+
+      // Läs upp sista biten om mening inte slutade med punkt
+      if (ttsRef.current && currentSentence.trim()) {
+        await ttsRef.current.speakQueued(currentSentence.trim()).catch(err => {
+          console.warn('Final TTS error:', err);
+        });
       }
+
+      // Vänta på att TTS-kön är klar
+      await new Promise(resolve => {
+        const checkQueue = setInterval(() => {
+          if (!ttsRef.current || !ttsRef.current.getIsSpeaking()) {
+            clearInterval(checkQueue);
+            setIsSpeaking(false);
+            resolve(true);
+          }
+        }, 100);
+      });
 
     } catch (err) {
       console.error('Claude error:', err);

@@ -18,6 +18,8 @@
 
 export class SimpleTTS {
   private isSpeaking = false;
+  private queue: string[] = [];
+  private isProcessingQueue = false;
 
   /**
    * Strippa emojis och special chars som TTS inte kan läsa
@@ -37,6 +39,40 @@ export class SimpleTTS {
       .replace(/\n{2,}/g, '\n')
       .replace(/\s{2,}/g, ' ')
       .trim();
+  }
+
+  /**
+   * Speak with queuing - för streaming responses
+   * Lägger till text i kö och spelar upp i ordning
+   */
+  async speakQueued(text: string, rate: number = 0.9): Promise<void> {
+    this.queue.push(text);
+
+    // Starta queue-processing om inte redan igång
+    if (!this.isProcessingQueue) {
+      this.processQueue(rate);
+    }
+  }
+
+  /**
+   * Process queue - spelar upp en mening i taget
+   */
+  private async processQueue(rate: number): Promise<void> {
+    this.isProcessingQueue = true;
+
+    while (this.queue.length > 0) {
+      const text = this.queue.shift();
+      if (text) {
+        try {
+          await this.speak(text, rate);
+        } catch (error) {
+          console.warn('Queue TTS error:', error);
+          // Fortsätt med nästa i kön
+        }
+      }
+    }
+
+    this.isProcessingQueue = false;
   }
 
   /**
@@ -175,13 +211,17 @@ export class SimpleTTS {
   }
 
   /**
-   * Stoppa pågående uppspelning
+   * Stoppa pågående uppspelning OCH rensa kö
    */
   stop(): void {
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel();
       this.isSpeaking = false;
     }
+
+    // Rensa kön
+    this.queue = [];
+    this.isProcessingQueue = false;
   }
 
   /**
@@ -192,9 +232,9 @@ export class SimpleTTS {
   }
 
   /**
-   * Check om röst spelar nu
+   * Check om röst spelar nu ELLER har meningar i kö
    */
   getIsSpeaking(): boolean {
-    return this.isSpeaking;
+    return this.isSpeaking || this.isProcessingQueue || this.queue.length > 0;
   }
 }

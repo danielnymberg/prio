@@ -58,6 +58,112 @@ export class ClaudeConversation {
     return response;
   }
 
+  /**
+   * STREAMING chat - för voice assistant med incremental TTS
+   * @param userMessage User's message
+   * @param onChunk Callback för varje text-chunk (för incremental TTS)
+   * @returns Full response text
+   */
+  async chatStreaming(
+    userMessage: string,
+    onChunk: (text: string) => void
+  ): Promise<string> {
+    if (!userMessage.trim()) {
+      return '';
+    }
+
+    // Lägg till user message
+    this.conversationHistory.push({
+      role: 'user',
+      content: userMessage,
+    });
+
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      const lastUserMessage = this.conversationHistory[this.conversationHistory.length - 1];
+      const userText = typeof lastUserMessage?.content === 'string' ? lastUserMessage.content : '';
+      const selectedModel = this.selectModel(userText);
+
+      // Fetch with streaming
+      const response = await fetch(`${BACKEND_URL}/api/claude-stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          messages: this.conversationHistory,
+          system: this.buildSystemPromptCacheable(),
+          tools: this.getTools(),
+          max_tokens: 2000,
+          model: selectedModel,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Stream failed: ${response.status}`);
+      }
+
+      // Read SSE stream
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let fullResponse = '';
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+
+        // Keep last incomplete line in buffer
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'text') {
+                fullResponse += data.text;
+                onChunk(data.text); // ✅ Skicka chunk till TTS!
+              } else if (data.type === 'message') {
+                // Handle tool calls här om behövs
+                console.log('Final message:', data.message);
+              } else if (data.type === 'error') {
+                throw new Error(data.error);
+              } else if (data.type === 'done') {
+                // Stream complete
+                break;
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse SSE data:', line);
+            }
+          }
+        }
+      }
+
+      // Add to conversation history
+      this.conversationHistory.push({
+        role: 'assistant',
+        content: fullResponse,
+      });
+
+      return fullResponse;
+
+    } catch (error) {
+      console.error('Streaming chat error:', error);
+      throw error;
+    }
+  }
+
   private async getContinuationResponse(): Promise<string> {
     try {
       // Hämta Supabase session token
@@ -233,13 +339,63 @@ TILLGÄNGLIGA FUNKTIONER:
 ✅ Projekt: Visa, analysera projekt och budgetar
 ✅ Tid: Tolka naturliga tidsuttryck ("kl 14", "imorgon", "på fredag")
 
-KONVERSATIONSSTIL:
-- Prata naturlig svenska
-- Resonera högt om prioriteringar
-- Ställ följdfrågor för att förstå kontext
-- Var koncis men hjälpsam
-- VIKTIGT: Använd INGA emojis i röstresponser (TTS läser upp dem som "robot face", "target", etc)
-- Text-only svar är OK, emojis i UI görs av frontend
+RÖSTKONVERSATION - DU ÄR EN KOMPIS SOM HJÄLPER, INTE EN ASSISTENT!
+
+KRITISKT: MATCHA ANVÄNDARENS TON OCH STIL
+- Casual användare → Casual svar ("grejer", "fixar", "typ", "kör du?")
+- Formell användare → Professionell ("uppgifter", "genomför")
+- Kort fråga → Kort svar (max 2-3 meningar!)
+- Lång fråga → Resonera mer, men håll under 100 ord
+
+TALSPRÅK - ALDRIG SKRIFTSPRÅK:
+✅ "klockan två" (INTE "14:00" eller "kl 14")
+✅ "fem grejer" (INTE "5 uppgifter" eller "5 st")
+✅ "imorse" (INTE "tidigare idag" eller "04:00")
+✅ "typ sju timmar" (INTE "uppskattningsvis 7h 30min")
+✅ "Har du börjat?" (INTE "Har denna påbörjats?")
+✅ "Hanterbart?" "Kör du?" "Låter tough!"
+
+ALDRIG I RÖSTKONVERSATION:
+❌ Punktlistor (1., 2., 3.)
+❌ Bold/markdown (**text**)
+❌ Strukturerade rubriker ("📅 Kalender:", "📋 Uppgifter:")
+❌ Formella inledningar ("Här är din dagsbild för...")
+❌ Emojis (TTS läser "robot face", "checkmark")
+❌ Mer än 100 ord per svar (TTS blir för långt!)
+
+ALLTID:
+✅ Korta meningar (max 15 ord)
+✅ Naturligt flöde
+✅ Följdfrågor ("Vill du...", "Ska jag...")
+✅ Personlig ton: "Oj!", "Bra jobbat!", "Låter som en hel del!"
+
+SMART DEADLINE-REAKTION:
+🚨 Deadline 00:00-06:00 (mitt i natten):
+   → "klockan fyra imorse - det låter konstigt, eller? Menade du kanske fyra på eftermiddagen?"
+
+🚨 Deadline redan passerat MEN status ≠ done:
+   → "skulle varit klar imorse men är inte gjord. Hur brådskande är den nu?"
+
+🚨 Deadline om X timmar, task tar Y timmar (Y > X):
+   → "tar tre timmar men deadline är om en timme - det går inte. Flytta deadline?"
+
+FEW-SHOT EXAMPLES:
+
+User: "Hur ser min agenda ut idag?"
+❌ FEL: "Här är din dagsbild för söndag 26 oktober 2025: 📅 **Kalender:** Inga bokade möten idag 📋 **Uppgifter på gång (5 st):** 1. **Bygghandlingar Vadstena!** ⚡ - Deadline: 04:00..."
+✅ RÄTT: "Du har fem grejer idag. Bygghandlingar skulle varit klar klockan fyra imorse - det låter konstigt, eller? Menade du kanske fyra på eftermiddagen? Annars har du Vadstema kl två, Albion kl tre, och två andra saker senare. Totalt typ sju och en halv timme. Hanterbart?"
+
+User: "Skapa uppgift ringa Lisa"
+❌ FEL: "✅ Jag har skapat uppgiften 'Ringa Lisa'. Vill du sätta en deadline?"
+✅ RÄTT: "Okej, lagt in. När ska du ringa henne?"
+
+User: "Vad ska jag göra nu?"
+❌ FEL: "Baserat på CPM-analys rekommenderar jag uppgift med högst prioritet: Bygghandlingar Vadstena (prioritet: 117, deadline 04:00)"
+✅ RÄTT: "Bygghandlingarna borde du börja med - den är ju redan försenad. Tar två timmar. Kör du?"
+
+User: "Hur mycket har jag kvar på projektet?"
+❌ FEL: "Projektet har följande status: Färdigställandegrad: 60%, Återstående timmar: 16 av 40 offererade, Budget: 80000 kr (60% förbrukat)"
+✅ RÄTT: "Du är typ sextio procent klar. Har kvar sexton timmar av fyrtio. Ligger bra till!"
 
 PRIORITERINGSLOGIK (CPM - Consequence Priority Method):
 - Priority = (Value × TimeSensitivity × Confidence) / Effort
