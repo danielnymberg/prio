@@ -52,41 +52,16 @@ export class SpeechmaticsSTT {
             this.onTranscriptCallback?.(data.metadata.transcript, false);
           } else if (data.message === 'AddTranscript') {
             // Final transcription - Speechmatics skickar ett AddTranscript för varje ord/fras
-            // Vi måste ackumulera alla AddTranscript meddelanden
-            console.log('🔍 DEBUG AddTranscript full data:', JSON.stringify(data, null, 2));
+            // KRITISKT: Använd metadata.transcript (har redan korrekt spacing + svenska sammansättningar!)
+            const newText = data.metadata?.transcript || '';
 
-            // Extrahera text från results array
-            if (data.results && data.results.length > 0) {
-              console.log('🔍 DEBUG results array:', JSON.stringify(data.results, null, 2));
-              const newText = data.results.map((r: any) => {
-                const content = r.alternatives?.[0]?.content || '';
-                console.log('🔍 DEBUG einzelne result content:', content);
-                return content;
-              }).join('');
-
-              // Lägg till mellanslag mellan ord om vi har tidigare text
-              if (this.accumulatedTranscript && newText) {
-                this.accumulatedTranscript += ' ' + newText;
-              } else if (newText) {
-                this.accumulatedTranscript = newText;
-              }
-
-              console.log('✅ Accumulated transcript so far:', this.accumulatedTranscript);
-            }
-            // Fallback till metadata.transcript
-            else if (data.metadata?.transcript) {
-              const newText = data.metadata.transcript;
-              console.log('⚠️ Using metadata.transcript (fallback):', newText);
-
-              if (this.accumulatedTranscript && newText) {
-                this.accumulatedTranscript += ' ' + newText;
-              } else if (newText) {
-                this.accumulatedTranscript = newText;
-              }
+            if (newText) {
+              // metadata.transcript har redan korrekt spacing och trailing space
+              this.accumulatedTranscript += newText;
+              console.log('✅ Accumulated:', this.accumulatedTranscript);
             }
 
             // Skicka INTE final transcript ännu - vänta på EndOfTranscript
-            // (Final transcripts skickas när användaren stoppar eller efter EndOfStream)
           } else if (data.message === 'EndOfTranscript') {
             // När hela transcripten är klar, skicka den ackumulerade texten
             console.log('🏁 EndOfTranscript - sending accumulated:', this.accumulatedTranscript);

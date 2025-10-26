@@ -135,6 +135,9 @@ export function PushToTalkAssistant() {
       return;
     }
 
+    // KRITISKT: Stoppa pågående TTS innan ny inspelning
+    ttsRef.current?.stop();
+
     try {
       console.log('🎤 Starting STT...');
       setPartialText('');
