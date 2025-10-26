@@ -170,12 +170,8 @@ export function FocusView() {
       <>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', minHeight: '60vh' }}>
           <div style={{ textAlign: 'center', maxWidth: '28rem' }}>
-            <div style={{ fontSize: '60px', marginBottom: '16px' }}>☀️</div>
-            <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
-              Börja din dag!
-            </h2>
-            <p style={{ marginBottom: '24px' }}>
-              Gör din dagliga avstämning för att få din första uppgift. Använd "Avstämning" i menyn ovan.
+            <p style={{ marginBottom: '24px', color: 'var(--e-text-secondary)', fontSize: '14px' }}>
+              Gör din dagliga avstämning för att få din första uppgift.
             </p>
           </div>
         </div>
