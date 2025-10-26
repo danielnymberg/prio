@@ -17,9 +17,7 @@ import { SimpleTTS } from '@/services/audio/SimpleTTS';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
-import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
-import { FabComponent } from '@syncfusion/ej2-react-buttons';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -34,7 +32,6 @@ export function PushToTalkAssistant() {
   const [error, setError] = useState<string | null>(null);
   const [servicesReady, setServicesReady] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [showTextInput, setShowTextInput] = useState(false);
   const [textInputValue, setTextInputValue] = useState('');
 
   // Context pre-fetching: Hämta under inspelning för snabbare respons
@@ -351,8 +348,7 @@ export function PushToTalkAssistant() {
 
     if (!message) return;
 
-    // Stäng dialog och rensa input
-    setShowTextInput(false);
+    // Rensa input
     setTextInputValue('');
 
     // Lägg till user message
@@ -483,14 +479,67 @@ export function PushToTalkAssistant() {
         </div>
       )}
 
-      {/* Push-to-Talk Button */}
-      <VoicePushToTalkButton
-        onRecordingStart={handleRecordingStart}
-        onRecordingStop={handleRecordingStop}
-        disabled={!servicesReady}
-        isProcessing={isProcessing}
-        partialTranscript={partialText}
-      />
+      {/* Input Controls - Text + Voice side by side */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: '16px',
+        width: '100%',
+        justifyContent: 'center',
+        flexWrap: 'wrap'
+      }}>
+        {/* Text Input */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            minWidth: '200px',
+            maxWidth: '300px',
+            flex: '1'
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleTextSubmit();
+            }
+          }}
+        >
+          <TextBoxComponent
+            placeholder="Skriv till AI..."
+            multiline={false}
+            value={textInputValue}
+            input={(e) => setTextInputValue(e.value)}
+            disabled={isProcessing || !servicesReady}
+            cssClass="e-outline"
+          />
+          <button
+            onClick={handleTextSubmit}
+            disabled={!textInputValue.trim() || isProcessing || !servicesReady}
+            className="e-btn e-primary"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              width: '100%'
+            }}
+          >
+            <span className="e-icons e-send" style={{ fontSize: '14px' }}></span>
+            Skicka
+          </button>
+        </div>
+
+        {/* Push-to-Talk Button */}
+        <VoicePushToTalkButton
+          onRecordingStart={handleRecordingStart}
+          onRecordingStop={handleRecordingStop}
+          disabled={!servicesReady}
+          isProcessing={isProcessing}
+          partialTranscript={partialText}
+        />
+      </div>
 
       {/* Processing status */}
       {isProcessing && (
@@ -561,74 +610,6 @@ export function PushToTalkAssistant() {
         </button>
       )}
 
-      {/* Text Input FAB - Fixed position */}
-      {!isProcessing && (
-        <FabComponent
-          iconCss="e-icons e-edit"
-          position="BottomLeft"
-          onClick={() => setShowTextInput(true)}
-          title="Skriv meddelande till AI"
-        />
-      )}
-
-      {/* Text Input Dialog */}
-      {showTextInput && (
-        <DialogComponent
-          width="min(90%, 400px)"
-          header="Skriv till AI"
-          visible={true}
-          close={() => {
-            setShowTextInput(false);
-            setTextInputValue('');
-          }}
-          showCloseIcon={true}
-          isModal={true}
-          target="body"
-          buttons={[
-            {
-              buttonModel: {
-                content: 'Skicka',
-                isPrimary: true,
-                cssClass: 'e-primary'
-              },
-              click: handleTextSubmit
-            },
-            {
-              buttonModel: {
-                content: 'Avbryt',
-                cssClass: 'e-flat'
-              },
-              click: () => {
-                setShowTextInput(false);
-                setTextInputValue('');
-              }
-            }
-          ]}
-          animationSettings={{
-            effect: 'Zoom',
-            duration: 300,
-            delay: 0
-          } as AnimationSettingsModel}
-        >
-          <div
-            style={{ padding: '16px' }}
-            onKeyDown={(e: any) => {
-              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault();
-                handleTextSubmit();
-              }
-            }}
-          >
-            <TextBoxComponent
-              placeholder="Skriv din fråga till AI... (Cmd+Enter för att skicka)"
-              floatLabelType="Auto"
-              multiline={true}
-              value={textInputValue}
-              input={(e) => setTextInputValue(e.value)}
-            />
-          </div>
-        </DialogComponent>
-      )}
 
     </div>
   );
