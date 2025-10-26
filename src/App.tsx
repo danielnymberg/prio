@@ -201,8 +201,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {children}
       {/* Email task listener - TEMPORÄRT DISABLED: Kraschar vid mount */}
       {/* <EmailTaskListener key="email-listener" /> */}
-      {/* Voice AI assistant - Push-to-Talk */}
-      <PushToTalkAssistant key="voice-assistant" />
+      {/* Voice AI assistant - Flyttad till HomeView */}
       {/* Quick note input - TEMPORÄRT DISABLED: Kraschar vid expandering */}
       {/* <QuickNoteInput key="quick-note" /> */}
       {/* Quick capture bar för mobil - TEMPORÄRT DISABLED: Testing if TaskForm/Dialog causes crash */}

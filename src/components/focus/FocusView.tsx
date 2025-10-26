@@ -25,7 +25,11 @@ export function FocusView() {
   // Hämta dagens check-in från localStorage
   useEffect(() => {
     const stored = localStorage.getItem('prio-daily-checkin');
-    if (!stored) return;
+    if (!stored) {
+      // Ingen checkin - auto-öppna modal
+      setShowCheckInDialog(true);
+      return;
+    }
 
     const checkIn: DailyCheckIn = JSON.parse(stored);
     const today = new Date().toISOString().split('T')[0];
@@ -39,6 +43,9 @@ export function FocusView() {
         currentDate: new Date(),
         nextBlockDuration: 90
       });
+    } else {
+      // Gammal checkin - auto-öppna modal för ny dag
+      setShowCheckInDialog(true);
     }
   }, []);
 
