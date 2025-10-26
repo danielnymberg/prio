@@ -186,9 +186,10 @@ export class SpeechmaticsSTT {
 
     // STEG 2: Skicka EndOfStream till Speechmatics
     if (this.ws?.readyState === WebSocket.OPEN) {
-      // Vänta 200ms för "in flight" audio att nå Speechmatics
-      console.log('⏳ Waiting 200ms for in-flight audio to reach Speechmatics...');
-      await new Promise(r => setTimeout(r, 200));
+      // Vänta 500ms för "in flight" audio att nå Speechmatics + buffring
+      // Push-to-talk optimering: Ger SM tid att bearbeta sista ljudet
+      console.log('⏳ Waiting 500ms for in-flight audio to reach Speechmatics...');
+      await new Promise(r => setTimeout(r, 500));
 
       // NU är det säkert att skicka EndOfStream
       console.log('📤 Sending EndOfStream to Speechmatics');
