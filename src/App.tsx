@@ -16,7 +16,6 @@ import { checkAndSendNotifications } from './services/notifications';
 // import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal'; // TEMPORÄRT DISABLED
 import { initEmailScheduler } from './services/email-scheduler';
 // import { EmailTaskListener } from './components/email/EmailTaskListener'; // TEMPORÄRT DISABLED
-import { PushToTalkAssistant } from './components/voice/PushToTalkAssistant';
 // import { GlobalSearch } from './components/search/GlobalSearch'; // TEMPORÄRT DISABLED
 
 // Lazy load routes för bättre initial load performance

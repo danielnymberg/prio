@@ -108,13 +108,18 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         <div className="e-appbar-separator"></div>
 
-        <span style={{
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          color: 'var(--e-text)'
-        }}>
+        <a
+          href="/home"
+          style={{
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            color: 'var(--e-text)',
+            textDecoration: 'none',
+            cursor: 'pointer'
+          }}
+        >
           MinPrio
-        </span>
+        </a>
 
         <div className="e-appbar-spacer"></div>
 

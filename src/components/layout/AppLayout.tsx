@@ -7,8 +7,8 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  // Sidebar öppen på desktop, stängd på mobil
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Sidebar stängd som default
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <div className="e-flex e-flex-column e-h-screen">
