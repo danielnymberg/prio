@@ -16,7 +16,7 @@ import { checkAndSendNotifications } from './services/notifications';
 // import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal'; // TEMPORÄRT DISABLED
 import { initEmailScheduler } from './services/email-scheduler';
 // import { EmailTaskListener } from './components/email/EmailTaskListener'; // TEMPORÄRT DISABLED
-import { VoiceInterface } from './components/voice/VoiceInterface';
+import { PushToTalkAssistant } from './components/voice/PushToTalkAssistant';
 // import { GlobalSearch } from './components/search/GlobalSearch'; // TEMPORÄRT DISABLED
 
 // Lazy load routes för bättre initial load performance
@@ -37,7 +37,6 @@ const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSi
 const ResursallokeringAllView = lazy(() => import('./components/allocation/ResursallokeringAllView').then(m => ({ default: m.ResursallokeringAllView })));
 const TestView = lazy(() => import('./components/test/TestView').then(m => ({ default: m.TestView })));
 const GanttView = lazy(() => import('./components/gantt/GanttView').then(m => ({ default: m.GanttView })));
-const PushToTalkAssistant = lazy(() => import('./components/voice/PushToTalkAssistant').then(m => ({ default: m.PushToTalkAssistant })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -201,8 +200,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       {children}
       {/* Email task listener - TEMPORÄRT DISABLED: Kraschar vid mount */}
       {/* <EmailTaskListener key="email-listener" /> */}
-      {/* Voice AI assistant */}
-      <VoiceInterface key="voice-interface" />
+      {/* Voice AI assistant - Push-to-Talk */}
+      <PushToTalkAssistant key="voice-assistant" />
       {/* Quick note input - TEMPORÄRT DISABLED: Kraschar vid expandering */}
       {/* <QuickNoteInput key="quick-note" /> */}
       {/* Quick capture bar för mobil - TEMPORÄRT DISABLED: Testing if TaskForm/Dialog causes crash */}
@@ -505,17 +504,6 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <GanttView />
-              </Suspense>
-            </ProtectedRoute>
-          }
-        />
-        {/* Voice Test - Push-to-Talk Assistant */}
-        <Route
-          path="/voice-test"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <PushToTalkAssistant />
               </Suspense>
             </ProtectedRoute>
           }
