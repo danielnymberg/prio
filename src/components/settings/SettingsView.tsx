@@ -29,7 +29,7 @@ import {
 } from '@syncfusion/ej2-react-navigations';
 import { SwitchComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
-import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
+import { CheckBoxComponent, RadioButtonComponent } from '@syncfusion/ej2-react-buttons';
 
 export function SettingsView() {
   console.log('🔍 DEBUG: SettingsView mounting');
@@ -40,6 +40,7 @@ export function SettingsView() {
   let notificationPermission, setNotificationPermission;
   let workingHours, setWorkingHours;
   let emailSchedule, setEmailSchedule;
+  let ttsSpeed, setTtsSpeed;
 
   try {
     console.log('🔍 DEBUG: Initializing state hooks...');
@@ -51,6 +52,7 @@ export function SettingsView() {
     );
     [workingHours, setWorkingHours] = useState<WorkingHoursConfig>(getWorkingHoursConfig());
     [emailSchedule, setEmailSchedule] = useState<EmailScheduleConfig>(getScheduleConfig());
+    [ttsSpeed, setTtsSpeed] = useState<string>(localStorage.getItem('prio-tts-speed') || 'normal');
     console.log('✅ DEBUG: All state hooks initialized successfully');
   } catch (error) {
     console.error('❌ DEBUG: Error initializing state hooks:', error);
@@ -285,6 +287,73 @@ export function SettingsView() {
         <Button onClick={handleSaveWorkingHours} variant="primary">
           Spara arbetstider
         </Button>
+      </div>
+    );
+  };
+
+  // TTS Speed Content
+  const ttsSpeedContent = () => {
+    const handleTtsSpeedChange = (value: string) => {
+      setTtsSpeed(value);
+      localStorage.setItem('prio-tts-speed', value);
+      showToast.success('Rösthastighet sparad!');
+    };
+
+    return (
+      <div style={{
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <p style={{
+          fontSize: '0.875rem',
+          color: 'var(--e-text)',
+          opacity: 0.7
+        }}>
+          Välj hastighet för röstuppläsning av AI-svar. Snabbare = kortare svarstid.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <RadioButtonComponent
+            label="Långsam (1.0x) - Tydligast"
+            name="tts-speed"
+            value="slow"
+            checked={ttsSpeed === 'slow'}
+            change={() => handleTtsSpeedChange('slow')}
+          />
+
+          <RadioButtonComponent
+            label="Normal (1.2x) - Rekommenderad"
+            name="tts-speed"
+            value="normal"
+            checked={ttsSpeed === 'normal'}
+            change={() => handleTtsSpeedChange('normal')}
+          />
+
+          <RadioButtonComponent
+            label="Snabb (1.5x) - Spara tid"
+            name="tts-speed"
+            value="fast"
+            checked={ttsSpeed === 'fast'}
+            change={() => handleTtsSpeedChange('fast')}
+          />
+        </div>
+
+        <div style={{
+          backgroundColor: 'var(--primary-100)',
+          padding: '0.75rem',
+          borderRadius: '8px',
+          border: '1px solid var(--primary-500)'
+        }}>
+          <p style={{
+            fontSize: '0.875rem',
+            color: 'var(--e-text)',
+            margin: 0
+          }}>
+            💡 <strong>Tips:</strong> Vid bilkörning rekommenderas Normal (1.2x) för bra balans mellan hastighet och tydlighet.
+          </p>
+        </div>
       </div>
     );
   };
@@ -977,6 +1046,12 @@ export function SettingsView() {
               iconCss="e-icons e-clock"
               expanded={true}
               content={workingHoursContent}
+            />
+
+            <AccordionItemDirective
+              header="Rösthastighet"
+              iconCss="e-icons e-microphone"
+              content={ttsSpeedContent}
             />
 
             <AccordionItemDirective

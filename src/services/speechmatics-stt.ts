@@ -7,7 +7,6 @@ export class SpeechmaticsSTT {
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
   private accumulatedTranscript: string = ''; // Accumulate final transcript parts
   private onEndOfTranscriptCallback?: () => void;
-  private onEndOfUtteranceCallback?: () => void;
   private lastSeqNo: number = 0;
   private isStreaming: boolean = false;
 
@@ -78,17 +77,6 @@ export class SpeechmaticsSTT {
             }
 
             // Skicka INTE final transcript ännu - vänta på EndOfTranscript
-          } else if (data.message === 'EndOfUtterance') {
-            // User slutade prata (0.7s tystnad) - skicka accumulated transcript
-            console.log('🏁 EndOfUtterance received, accumulated:', this.accumulatedTranscript);
-
-            if (this.accumulatedTranscript.trim()) {
-              this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-              this.accumulatedTranscript = ''; // Reset för nästa utterance
-            }
-
-            // Trigga callback (för UI-feedback om behövs)
-            this.onEndOfUtteranceCallback?.();
           } else if (data.message === 'EndOfTranscript') {
             // Session helt avslutad (endast vid disconnect)
             console.log('🏁 EndOfTranscript received - session ending');
@@ -99,9 +87,9 @@ export class SpeechmaticsSTT {
             console.error('Speechmatics error:', data);
             const errorMsg = data.reason || 'Okänt fel från Speechmatics';
 
-            // Trigga EndOfUtterance callback för att avbryta väntan
-            if (this.onEndOfUtteranceCallback) {
-              this.onEndOfUtteranceCallback();
+            // Trigga EndOfTranscript callback för att avbryta väntan
+            if (this.onEndOfTranscriptCallback) {
+              this.onEndOfTranscriptCallback();
             }
 
             throw new Error(`Speechmatics: ${errorMsg}`);
@@ -183,35 +171,50 @@ export class SpeechmaticsSTT {
   }
 
   async stopListening(sendAccumulated: boolean = true): Promise<void> {
-    console.log('🛑 stopListening called - pausing audio stream');
+    console.log('🛑 stopListening called - stopping microphone');
 
     // 1. Stoppa mikrofon OMEDELBART (ingen NY audio spelas in)
     this.stopMicrophone();
     this.isStreaming = false;
 
-    // 2. VÄNTA på EndOfUtterance (Speechmatics detekterar 0.7s tystnad)
-    console.log('⏳ Waiting for EndOfUtterance (auto-detected after 0.7s silence)...');
+    // 2. Skicka EndOfStream till Speechmatics
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      console.log('📤 Sending EndOfStream to Speechmatics');
+      this.ws.send(JSON.stringify({
+        message: 'EndOfStream',
+        last_seq_no: this.lastSeqNo
+      }));
 
-    await new Promise<void>((resolve) => {
-      const timeout = setTimeout(() => {
-        console.warn('⏱️ Timeout waiting for EndOfUtterance (2s) - using accumulated anyway');
+      // 3. VÄNTA på EndOfTranscript (Speechmatics processar sista ljuden)
+      console.log('⏳ Waiting for EndOfTranscript...');
 
-        // FALLBACK: Använd accumulated även om timeout
-        if (sendAccumulated && this.accumulatedTranscript.trim()) {
-          this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-          this.accumulatedTranscript = '';
-        }
+      await new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+          console.warn('⏱️ Timeout waiting for EndOfTranscript (2s) - using accumulated anyway');
 
-        resolve();
-      }, 2000);
+          // FALLBACK: Använd accumulated även om timeout
+          if (sendAccumulated && this.accumulatedTranscript.trim()) {
+            this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+            this.accumulatedTranscript = '';
+          }
 
-      this.onEndOfUtteranceCallback = () => {
-        console.log('✅ EndOfUtterance received!');
-        clearTimeout(timeout);
-        resolve();
-        // accumulatedTranscript redan skickad i EndOfUtterance handler
-      };
-    });
+          resolve();
+        }, 2000);
+
+        this.onEndOfTranscriptCallback = () => {
+          console.log('✅ EndOfTranscript received - audio fully processed!');
+          clearTimeout(timeout);
+
+          // Skicka accumulated transcript
+          if (sendAccumulated && this.accumulatedTranscript.trim()) {
+            this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+            this.accumulatedTranscript = '';
+          }
+
+          resolve();
+        };
+      });
+    }
 
     // WebSocket FÖRBLIR ÖPPEN för nästa turn! ✅
     console.log('🔌 WebSocket kept open for next turn');
@@ -306,6 +309,5 @@ export class SpeechmaticsSTT {
     // Clear callbacks
     this.onTranscriptCallback = undefined;
     this.onEndOfTranscriptCallback = undefined;
-    this.onEndOfUtteranceCallback = undefined;
   }
 }
