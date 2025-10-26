@@ -18,6 +18,7 @@
     "@microsoft/microsoft-graph-types": "^2.43.1",
     "@supabase/supabase-js": "^2.39.0",
     "@syncfusion/ej2-grids": "^31.1.23",
+    "@syncfusion/ej2-interactive-chat": "^31.1.23",
     "@syncfusion/ej2-locale": "^31.1.17",
     "@syncfusion/ej2-popups": "^31.1.20",
     "@syncfusion/ej2-react-buttons": "^31.1.21",
