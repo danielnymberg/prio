@@ -32,6 +32,7 @@ import '@syncfusion/ej2-layouts/styles/fluent2.css';
 import '@syncfusion/ej2-richtexteditor/styles/fluent2.css';
 import '@syncfusion/ej2-treegrid/styles/fluent2.css';
 import '@syncfusion/ej2-gantt/styles/fluent2.css';
+import '@syncfusion/ej2-interactive-chat/styles/fluent2.css';
 
 // Then import our custom CSS (minimal body/root styling only)
 import './index.css';

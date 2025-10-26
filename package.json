@@ -28,6 +28,7 @@
     "@syncfusion/ej2-react-grids": "^31.1.23",
     "@syncfusion/ej2-react-inplace-editor": "^31.2.2",
     "@syncfusion/ej2-react-inputs": "^31.1.23",
+    "@syncfusion/ej2-react-interactive-chat": "^31.1.23",
     "@syncfusion/ej2-react-kanban": "^31.1.17",
     "@syncfusion/ej2-react-layouts": "^31.1.22",
     "@syncfusion/ej2-react-navigations": "^31.1.20",

@@ -17,7 +17,8 @@ import { SimpleTTS } from '@/services/audio/SimpleTTS';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
-import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
+import { ChatUIComponent, MessagesDirective, MessageDirective, UserModel } from '@syncfusion/ej2-react-interactive-chat';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -32,7 +33,6 @@ export function PushToTalkAssistant() {
   const [error, setError] = useState<string | null>(null);
   const [servicesReady, setServicesReady] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [textInputValue, setTextInputValue] = useState('');
 
   // Context pre-fetching: Hämta under inspelning för snabbare respons
   const contextPromiseRef = useRef<Promise<any> | null>(null);
@@ -45,6 +45,19 @@ export function PushToTalkAssistant() {
   const ttsRef = useRef<SimpleTTS | null>(null);
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
+
+  // ChatUI user models (defined AFTER useAuth)
+  const assistantUser: UserModel = {
+    id: 'prio-ai',
+    user: 'Prio AI',
+    avatarBgColor: '#0078D4'
+  };
+
+  const currentUserModel: UserModel = {
+    id: user?.id || 'current-user',
+    user: 'Du',
+    avatarBgColor: '#107C10'
+  };
 
   /**
    * Initialize services
@@ -340,28 +353,6 @@ export function PushToTalkAssistant() {
     }
   };
 
-  /**
-   * Send text message to Claude
-   */
-  const handleTextSubmit = useCallback(async () => {
-    const message = textInputValue.trim();
-
-    if (!message) return;
-
-    // Rensa input
-    setTextInputValue('');
-
-    // Lägg till user message
-    const userMessage: Message = {
-      role: 'user',
-      text: message,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, userMessage]);
-
-    // Send till Claude
-    await sendToClaude(message);
-  }, [textInputValue]);
 
   /**
    * Clear conversation
@@ -388,81 +379,62 @@ export function PushToTalkAssistant() {
       maxWidth: '600px',
       margin: '0 auto'
     }}>
-      {/* Conversation History */}
-      {messages.length > 0 && (
-        <div style={{
-          width: '100%',
-          background: 'var(--e-surface)',
-          borderRadius: '12px',
-          padding: '16px',
-          maxHeight: '400px',
-          overflowY: 'auto',
-          border: '1px solid var(--e-border)'
-        }}>
+      {/* ChatUI - Textinput + Conversation */}
+      <div style={{ width: '100%', maxWidth: '600px' }}>
+        {/* Header med Rensa-knapp */}
+        {messages.length > 0 && (
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '16px'
+            marginBottom: '8px'
           }}>
             <span style={{
               fontSize: '12px',
               fontWeight: 600,
-              color: 'var(--e-text-secondary)',
+              color: 'var(--color-sf-black)',
+              opacity: 0.6,
               textTransform: 'uppercase'
             }}>
               Konversation
             </span>
-            <button
+            <ButtonComponent
+              cssClass="e-flat e-small"
+              iconCss="e-icons e-close"
+              content="Rensa"
               onClick={clearConversation}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--e-text-secondary)',
-                cursor: 'pointer',
-                fontSize: '11px',
-                padding: '4px 8px'
-              }}
-            >
-              Rensa
-            </button>
+            />
           </div>
+        )}
 
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              style={{
-                display: 'flex',
-                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                marginBottom: i < messages.length - 1 ? '12px' : '0'
-              }}
-            >
-              <div style={{
-                maxWidth: '80%',
-                padding: '12px 16px',
-                borderRadius: '16px',
-                background: msg.role === 'user' ? 'var(--primary-600)' : 'var(--e-surface-variant)',
-                color: msg.role === 'user' ? '#ffffff' : 'var(--e-text)',
-                border: msg.role === 'assistant' ? '1px solid var(--e-border)' : 'none'
-              }}>
-                <p style={{ fontSize: '14px', margin: '0 0 4px 0', lineHeight: 1.5 }}>
-                  {msg.text}
-                </p>
-                <p style={{
-                  fontSize: '11px',
-                  opacity: 0.7,
-                  margin: 0
-                }}>
-                  {msg.timestamp.toLocaleTimeString('sv-SE', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+        <ChatUIComponent
+          user={currentUserModel}
+          showTimeBreak={false}
+          showFooter={true}
+          placeholder="Skriv till AI..."
+          messageSend={(args: any) => {
+            // När användaren skickar meddelande via ChatUI
+            const userMessage: Message = {
+              role: 'user',
+              text: args.message.text,
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, userMessage]);
+            sendToClaude(args.message.text);
+          }}
+        >
+          <MessagesDirective>
+            {messages.map((msg, i) => (
+              <MessageDirective
+                key={`${msg.timestamp.getTime()}-${i}`}
+                text={msg.text}
+                author={msg.role === 'user' ? currentUserModel : assistantUser}
+                timeStamp={msg.timestamp}
+              />
+            ))}
+          </MessagesDirective>
+        </ChatUIComponent>
+      </div>
 
       {/* Error display */}
       {error && (
@@ -479,67 +451,14 @@ export function PushToTalkAssistant() {
         </div>
       )}
 
-      {/* Input Controls - Text + Voice side by side */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: '16px',
-        width: '100%',
-        justifyContent: 'center',
-        flexWrap: 'wrap'
-      }}>
-        {/* Text Input */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-            minWidth: '200px',
-            maxWidth: '300px',
-            flex: '1'
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              handleTextSubmit();
-            }
-          }}
-        >
-          <TextBoxComponent
-            placeholder="Skriv till AI..."
-            multiline={false}
-            value={textInputValue}
-            input={(e) => setTextInputValue(e.value)}
-            disabled={isProcessing || !servicesReady}
-            cssClass="e-outline"
-          />
-          <button
-            onClick={handleTextSubmit}
-            disabled={!textInputValue.trim() || isProcessing || !servicesReady}
-            className="e-btn e-primary"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              width: '100%'
-            }}
-          >
-            <span className="e-icons e-send" style={{ fontSize: '14px' }}></span>
-            Skicka
-          </button>
-        </div>
-
-        {/* Push-to-Talk Button */}
-        <VoicePushToTalkButton
-          onRecordingStart={handleRecordingStart}
-          onRecordingStop={handleRecordingStop}
-          disabled={!servicesReady}
-          isProcessing={isProcessing}
-          partialTranscript={partialText}
-        />
-      </div>
+      {/* Push-to-Talk Button */}
+      <VoicePushToTalkButton
+        onRecordingStart={handleRecordingStart}
+        onRecordingStop={handleRecordingStop}
+        disabled={!servicesReady}
+        isProcessing={isProcessing}
+        partialTranscript={partialText}
+      />
 
       {/* Processing status */}
       {isProcessing && (
