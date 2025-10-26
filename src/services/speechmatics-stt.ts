@@ -198,24 +198,10 @@ export class SpeechmaticsSTT {
         last_seq_no: this.lastSeqNo
       }));
 
-      // STEG 3: Vänta på EndOfTranscript från Speechmatics (SM's ACK på EndOfStream)
-      console.log('⏳ Waiting for EndOfTranscript (SM ACK)...');
-      const startTime = Date.now();
-
-      await new Promise<void>((resolve) => {
-        // Säkerhetstimeout: 2s (för dålig uppkoppling)
-        const timeout = setTimeout(() => {
-          console.warn('⚠️ Timeout waiting for EndOfTranscript (2s) - using accumulated anyway');
-          resolve();
-        }, 2000);
-
-        this.onEndOfTranscriptCallback = () => {
-          clearTimeout(timeout);
-          const elapsed = Date.now() - startTime;
-          console.log(`✅ EndOfTranscript received (${elapsed}ms) - SM bekräftar alla AddTranscript skickade!`);
-          resolve();
-        };
-      });
+      // STEG 3: Kort väntan för eventuella sista AddTranscript-meddelanden
+      // Vi BEHÖVER inte vänta på EndOfTranscript - vi har redan all data från AddTranscript!
+      console.log('⏳ Waiting 100ms for final AddTranscript messages...');
+      await new Promise(r => setTimeout(r, 100));
 
       // Skicka accumulated transcript
       if (sendAccumulated && this.accumulatedTranscript.trim()) {
