@@ -22,6 +22,19 @@ export class SimpleTTS {
   private isProcessingQueue = false;
 
   /**
+   * Hämta användarens TTS-hastighet från localStorage
+   */
+  private getTTSRate(): number {
+    const pref = localStorage.getItem('prio-tts-speed');
+    switch(pref) {
+      case 'slow': return 1.0;
+      case 'fast': return 1.5;
+      case 'normal':
+      default: return 1.2;  // Default: Normal (20% snabbare än 1.0)
+    }
+  }
+
+  /**
    * Strippa emojis och special chars som TTS inte kan läsa
    */
   private stripEmojis(text: string): string {
@@ -45,26 +58,27 @@ export class SimpleTTS {
    * Speak with queuing - för streaming responses
    * Lägger till text i kö och spelar upp i ordning
    */
-  async speakQueued(text: string, rate: number = 0.9): Promise<void> {
+  async speakQueued(text: string, rate?: number): Promise<void> {
     this.queue.push(text);
 
     // Starta queue-processing om inte redan igång
     if (!this.isProcessingQueue) {
-      this.processQueue(rate);
+      this.processQueue(rate || this.getTTSRate());
     }
   }
 
   /**
    * Process queue - spelar upp en mening i taget
    */
-  private async processQueue(rate: number): Promise<void> {
+  private async processQueue(rate?: number): Promise<void> {
     this.isProcessingQueue = true;
+    const selectedRate = rate || this.getTTSRate();
 
     while (this.queue.length > 0) {
       const text = this.queue.shift();
       if (text) {
         try {
-          await this.speak(text, rate);
+          await this.speak(text, selectedRate);
         } catch (error) {
           console.warn('Queue TTS error:', error);
           // Fortsätt med nästa i kön
@@ -80,7 +94,8 @@ export class SimpleTTS {
    * @param text Text att läsa upp
    * @param rate Hastighet (0.5-2.0, default 0.9 för tydligare svenska)
    */
-  async speak(text: string, rate: number = 0.9): Promise<void> {
+  async speak(text: string, rate?: number): Promise<void> {
+    const selectedRate = rate || this.getTTSRate();
     return new Promise((resolve, reject) => {
       if (!('speechSynthesis' in window)) {
         console.warn('SpeechSynthesis not supported');
@@ -104,7 +119,7 @@ export class SimpleTTS {
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.lang = 'sv-SE';
-      utterance.rate = rate;
+      utterance.rate = selectedRate;
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
 
