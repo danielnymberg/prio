@@ -26,8 +26,7 @@ export function HomeView() {
     const fetchWeather = async (lat: number, lon: number, locationName: string) => {
       try {
         console.log('🌤️ Fetching weather for:', locationName, { lat, lon });
-        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
-        const url = `${BACKEND_URL}/api/weather?lat=${lat}&lon=${lon}`;
+        const url = `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`;
         const response = await fetch(url);
         const data = await response.json();
         console.log('🌤️ Weather data:', data.timeSeries[0]);
@@ -84,8 +83,7 @@ export function HomeView() {
     const fetchQuote = async () => {
       try {
         console.log('💬 Fetching quote from ZenQuotes...');
-        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
-        const response = await fetch(`${BACKEND_URL}/api/quote`);
+        const response = await fetch('https://zenquotes.io/api/random');
         const data = await response.json();
         console.log('💬 Quote data:', data);
         if (data && data[0]) {
