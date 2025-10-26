@@ -188,11 +188,14 @@ export function VoicePushToTalkButton({
       width: '100%'
     }}>
       {/*
-        KRITISKT: SyncFusion ButtonComponent stödjer INTE onMouseDown/onTouchStart!
-        Lösning: Wrap i div som fångar events, använd native button inuti med SF styling.
-        Detta är enda sättet att få push-to-talk att fungera med SF Fluent2.
+        KRITISKT: ButtonComponent + nested button blockerar events!
+        Lösning: En enda <div> med SF-klasser + role="button" för tillgänglighet.
       */}
       <div
+        className={`e-btn ${isRecording ? 'e-primary e-active' : 'e-outline e-primary'} e-large`}
+        role="button"
+        aria-label="Push to talk"
+        tabIndex={disabled || isProcessing ? -1 : 0}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
@@ -201,46 +204,41 @@ export function VoicePushToTalkButton({
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchCancel}
         style={{
-          display: 'inline-block',
+          width: '160px',
+          height: '160px',
+          borderRadius: '50%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          cursor: disabled || isProcessing ? 'not-allowed' : 'pointer',
+          opacity: disabled || isProcessing ? 0.5 : 1,
+          touchAction: 'none',
           userSelect: 'none',
           WebkitUserSelect: 'none',
           WebkitTouchCallout: 'none'
         }}
       >
-        <button
-          className={`e-btn ${isRecording ? 'e-primary e-active' : 'e-outline e-primary'} e-large`}
-          disabled={disabled || isProcessing}
+        {/* Icon */}
+        <span
+          className={`e-icons ${iconClass}`}
           style={{
-            width: '160px',
-            height: '160px',
-            borderRadius: '50%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            cursor: disabled || isProcessing ? 'not-allowed' : 'pointer',
-            touchAction: 'none' // Förhindra scroll/zoom på mobil
+            fontSize: '40px',
+            animation: isRecording ? 'pulse 1.5s ease-in-out infinite' : 'none',
+            pointerEvents: 'none' // Förhindra icon från att blockera events
           }}
-        >
-          {/* Icon */}
-          <span
-            className={`e-icons ${iconClass}`}
-            style={{
-              fontSize: '40px',
-              animation: isRecording ? 'pulse 1.5s ease-in-out infinite' : 'none'
-            }}
-          />
+        />
 
-          {/* Text */}
-          <span style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            textAlign: 'center'
-          }}>
-            {buttonContent}
-          </span>
-        </button>
+        {/* Text */}
+        <span style={{
+          fontSize: '12px',
+          fontWeight: 600,
+          textAlign: 'center',
+          pointerEvents: 'none' // Förhindra text från att blockera events
+        }}>
+          {buttonContent}
+        </span>
       </div>
 
       {/* Live transcript display */}
@@ -269,17 +267,6 @@ export function VoicePushToTalkButton({
             "{partialTranscript}"
             <span style={{ marginLeft: '4px', fontWeight: 'bold' }}>▊</span>
           </div>
-        </div>
-      )}
-
-      {/* Instructions */}
-      {!isRecording && !isProcessing && (
-        <div style={{
-          fontSize: '11px',
-          color: 'var(--e-text-secondary)',
-          textAlign: 'center'
-        }}>
-          Håll knappen eller Space-tangenten
         </div>
       )}
 

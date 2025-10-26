@@ -25,12 +25,12 @@ interface Message {
 }
 
 export function PushToTalkAssistant() {
-  const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [partialText, setPartialText] = useState('');
   const [finalText, setFinalText] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [servicesReady, setServicesReady] = useState(false);
 
   // Context pre-fetching: Hämta under inspelning för snabbare respons
   const contextPromiseRef = useRef<Promise<any> | null>(null);
@@ -98,9 +98,13 @@ export function PushToTalkAssistant() {
           }
         );
 
+        // Mark services as ready
+        setServicesReady(true);
+
       } catch (err) {
         console.error('Failed to initialize services:', err);
         setError('Kunde inte initialisera röstassistent');
+        setServicesReady(false);
       }
     };
 
@@ -133,7 +137,6 @@ export function PushToTalkAssistant() {
 
     try {
       console.log('🎤 Starting STT...');
-      setIsListening(true);
       setPartialText('');
       setFinalText('');
       setError(null);
@@ -172,7 +175,6 @@ export function PushToTalkAssistant() {
     } catch (err) {
       console.error('Failed to start listening:', err);
       setError('Kunde inte starta mikrofon');
-      setIsListening(false);
       toast.error('Mikrofon-åtkomst nekad');
     }
   }, []);
@@ -183,7 +185,6 @@ export function PushToTalkAssistant() {
    */
   const handleRecordingStop = useCallback(async () => {
     console.log('🛑 Stopping STT...');
-    setIsListening(false);
 
     // Stoppa STT
     sttRef.current?.stopListening(false);
@@ -310,25 +311,6 @@ export function PushToTalkAssistant() {
       maxWidth: '600px',
       margin: '0 auto'
     }}>
-      {/* Title */}
-      <div style={{ textAlign: 'center' }}>
-        <h2 style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          color: 'var(--e-text)',
-          margin: '0 0 8px 0'
-        }}>
-          🎤 AI Röstassistent
-        </h2>
-        <p style={{
-          fontSize: '14px',
-          color: 'var(--e-text-secondary)',
-          margin: 0
-        }}>
-          Håll knappen och prata - släpp för att skicka
-        </p>
-      </div>
-
       {/* Conversation History */}
       {messages.length > 0 && (
         <div style={{
@@ -424,7 +406,7 @@ export function PushToTalkAssistant() {
       <VoicePushToTalkButton
         onRecordingStart={handleRecordingStart}
         onRecordingStop={handleRecordingStop}
-        disabled={!sttRef.current || !claudeRef.current}
+        disabled={!servicesReady}
         isProcessing={isProcessing}
         partialTranscript={partialText || finalText}
       />
@@ -447,27 +429,6 @@ export function PushToTalkAssistant() {
         </div>
       )}
 
-      {/* Empty state */}
-      {messages.length === 0 && !isListening && !isProcessing && (
-        <div style={{
-          textAlign: 'center',
-          color: 'var(--e-text-secondary)',
-          padding: '32px 16px'
-        }}>
-          <span className="e-icons e-comment" style={{
-            fontSize: '48px',
-            display: 'block',
-            margin: '0 auto 16px',
-            opacity: 0.3
-          }} />
-          <p style={{ fontSize: '16px', margin: '0 0 8px 0', fontWeight: 600 }}>
-            Redo att hjälpa dig!
-          </p>
-          <p style={{ fontSize: '14px', margin: 0 }}>
-            Håll knappen och säg vad du vill göra
-          </p>
-        </div>
-      )}
     </div>
   );
 }
