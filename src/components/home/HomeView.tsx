@@ -23,13 +23,19 @@ export function HomeView() {
 
   // Fetch väder
   useEffect(() => {
-    const fetchWeather = async (lat: number, lon: number, locationName: string) => {
+    const fetchWeather = async (lon: number, lat: number, locationName: string) => {
       try {
-        console.log('🌤️ Fetching weather for:', locationName, { lat, lon });
+        console.log('🌤️ Fetching weather for:', locationName, { lon, lat });
         const url = `https://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${lon}/lat/${lat}/data.json`;
+        console.log('🌤️ URL:', url);
         const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`SMHI API error: ${response.status}`);
+        }
+
         const data = await response.json();
-        console.log('🌤️ Weather data:', data.timeSeries[0]);
+        console.log('🌤️ Weather data:', data.timeSeries?.[0]);
 
         // Första timmen i timeSeries
         const current = data.timeSeries[0];
@@ -61,20 +67,22 @@ export function HomeView() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          // VIKTIGT: Ordning är lon, lat (inte lat, lon!)
           fetchWeather(
-            pos.coords.latitude,
             pos.coords.longitude,
+            pos.coords.latitude,
             'Din plats'
           );
         },
-        () => {
-          // Fallback: Visby
-          fetchWeather(57.64, 18.30, 'Visby');
+        (error) => {
+          console.error('Geolocation error:', error);
+          // Fallback: Visby (lon=18.2948, lat=57.6348)
+          fetchWeather(18.2948, 57.6348, 'Visby');
         }
       );
     } else {
       // Ingen geolocation support - Visby
-      fetchWeather(57.64, 18.30, 'Visby');
+      fetchWeather(18.2948, 57.6348, 'Visby');
     }
   }, []);
 

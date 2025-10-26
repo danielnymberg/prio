@@ -5,7 +5,7 @@
  *
  * CRITICAL FEATURES:
  * - Mouse support (desktop)
- * - Touch support (mobil)
+ * - Touch support (mobil) - native addEventListener för Android compatibility
  * - Keyboard support (Space key)
  * - Edge cases: mouse leave, touch cancel, context menu
  * - SyncFusion Fluent2 styling (INGEN custom CSS!)
@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AudioFeedback } from '@/services/audio/AudioFeedback';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 
 export interface VoicePushToTalkButtonProps {
   onRecordingStart: () => void;
@@ -31,6 +32,7 @@ export function VoicePushToTalkButton({
 }: VoicePushToTalkButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
   const audioFeedback = useRef(new AudioFeedback());
+  const buttonRef = useRef<ButtonComponent>(null);
 
   // Cleanup på unmount
   useEffect(() => {
@@ -38,6 +40,50 @@ export function VoicePushToTalkButton({
       audioFeedback.current.dispose();
     };
   }, []);
+
+  // Setup native touch listeners för Android (passive: false)
+  useEffect(() => {
+    if (!buttonRef.current) return;
+
+    const btnElement = buttonRef.current.element;
+    if (!btnElement) return;
+
+    // Native listeners med {passive: false} för Android Chrome
+    const touchStartHandler = (e: TouchEvent) => {
+      console.log('👆 TOUCH START event (native)', { touches: e.touches.length });
+      e.preventDefault();
+      e.stopPropagation();
+      if (!disabled && !isProcessing && !isRecording) {
+        handleStart();
+      }
+    };
+
+    const touchEndHandler = (e: TouchEvent) => {
+      console.log('👆 TOUCH END event (native)', { changedTouches: e.changedTouches.length });
+      e.preventDefault();
+      e.stopPropagation();
+      if (isRecording) {
+        handleStop();
+      }
+    };
+
+    const touchCancelHandler = () => {
+      console.warn('⚠️ Touch cancelled during recording - stopping');
+      if (isRecording) {
+        handleStop();
+      }
+    };
+
+    btnElement.addEventListener('touchstart', touchStartHandler, { passive: false });
+    btnElement.addEventListener('touchend', touchEndHandler, { passive: false });
+    btnElement.addEventListener('touchcancel', touchCancelHandler, { passive: false });
+
+    return () => {
+      btnElement.removeEventListener('touchstart', touchStartHandler);
+      btnElement.removeEventListener('touchend', touchEndHandler);
+      btnElement.removeEventListener('touchcancel', touchCancelHandler);
+    };
+  }, [disabled, isProcessing, isRecording]);
 
   // Keyboard support: Space key = push-to-talk
   useEffect(() => {
@@ -139,31 +185,6 @@ export function VoicePushToTalkButton({
     }
   };
 
-  /**
-   * Touch handlers - Mobil
-   * KRITISKT FIX: preventDefault() + stopPropagation() för att förhindra avbrott
-   */
-  const handleTouchStart = (e: React.TouchEvent) => {
-    console.log('👆 TOUCH START event', { touches: e.touches.length, target: e.target });
-    e.preventDefault(); // Förhindra scroll/zoom under touch
-    e.stopPropagation(); // Förhindra event bubbling
-    handleStart();
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    console.log('👆 TOUCH END event', { changedTouches: e.changedTouches.length, target: e.target });
-    e.preventDefault(); // Förhindra "ghost clicks"
-    e.stopPropagation(); // Förhindra event bubbling
-    handleStop();
-  };
-
-  /**
-   * KRITISKT: Om touch avbryts (swipe bort, annan app, etc) → STOPPA
-   */
-  const handleTouchCancel = () => {
-    console.warn('⚠️ Touch cancelled during recording - stopping');
-    handleStop();
-  };
 
   /**
    * KRITISKT: Förhindra context menu (högerklick) under inspelning
@@ -197,58 +218,60 @@ export function VoicePushToTalkButton({
       width: '100%'
     }}>
       {/*
-        KRITISKT: ButtonComponent + nested button blockerar events!
-        Lösning: En enda <div> med SF-klasser + role="button" för tillgänglighet.
+        KRITISKT: Touch events MÅSTE vara native addEventListener (passive: false) för Android!
+        Lösning: ButtonComponent med ref + native event listeners i useEffect
       */}
-      <div
-        className={`e-btn ${isRecording ? 'e-primary e-active' : 'e-outline e-primary'} e-large`}
-        role="button"
-        aria-label="Push to talk"
-        tabIndex={disabled || isProcessing ? -1 : 0}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onContextMenu={handleContextMenu}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onTouchCancel={handleTouchCancel}
+      <ButtonComponent
+        ref={buttonRef}
+        cssClass={`${isRecording ? 'e-primary e-active' : 'e-outline e-primary'} e-large`}
+        disabled={disabled || isProcessing}
         style={{
           width: '160px',
           height: '160px',
           borderRadius: '50%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          cursor: disabled || isProcessing ? 'not-allowed' : 'pointer',
-          opacity: disabled || isProcessing ? 0.5 : 1,
           touchAction: 'none',
           userSelect: 'none',
           WebkitUserSelect: 'none',
           WebkitTouchCallout: 'none'
-        }}
+        } as any}
       >
-        {/* Icon */}
-        <span
-          className={`e-icons ${iconClass}`}
+        <div
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onContextMenu={handleContextMenu}
           style={{
-            fontSize: '40px',
-            animation: isRecording ? 'pulse 1.5s ease-in-out infinite' : 'none',
-            pointerEvents: 'none' // Förhindra icon från att blockera events
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            pointerEvents: 'auto'
           }}
-        />
+        >
+          {/* Icon */}
+          <span
+            className={`e-icons ${iconClass}`}
+            style={{
+              fontSize: '40px',
+              animation: isRecording ? 'pulse 1.5s ease-in-out infinite' : 'none',
+              pointerEvents: 'none'
+            }}
+          />
 
-        {/* Text */}
-        <span style={{
-          fontSize: '12px',
-          fontWeight: 600,
-          textAlign: 'center',
-          pointerEvents: 'none' // Förhindra text från att blockera events
-        }}>
-          {buttonContent}
-        </span>
-      </div>
+          {/* Text */}
+          <span style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            textAlign: 'center',
+            pointerEvents: 'none'
+          }}>
+            {buttonContent}
+          </span>
+        </div>
+      </ButtonComponent>
 
       {/* Live transcript display */}
       {isRecording && partialTranscript && (
