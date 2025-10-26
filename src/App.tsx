@@ -37,6 +37,7 @@ const CalendarView = lazy(() => import('./components/calendar/CalendarWithTaskSi
 const ResursallokeringAllView = lazy(() => import('./components/allocation/ResursallokeringAllView').then(m => ({ default: m.ResursallokeringAllView })));
 const TestView = lazy(() => import('./components/test/TestView').then(m => ({ default: m.TestView })));
 const GanttView = lazy(() => import('./components/gantt/GanttView').then(m => ({ default: m.GanttView })));
+const HomeView = lazy(() => import('./components/home/HomeView').then(m => ({ default: m.HomeView })));
 
 // Loading fallback component
 function RouteLoader() {
@@ -235,8 +236,8 @@ function HomePage() {
         window.dispatchEvent(new Event('trigger-quick-task'));
       }, 500);
     } else {
-      // Default: go to focus view
-      navigate('/focus');
+      // Default: go to home view
+      navigate('/home');
     }
   }, [navigate]);
 
@@ -366,6 +367,16 @@ function App() {
             <ProtectedRoute>
               <Suspense fallback={<RouteLoader />}>
                 <ImportView />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <HomeView />
               </Suspense>
             </ProtectedRoute>
           }
