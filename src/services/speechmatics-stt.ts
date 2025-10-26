@@ -10,7 +10,6 @@ export class SpeechmaticsSTT {
   private onEndOfUtteranceCallback?: () => void;  // Callback för EndOfUtterance (conversation mode)
   private lastSeqNo: number = 0;
   private isStreaming: boolean = false;
-  private isListening: boolean = false;  // Flag för att ignorera trailing messages
 
   constructor() {}
 
@@ -18,7 +17,6 @@ export class SpeechmaticsSTT {
     this.onTranscriptCallback = onTranscript;
     this.accumulatedTranscript = ''; // Reset för ny utterance
     this.isStreaming = true;
-    this.isListening = true;  // ✅ Aktivera lyssning (ignorera trailing från förra turn)
 
     try {
       // Återanvänd stream om den finns
@@ -57,7 +55,15 @@ export class SpeechmaticsSTT {
 
         try {
           const data = JSON.parse(event.data);
-          console.log('📨 Received message:', data.message, data);
+
+          // OMFATTANDE LOGGING - se ALLT från Speechmatics
+          if (data.message === 'EndOfStream' || data.message === 'EndOfUtterance' || data.message === 'EndOfTranscript') {
+            console.log('🔴 KRITISKT MESSAGE:', data.message, JSON.stringify(data));
+          } else if (data.message === 'AddTranscript') {
+            console.log('📨 AddTranscript:', data.metadata?.transcript);
+          } else if (data.message !== 'AudioAdded' && data.message !== 'AddPartialTranscript') {
+            console.log('📨 SM:', data.message, data);
+          }
 
           // Track sequence numbers från AudioAdded
           if (data.message === 'AudioAdded' && data.seq_no) {
@@ -69,12 +75,6 @@ export class SpeechmaticsSTT {
             console.log('📝 Partial transcript:', data.metadata.transcript);
             this.onTranscriptCallback?.(data.metadata.transcript, false);
           } else if (data.message === 'AddTranscript') {
-            // GUARD: Ignorera trailing messages från förra turn
-            if (!this.isListening) {
-              console.warn('⚠️ Ignoring trailing AddTranscript (not listening)');
-              return;
-            }
-
             // Final transcription - Speechmatics skickar ett AddTranscript för varje ord/fras
             // KRITISKT: Använd metadata.transcript (har redan korrekt spacing + svenska sammansättningar!)
             const newText = data.metadata?.transcript || '';
@@ -190,7 +190,6 @@ export class SpeechmaticsSTT {
 
     // STEG 1: Stoppa mikrofon OMEDELBART (ingen NY audio spelas in)
     this.stopMicrophone();
-    this.isListening = false;  // ✅ Stäng av flagga (ignorera trailing messages)
 
     // STEG 2: Skicka EndOfStream till Speechmatics
     if (this.ws?.readyState === WebSocket.OPEN) {

@@ -27,7 +27,6 @@ interface Message {
 export function PushToTalkAssistant() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [partialText, setPartialText] = useState('');
-  const [finalText, setFinalText] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [servicesReady, setServicesReady] = useState(false);
@@ -35,6 +34,9 @@ export function PushToTalkAssistant() {
 
   // Context pre-fetching: Hämta under inspelning för snabbare respons
   const contextPromiseRef = useRef<Promise<any> | null>(null);
+
+  // Accumulated transcript från STT (använd ref istället för state för att undvika race conditions)
+  const accumulatedTranscriptRef = useRef<string>('');
 
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
@@ -146,7 +148,7 @@ export function PushToTalkAssistant() {
     try {
       console.log('🎤 Starting STT...');
       setPartialText('');
-      setFinalText('');
+      accumulatedTranscriptRef.current = '';
       setError(null);
 
       // OPTIMERING: Pre-fetch context MEDAN användaren pratar (sparar 400ms!)
@@ -171,11 +173,12 @@ export function PushToTalkAssistant() {
         console.log('📝 Transcript:', { text, isFinal });
 
         if (isFinal) {
-          // Final transcript - ackumulera
-          setFinalText(prev => prev + (prev ? ' ' : '') + text);
+          // Final transcript - spara i ref (detta är den accumulated transcript!)
+          console.log('✅ Final accumulated transcript:', text);
+          accumulatedTranscriptRef.current = text;
           setPartialText('');
         } else {
-          // Partial - visa live
+          // Partial - visa live (endast för UI-feedback)
           setPartialText(text);
         }
       });
@@ -194,21 +197,21 @@ export function PushToTalkAssistant() {
   const handleRecordingStop = useCallback(async () => {
     console.log('🛑 Stopping STT...');
 
-    // Stoppa STT och VÄNTA på EndOfUtterance från Speechmatics
-    await sttRef.current?.stopListening(true);  // ✅ true = använd accumulated transcript!
+    // Stoppa STT och vänta på final transcript via callback
+    await sttRef.current?.stopListening(true);  // ✅ true = skicka accumulated via callback
 
-    // Kombinera final + partial
-    const fullTranscript = (finalText + (partialText ? ' ' : '') + partialText).trim();
+    // Använd accumulated från ref (callback sätter detta med isFinal: true)
+    const fullTranscript = accumulatedTranscriptRef.current.trim();
 
     if (!fullTranscript) {
       console.warn('⚠️ No transcript captured');
       toast('Inget ljud upptäcktes', { icon: '🎤' });
       setPartialText('');
-      setFinalText('');
+      accumulatedTranscriptRef.current = '';
       return;
     }
 
-    console.log('✅ Full transcript:', fullTranscript);
+    console.log('✅ Using accumulated transcript:', fullTranscript);
 
     // Lägg till user message
     const userMessage: Message = {
@@ -220,12 +223,12 @@ export function PushToTalkAssistant() {
 
     // Rensa transcript
     setPartialText('');
-    setFinalText('');
+    accumulatedTranscriptRef.current = '';
 
     // Send till Claude
     await sendToClaude(fullTranscript);
 
-  }, [finalText, partialText]);
+  }, []);
 
   /**
    * Send message to Claude and get response
@@ -342,7 +345,7 @@ export function PushToTalkAssistant() {
     setMessages([]);
     claudeRef.current?.clearHistory();
     setPartialText('');
-    setFinalText('');
+    accumulatedTranscriptRef.current = '';
     toast.success('Konversation rensad');
   };
 
@@ -457,7 +460,7 @@ export function PushToTalkAssistant() {
         onRecordingStop={handleRecordingStop}
         disabled={!servicesReady}
         isProcessing={isProcessing}
-        partialTranscript={partialText || finalText}
+        partialTranscript={partialText}
       />
 
       {/* Processing status */}
@@ -494,6 +497,38 @@ export function PushToTalkAssistant() {
         >
           <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
           Avbryt uppläsning
+        </button>
+      )}
+
+      {/* Disconnect button - Frigör mikrofon helt (för musik etc) */}
+      {servicesReady && (
+        <button
+          onClick={() => {
+            // Stoppa TTS om igång
+            if (isSpeaking) {
+              ttsRef.current?.stop();
+              setIsSpeaking(false);
+            }
+
+            // Disconnect STT helt (stänger WebSocket + frigör mic)
+            sttRef.current?.disconnect();
+            setServicesReady(false);
+
+            toast.success('Mikrofon avstängd - kan nu lyssna på musik', {
+              icon: '🔇',
+              duration: 3000
+            });
+          }}
+          className="e-btn e-danger"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginTop: '8px'
+          }}
+        >
+          <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
+          Stäng mikrofon
         </button>
       )}
 
