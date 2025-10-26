@@ -98,6 +98,12 @@ export class SpeechmaticsSTT {
           } else if (data.message === 'Error') {
             console.error('Speechmatics error:', data);
             const errorMsg = data.reason || 'Okänt fel från Speechmatics';
+
+            // Trigga EndOfUtterance callback för att avbryta väntan
+            if (this.onEndOfUtteranceCallback) {
+              this.onEndOfUtteranceCallback();
+            }
+
             throw new Error(`Speechmatics: ${errorMsg}`);
           } else if (data.message === 'Warning') {
             console.warn('Speechmatics warning:', data);
@@ -235,6 +241,11 @@ export class SpeechmaticsSTT {
    * Anropas endast vid app unmount
    */
   async disconnect(): Promise<void> {
+    // Guard: Om inget att disconnecta, return direkt
+    if (!this.ws && !this.stream && !this.audioContext) {
+      return;
+    }
+
     console.log('🔌 Disconnecting STT session completely');
 
     // Stoppa mic om den stremar
