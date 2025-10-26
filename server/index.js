@@ -382,14 +382,8 @@ app.post('/api/claude-stream', authenticateUser, rateLimiter, async (req, res) =
 
       // Handle streaming events
       stream.on('text', (text) => {
-        // Strip markdown för voice mode (safety net om Claude genererar trots prompt)
-        let cleanText = text
-          .replace(/\*\*(.+?)\*\*/g, '$1')  // **bold** → bold
-          .replace(/\*(.+?)\*/g, '$1')      // *italic* → italic
-          .replace(/###?\s+/g, '');          // ## Heading → Heading
-
-        // Send text chunks to client
-        res.write(`data: ${JSON.stringify({ type: 'text', text: cleanText })}\n\n`);
+        // Send text chunks to client (med markdown intact - renderas korrekt i UI)
+        res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
       });
 
       stream.on('message', (message) => {

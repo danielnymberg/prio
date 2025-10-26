@@ -144,12 +144,14 @@ export function VoicePushToTalkButton({
    * KRITISKT FIX: preventDefault() + stopPropagation() för att förhindra avbrott
    */
   const handleTouchStart = (e: React.TouchEvent) => {
+    console.log('👆 TOUCH START event', { touches: e.touches.length, target: e.target });
     e.preventDefault(); // Förhindra scroll/zoom under touch
     e.stopPropagation(); // Förhindra event bubbling
     handleStart();
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    console.log('👆 TOUCH END event', { changedTouches: e.changedTouches.length, target: e.target });
     e.preventDefault(); // Förhindra "ghost clicks"
     e.stopPropagation(); // Förhindra event bubbling
     handleStop();

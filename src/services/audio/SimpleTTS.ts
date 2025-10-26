@@ -35,26 +35,6 @@ export class SimpleTTS {
   }
 
   /**
-   * Strippa emojis och special chars som TTS inte kan läsa
-   */
-  private stripEmojis(text: string): string {
-    return text
-      // Ta bort emojis (alla Unicode emoji ranges)
-      .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
-      .replace(/[\u{2600}-\u{26FF}]/gu, '')
-      .replace(/[\u{2700}-\u{27BF}]/gu, '')
-      // Ta bort "Generated with Claude Code" footer
-      .replace(/🤖.*Generated with.*$/s, '')
-      // Ta bort markdown formatting
-      .replace(/\*\*/g, '')  // Bold
-      .replace(/\*/g, '')     // Italic
-      // Ta bort extra whitespace
-      .replace(/\n{2,}/g, '\n')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
-  }
-
-  /**
    * Speak with queuing - för streaming responses
    * Lägger till text i kö och spelar upp i ordning
    */
@@ -103,12 +83,9 @@ export class SimpleTTS {
         return;
       }
 
-      // Strippa emojis och special chars
-      const cleanText = this.stripEmojis(text);
-
-      if (!cleanText.trim()) {
-        console.warn('Text blev tom efter emoji-stripping');
-        resolve(); // Inget att läsa upp
+      if (!text.trim()) {
+        console.warn('Tom text, inget att läsa upp');
+        resolve();
         return;
       }
 
@@ -117,7 +94,7 @@ export class SimpleTTS {
         this.stop();
       }
 
-      const utterance = new SpeechSynthesisUtterance(cleanText);
+      const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'sv-SE';
       utterance.rate = selectedRate;
       utterance.pitch = 1.0;
@@ -166,8 +143,9 @@ export class SimpleTTS {
   }
 
   /**
-   * Hitta bästa svenska rösten
-   * Prioritet: Google > Microsoft > Apple > Default
+   * Hitta bästa svenska rösten - MANLIG variant
+   * macOS: Oskar (manlig), Alva (kvinnlig)
+   * Prioritet: Oskar > Manliga röster > Default svensk
    */
   private findBestSwedishVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
     if (voices.length === 0) return null;
@@ -180,19 +158,19 @@ export class SimpleTTS {
       return null;
     }
 
-    // Prioritera Google (bäst på svenska)
-    const google = swedishVoices.find(v => v.name.toLowerCase().includes('google'));
-    if (google) return google;
+    // Prioritera Oskar (macOS manlig svensk röst)
+    const oskar = swedishVoices.find(v => v.name.toLowerCase().includes('oskar'));
+    if (oskar) return oskar;
 
-    // Sedan Microsoft
-    const microsoft = swedishVoices.find(v => v.name.toLowerCase().includes('microsoft'));
-    if (microsoft) return microsoft;
+    // Andra manliga röster (om de finns)
+    const maleVoice = swedishVoices.find(v =>
+      v.name.toLowerCase().includes('male') ||
+      v.name.toLowerCase().includes('mattias') ||
+      v.name.toLowerCase().includes('erik')
+    );
+    if (maleVoice) return maleVoice;
 
-    // Sedan Apple
-    const apple = swedishVoices.find(v => v.name.toLowerCase().includes('apple'));
-    if (apple) return apple;
-
-    // Annars första svenska rösten
+    // Annars första svenska rösten (fallback)
     return swedishVoices[0];
   }
 
