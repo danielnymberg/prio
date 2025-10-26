@@ -20,6 +20,26 @@ export class SimpleTTS {
   private isSpeaking = false;
 
   /**
+   * Strippa emojis och special chars som TTS inte kan läsa
+   */
+  private stripEmojis(text: string): string {
+    return text
+      // Ta bort emojis (alla Unicode emoji ranges)
+      .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+      .replace(/[\u{2600}-\u{26FF}]/gu, '')
+      .replace(/[\u{2700}-\u{27BF}]/gu, '')
+      // Ta bort "Generated with Claude Code" footer
+      .replace(/🤖.*Generated with.*$/s, '')
+      // Ta bort markdown formatting
+      .replace(/\*\*/g, '')  // Bold
+      .replace(/\*/g, '')     // Italic
+      // Ta bort extra whitespace
+      .replace(/\n{2,}/g, '\n')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  /**
    * Speak text med svensk röst
    * @param text Text att läsa upp
    * @param rate Hastighet (0.5-2.0, default 0.9 för tydligare svenska)
@@ -32,12 +52,21 @@ export class SimpleTTS {
         return;
       }
 
+      // Strippa emojis och special chars
+      const cleanText = this.stripEmojis(text);
+
+      if (!cleanText.trim()) {
+        console.warn('Text blev tom efter emoji-stripping');
+        resolve(); // Inget att läsa upp
+        return;
+      }
+
       // Cancel previous if playing
       if (this.isSpeaking) {
         this.stop();
       }
 
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.lang = 'sv-SE';
       utterance.rate = rate;
       utterance.pitch = 1.0;

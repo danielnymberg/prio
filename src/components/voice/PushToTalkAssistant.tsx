@@ -31,6 +31,7 @@ export function PushToTalkAssistant() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [servicesReady, setServicesReady] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   // Context pre-fetching: Hämta under inspelning för snabbare respons
   const contextPromiseRef = useRef<Promise<any> | null>(null);
@@ -136,7 +137,10 @@ export function PushToTalkAssistant() {
     }
 
     // KRITISKT: Stoppa pågående TTS innan ny inspelning
-    ttsRef.current?.stop();
+    if (isSpeaking) {
+      ttsRef.current?.stop();
+      setIsSpeaking(false);
+    }
 
     try {
       console.log('🎤 Starting STT...');
@@ -273,9 +277,12 @@ export function PushToTalkAssistant() {
       // Spela upp svar med TTS
       if (ttsRef.current && response) {
         try {
+          setIsSpeaking(true);
           await ttsRef.current.speak(response);
+          setIsSpeaking(false);
         } catch (ttsError) {
           console.warn('TTS failed, showing text only:', ttsError);
+          setIsSpeaking(false);
           // Fail gracefully - användaren ser svaret ändå i messages
         }
       }
@@ -430,6 +437,25 @@ export function PushToTalkAssistant() {
           }} />
           AI tänker...
         </div>
+      )}
+
+      {/* TTS Stop button - Synlig när röst spelar */}
+      {isSpeaking && (
+        <button
+          onClick={() => {
+            ttsRef.current?.stop();
+            setIsSpeaking(false);
+          }}
+          className="e-btn e-danger"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
+          Avbryt uppläsning
+        </button>
       )}
 
     </div>
