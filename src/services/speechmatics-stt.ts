@@ -7,8 +7,10 @@ export class SpeechmaticsSTT {
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
   private accumulatedTranscript: string = ''; // Accumulate final transcript parts
   private onEndOfTranscriptCallback?: () => void;
+  private onEndOfUtteranceCallback?: () => void;  // Callback för EndOfUtterance (conversation mode)
   private lastSeqNo: number = 0;
   private isStreaming: boolean = false;
+  private isListening: boolean = false;  // Flag för att ignorera trailing messages
 
   constructor() {}
 
@@ -16,6 +18,7 @@ export class SpeechmaticsSTT {
     this.onTranscriptCallback = onTranscript;
     this.accumulatedTranscript = ''; // Reset för ny utterance
     this.isStreaming = true;
+    this.isListening = true;  // ✅ Aktivera lyssning (ignorera trailing från förra turn)
 
     try {
       // Återanvänd stream om den finns
@@ -66,6 +69,12 @@ export class SpeechmaticsSTT {
             console.log('📝 Partial transcript:', data.metadata.transcript);
             this.onTranscriptCallback?.(data.metadata.transcript, false);
           } else if (data.message === 'AddTranscript') {
+            // GUARD: Ignorera trailing messages från förra turn
+            if (!this.isListening) {
+              console.warn('⚠️ Ignoring trailing AddTranscript (not listening)');
+              return;
+            }
+
             // Final transcription - Speechmatics skickar ett AddTranscript för varje ord/fras
             // KRITISKT: Använd metadata.transcript (har redan korrekt spacing + svenska sammansättningar!)
             const newText = data.metadata?.transcript || '';
@@ -76,7 +85,13 @@ export class SpeechmaticsSTT {
               console.log('✅ Accumulated:', this.accumulatedTranscript);
             }
 
-            // Skicka INTE final transcript ännu - vänta på EndOfTranscript
+            // Skicka INTE final transcript ännu - vänta på EndOfUtterance
+          } else if (data.message === 'EndOfUtterance') {
+            // ✅ Utterance klar - Speechmatics har processat allt efter EndOfStream!
+            console.log('✅ EndOfUtterance received - utterance complete!');
+
+            // Trigga callback för att skicka accumulated transcript
+            this.onEndOfUtteranceCallback?.();
           } else if (data.message === 'EndOfTranscript') {
             // Session helt avslutad (endast vid disconnect)
             console.log('🏁 EndOfTranscript received - session ending');
@@ -171,62 +186,70 @@ export class SpeechmaticsSTT {
   }
 
   async stopListening(sendAccumulated: boolean = true): Promise<void> {
-    console.log('🛑 stopListening called - stopping microphone');
+    console.log('🛑 stopListening called');
 
-    // 1. Stoppa mikrofon OMEDELBART (ingen NY audio spelas in)
+    // STEG 1: Stoppa mikrofon OMEDELBART (ingen NY audio spelas in)
     this.stopMicrophone();
-    this.isStreaming = false;
+    this.isListening = false;  // ✅ Stäng av flagga (ignorera trailing messages)
 
-    // 2. Skicka EndOfStream till Speechmatics
+    // STEG 2: Skicka EndOfStream till Speechmatics
     if (this.ws?.readyState === WebSocket.OPEN) {
+      // Vänta 150ms för "in flight" audio att nå Speechmatics
+      console.log('⏳ Waiting 150ms for in-flight audio to reach Speechmatics...');
+      await new Promise(r => setTimeout(r, 150));
+
+      // NU är det säkert att skicka EndOfStream
       console.log('📤 Sending EndOfStream to Speechmatics');
       this.ws.send(JSON.stringify({
         message: 'EndOfStream',
         last_seq_no: this.lastSeqNo
       }));
 
-      // 3. VÄNTA på EndOfTranscript (Speechmatics processar sista ljuden)
-      console.log('⏳ Waiting for EndOfTranscript...');
+      // STEG 3: Vänta på EndOfUtterance från Speechmatics
+      console.log('⏳ Waiting for EndOfUtterance...');
+      const startTime = Date.now();
 
       await new Promise<void>((resolve) => {
+        // Säkerhetstimeout: 2s (bör ALDRIG användas i normala fall)
         const timeout = setTimeout(() => {
-          console.warn('⏱️ Timeout waiting for EndOfTranscript (2s) - using accumulated anyway');
-
-          // FALLBACK: Använd accumulated även om timeout
-          if (sendAccumulated && this.accumulatedTranscript.trim()) {
-            this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-            this.accumulatedTranscript = '';
-          }
-
+          console.warn('⚠️ Timeout waiting for EndOfUtterance (2s) - using accumulated anyway');
           resolve();
         }, 2000);
 
-        this.onEndOfTranscriptCallback = () => {
-          console.log('✅ EndOfTranscript received - audio fully processed!');
+        this.onEndOfUtteranceCallback = () => {
           clearTimeout(timeout);
-
-          // Skicka accumulated transcript
-          if (sendAccumulated && this.accumulatedTranscript.trim()) {
-            this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-            this.accumulatedTranscript = '';
-          }
-
+          const elapsed = Date.now() - startTime;
+          console.log(`✅ EndOfUtterance received (${elapsed}ms)`);
           resolve();
         };
       });
+
+      // Skicka accumulated transcript
+      if (sendAccumulated && this.accumulatedTranscript.trim()) {
+        this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+        this.accumulatedTranscript = '';
+      }
     }
 
     // WebSocket FÖRBLIR ÖPPEN för nästa turn! ✅
     console.log('🔌 WebSocket kept open for next turn');
   }
 
-  private stopMicrophone() {
-    console.log('🎤 Pausing microphone (keeping stream for reuse)');
+  private closeTimer?: NodeJS.Timeout;
 
-    // Disconnect audio nodes (stoppar audio-streaming)
+  private stopMicrophone() {
+    // GUARD: Förhindra dubbla anrop (mouse up + key up + touch end)
+    if (!this.processor && !this.source) {
+      console.log('⚠️ Microphone already stopped');
+      return;
+    }
+
+    console.log('🎤 Pausing microphone');
+
+    // INSTANT: Blockera processing (0ms)
     if (this.processor) {
-      this.processor.onaudioprocess = null;
-      this.processor.disconnect();
+      this.processor.onaudioprocess = null;  // Stoppa callback
+      this.processor.disconnect();            // Disconnect node från audio graph
       this.processor = null;
     }
 
@@ -235,8 +258,24 @@ export class SpeechmaticsSTT {
       this.source = null;
     }
 
-    // BEHÅLL AudioContext och MediaStream för återanvändning!
-    // De stängs endast vid disconnect()
+    // KRITISKT: Flagga som inte-streaming
+    this.isStreaming = false;
+
+    // Suspend för snabb restart (inte close!)
+    if (this.audioContext && this.audioContext.state === 'running') {
+      this.audioContext.suspend();
+      console.log('🔇 AudioContext suspended');
+    }
+
+    // Optional: Close efter 30s inaktivitet (frigör resurser)
+    clearTimeout(this.closeTimer);
+    this.closeTimer = setTimeout(() => {
+      if (this.audioContext && this.audioContext.state !== 'closed') {
+        console.log('🗑️ Closing AudioContext after 30s inactivity');
+        this.audioContext.close();
+        this.audioContext = null;
+      }
+    }, 30000);
   }
 
   /**
