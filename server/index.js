@@ -638,10 +638,18 @@ wss.on('connection', (clientWs) => {
     });
 
     speechmaticsWs.on('message', (data) => {
-      // Log messages for debugging
+      // OMFATTANDE LOGGING - se ALLT från SM
       try {
         const parsed = JSON.parse(data);
-        console.log('📨 Speechmatics:', parsed.message);
+
+        // KRITISKA MESSAGES - logga ALLT
+        if (parsed.message === 'EndOfStream' || parsed.message === 'EndOfTranscript' || parsed.message === 'EndOfUtterance') {
+          console.log('🔴🔴🔴 BACKEND SAW:', parsed.message, JSON.stringify(parsed, null, 2));
+        } else if (parsed.message === 'AddTranscript') {
+          console.log('📨 BACKEND: AddTranscript ->', parsed.metadata?.transcript);
+        } else if (parsed.message !== 'AudioAdded') {
+          console.log('📨 BACKEND:', parsed.message);
+        }
       } catch (err) {
         // Binary data
       }
