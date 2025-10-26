@@ -115,12 +115,16 @@ export function VoicePushToTalkButton({
    * Mouse handlers - Desktop
    */
   const handleMouseDown = (e: React.MouseEvent) => {
+    console.log('🖱️ MOUSE DOWN event', { button: e.button, target: e.target });
     e.preventDefault(); // Förhindra text selection
+    e.stopPropagation(); // Förhindra bubbling
     handleStart();
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
+    console.log('🖱️ MOUSE UP event', { button: e.button, target: e.target });
     e.preventDefault();
+    e.stopPropagation();
     handleStop();
   };
 
