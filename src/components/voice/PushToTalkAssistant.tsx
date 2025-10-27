@@ -10,14 +10,12 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { VoicePushToTalkButton } from './VoicePushToTalkButton';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
-import { SimpleTTS } from '@/services/audio/SimpleTTS';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
-import { ChatUIComponent, MessagesDirective, MessageDirective, UserModel } from '@syncfusion/ej2-react-interactive-chat';
+import { ChatUIComponent, UserModel } from '@syncfusion/ej2-react-interactive-chat';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 
 interface Message {
@@ -26,23 +24,24 @@ interface Message {
   timestamp: Date;
 }
 
+type VoiceState = 'idle' | 'recording' | 'paused' | 'processing' | 'playing_tts';
+
 export function PushToTalkAssistant() {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [partialText, setPartialText] = useState('');
+  const [voiceState, setVoiceState] = useState<VoiceState>('idle');
+  const [finalText, setFinalText] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [servicesReady, setServicesReady] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
 
   // Context pre-fetching: Hämta under inspelning för snabbare respons
   const contextPromiseRef = useRef<Promise<any> | null>(null);
 
-  // Accumulated transcript från STT (använd ref istället för state för att undvika race conditions)
-  const accumulatedTranscriptRef = useRef<string>('');
-
   const sttRef = useRef<SpeechmaticsSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
-  const ttsRef = useRef<SimpleTTS | null>(null);
+  const finalTextRef = useRef<string>(''); // Ref för EndOfUtterance callback
+  const ttsQueueRef = useRef<HTMLAudioElement[]>([]); // TTS queue för att spela en mening i taget
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null); // Pågående audio
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null); // Auto-stop timeout
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
 
@@ -60,6 +59,133 @@ export function PushToTalkAssistant() {
   };
 
   /**
+   * Redis conversation persistence
+   */
+  const loadConversationHistory = useCallback(async () => {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+      const response = await fetch(`${BACKEND_URL}/api/conversation/load`, {
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+
+      if (!response.ok) return;
+
+      const { history } = await response.json();
+
+      if (history && claudeRef.current) {
+        claudeRef.current.loadHistory(history);
+
+        // Återskapa messages för ChatUI
+        const restoredMessages: Message[] = history
+          .filter((msg: any) => msg.role === 'user' || msg.role === 'assistant')
+          .map((msg: any) => ({
+            role: msg.role,
+            text: typeof msg.content === 'string' ? msg.content : '',
+            timestamp: new Date()
+          }));
+        setMessages(restoredMessages);
+
+        console.log('✅ Loaded conversation history from Redis:', history.length, 'messages');
+      }
+    } catch (error) {
+      console.error('Failed to load conversation history:', error);
+    }
+  }, []);
+
+  const saveConversationHistory = useCallback(async () => {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !claudeRef.current) return;
+
+      const history = claudeRef.current.getConversationHistory();
+      if (history.length === 0) return;
+
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+      await fetch(`${BACKEND_URL}/api/conversation/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ history })
+      });
+
+      console.log('✅ Saved conversation history to Redis');
+    } catch (error) {
+      console.error('Failed to save conversation history:', error);
+    }
+  }, []);
+
+  /**
+   * Play next audio from queue
+   */
+  const playNextAudio = useCallback(() => {
+    if (ttsQueueRef.current.length === 0) {
+      console.log('✅ TTS queue tom - återgår till idle');
+      setVoiceState('idle');
+      currentAudioRef.current = null;
+      return;
+    }
+
+    const nextAudio = ttsQueueRef.current.shift()!;
+    currentAudioRef.current = nextAudio;
+
+    nextAudio.onended = () => {
+      console.log('✅ Mening klar, spelar nästa...');
+      playNextAudio();
+    };
+
+    nextAudio.play();
+  }, []);
+
+  /**
+   * Azure TTS playback with queue
+   */
+  const playAzureTTS = useCallback(async (text: string) => {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const voice = localStorage.getItem('tts_voice') || 'sv-SE-SofieNeural';
+      const speed = parseFloat(localStorage.getItem('tts_speed') || '1.0');
+
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+
+      const response = await fetch(`${BACKEND_URL}/api/azure-tts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ text, voice, format: 'audio-16khz-32kbitrate-mono-mp3' })
+      });
+
+      if (!response.ok) throw new Error(`TTS failed: ${response.status}`);
+
+      const { audioData } = await response.json();
+      const audio = new Audio(`data:audio/mp3;base64,${audioData}`);
+      audio.playbackRate = speed;
+
+      // Lägg till i kö
+      ttsQueueRef.current.push(audio);
+
+      // Starta playback om ingen pågår
+      if (!currentAudioRef.current) {
+        setVoiceState('playing_tts');
+        playNextAudio();
+      }
+    } catch (error) {
+      console.error('Azure TTS error:', error);
+    }
+  }, [playNextAudio]);
+
+  /**
    * Initialize services
    */
   useEffect(() => {
@@ -69,9 +195,6 @@ export function PushToTalkAssistant() {
       try {
         // Initialize STT
         sttRef.current = new SpeechmaticsSTT();
-
-        // Initialize TTS
-        ttsRef.current = new SimpleTTS();
 
         // Initialize Claude with context
         let calendarEvents: any[] = [];
@@ -101,18 +224,8 @@ export function PushToTalkAssistant() {
           console.error('Failed to fetch projects:', err);
         }
 
-        // Load conversation history från localStorage
-        let conversationHistory: any[] = [];
-        try {
-          const saved = localStorage.getItem('prio-conversation-history');
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            conversationHistory = parsed.history || [];
-            console.log('📜 Loaded conversation history:', conversationHistory.length, 'messages');
-          }
-        } catch (err) {
-          console.error('Failed to load conversation history:', err);
-        }
+        // Load conversation history från Redis
+        await loadConversationHistory();
 
         claudeRef.current = new ClaudeConversation(
           {
@@ -121,7 +234,6 @@ export function PushToTalkAssistant() {
             calendarEvents,
             recentFiles: [],
             userId: user.id,
-            conversationHistory, // ✅ Ladda sparad history
           },
           {
             onTaskCreate: createTask,
@@ -130,17 +242,98 @@ export function PushToTalkAssistant() {
           }
         );
 
-        // Återskapa messages från conversation history
-        if (conversationHistory.length > 0) {
-          const restoredMessages: Message[] = conversationHistory
-            .filter((msg: any) => msg.role === 'user' || msg.role === 'assistant')
-            .map((msg: any) => ({
-              role: msg.role,
-              text: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+        // Registrera EndOfUtterance callback för hands-free mode (EFTER Claude skapats!)
+        sttRef.current.setOnEndOfUtterance(async () => {
+          console.log('🔴 EndOfUtterance callback - auto sending to Claude');
+          setVoiceState('paused');
+
+          // Använd ref för att undvika stale closure
+          const textToSend = finalTextRef.current.trim();
+
+          if (textToSend) {
+            console.log('📤 Sending to Claude:', textToSend);
+
+            // Lägg till user message i ChatUI
+            const userMessage: Message = {
+              role: 'user',
+              text: textToSend,
               timestamp: new Date()
-            }));
-          setMessages(restoredMessages);
-        }
+            };
+            setMessages(prev => [...prev, userMessage]);
+
+            setFinalText('');
+            finalTextRef.current = '';
+
+            // Send till Claude
+            setVoiceState('processing');
+
+            try {
+              // Pre-fetched context
+              let calEvts: any[] = [];
+              if (contextPromiseRef.current) {
+                calEvts = await contextPromiseRef.current;
+                contextPromiseRef.current = null;
+              }
+
+              if (claudeRef.current) {
+                claudeRef.current.updateContext({ tasks, calendarEvents: calEvts });
+
+                let fullResponse = '';
+                let currentSentence = '';
+
+                // Lägg till temporary assistant message
+                const assistantMessage: Message = {
+                  role: 'assistant',
+                  text: '',
+                  timestamp: new Date()
+                };
+                setMessages(prev => [...prev, assistantMessage]);
+
+                await claudeRef.current.chatStreaming(textToSend, async (chunk) => {
+                  fullResponse += chunk;
+                  currentSentence += chunk;
+
+                  // Update assistant message i ChatUI
+                  setMessages(prev => {
+                    const lastMsg = prev[prev.length - 1];
+                    if (lastMsg && lastMsg.role === 'assistant') {
+                      // Skapa NYTT objekt för re-render
+                      return [
+                        ...prev.slice(0, -1),
+                        { role: 'assistant', text: fullResponse, timestamp: lastMsg.timestamp }
+                      ];
+                    }
+                    return prev;
+                  });
+
+                  // Azure TTS sentence-by-sentence
+                  if (/[.!?]\s*$/.test(chunk.trim()) && currentSentence.trim().length > 10) {
+                    console.log('🔊 Playing sentence:', currentSentence.trim());
+                    playAzureTTS(currentSentence.trim());
+                    currentSentence = '';
+                  }
+                });
+
+                // Final sentence
+                if (currentSentence.trim()) {
+                  await playAzureTTS(currentSentence.trim());
+                }
+
+                // Save to Redis
+                await saveConversationHistory();
+              }
+
+            } catch (err) {
+              console.error('Claude error:', err);
+              setError('Kunde inte få svar från AI');
+              toast.error('AI-fel: ' + (err instanceof Error ? err.message : 'Okänt fel'));
+              setVoiceState('idle');
+            }
+          } else {
+            console.warn('⚠️ EndOfUtterance men ingen text att skicka');
+            setVoiceState('idle');
+          }
+        });
 
         // Mark services as ready
         setServicesReady(true);
@@ -155,28 +348,19 @@ export function PushToTalkAssistant() {
     initServices();
 
     return () => {
-      // Spara conversation history INNAN cleanup
-      if (claudeRef.current) {
-        const history = claudeRef.current.getConversationHistory();
-        if (history.length > 0) {
-          try {
-            localStorage.setItem('prio-conversation-history', JSON.stringify({
-              history,
-              savedAt: new Date().toISOString()
-            }));
-            console.log('💾 Saved conversation history:', history.length, 'messages');
-          } catch (err) {
-            console.error('Failed to save conversation history:', err);
-          }
-        }
-      }
-
       // Disconnect STT session helt (stänger WebSocket)
       sttRef.current?.disconnect();
       sttRef.current = null;
       claudeRef.current = null;
     };
   }, [user?.id]); // user.id ändras ALDRIG, även om user-objekt byts ut vid token refresh
+
+  /**
+   * Sync finalText state → ref for callback
+   */
+  useEffect(() => {
+    finalTextRef.current = finalText;
+  }, [finalText]);
 
   /**
    * Update Claude context when tasks change
@@ -188,27 +372,21 @@ export function PushToTalkAssistant() {
   }, [tasks]);
 
   /**
-   * START recording - när användaren håller in knappen
+   * START recording - hands-free mode
    */
-  const handleRecordingStart = useCallback(async () => {
+  const handleStartRecording = useCallback(async () => {
     if (!sttRef.current) {
       toast.error('Röstigenkänning inte tillgänglig');
       return;
     }
 
-    // KRITISKT: Stoppa pågående TTS innan ny inspelning
-    if (isSpeaking) {
-      ttsRef.current?.stop();
-      setIsSpeaking(false);
-    }
-
     try {
-      console.log('🎤 Starting STT...');
-      setPartialText('');
-      accumulatedTranscriptRef.current = '';
+      console.log('🎤 Starting hands-free recording...');
+      setVoiceState('recording');
+      setFinalText('');
       setError(null);
 
-      // OPTIMERING: Pre-fetch context MEDAN användaren pratar (sparar 400ms!)
+      // OPTIMERING: Pre-fetch context MEDAN användaren pratar
       console.log('📊 Pre-fetching context during recording...');
       contextPromiseRef.current = (async () => {
         try {
@@ -226,65 +404,71 @@ export function PushToTalkAssistant() {
         return [];
       })();
 
+      // Inactivity timeout: Auto-stop om ingen faktisk text på 10s
+      inactivityTimerRef.current = setTimeout(() => {
+        console.warn('⏱️ Inaktivitet timeout (10s) - stoppar mic');
+        stopAll();
+      }, 10000);
+
       await sttRef.current.startListening((text, isFinal) => {
         console.log('📝 Transcript:', { text, isFinal });
 
-        if (isFinal) {
-          // Final transcript - spara i ref (detta är den accumulated transcript!)
-          console.log('✅ Final accumulated transcript:', text);
-          accumulatedTranscriptRef.current = text;
-          setPartialText('');
-        } else {
-          // Partial - visa live (endast för UI-feedback)
-          setPartialText(text);
+        // Reset inactivity timer vid faktisk text
+        if (text && text.trim()) {
+          if (inactivityTimerRef.current) {
+            clearTimeout(inactivityTimerRef.current);
+          }
+          inactivityTimerRef.current = setTimeout(() => {
+            console.warn('⏱️ Inaktivitet timeout (10s) - stoppar mic');
+            stopAll();
+          }, 10000);
         }
+
+        if (isFinal) {
+          // Final transcript - accumulated
+          console.log('✅ Final transcript:', text);
+          setFinalText(text);
+          finalTextRef.current = text; // Sync till ref för callback
+        }
+        // Partial updates visas inte i ChatUI (bara för logging)
       });
 
     } catch (err) {
       console.error('Failed to start listening:', err);
       setError('Kunde inte starta mikrofon');
       toast.error('Mikrofon-åtkomst nekad');
+      setVoiceState('idle');
     }
   }, []);
 
   /**
-   * STOP recording - när användaren släpper knappen
-   * AUTO-SEND till Claude!
+   * STOP ALL - Avbryt allt (recording, processing, TTS)
    */
-  const handleRecordingStop = useCallback(async () => {
-    console.log('🛑 Stopping STT...');
+  const stopAll = useCallback(() => {
+    console.log('🛑 STOP ALL - avbryter allt');
 
-    // Stoppa STT och vänta på final transcript via callback
-    await sttRef.current?.stopListening(true);  // ✅ true = skicka accumulated via callback
-
-    // Använd accumulated från ref (callback sätter detta med isFinal: true)
-    const fullTranscript = accumulatedTranscriptRef.current.trim();
-
-    if (!fullTranscript) {
-      console.warn('⚠️ No transcript captured');
-      toast('Inget ljud upptäcktes', { icon: '🎤' });
-      setPartialText('');
-      accumulatedTranscriptRef.current = '';
-      return;
+    // Clear inactivity timer
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+      inactivityTimerRef.current = null;
     }
 
-    console.log('✅ Using accumulated transcript:', fullTranscript);
+    // Stop mic
+    sttRef.current?.stopListening();
 
-    // Lägg till user message
-    const userMessage: Message = {
-      role: 'user',
-      text: fullTranscript,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, userMessage]);
+    // Stop TTS
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+    ttsQueueRef.current = [];
 
-    // Rensa transcript
-    setPartialText('');
-    accumulatedTranscriptRef.current = '';
+    // Reset state
+    setVoiceState('idle');
+    setFinalText('');
+    finalTextRef.current = '';
 
-    // Send till Claude
-    await sendToClaude(fullTranscript);
-
+    toast('Avbrutet', { icon: '🛑' });
   }, []);
 
   /**
@@ -298,7 +482,7 @@ export function PushToTalkAssistant() {
       return;
     }
 
-    setIsProcessing(true);
+    setVoiceState('processing');
 
     try {
       // OPTIMERING: Använd pre-fetched context (hämtades under inspelning!)
@@ -354,48 +538,30 @@ export function PushToTalkAssistant() {
           }
         });
 
-        // TTS: Endast om useTTS är true (röst-input)
-        if (useTTS && /[.!?]\s*$/.test(currentSentence.trim()) && currentSentence.trim().length > 10) {
-          console.log('🔊 Queuing sentence:', currentSentence.trim());
-
-          if (ttsRef.current) {
-            setIsSpeaking(true);
-            // Använd queued för att meningar spelas upp i ordning
-            ttsRef.current.speakQueued(currentSentence.trim()).catch(err => {
-              console.warn('TTS error:', err);
-            });
+        // Azure TTS: Sentence-by-sentence (endast om useTTS)
+        if (useTTS && /[.!?]\s*$/.test(chunk.trim())) {
+          const sentenceToPlay = currentSentence.trim();
+          if (sentenceToPlay.length > 10) {
+            console.log('🔊 Playing sentence:', sentenceToPlay);
+            playAzureTTS(sentenceToPlay);
           }
-
           currentSentence = '';
         }
       });
 
-      // TTS: Läs upp sista biten om mening inte slutade med punkt (endast om useTTS)
-      if (useTTS && ttsRef.current && currentSentence.trim()) {
-        await ttsRef.current.speakQueued(currentSentence.trim()).catch(err => {
-          console.warn('Final TTS error:', err);
-        });
+      // Azure TTS: Spela sista biten om ingen avslutande punkt
+      if (useTTS && currentSentence.trim()) {
+        await playAzureTTS(currentSentence.trim());
       }
 
-      // TTS: Vänta på att TTS-kön är klar (endast om useTTS)
-      if (useTTS) {
-        await new Promise(resolve => {
-          const checkQueue = setInterval(() => {
-            if (!ttsRef.current || !ttsRef.current.getIsSpeaking()) {
-              clearInterval(checkQueue);
-              setIsSpeaking(false);
-              resolve(true);
-            }
-          }, 100);
-        });
-      }
+      // Spara conversation history till Redis
+      await saveConversationHistory();
 
     } catch (err) {
       console.error('Claude error:', err);
       setError('Kunde inte få svar från AI');
       toast.error('AI-fel: ' + (err instanceof Error ? err.message : 'Okänt fel'));
-    } finally {
-      setIsProcessing(false);
+      setVoiceState('idle');
     }
   };
 
@@ -406,17 +572,8 @@ export function PushToTalkAssistant() {
   const clearConversation = () => {
     setMessages([]);
     claudeRef.current?.clearHistory();
-    setPartialText('');
-    accumulatedTranscriptRef.current = '';
-
-    // Rensa localStorage
-    try {
-      localStorage.removeItem('prio-conversation-history');
-      console.log('🗑️ Cleared conversation history from localStorage');
-    } catch (err) {
-      console.error('Failed to clear conversation history:', err);
-    }
-
+    setFinalText('');
+    finalTextRef.current = '';
     toast.success('Konversation rensad');
   };
 
@@ -461,6 +618,11 @@ export function PushToTalkAssistant() {
             showTimeBreak={false}
             showFooter={true}
             placeholder="Skriv till AI..."
+            messages={messages.map(msg => ({
+              text: msg.text,
+              author: msg.role === 'user' ? currentUserModel : assistantUser,
+              timeStamp: msg.timestamp
+            }))}
             messageSend={(args: any) => {
               // När användaren skickar meddelande via ChatUI (text-input = INGEN TTS!)
               const userMessage: Message = {
@@ -471,18 +633,7 @@ export function PushToTalkAssistant() {
               setMessages(prev => [...prev, userMessage]);
               sendToClaude(args.message.text, false); // useTTS=false för text-input!
             }}
-          >
-            <MessagesDirective>
-              {messages.map((msg, i) => (
-                <MessageDirective
-                  key={`${msg.timestamp.getTime()}-${i}`}
-                  text={msg.text}
-                  author={msg.role === 'user' ? currentUserModel : assistantUser}
-                  timeStamp={msg.timestamp}
-                />
-              ))}
-            </MessagesDirective>
-          </ChatUIComponent>
+          />
         </div>
       </div>
 
@@ -501,89 +652,111 @@ export function PushToTalkAssistant() {
         </div>
       )}
 
-      {/* Voice controls - knappen centrerad, resten full bredd */}
+      {/* Voice controls - hands-free mode */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '16px',
-        width: '100%'
+        gap: '12px',
+        width: '100%',
+        marginTop: '16px'
       }}>
-        {/* Push-to-Talk Button */}
-        <VoicePushToTalkButton
-          onRecordingStart={handleRecordingStart}
-          onRecordingStop={handleRecordingStop}
-          disabled={!servicesReady}
-          isProcessing={isProcessing}
-          partialTranscript={partialText}
-        />
-
-        {/* Processing status */}
-        {isProcessing && (
-          <div style={{
-            fontSize: '14px',
-            color: 'var(--primary-600)',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <span className="e-icons e-spinner" style={{
-              fontSize: '16px',
-              animation: 'spin 1s linear infinite'
-            }} />
-            AI tänker...
-          </div>
+        {/* State 1: IDLE */}
+        {voiceState === 'idle' && (
+          <ButtonComponent
+            iconCss="e-icons e-microphone"
+            cssClass="e-primary"
+            onClick={handleStartRecording}
+            disabled={!servicesReady}
+          >
+            Börja prata
+          </ButtonComponent>
         )}
 
-        {/* TTS Stop button - Synlig när röst spelar */}
-        {isSpeaking && (
-          <button
-            onClick={() => {
-              ttsRef.current?.stop();
-              setIsSpeaking(false);
-            }}
-            className="e-btn e-danger"
-            style={{
+        {/* State 2: RECORDING */}
+        {voiceState === 'recording' && (
+          <ButtonComponent
+            iconCss="e-icons e-pause"
+            cssClass="e-danger"
+            onClick={stopAll}
+            style={{ animation: 'pulse 1.5s ease-in-out infinite' } as any}
+          >
+            Stoppa
+          </ButtonComponent>
+        )}
+
+        {/* State 3: PAUSED */}
+        {voiceState === 'paused' && (
+          <>
+            <div style={{
+              fontSize: '14px',
+              color: 'var(--warning-600)',
+              fontWeight: 600
+            }}>
+              Analyserar...
+            </div>
+            <ButtonComponent
+              iconCss="e-icons e-close"
+              cssClass="e-flat e-small"
+              onClick={stopAll}
+            >
+              Avbryt
+            </ButtonComponent>
+          </>
+        )}
+
+        {/* State 4: PROCESSING */}
+        {voiceState === 'processing' && (
+          <>
+            <div style={{
+              fontSize: '14px',
+              color: 'var(--primary-600)',
+              fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
-            }}
-          >
-            <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
-            Avbryt uppläsning
-          </button>
+            }}>
+              <span className="e-icons e-spinner" style={{
+                fontSize: '16px',
+                animation: 'spin 1s linear infinite'
+              }} />
+              AI tänker...
+            </div>
+            <ButtonComponent
+              iconCss="e-icons e-close"
+              cssClass="e-flat e-small"
+              onClick={stopAll}
+            >
+              Avbryt
+            </ButtonComponent>
+          </>
         )}
 
-        {/* Disconnect button - Frigör mikrofon helt (för musik etc) */}
-        {servicesReady && (
-          <button
-            onClick={() => {
-              // Stoppa TTS om igång
-              if (isSpeaking) {
-                ttsRef.current?.stop();
-                setIsSpeaking(false);
-              }
-
-              // Disconnect STT helt (stänger WebSocket + frigör mic)
-              sttRef.current?.disconnect();
-              setServicesReady(false);
-
-              toast.success('Mikrofon avstängd - kan nu lyssna på musik', {
-                icon: '🔇',
-                duration: 3000
-              });
-            }}
-            className="e-btn e-danger"
-            style={{
+        {/* State 5: PLAYING_TTS */}
+        {voiceState === 'playing_tts' && (
+          <>
+            <div style={{
+              fontSize: '14px',
+              color: 'var(--success-600)',
+              fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
-            }}
-          >
-            <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
-            Stäng mikrofon
-          </button>
+            }}>
+              <span className="e-icons e-volume" style={{
+                fontSize: '16px',
+                animation: 'pulse 1.5s ease-in-out infinite'
+              }} />
+              Spelar upp...
+            </div>
+            <ButtonComponent
+              iconCss="e-icons e-close"
+              cssClass="e-flat e-small"
+              onClick={stopAll}
+            >
+              Avbryt uppläsning
+            </ButtonComponent>
+          </>
         )}
       </div>
     </>

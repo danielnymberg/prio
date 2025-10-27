@@ -15,6 +15,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import * as sdk from 'microsoft-cognitiveservices-speech-sdk';
 import { createClient } from '@supabase/supabase-js';
 import fetch from 'node-fetch';
+import { Redis } from '@upstash/redis';
 
 const app = express();
 
@@ -71,6 +72,18 @@ if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
   console.log('✅ Supabase client initialized for email-to-task');
 } else {
   console.warn('⚠️  Supabase not configured - email-to-task will not work');
+}
+
+// Initialize Redis client for conversation history persistence
+let redis = null;
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+  console.log('✅ Redis client initialized for conversation history');
+} else {
+  console.warn('⚠️  Redis not configured - conversation history will not persist');
 }
 
 // CORS - Endast tillåtna origins
@@ -587,6 +600,68 @@ app.get('/api/quote', async (req, res) => {
   }
 });
 
+// Redis conversation history endpoints
+app.post('/api/conversation/save', authenticateUser, async (req, res) => {
+  try {
+    if (!redis) {
+      return res.status(503).json({ error: 'Redis not configured' });
+    }
+
+    const { history } = req.body;
+
+    if (!history || !Array.isArray(history)) {
+      return res.status(400).json({ error: 'History array required' });
+    }
+
+    const userId = req.user.id;
+    const key = `conversation:${userId}`;
+
+    // Save with 24h TTL
+    await redis.setex(key, 86400, JSON.stringify(history));
+
+    res.json({
+      success: true,
+      message: 'Conversation history saved',
+      messages_count: history.length
+    });
+  } catch (error) {
+    console.error('Redis save error:', error);
+    res.status(500).json({ error: 'Failed to save conversation history' });
+  }
+});
+
+app.get('/api/conversation/load', authenticateUser, async (req, res) => {
+  try {
+    if (!redis) {
+      return res.status(503).json({ error: 'Redis not configured' });
+    }
+
+    const userId = req.user.id;
+    const key = `conversation:${userId}`;
+
+    const historyJson = await redis.get(key);
+
+    if (!historyJson) {
+      return res.json({
+        success: true,
+        history: null,
+        message: 'No conversation history found'
+      });
+    }
+
+    const history = JSON.parse(historyJson);
+
+    res.json({
+      success: true,
+      history,
+      messages_count: history.length
+    });
+  } catch (error) {
+    console.error('Redis load error:', error);
+    res.status(500).json({ error: 'Failed to load conversation history' });
+  }
+});
+
 // Sentry v10 error handler (replaces old Handlers.errorHandler)
 if (process.env.SENTRY_DSN) {
   Sentry.setupExpressErrorHandler(app);
@@ -643,7 +718,7 @@ wss.on('connection', (clientWs) => {
             sensitivity: 0.5
           },
           conversation_config: {
-            end_of_utterance_silence_trigger: 0  // Disabled för push-to-talk (fungerar bara i hands-free mode)
+            end_of_utterance_silence_trigger: 0.7  // Hands-free mode: 700ms tystnad = utterance klar
           }
         }
       };

@@ -41,6 +41,7 @@ export function SettingsView() {
   let workingHours, setWorkingHours;
   let emailSchedule, setEmailSchedule;
   let ttsSpeed, setTtsSpeed;
+  let ttsVoice, setTtsVoice;
 
   try {
     console.log('🔍 DEBUG: Initializing state hooks...');
@@ -52,7 +53,8 @@ export function SettingsView() {
     );
     [workingHours, setWorkingHours] = useState<WorkingHoursConfig>(getWorkingHoursConfig());
     [emailSchedule, setEmailSchedule] = useState<EmailScheduleConfig>(getScheduleConfig());
-    [ttsSpeed, setTtsSpeed] = useState<string>(localStorage.getItem('prio-tts-speed') || 'normal');
+    [ttsSpeed, setTtsSpeed] = useState<string>(localStorage.getItem('tts_speed') || '1.0');
+    [ttsVoice, setTtsVoice] = useState<string>(localStorage.getItem('tts_voice') || 'sv-SE-SofieNeural');
     console.log('✅ DEBUG: All state hooks initialized successfully');
   } catch (error) {
     console.error('❌ DEBUG: Error initializing state hooks:', error);
@@ -291,12 +293,19 @@ export function SettingsView() {
     );
   };
 
-  // TTS Speed Content
+  // TTS Voice & Speed Content
   const ttsSpeedContent = () => {
     const handleTtsSpeedChange = (value: string) => {
       setTtsSpeed(value);
-      localStorage.setItem('prio-tts-speed', value);
+      localStorage.setItem('tts_speed', value);
       showToast.success('Rösthastighet sparad!');
+    };
+
+    const handleTtsVoiceChange = (args: any) => {
+      const newVoice = args.value;
+      setTtsVoice(newVoice);
+      localStorage.setItem('tts_voice', newVoice);
+      showToast.success('Röst sparad!');
     };
 
     return (
@@ -304,40 +313,83 @@ export function SettingsView() {
         padding: '1rem',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem'
+        gap: '1.5rem'
       }}>
-        <p style={{
-          fontSize: '0.875rem',
-          color: 'var(--e-text)',
-          opacity: 0.7
-        }}>
-          Välj hastighet för röstuppläsning av AI-svar. Snabbare = kortare svarstid.
-        </p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <RadioButtonComponent
-            label="Långsam (1.0x) - Tydligast"
-            name="tts-speed"
-            value="slow"
-            checked={ttsSpeed === 'slow'}
-            change={() => handleTtsSpeedChange('slow')}
+        {/* Voice Selection */}
+        <div>
+          <p style={{
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            color: 'var(--e-text)',
+            marginBottom: '0.5rem'
+          }}>
+            Välj röst
+          </p>
+          <DropDownListComponent
+            dataSource={[
+              { text: 'Sofie (Kvinnlig, varm)', value: 'sv-SE-SofieNeural' },
+              { text: 'Mattias (Manlig, professionell)', value: 'sv-SE-MattiasNeural' },
+              { text: 'Hillevi (Kvinnlig, äldre)', value: 'sv-SE-HilleviNeural' }
+            ]}
+            fields={{ text: 'text', value: 'value' }}
+            value={ttsVoice}
+            change={handleTtsVoiceChange}
+            placeholder="Välj röst"
           />
+        </div>
 
-          <RadioButtonComponent
-            label="Normal (1.2x) - Rekommenderad"
-            name="tts-speed"
-            value="normal"
-            checked={ttsSpeed === 'normal'}
-            change={() => handleTtsSpeedChange('normal')}
-          />
+        {/* Speed Selection */}
+        <div>
+          <p style={{
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            color: 'var(--e-text)',
+            marginBottom: '0.5rem'
+          }}>
+            Välj hastighet
+          </p>
+          <p style={{
+            fontSize: '0.875rem',
+            color: 'var(--e-text)',
+            opacity: 0.7,
+            marginBottom: '0.75rem'
+          }}>
+            Snabbare = kortare svarstid från AI
+          </p>
 
-          <RadioButtonComponent
-            label="Snabb (1.5x) - Spara tid"
-            name="tts-speed"
-            value="fast"
-            checked={ttsSpeed === 'fast'}
-            change={() => handleTtsSpeedChange('fast')}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <RadioButtonComponent
+              label="Långsam (0.8x) - Tydligast"
+              name="tts-speed"
+              value="0.8"
+              checked={ttsSpeed === '0.8'}
+              change={() => handleTtsSpeedChange('0.8')}
+            />
+
+            <RadioButtonComponent
+              label="Normal (1.0x) - Rekommenderad"
+              name="tts-speed"
+              value="1.0"
+              checked={ttsSpeed === '1.0'}
+              change={() => handleTtsSpeedChange('1.0')}
+            />
+
+            <RadioButtonComponent
+              label="Snabb (1.3x) - Spara tid"
+              name="tts-speed"
+              value="1.3"
+              checked={ttsSpeed === '1.3'}
+              change={() => handleTtsSpeedChange('1.3')}
+            />
+
+            <RadioButtonComponent
+              label="Mycket snabb (1.5x) - Effektivt"
+              name="tts-speed"
+              value="1.5"
+              checked={ttsSpeed === '1.5'}
+              change={() => handleTtsSpeedChange('1.5')}
+            />
+          </div>
         </div>
 
         <div style={{
@@ -351,7 +403,7 @@ export function SettingsView() {
             color: 'var(--e-text)',
             margin: 0
           }}>
-            💡 <strong>Tips:</strong> Vid bilkörning rekommenderas Normal (1.2x) för bra balans mellan hastighet och tydlighet.
+            💡 <strong>Tips:</strong> Vid bilkörning rekommenderas Normal (1.0x) för bra balans mellan hastighet och tydlighet.
           </p>
         </div>
       </div>

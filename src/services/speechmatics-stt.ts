@@ -7,18 +7,15 @@ export class SpeechmaticsSTT {
   private onTranscriptCallback?: (text: string, isFinal: boolean) => void;
   private accumulatedTranscript: string = ''; // Accumulate final transcript parts
   private onEndOfTranscriptCallback?: () => void;  // Callback för EndOfTranscript (SM's ACK på EndOfStream vid session-slut)
+  private onEndOfUtteranceCallback?: () => void;  // Callback för EndOfUtterance (hands-free: användaren slutade prata)
   private lastSeqNo: number = 0;
   private isStreaming: boolean = false;
-  private lastAddTranscriptTime: number = 0; // Timestamp för sista AddTranscript (för smart wait)
-  private micStoppedAt: number = 0; // Timestamp när mic stoppades (för logging)
 
   constructor() {}
 
   async startListening(onTranscript: (text: string, isFinal: boolean) => void) {
     this.onTranscriptCallback = onTranscript;
     this.accumulatedTranscript = ''; // Reset för ny utterance
-    this.lastAddTranscriptTime = 0; // Reset för ny turn
-    this.micStoppedAt = 0; // Reset för ny turn
     this.isStreaming = true;
 
     try {
@@ -85,18 +82,22 @@ export class SpeechmaticsSTT {
             if (newText) {
               // metadata.transcript har redan korrekt spacing och trailing space
               this.accumulatedTranscript += newText;
-              this.lastAddTranscriptTime = Date.now(); // Track timing för smart wait
-
-              // Logga med timestamp från mic-stop (om mic är stoppad)
-              if (this.micStoppedAt > 0) {
-                const timeSinceMicStop = Date.now() - this.micStoppedAt;
-                console.log(`📨 AddTranscript (+${timeSinceMicStop}ms):`, newText);
-              }
-
               console.log('✅ Accumulated:', this.accumulatedTranscript);
             }
+          } else if (data.message === 'EndOfUtterance') {
+            // Hands-free mode: Användaren slutade prata (700ms tystnad)
+            console.log('🔴 EndOfUtterance - användaren slutade prata');
 
-            // EndOfUtterance används ej (disabled för push-to-talk)
+            // Skicka accumulated som final
+            if (this.accumulatedTranscript.trim()) {
+              this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+            }
+
+            // Trigga callback för att skicka till Claude
+            this.onEndOfUtteranceCallback?.();
+
+            // Reset för nästa utterance
+            this.accumulatedTranscript = '';
           } else if (data.message === 'EndOfTranscript') {
             // SM's ACK på EndOfStream - session-slut (används bara vid disconnect)
             console.log('✅ EndOfTranscript received - session klar');
@@ -190,50 +191,13 @@ export class SpeechmaticsSTT {
     return int16;
   }
 
-  async stopListening(sendAccumulated: boolean = true): Promise<void> {
-    console.log('🛑 stopListening called');
+  async stopListening(): Promise<void> {
+    console.log('🛑 stopListening called - pausing microphone');
 
-    // STEG 1: Stoppa mikrofon OMEDELBART
+    // Pausar mikrofonern omedelbart
     this.stopMicrophone();
-    this.micStoppedAt = Date.now(); // Referenspunkt för all timing + logging!
-    this.lastAddTranscriptTime = Date.now(); // Reset - börja räkna från mic-stop!
 
-    // STEG 2: Smart wait från mic-stop
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      // Initial wait för in-flight audio (500ms)
-      console.log('⏳ Waiting 500ms for in-flight audio...');
-      await new Promise(r => setTimeout(r, 500));
-
-      // Smart wait: Vänta tills 500ms sen sista AddTranscript
-      console.log('⏳ Smart wait: Waiting until 500ms since last AddTranscript...');
-      while (true) {
-        const timeSinceLastAdd = Date.now() - this.lastAddTranscriptTime;
-
-        if (timeSinceLastAdd > 500) {
-          // 500ms utan ny AddTranscript - SM är klar!
-          console.log('✅ No AddTranscript for 500ms - stream complete!');
-          break;
-        }
-
-        if (Date.now() - this.micStoppedAt > 2000) {
-          // Max 2s totalt från mic-stop - säkerhetsnät (borde aldrig trigga!)
-          console.warn('⏱️ Max wait time (2000ms from mic stop) reached - using accumulated');
-          break;
-        }
-
-        await new Promise(r => setTimeout(r, 100)); // Checka var 100ms
-      }
-
-      const totalWaitTime = Date.now() - this.micStoppedAt;
-      console.log(`⏱️ Smart wait completed in ${totalWaitTime}ms from mic stop`);
-
-      // Skicka accumulated transcript
-      if (sendAccumulated && this.accumulatedTranscript.trim()) {
-        this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-        this.accumulatedTranscript = '';
-      }
-    }
-
+    // EndOfUtterance från Speechmatics hanterar auto-send
     // WebSocket FÖRBLIR ÖPPEN för nästa turn! ✅
     console.log('🔌 WebSocket kept open for next turn');
   }
@@ -327,6 +291,14 @@ export class SpeechmaticsSTT {
     this.cleanup();
   }
 
+  /**
+   * Set callback for EndOfUtterance (hands-free mode)
+   * Called when user stops speaking (700ms silence detected)
+   */
+  setOnEndOfUtterance(callback: () => void) {
+    this.onEndOfUtteranceCallback = callback;
+  }
+
   private cleanup() {
     // Close WebSocket
     if (this.ws) {
@@ -353,5 +325,6 @@ export class SpeechmaticsSTT {
     // Clear callbacks
     this.onTranscriptCallback = undefined;
     this.onEndOfTranscriptCallback = undefined;
+    this.onEndOfUtteranceCallback = undefined;
   }
 }

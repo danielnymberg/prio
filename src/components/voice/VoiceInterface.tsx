@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 // Lucide icons replaced with SyncFusion e-icons
 import { SyncButton as Button } from '@/components/ui/SyncButton';
-import { FabComponent } from '@syncfusion/ej2-react-buttons';
+import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
 import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
@@ -15,10 +15,10 @@ interface ConversationMessage {
   timestamp: Date;
 }
 
-export function VoiceInterface() {
-  // Dölj röst på desktop, visa bara text-knapp
-  const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+type VoiceState = 'idle' | 'recording' | 'paused' | 'processing' | 'playing_tts';
 
+export function VoiceInterface() {
+  const [voiceState, setVoiceState] = useState<VoiceState>('idle');
   const [isListening, setIsListening] = useState(false);
   const [partialText, setPartialText] = useState(''); // Pågående tal (live)
   const [finalText, setFinalText] = useState(''); // Bekräftat tal
@@ -35,6 +35,59 @@ export function VoiceInterface() {
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
+
+  const loadConversationHistory = useCallback(async () => {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) return;
+
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+
+      const response = await fetch(`${BACKEND_URL}/api/conversation/load`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (!response.ok) return;
+
+      const { history } = await response.json();
+
+      if (history) {
+        setConversationLog(history);
+        claudeRef.current?.loadHistory(history);
+        console.log('✅ Loaded conversation history from Redis:', history.length, 'messages');
+      }
+    } catch (error) {
+      console.error('Failed to load conversation history:', error);
+    }
+  }, []);
+
+  const saveConversationHistory = useCallback(async (history: ConversationMessage[]) => {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) return;
+
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+
+      await fetch(`${BACKEND_URL}/api/conversation/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ history })
+      });
+
+      console.log('✅ Saved conversation history to Redis');
+    } catch (error) {
+      console.error('Failed to save conversation history:', error);
+    }
+  }, []);
 
   const initializeServices = async () => {
     if (!user) return;
@@ -96,6 +149,57 @@ export function VoiceInterface() {
     }
   };
 
+  const playAzureTTS = useCallback(async (text: string) => {
+    try {
+      setVoiceState('playing_tts');
+
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      const voice = localStorage.getItem('tts_voice') || 'sv-SE-SofieNeural';
+      const speed = parseFloat(localStorage.getItem('tts_speed') || '1.0');
+
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+
+      const response = await fetch(`${BACKEND_URL}/api/azure-tts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          text,
+          voice,
+          format: 'audio-16khz-32kbitrate-mono-mp3'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`TTS failed: ${response.status}`);
+      }
+
+      const { audioData } = await response.json();
+
+      const audio = new Audio(`data:audio/mp3;base64,${audioData}`);
+      audio.playbackRate = speed;
+
+      audio.onended = () => {
+        console.log('✅ TTS klar - återgår till idle');
+        setVoiceState('idle');
+        // Mic återaktiveras inte automatiskt - användaren klickar för nästa turn
+      };
+
+      audio.play();
+    } catch (error) {
+      console.error('Azure TTS error:', error);
+      setVoiceState('idle');
+    }
+  }, []);
+
   const handleUserMessage = useCallback(async (message: string) => {
     // Lägg till i log
     const userMessage: ConversationMessage = {
@@ -109,12 +213,14 @@ export function VoiceInterface() {
     setPartialText('');
     setFinalText('');
     setIsListening(false);
+    setVoiceState('processing');
     setStatus('AI tänker...');
     sttRef.current?.stopListening();
 
     if (!claudeRef.current) {
       setError('AI-assistent inte tillgänglig');
       setStatus('');
+      setVoiceState('idle');
       return;
     }
 
@@ -136,29 +242,49 @@ export function VoiceInterface() {
 
       claudeRef.current.updateContext({ tasks, calendarEvents });
 
-      // Skicka till Claude
-      const response = await claudeRef.current.chat(message);
+      // Använd streaming för snabbare respons + sentence-by-sentence TTS
+      let fullResponse = '';
+      let currentSentence = '';
 
-      if (response) {
-        // Lägg till i log
-        const assistantMessage: ConversationMessage = {
-          role: 'assistant',
-          text: response,
-          timestamp: new Date(),
-        };
-        setConversationLog(prev => [...prev, assistantMessage]);
+      await claudeRef.current.chatStreaming(message, async (chunk: string) => {
+        fullResponse += chunk;
+        currentSentence += chunk;
 
-        // Visa textsvar i status (behåll minimerad)
-        setStatus('💬 ' + response);
-      } else {
-        setStatus('');
+        // Om chunk slutar med . ! ? → spela meningen
+        if (/[.!?]$/.test(chunk.trim())) {
+          const sentenceToPlay = currentSentence.trim();
+          currentSentence = '';
+
+          // Spela meningen (asynkront, blockerar inte nästa chunk)
+          playAzureTTS(sentenceToPlay);
+        }
+      });
+
+      // Spela resterande text (om ingen avslutande punkt)
+      if (currentSentence.trim()) {
+        await playAzureTTS(currentSentence.trim());
       }
+
+      // Lägg till i log
+      const assistantMessage: ConversationMessage = {
+        role: 'assistant',
+        text: fullResponse,
+        timestamp: new Date(),
+      };
+      setConversationLog(prev => [...prev, assistantMessage]);
+
+      setStatus('');
+
+      // Spara conversation history till Redis
+      await saveConversationHistory([...conversationLog, userMessage, assistantMessage]);
+
     } catch (error) {
       console.error('Conversation error:', error);
       setError('Kunde inte få svar från AI-assistenten');
       setStatus('');
+      setVoiceState('idle');
     }
-  }, [tasks]);
+  }, [tasks, conversationLog, playAzureTTS]);
 
   const handleStartListening = useCallback(async () => {
     if (!sttRef.current) {
@@ -167,6 +293,7 @@ export function VoiceInterface() {
     }
 
     try {
+      setVoiceState('recording');
       setIsListening(true);
       setPartialText('');
       setFinalText('');
@@ -206,32 +333,6 @@ export function VoiceInterface() {
     }
   }, [handleUserMessage, isListening, finalText, partialText]);
 
-  const handleToggleListening = useCallback(() => {
-    if (isListening) {
-      // Stoppa lyssnande men behåll texten
-      setIsListening(false);
-      setStatus('Pausad - klicka Skicka eller fortsätt prata');
-      sttRef.current?.stopListening(false);
-    } else {
-      // Starta lyssnande
-      handleStartListening();
-    }
-  }, [isListening, handleStartListening]);
-
-  const handleSendToAI = useCallback(() => {
-    // Skicka allt som finns (final + partial)
-    const fullText = (finalText + (partialText ? ' ' + partialText : '')).trim();
-
-    if (fullText) {
-      console.log('🎯 Skickar text till Claude:', fullText);
-      setStatus('Bearbetar...');
-      handleUserMessage(fullText);
-      setPartialText('');
-      setFinalText('');
-      setIsListening(false);
-      sttRef.current?.stopListening(false);
-    }
-  }, [finalText, partialText, handleUserMessage]);
 
   const handleTextSubmit = useCallback(() => {
     if (textInputValue.trim()) {
@@ -246,19 +347,20 @@ export function VoiceInterface() {
     if (!user) return;
 
     initializeServices();
+    loadConversationHistory(); // Load persisted history from Redis
 
     // Proper cleanup function
     return () => {
       // Stop active services
       if (sttRef.current) {
-        sttRef.current.stopListening(false);
+        sttRef.current.stopListening();
       }
 
       // Clear references to allow garbage collection
       sttRef.current = null;
       claudeRef.current = null;
     };
-  }, [user]); // Removed tasks from dependency array
+  }, [user, loadConversationHistory]); // Removed tasks from dependency array
 
   // Update Claude context when tasks change
   useEffect(() => {
@@ -282,20 +384,22 @@ export function VoiceInterface() {
     };
   }, [isListening, handleStartListening]);
 
-  // Automatisk tystnad-detektion: Skicka efter 1.5 sek tystnad
+  // EndOfUtterance från Speechmatics hanterar auto-send (ingen manual tystnad-detektion behövs)
   useEffect(() => {
-    if (!isListening || !finalText) return;
+    if (!sttRef.current) return;
 
-    // Om vi har final text men inget partial = tyst
-    if (!partialText) {
-      const silenceTimer = setTimeout(() => {
-        console.log('🔇 1.5 sek tystnad - skickar automatiskt');
-        handleSendToAI();
-      }, 1500);
+    // Registrera EndOfUtterance callback för hands-free mode
+    sttRef.current.setOnEndOfUtterance(() => {
+      console.log('🔴 EndOfUtterance detected - auto sending to Claude');
+      setVoiceState('paused');
 
-      return () => clearTimeout(silenceTimer);
-    }
-  }, [isListening, finalText, partialText, handleSendToAI]);
+      // Skicka accumulated transcript till Claude
+      const fullText = finalText.trim();
+      if (fullText) {
+        handleUserMessage(fullText);
+      }
+    });
+  }, [finalText, handleUserMessage]);
 
   const clearConversation = () => {
     setConversationLog([]);
@@ -611,49 +715,133 @@ export function VoiceInterface() {
         </div>
       )}
 
-      {/* Mic FAB - Endast mobil, när INTE lyssnar */}
-      {!isDesktop && !isListening && !(finalText || partialText) && (
-        <FabComponent
-          iconCss="e-icons e-microphone"
-          position="BottomRight"
-          isPrimary={true}
-          onClick={handleToggleListening}
-          title="Starta röstinspelning"
-        />
-      )}
+      {/* FAB-knappar borttagna - ersätts med centrerad UI */}
 
-      {/* Mic FAB (active) - Röd när lyssnar */}
-      {!isDesktop && isListening && (
-        <FabComponent
-          iconCss="e-icons e-stop"
-          position="BottomRight"
-          cssClass="e-danger"
-          onClick={handleToggleListening}
-          title="Pausa inspelning"
-        />
-      )}
+      {/* Centrerad Voice Control UI */}
+      <div style={{
+        position: 'fixed',
+        bottom: '80px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '16px',
+        zIndex: 49
+      }}>
+          {/* State 1: IDLE */}
+          {voiceState === 'idle' && (
+            <ButtonComponent
+              iconCss="e-icons e-microphone"
+              cssClass="e-primary e-large"
+              onClick={handleStartListening}
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%'
+              } as any}
+            >
+              Prata
+            </ButtonComponent>
+          )}
 
-      {/* Send FAB - När har text (final eller partial) */}
-      {!isDesktop && (finalText || partialText) && (
-        <FabComponent
-          iconCss="e-icons e-send"
-          position="BottomCenter"
-          isPrimary={true}
-          onClick={handleSendToAI}
-          title="Skicka till AI"
-          cssClass="fab-pulse"
-        />
-      )}
+          {/* State 2: RECORDING */}
+          {voiceState === 'recording' && (
+            <>
+              <ButtonComponent
+                iconCss="e-icons e-pause"
+                cssClass="e-danger e-large"
+                onClick={() => {
+                  sttRef.current?.stopListening();
+                  setVoiceState('idle');
+                  setIsListening(false);
+                }}
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  animation: 'pulse 1.5s ease-in-out infinite'
+                } as any}
+              >
+                Pausa
+              </ButtonComponent>
 
-      {/* Text Input FAB - Alltid synlig (utom när lyssnar) */}
-      {!isListening && !(finalText || partialText) && (
-        <FabComponent
-          iconCss="e-icons e-edit"
-          position="BottomLeft"
-          onClick={() => setShowTextInput(true)}
-          title="Skriv meddelande till AI"
-        />
-      )}
+              {/* Live transcript */}
+              {partialText && (
+                <div style={{
+                  background: 'var(--e-surface)',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  maxWidth: '280px',
+                  textAlign: 'center',
+                  border: '1px solid var(--e-border)',
+                  fontSize: '14px'
+                }}>
+                  "{partialText}"
+                </div>
+              )}
+            </>
+          )}
+
+          {/* State 3: PAUSED (waiting for EndOfUtterance processing) */}
+          {voiceState === 'paused' && (
+            <ButtonComponent
+              iconCss="e-icons e-pause"
+              cssClass="e-warning e-large"
+              disabled={true}
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%'
+              } as any}
+            >
+              Väntar...
+            </ButtonComponent>
+          )}
+
+          {/* State 4: PROCESSING (Claude thinking) */}
+          {voiceState === 'processing' && (
+            <ButtonComponent
+              iconCss="e-icons e-spinner"
+              cssClass="e-large"
+              disabled={true}
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%'
+              } as any}
+            >
+              AI...
+            </ButtonComponent>
+          )}
+
+          {/* State 5: PLAYING_TTS */}
+          {voiceState === 'playing_tts' && (
+            <ButtonComponent
+              iconCss="e-icons e-volume"
+              cssClass="e-success e-large"
+              disabled={true}
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                animation: 'pulse 1.5s ease-in-out infinite'
+              } as any}
+            >
+              Spelar...
+            </ButtonComponent>
+          )}
+
+          {/* Text input knapp - alltid synlig under voice control */}
+          <ButtonComponent
+            iconCss="e-icons e-edit"
+            cssClass="e-flat"
+            onClick={() => setShowTextInput(true)}
+            style={{ fontSize: '12px' } as any}
+          >
+            Skriv istället
+          </ButtonComponent>
+      </div>
 
       {/* Text Input Dialog */}
       {showTextInput && (

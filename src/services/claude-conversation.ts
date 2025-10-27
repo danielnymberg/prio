@@ -1254,6 +1254,10 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
     return this.conversationHistory;
   }
 
+  loadHistory(history: any[]) {
+    this.conversationHistory = history;
+  }
+
   clearHistory() {
     this.conversationHistory = [];
   }
