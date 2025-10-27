@@ -8,7 +8,7 @@ import { DialogComponent, AnimationSettingsModel, ButtonPropsModel } from '@sync
 import { TextBoxComponent, NumericTextBoxComponent, SliderComponent } from '@syncfusion/ej2-react-inputs';
 import { DateTimePickerComponent } from '@syncfusion/ej2-react-calendars';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
-import { ChipListComponent, CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
+import { ButtonComponent, ChipListComponent, CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import { FormValidator } from '@syncfusion/ej2-inputs';
 
 interface UppgiftRegistreringProps {
@@ -352,15 +352,25 @@ export function UppgiftRegistrering({ isOpen, onClose, taskToEdit, defaultProjec
             value={status}
             change={(e) => setStatus(e.value)}
           />
-          <DropDownListComponent
-            dataSource={projects as any}
-            fields={{ text: 'name', value: 'id' }}
-            placeholder="Projekt (valfritt)"
-            floatLabelType="Auto"
-            allowFiltering={true}
-            value={selectedProject}
-            change={(e) => setSelectedProject(e.value || null)}
-          />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+            <div style={{ flex: 1 }}>
+              <DropDownListComponent
+                dataSource={projects as any}
+                fields={{ text: 'name', value: 'id' }}
+                placeholder="Projekt (valfritt)"
+                floatLabelType="Auto"
+                allowFiltering={true}
+                value={selectedProject}
+                change={(e) => setSelectedProject(e.value || null)}
+              />
+            </div>
+            <ButtonComponent
+              cssClass="e-outline"
+              iconCss="e-icons e-plus"
+              onClick={() => window.open('/projects/new', '_blank')}
+              title="Skapa nytt projekt"
+            />
+          </div>
         </div>
 
         {/* Deadline-varning */}

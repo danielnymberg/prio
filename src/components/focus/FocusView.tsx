@@ -381,8 +381,14 @@ export function FocusView() {
       {/* === 4. HUVUDKORT - NÄSTA UPPGIFT === */}
       {nextTask ? (
         <div className="e-card" style={{ marginBottom: '24px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}>
-          <div className="e-card-header">
+          <div className="e-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="e-card-title">Just Nu</div>
+            <ButtonComponent
+              cssClass="e-flat e-small"
+              iconCss="e-icons e-edit"
+              onClick={() => handleTaskClick(nextTask.id)}
+              title="Justera CPM-värden"
+            />
           </div>
           <div className="e-card-content">
             <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '16px', margin: '0 0 16px 0' }}>

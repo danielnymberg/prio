@@ -93,6 +93,7 @@ interface CalendarEvent {
   CategoryColor: string;
   EventType: 'task' | 'meeting';
   TaskId?: string;
+  ProjectId?: string;
   CalendarEventId?: string;
 }
 
@@ -173,6 +174,7 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
             CategoryColor: '#dc2626',
             EventType: 'task' as const,
             TaskId: t.id,
+            ProjectId: t.project_id || undefined,
             CalendarEventId: t.calendar_event_id || undefined,
           })),
       ];
@@ -486,9 +488,13 @@ export function WeekCalendarView({ onScheduleReady, tasks, updateTask }: WeekCal
                   <div style={{ padding: '8px', display: 'flex', gap: '8px', justifyContent: 'space-between' }}>
                     <ButtonComponent
                       cssClass="e-primary"
-                      content="Öppna uppgift"
+                      content={event.ProjectId ? "Öppna projekt" : "Öppna uppgift"}
                       onClick={() => {
-                        navigate(`/all?task=${event.TaskId}`);
+                        if (event.ProjectId) {
+                          navigate(`/projects/${event.ProjectId}`);
+                        } else {
+                          navigate(`/all?task=${event.TaskId}`);
+                        }
                         if (scheduleRef.current) {
                           scheduleRef.current.closeQuickInfoPopup();
                         }

@@ -13,7 +13,7 @@ export function CapacityTimeline() {
   const { absencePeriods, loading: absenceLoading } = useAbsencePeriods();
   const { settings, loading: settingsLoading } = useCapacitySettings();
 
-  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>('week');
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>('month');
   const [baseDate] = useState(new Date());
   const [calendarEvents] = useState<any[]>([]);
   const [loading] = useState(false);
@@ -37,9 +37,8 @@ export function CapacityTimeline() {
     );
   }, [zoomLevel, baseDate, tasks, projects, calendarEvents, absencePeriods, settings, absenceLoading, settingsLoading, loading]);
 
-  // Zoom-knappar
+  // Zoom-knappar (minsta = månad)
   const zoomButtons: { level: ZoomLevel; label: string }[] = [
-    { level: 'week', label: 'Vecka' },
     { level: 'month', label: 'Månad' },
     { level: 'quarter', label: 'Kvartal' },
     { level: 'year', label: 'År' },

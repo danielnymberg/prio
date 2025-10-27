@@ -13,11 +13,13 @@ import {
 } from '@syncfusion/ej2-react-gantt';
 import { useProjects } from '@/hooks/useProjects';
 import { useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { addDays, startOfWeek } from 'date-fns';
 
 export function GanttView() {
   const { projects } = useProjects();
   const ganttRef = useRef<GanttComponent>(null);
+  const navigate = useNavigate();
 
   // Konvertera projekt till Gantt-format
   const ganttData = useMemo(() => {
@@ -38,6 +40,7 @@ export function GanttView() {
 
       return {
         TaskID: index + 1,
+        ProjectId: project.id,
         TaskName: project.name,
         ClientName: project.client_name || 'Ingen kund',
         StartDate: startDate,
@@ -80,6 +83,11 @@ export function GanttView() {
           dataBound={() => {
             if (ganttRef.current) {
               ganttRef.current.scrollToDate(new Date().toISOString().split('T')[0]);
+            }
+          }}
+          rowSelected={(args: any) => {
+            if (args.data?.ProjectId) {
+              navigate(`/projects/${args.data.ProjectId}`);
             }
           }}
         >

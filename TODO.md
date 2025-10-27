@@ -1,26 +1,75 @@
 # TODO - Framtida förbättringar
 
-## 🌟 VÄRLDSLEDANDE CLAUDE - Nästa Nivå (2025-10-27)
+## ✅ KLART - 2025-10-27 (STOR DAG!)
+
+### **🎤 VOICE ASSISTANT - Komplett Ombyggnad**
+
+**Push-to-Talk → Hands-Free Mode:**
+- Speechmatics EndOfUtterance (0.7s tystnad = auto-skicka)
+- Azure TTS med sentence-streaming (~1.2s latency till första ordet)
+- Redis conversation persistence (24h TTL via Upstash)
+- ChatUIComponent fix (`messages` prop, inte MessagesDirective)
+- 5 states (idle/recording/paused/processing/playing_tts)
+- TTS-kö (meningar spelas en i taget, inga dubbla röster)
+- 10s inactivity timeout (auto-stop vid ingen faktisk text)
+- Stop-knapp synlig i alla states
+- Settings: Röstval (Sofie/Mattias/Hillevi) + Hastighet (0.8x-1.5x)
+
+**Backend:**
+- Upstash Redis integration (@upstash/redis)
+- EndOfUtterance aktiverad i Speechmatics config
+- Redis endpoints: /api/conversation/save, /api/conversation/load
+- Azure Speech region: swedencentral
+
+**Resultat:** Hands-free voice assistant med professionell TTS och persistent history!
+
+---
+
+### **🤖 CLAUDE API - 27 Tools (från 18)**
+
+**+9 nya MS Graph-funktioner:**
+- Kalender: update_calendar_event, delete_calendar_event, plan_work_sessions
+- Mejl: search_emails, list_all_emails, get_email_content, mark_email_read
+- Kontakter: search_contact, get_contact_info
+
+**Intelligens-förbättringar:**
+- Sonnet-first för viktiga queries (mejl/kalender/tasks)
+- Synonym-mapping (tåg→SJ/MTRX, flyg→SAS/Norwegian, etc)
+- Extended context (ALLA tasks i system prompt, inte top 15)
+- Proactive Intelligence (föreslår nästa steg efter varje tool)
+- Tid-formatering med period (18:20 kväll, 06:00 morgon)
+- Reflection Loop (3-försök autonomous retry vid misslyckad mejl-sökning)
+- Säkerhetscheck (blockerar update/delete av möten med flera deltagare)
+- Beteendeförbättringar från testfeedback (ALDRIG "du borde gå", MAX 1 mening vid stress)
+
+**Resultat:** Världsledande digital sekreterare (smartare än Claude.ai + Copilot 365)!
+
+---
+
+### **🎨 UX-FÖRBÄTTRINGAR**
+
+- Focus "Just nu" → Edit-knapp för att justera CPM-värden
+- Kalender → Event klick öppnar /projects/:id (om kopplad)
+- UppgiftRegistrering → "Skapa projekt" knapp (öppnar ny flik)
+- Gantt → Klicka rad öppnar /projects/:id direkt
+- CapacityTimeline → Vecka-zoom borttagen (fixar 1100% bug)
+- Header → Röd check-in badge borttagen
+- MSFT-genväg → Direktinloggning popup när ej inloggad (1 klick istället för 3)
+
+---
+
+## 🌟 VÄRLDSLEDANDE CLAUDE - Nästa Nivå
 
 **Mål:** MinPrio Claude smartare än Claude.ai + Copilot 365
 
-### ✅ KLART IDAG:
-- Sonnet-first för viktiga queries (mejl, kalender, tasks)
-- Synonym-mapping (tåg→SJ, flyg→SAS, etc)
-- Extended context (ALLA tasks, inte top 15)
-- Proactive Intelligence (föreslå nästa steg)
-- Tid-formatering (18:20 kväll, inte imorse)
-- Säkerhetscheck (blockera möten med flera deltagare)
-
 ### 🎯 NÄSTA (Prioriterat):
 
-#### **1. Reflection Loop** (40 min) - HÖGSTA PRIO
-Retry vid misslyckande, 3 olika strategier innan uppgivning.
-**Impact:** 95% success rate (vs 70% nu)
+#### **1. ~~Reflection Loop~~** ✅ KLART!
+~~Retry vid misslyckande~~ → Implementerat med 3-försök autonomous retry
 
-#### **2. Context Caching** (20 min) - GRATIS FÖRBÄTTRING
+#### **2. Context Caching** (20 min) - HÖGSTA PRIO
 90% kostnadsbesparing på system prompt genom Anthropic prompt caching.
-**Impact:** $0.008 → $0.002 per query (samma som Haiku-pris!)
+**Impact:** Sonnet-kvalitet till Haiku-pris ($0.008 → $0.002 per query)
 
 #### **3. Spam Filtering** (30 min)
 Filtrera marketing/nyhetsbrev INNAN visning till användaren.

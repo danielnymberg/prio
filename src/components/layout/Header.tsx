@@ -18,7 +18,6 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
-  const [needsCheckIn, setNeedsCheckIn] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
@@ -34,23 +33,9 @@ export function Header({ onMenuClick }: HeaderProps) {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    // Check if daily check-in is needed
-    const checkInData = localStorage.getItem('prio-daily-checkin');
-    if (checkInData) {
-      const lastCheckIn = JSON.parse(checkInData);
-      const lastCheckInDate = new Date(lastCheckIn.date || lastCheckIn.timestamp);
-      const today = new Date();
-      const isToday = lastCheckInDate.toDateString() === today.toDateString();
-      setNeedsCheckIn(!isToday);
-    } else {
-      setNeedsCheckIn(true);
-    }
-  }, []);
 
   const handleCheckInComplete = (checkIn: DailyCheckIn) => {
     localStorage.setItem('prio-daily-checkin', JSON.stringify(checkIn));
-    setNeedsCheckIn(false);
     window.location.reload();
   };
 
@@ -126,7 +111,17 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {/* Microsoft status - Dold på mobil */}
           <div
-            onClick={() => navigate('/settings')}
+            onClick={async () => {
+              if (!isMicrosoftConnected) {
+                // Inte inloggad → Logga in direkt
+                const { loginToMicrosoft, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
+                await loginToMicrosoft(true);
+                setIsMicrosoftConnected(await isMicrosoftLoggedIn());
+              } else {
+                // Redan inloggad → Gå till Settings
+                navigate('/settings');
+              }
+            }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -136,7 +131,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               backgroundColor: 'var(--e-surface-secondary)',
               cursor: 'pointer'
             }}
-            title={isMicrosoftConnected ? 'Microsoft Calendar ansluten' : 'Ej ansluten'}
+            title={isMicrosoftConnected ? 'Microsoft Calendar ansluten - Klicka för inställningar' : 'Klicka för att logga in på Microsoft'}
           >
             <div style={{
               width: '8px',
@@ -148,17 +143,12 @@ export function Header({ onMenuClick }: HeaderProps) {
           </div>
 
           {/* Avstämning - Endast ikon på mobil */}
-          <div className="e-relative e-inline-block">
-            <ButtonComponent
-              cssClass="e-outline"
-              iconCss="e-icons e-refresh"
-              onClick={() => setIsCheckInOpen(true)}
-              content={window.innerWidth < 768 ? '' : 'Avstämning'}
-            />
-            {needsCheckIn && (
-              <span className="e-badge e-badge-danger e-badge-notification e-badge-overlap">!</span>
-            )}
-          </div>
+          <ButtonComponent
+            cssClass="e-outline"
+            iconCss="e-icons e-refresh"
+            onClick={() => setIsCheckInOpen(true)}
+            content={window.innerWidth < 768 ? '' : 'Avstämning'}
+          />
 
           {/* Ny uppgift - Endast ikon på mobil */}
           <ButtonComponent

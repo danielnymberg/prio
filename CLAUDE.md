@@ -346,6 +346,61 @@ function Component() {
 - **Fragment (`<>`) är bästa sättet** när komponenter behöver olika alignments
 - **Använd `alignSelf` på specifika children** istället för `alignItems` på parent
 
+### ChatUIComponent - MessagesDirective vs messages prop (2025-10-27)
+**Problem:** Live transcript uppdaterades inte i ChatUI, meddelanden fastnade på "..." eller "PA"
+**Orsak:** MessagesDirective med .map() är för STATISKA messages. Re-renderar inte korrekt vid state-ändringar.
+**Lösning:** Använd `messages` prop enligt SyncFusion dokumentation
+
+**FEL:**
+```tsx
+// ❌ MessagesDirective - Re-renderar inte korrekt
+<ChatUIComponent>
+  <MessagesDirective>
+    {messages.map(msg => (
+      <MessageDirective key={...} text={msg.text} />
+    ))}
+  </MessagesDirective>
+</ChatUIComponent>
+```
+
+**RÄTT:**
+```tsx
+// ✅ messages prop - Dynamiska uppdateringar fungerar
+<ChatUIComponent
+  messages={messages.map(msg => ({
+    text: msg.text,
+    author: msg.role === 'user' ? currentUser : assistant,
+    timeStamp: msg.timestamp
+  }))}
+/>
+```
+
+**Källa:** https://ej2.syncfusion.com/react/documentation/api/chat-ui#messages
+
+### CapacityTimeline - ZoomLevel 'week' Bug (2025-10-27)
+**Problem:** 1100% utilization när zoomLevel='week' visar per-dag bars
+**Orsak:** `hoursPerWeek` applicerades på DAG istället för VECKA
+```ts
+const hoursPerWeek = project.quoted_hours / totalWeeks;
+return sum + hoursPerWeek; // ❌ Detta är för HELA veckan!
+```
+När period = 1 dag → Samma hoursPerWeek × 7 dagar = 700%
+
+**Lösning:** Ta bort 'week' zoom helt, minsta zoom = 'month'
+```ts
+const zoomButtons = [
+  { level: 'month', label: 'Månad' },  // Minsta zoom
+  { level: 'quarter', label: 'Kvartal' },
+  { level: 'year', label: 'År' },
+];
+```
+
+**Alternativ lösning** (om man vill behålla dag-vy):
+```ts
+const periodDays = (periodEnd - periodStart) / (1000*60*60*24) + 1;
+const hoursForPeriod = periodDays <= 1 ? hoursPerWeek / 7 : hoursPerWeek;
+```
+
 ## 🏗️ Arkitektur
 
 ### Tech Stack
