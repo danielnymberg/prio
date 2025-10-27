@@ -642,3 +642,63 @@ export async function deleteCalendarEvent(eventId: string): Promise<boolean> {
     return false;
   }
 }
+
+// Search contacts
+export async function searchContacts(searchQuery: string): Promise<any[]> {
+  const client = await getGraphClient();
+  if (!client) return [];
+
+  try {
+    const response = await client
+      .api('/me/contacts')
+      .filter(`startswith(displayName,'${searchQuery}') or startswith(surname,'${searchQuery}') or startswith(givenName,'${searchQuery}') or startswith(companyName,'${searchQuery}')`)
+      .select('id,displayName,emailAddresses,businessPhones,mobilePhone,companyName,jobTitle')
+      .top(10)
+      .get();
+
+    return response.value.map((contact: any) => ({
+      id: contact.id,
+      name: contact.displayName,
+      email: contact.emailAddresses?.[0]?.address || null,
+      phone: contact.businessPhones?.[0] || contact.mobilePhone || null,
+      company: contact.companyName || null,
+      jobTitle: contact.jobTitle || null
+    }));
+  } catch (error) {
+    console.error('Failed to search contacts:', error);
+    return [];
+  }
+}
+
+// Get contact info
+export async function getContactInfo(contactId: string): Promise<any | null> {
+  const client = await getGraphClient();
+  if (!client) return null;
+
+  try {
+    const contact = await client
+      .api(`/me/contacts/${contactId}`)
+      .select('id,displayName,emailAddresses,businessPhones,mobilePhone,companyName,jobTitle,birthday,homeAddress,businessAddress')
+      .get();
+
+    return {
+      id: contact.id,
+      name: contact.displayName,
+      emails: contact.emailAddresses?.map((e: any) => e.address) || [],
+      phones: {
+        business: contact.businessPhones || [],
+        mobile: contact.mobilePhone || null
+      },
+      company: contact.companyName || null,
+      jobTitle: contact.jobTitle || null,
+      birthday: contact.birthday || null,
+      addresses: {
+        home: contact.homeAddress || null,
+        business: contact.businessAddress || null
+      }
+    };
+  } catch (error) {
+    console.error('Failed to get contact info:', error);
+    return null;
+  }
+}

@@ -356,8 +356,9 @@ VIKTIGA BEGREPP:
 
 TILLGÄNGLIGA FUNKTIONER:
 ✅ Uppgifter: Skapa, uppdatera, radera uppgifter med CPM-värden
-✅ Kalender: Visa, analysera, boka fokustid i Microsoft Calendar
-✅ Mejl: Visa olästa mejl, skapa uppgifter från mejl (list_unread_emails, process_unread_emails)
+✅ Kalender: Visa, analysera, boka, flytta, radera möten, planera arbetssessioner
+✅ Mejl: Visa olästa mejl, skapa uppgifter från mejl, markera som lästa
+✅ Kontakter: Sök kontakter, hämta kontaktinfo (mail, telefon, adress)
 ✅ Projekt: Visa, analysera projekt och budgetar
 ✅ Tid: Tolka naturliga tidsuttryck ("kl 14", "imorgon", "på fredag")
 
@@ -503,6 +504,9 @@ VIKTIGA KALENDERFUNKTIONER:
 - analyze_calendar_capacity: Analysera lediga tider för längre projekt
 - block_calendar_time: Boka fokustid i kalendern
 - calculate_realistic_deadline: Beräkna realistiskt slutdatum baserat på tillgänglig tid
+- update_calendar_event: Flytta eller ändra befintligt möte
+- delete_calendar_event: Ta bort möte (FRÅGA FÖRST!)
+- plan_work_sessions: Planera flera arbetssessioner för längre projekt
 
 WORKFLOW FÖR KALENDERBOKNING (KRITISKT!):
 1. ALLTID kolla befintliga bokningar med list_calendar_events INNAN du bokar ny tid
@@ -520,6 +524,41 @@ Du: [använder calculate_realistic_deadline med 32h]
 Svar: "Baserat på din kalender har du 45h ledigt de kommande 14 dagarna. Med 20% buffert kan du realistiskt leverera senast [datum]. Vill du att jag bokar in fokustid?"
 
 VIKTIGT: Om användaren INTE är inloggad på Microsoft, förklara att de behöver logga in i inställningar för att använda kalender- och mejlfunktioner.
+
+NYA KALENDERFUNKTIONER - EXEMPEL:
+
+User: "Flytta mötet med Lisa till kl 15"
+Du: [list_calendar_events idag] → Hittar "Möte med Lisa" kl 14
+    [update_calendar_event med ny start_time]
+Svar: "Okej, flyttat mötet till klockan tre!"
+
+User: "Ta bort det där mötet imorgon"
+Du: [list_calendar_events imorgon] → Hittar möte(n)
+    Fråga: "Du har två möten imorgon - '1-1 med chef' kl 10 och 'Planeringsmöte' kl 14. Vilket vill du ta bort?"
+User: "Planeringsmötet"
+Du: [delete_calendar_event]
+Svar: "Raderat planeringsmötet!"
+
+User: "Planera in projektet (40 timmar) under nästa två veckor"
+Du: [plan_work_sessions med total_hours: 40, days_ahead: 14]
+Svar: "Bokat sju arbetssessioner: måndag-fredag 09-13 och 14-16. Totalt fyrtiofem timmar. Kör vi?"
+
+KONTAKTFUNKTIONER - EXEMPEL:
+
+User: "Ring Kalle Andersson"
+Du: [search_contact "Kalle Andersson"]
+Svar: "Kalle på AB Företag - noll sju tre två åtta sju fyra fem. Vill du att jag skapar en påminnelse?"
+
+User: "Maila Lisa"
+Du: [search_contact "Lisa"] → Hittar "Lisa Svensson"
+Svar: "Lisa punkt svensson snabel-a exempel punkt se. Ska jag lägga in det som en uppgift?"
+
+MEJLFUNKTIONER - EXEMPEL:
+
+User: "Markera mejlet från chefen som läst"
+Du: [list_unread_emails] → Hittar mejl från chef
+    [mark_email_read]
+Svar: "Markerat som läst!"
 
 MEJL-INTEGRATION (SNABBIS FRÅN MEJL):
 ✅ DU HAR TILLGÅNG TILL MEJL-FUNKTIONER! Använd list_unread_emails och process_unread_emails verktygen.
@@ -1058,6 +1097,127 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
           },
         },
       },
+      {
+        name: 'update_calendar_event',
+        description: 'Flytta eller ändra ett befintligt möte i kalendern. Använd när användaren vill flytta möte, ändra titel, eller uppdatera detaljer.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            event_id: {
+              type: 'string',
+              description: 'ID på kalenderhändelsen (från list_calendar_events)',
+            },
+            updates: {
+              type: 'object',
+              properties: {
+                subject: {
+                  type: 'string',
+                  description: 'Ny titel på mötet',
+                },
+                start_time: {
+                  type: 'string',
+                  description: 'Ny starttid (ISO datetime)',
+                },
+                end_time: {
+                  type: 'string',
+                  description: 'Ny sluttid (ISO datetime)',
+                },
+                body: {
+                  type: 'string',
+                  description: 'Uppdaterad beskrivning',
+                },
+              },
+            },
+          },
+          required: ['event_id', 'updates'],
+        },
+      },
+      {
+        name: 'delete_calendar_event',
+        description: 'Ta bort ett möte från kalendern. ANVÄND MED FÖRSIKTIGHET - fråga användaren först!',
+        input_schema: {
+          type: 'object',
+          properties: {
+            event_id: {
+              type: 'string',
+              description: 'ID på kalenderhändelsen att radera (från list_calendar_events)',
+            },
+          },
+          required: ['event_id'],
+        },
+      },
+      {
+        name: 'plan_work_sessions',
+        description: 'Planera in arbetssessioner för ett projekt över flera dagar. Använd när användaren vill boka flera fokustider för längre projekt.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            total_hours: {
+              type: 'number',
+              description: 'Totalt antal timmar att planera in',
+              minimum: 1,
+            },
+            task_title: {
+              type: 'string',
+              description: 'Titel på uppgiften/projektet',
+            },
+            days_ahead: {
+              type: 'number',
+              description: 'Planera in inom X dagar (standard 7)',
+              minimum: 1,
+              maximum: 30,
+            },
+            preferred_duration: {
+              type: 'number',
+              description: 'Önskad längd per session i minuter (standard 120)',
+              minimum: 30,
+            },
+          },
+          required: ['total_hours', 'task_title'],
+        },
+      },
+      {
+        name: 'mark_email_read',
+        description: 'Markera ett specifikt mejl som läst. Använd när användaren vill markera mejl manuellt.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            email_id: {
+              type: 'string',
+              description: 'ID på mejlet (från list_unread_emails)',
+            },
+          },
+          required: ['email_id'],
+        },
+      },
+      {
+        name: 'search_contact',
+        description: 'Sök kontakt i användarens kontaktbok. Använd när användaren vill ringa/maila någon och behöver kontaktinfo.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            search_query: {
+              type: 'string',
+              description: 'Namn på person eller företag att söka efter',
+            },
+          },
+          required: ['search_query'],
+        },
+      },
+      {
+        name: 'get_contact_info',
+        description: 'Hämta detaljerad info om en specifik kontakt (mail, telefon, adress, födelsedag).',
+        input_schema: {
+          type: 'object',
+          properties: {
+            contact_id: {
+              type: 'string',
+              description: 'ID på kontakten (från search_contact)',
+            },
+          },
+          required: ['contact_id'],
+        },
+      },
     ];
   }
 
@@ -1141,6 +1301,29 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
               break;
             case 'list_unread_emails':
               result = await this.listUnreadEmails((block.input as any).max_count);
+              break;
+            case 'update_calendar_event':
+              result = await this.updateCalendarEvent((block.input as any).event_id, (block.input as any).updates);
+              break;
+            case 'delete_calendar_event':
+              result = await this.deleteCalendarEvent((block.input as any).event_id);
+              break;
+            case 'plan_work_sessions':
+              result = await this.planWorkSessions(
+                (block.input as any).total_hours,
+                (block.input as any).task_title,
+                (block.input as any).days_ahead,
+                (block.input as any).preferred_duration
+              );
+              break;
+            case 'mark_email_read':
+              result = await this.markEmailRead((block.input as any).email_id);
+              break;
+            case 'search_contact':
+              result = await this.searchContact((block.input as any).search_query);
+              break;
+            case 'get_contact_info':
+              result = await this.getContactDetails((block.input as any).contact_id);
               break;
             default:
               result = { error: 'Unknown tool' };
@@ -1770,6 +1953,211 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte processa mejl' };
+    }
+  }
+
+  private async updateCalendarEvent(eventId: string, updates: any) {
+    try {
+      const { updateCalendarEvent, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const updateData: any = {};
+      if (updates.subject) updateData.subject = updates.subject;
+      if (updates.start_time) updateData.start = new Date(updates.start_time);
+      if (updates.end_time) updateData.end = new Date(updates.end_time);
+      if (updates.body) updateData.body = updates.body;
+
+      const success = await updateCalendarEvent(eventId, updateData);
+
+      if (success) {
+        return {
+          success: true,
+          message: 'Mötet har uppdaterats!',
+        };
+      } else {
+        return { error: 'Kunde inte uppdatera mötet' };
+      }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte uppdatera möte' };
+    }
+  }
+
+  private async deleteCalendarEvent(eventId: string) {
+    try {
+      const { deleteCalendarEvent, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const success = await deleteCalendarEvent(eventId);
+
+      if (success) {
+        return {
+          success: true,
+          message: 'Mötet har tagits bort från kalendern!',
+        };
+      } else {
+        return { error: 'Kunde inte radera mötet' };
+      }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte radera möte' };
+    }
+  }
+
+  private async planWorkSessions(
+    totalHours: number,
+    taskTitle: string,
+    daysAhead: number = 7,
+    preferredDuration: number = 120
+  ) {
+    try {
+      const { planWorkSessions, blockCalendarTime, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const now = new Date();
+      const deadline = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
+      const totalMinutes = totalHours * 60;
+
+      const plan = await planWorkSessions(totalMinutes, deadline, preferredDuration);
+
+      if (!plan.isComplete) {
+        return {
+          warning: `Kunde bara planera ${Math.round((totalMinutes - plan.remainingMinutes) / 60)}h av ${totalHours}h begärda timmar`,
+          sessions_planned: plan.sessions.length,
+          remaining_hours: Math.round(plan.remainingMinutes / 60),
+        };
+      }
+
+      // Boka alla sessioner i kalendern
+      for (const session of plan.sessions) {
+        await blockCalendarTime(session.start, session.durationMinutes, taskTitle);
+      }
+
+      return {
+        success: true,
+        sessions_planned: plan.sessions.length,
+        sessions: plan.sessions.map(s => ({
+          start: new Date(s.start).toLocaleString('sv-SE'),
+          duration: s.durationMinutes + ' min',
+        })),
+        total_hours: totalHours,
+        message: `Planerade ${plan.sessions.length} arbetssessioner för "${taskTitle}"`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte planera sessioner' };
+    }
+  }
+
+  private async markEmailRead(emailId: string) {
+    try {
+      const { markEmailAsRead, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const success = await markEmailAsRead(emailId);
+
+      if (success) {
+        return {
+          success: true,
+          message: 'Mejlet har markerats som läst!',
+        };
+      } else {
+        return { error: 'Kunde inte markera mejl som läst' };
+      }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte markera mejl' };
+    }
+  }
+
+  private async searchContact(searchQuery: string) {
+    try {
+      const { searchContacts, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const contacts = await searchContacts(searchQuery);
+
+      return {
+        success: true,
+        count: contacts.length,
+        contacts: contacts.map(c => ({
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          phone: c.phone,
+          company: c.company,
+          jobTitle: c.jobTitle,
+        })),
+        message: `Hittade ${contacts.length} kontakter för "${searchQuery}"`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte söka kontakter' };
+    }
+  }
+
+  private async getContactDetails(contactId: string) {
+    try {
+      const { getContactInfo, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const contact = await getContactInfo(contactId);
+
+      if (contact) {
+        return {
+          success: true,
+          contact: {
+            name: contact.name,
+            emails: contact.emails,
+            phones: contact.phones,
+            company: contact.company,
+            jobTitle: contact.jobTitle,
+            birthday: contact.birthday,
+            addresses: contact.addresses,
+          },
+        };
+      } else {
+        return { error: 'Kontakt hittades inte' };
+      }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte hämta kontakt' };
     }
   }
 }
