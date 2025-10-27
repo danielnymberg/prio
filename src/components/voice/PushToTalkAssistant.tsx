@@ -101,6 +101,19 @@ export function PushToTalkAssistant() {
           console.error('Failed to fetch projects:', err);
         }
 
+        // Load conversation history från localStorage
+        let conversationHistory: any[] = [];
+        try {
+          const saved = localStorage.getItem('prio-conversation-history');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            conversationHistory = parsed.history || [];
+            console.log('📜 Loaded conversation history:', conversationHistory.length, 'messages');
+          }
+        } catch (err) {
+          console.error('Failed to load conversation history:', err);
+        }
+
         claudeRef.current = new ClaudeConversation(
           {
             tasks,
@@ -108,6 +121,7 @@ export function PushToTalkAssistant() {
             calendarEvents,
             recentFiles: [],
             userId: user.id,
+            conversationHistory, // ✅ Ladda sparad history
           },
           {
             onTaskCreate: createTask,
@@ -115,6 +129,18 @@ export function PushToTalkAssistant() {
             onTaskDelete: deleteTask,
           }
         );
+
+        // Återskapa messages från conversation history
+        if (conversationHistory.length > 0) {
+          const restoredMessages: Message[] = conversationHistory
+            .filter((msg: any) => msg.role === 'user' || msg.role === 'assistant')
+            .map((msg: any) => ({
+              role: msg.role,
+              text: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+              timestamp: new Date()
+            }));
+          setMessages(restoredMessages);
+        }
 
         // Mark services as ready
         setServicesReady(true);
@@ -129,6 +155,22 @@ export function PushToTalkAssistant() {
     initServices();
 
     return () => {
+      // Spara conversation history INNAN cleanup
+      if (claudeRef.current) {
+        const history = claudeRef.current.getConversationHistory();
+        if (history.length > 0) {
+          try {
+            localStorage.setItem('prio-conversation-history', JSON.stringify({
+              history,
+              savedAt: new Date().toISOString()
+            }));
+            console.log('💾 Saved conversation history:', history.length, 'messages');
+          } catch (err) {
+            console.error('Failed to save conversation history:', err);
+          }
+        }
+      }
+
       // Disconnect STT session helt (stänger WebSocket)
       sttRef.current?.disconnect();
       sttRef.current = null;
@@ -366,6 +408,15 @@ export function PushToTalkAssistant() {
     claudeRef.current?.clearHistory();
     setPartialText('');
     accumulatedTranscriptRef.current = '';
+
+    // Rensa localStorage
+    try {
+      localStorage.removeItem('prio-conversation-history');
+      console.log('🗑️ Cleared conversation history from localStorage');
+    } catch (err) {
+      console.error('Failed to clear conversation history:', err);
+    }
+
     toast.success('Konversation rensad');
   };
 
@@ -383,7 +434,7 @@ export function PushToTalkAssistant() {
       margin: '0 auto'
     }}>
       {/* ChatUI - Textinput + Conversation */}
-      <div style={{ width: '100%', maxWidth: '600px' }}>
+      <div style={{ width: '100%' }}>
         {/* Header med Rensa-knapp */}
         {messages.length > 0 && (
           <div style={{
@@ -410,35 +461,38 @@ export function PushToTalkAssistant() {
           </div>
         )}
 
-        <ChatUIComponent
-          user={currentUserModel}
-          showTimeBreak={false}
-          showFooter={true}
-          placeholder="Skriv till AI..."
-          height="400px"
-          width="100%"
-          messageSend={(args: any) => {
-            // När användaren skickar meddelande via ChatUI (text-input = INGEN TTS!)
-            const userMessage: Message = {
-              role: 'user',
-              text: args.message.text,
-              timestamp: new Date()
-            };
-            setMessages(prev => [...prev, userMessage]);
-            sendToClaude(args.message.text, false); // useTTS=false för text-input!
-          }}
-        >
-          <MessagesDirective>
-            {messages.map((msg, i) => (
-              <MessageDirective
-                key={`${msg.timestamp.getTime()}-${i}`}
-                text={msg.text}
-                author={msg.role === 'user' ? currentUserModel : assistantUser}
-                timeStamp={msg.timestamp}
-              />
-            ))}
-          </MessagesDirective>
-        </ChatUIComponent>
+        {/* SF Best Practice: Wrapper med fast höjd, ChatUI med 100% */}
+        <div style={{ width: '100%', height: '500px' }}>
+          <ChatUIComponent
+            user={currentUserModel}
+            showTimeBreak={false}
+            showFooter={true}
+            placeholder="Skriv till AI..."
+            width="100%"
+            height="100%"
+            messageSend={(args: any) => {
+              // När användaren skickar meddelande via ChatUI (text-input = INGEN TTS!)
+              const userMessage: Message = {
+                role: 'user',
+                text: args.message.text,
+                timestamp: new Date()
+              };
+              setMessages(prev => [...prev, userMessage]);
+              sendToClaude(args.message.text, false); // useTTS=false för text-input!
+            }}
+          >
+            <MessagesDirective>
+              {messages.map((msg, i) => (
+                <MessageDirective
+                  key={`${msg.timestamp.getTime()}-${i}`}
+                  text={msg.text}
+                  author={msg.role === 'user' ? currentUserModel : assistantUser}
+                  timeStamp={msg.timestamp}
+                />
+              ))}
+            </MessagesDirective>
+          </ChatUIComponent>
+        </div>
       </div>
 
       {/* Error display */}
