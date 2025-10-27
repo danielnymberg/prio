@@ -60,7 +60,7 @@ export class ClaudeConversation {
 
   /**
    * STREAMING chat - för voice assistant med incremental TTS
-   * @param userMessage User's message
+   * @param userMessage User's message (tom string = continuation från tool results)
    * @param onChunk Callback för varje text-chunk (för incremental TTS)
    * @returns Full response text
    */
@@ -68,15 +68,13 @@ export class ClaudeConversation {
     userMessage: string,
     onChunk: (text: string) => void
   ): Promise<string> {
-    if (!userMessage.trim()) {
-      return '';
+    // Lägg till user message (om inte tom = continuation)
+    if (userMessage.trim()) {
+      this.conversationHistory.push({
+        role: 'user',
+        content: userMessage,
+      });
     }
-
-    // Lägg till user message
-    this.conversationHistory.push({
-      role: 'user',
-      content: userMessage,
-    });
 
     try {
       const { supabase } = await import('@/lib/supabase');
@@ -115,6 +113,7 @@ export class ClaudeConversation {
       const decoder = new TextDecoder();
       let fullResponse = '';
       let buffer = '';
+      let finalMessage: any = null;
 
       while (true) {
         const { value, done } = await reader.read();
@@ -135,8 +134,8 @@ export class ClaudeConversation {
                 fullResponse += data.text;
                 onChunk(data.text); // ✅ Skicka chunk till TTS!
               } else if (data.type === 'message') {
-                // Handle tool calls här om behövs
-                console.log('Final message:', data.message);
+                // Spara final message (kan innehålla tool calls!)
+                finalMessage = data.message;
               } else if (data.type === 'error') {
                 throw new Error(data.error);
               } else if (data.type === 'done') {
@@ -150,7 +149,30 @@ export class ClaudeConversation {
         }
       }
 
-      // Add to conversation history
+      // KRITISKT: Hantera tool calls om de finns!
+      if (finalMessage && finalMessage.stop_reason === 'tool_use') {
+        console.log('🔧 Tool use detected in streaming, executing tools...');
+
+        // Exekvera tools
+        const toolResults = await this.executeTools(finalMessage.content);
+
+        // Lägg till assistant response med tool calls
+        this.conversationHistory.push({
+          role: 'assistant',
+          content: finalMessage.content,
+        });
+
+        // Lägg till tool results
+        this.conversationHistory.push({
+          role: 'user',
+          content: toolResults,
+        });
+
+        // Rekursivt anrop för att få final response EFTER tool execution
+        return this.chatStreaming('', onChunk); // Tom string = continuation
+      }
+
+      // Add to conversation history (normal text response)
       this.conversationHistory.push({
         role: 'assistant',
         content: fullResponse,

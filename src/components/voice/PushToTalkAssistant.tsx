@@ -247,8 +247,10 @@ export function PushToTalkAssistant() {
 
   /**
    * Send message to Claude and get response
+   * @param userMessage User's message
+   * @param useTTS Om TTS ska användas (true för röst-input, false för text-input)
    */
-  const sendToClaude = async (userMessage: string) => {
+  const sendToClaude = async (userMessage: string, useTTS: boolean = true) => {
     if (!claudeRef.current) {
       toast.error('AI-assistent inte tillgänglig');
       return;
@@ -282,7 +284,7 @@ export function PushToTalkAssistant() {
       claudeRef.current.updateContext({ tasks, calendarEvents });
 
       // Send till Claude MED STREAMING
-      console.log('🤖 Streaming from Claude:', userMessage);
+      console.log('🤖 Streaming from Claude:', userMessage, useTTS ? '(with TTS)' : '(text only)');
 
       let fullResponse = '';
       let currentSentence = '';
@@ -310,8 +312,8 @@ export function PushToTalkAssistant() {
           }
         });
 
-        // När mening är klar, lägg till i TTS-kö
-        if (/[.!?]\s*$/.test(currentSentence.trim()) && currentSentence.trim().length > 10) {
+        // TTS: Endast om useTTS är true (röst-input)
+        if (useTTS && /[.!?]\s*$/.test(currentSentence.trim()) && currentSentence.trim().length > 10) {
           console.log('🔊 Queuing sentence:', currentSentence.trim());
 
           if (ttsRef.current) {
@@ -326,23 +328,25 @@ export function PushToTalkAssistant() {
         }
       });
 
-      // Läs upp sista biten om mening inte slutade med punkt
-      if (ttsRef.current && currentSentence.trim()) {
+      // TTS: Läs upp sista biten om mening inte slutade med punkt (endast om useTTS)
+      if (useTTS && ttsRef.current && currentSentence.trim()) {
         await ttsRef.current.speakQueued(currentSentence.trim()).catch(err => {
           console.warn('Final TTS error:', err);
         });
       }
 
-      // Vänta på att TTS-kön är klar
-      await new Promise(resolve => {
-        const checkQueue = setInterval(() => {
-          if (!ttsRef.current || !ttsRef.current.getIsSpeaking()) {
-            clearInterval(checkQueue);
-            setIsSpeaking(false);
-            resolve(true);
-          }
-        }, 100);
-      });
+      // TTS: Vänta på att TTS-kön är klar (endast om useTTS)
+      if (useTTS) {
+        await new Promise(resolve => {
+          const checkQueue = setInterval(() => {
+            if (!ttsRef.current || !ttsRef.current.getIsSpeaking()) {
+              clearInterval(checkQueue);
+              setIsSpeaking(false);
+              resolve(true);
+            }
+          }, 100);
+        });
+      }
 
     } catch (err) {
       console.error('Claude error:', err);
@@ -373,7 +377,6 @@ export function PushToTalkAssistant() {
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
       padding: '24px',
       gap: '24px',
       maxWidth: '600px',
@@ -412,15 +415,17 @@ export function PushToTalkAssistant() {
           showTimeBreak={false}
           showFooter={true}
           placeholder="Skriv till AI..."
+          height="400px"
+          width="100%"
           messageSend={(args: any) => {
-            // När användaren skickar meddelande via ChatUI
+            // När användaren skickar meddelande via ChatUI (text-input = INGEN TTS!)
             const userMessage: Message = {
               role: 'user',
               text: args.message.text,
               timestamp: new Date()
             };
             setMessages(prev => [...prev, userMessage]);
-            sendToClaude(args.message.text);
+            sendToClaude(args.message.text, false); // useTTS=false för text-input!
           }}
         >
           <MessagesDirective>
@@ -451,83 +456,91 @@ export function PushToTalkAssistant() {
         </div>
       )}
 
-      {/* Push-to-Talk Button */}
-      <VoicePushToTalkButton
-        onRecordingStart={handleRecordingStart}
-        onRecordingStop={handleRecordingStop}
-        disabled={!servicesReady}
-        isProcessing={isProcessing}
-        partialTranscript={partialText}
-      />
+      {/* Voice controls - centrerade */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '16px',
+        alignSelf: 'center'
+      }}>
+        {/* Push-to-Talk Button */}
+        <VoicePushToTalkButton
+          onRecordingStart={handleRecordingStart}
+          onRecordingStop={handleRecordingStop}
+          disabled={!servicesReady}
+          isProcessing={isProcessing}
+          partialTranscript={partialText}
+        />
 
-      {/* Processing status */}
-      {isProcessing && (
-        <div style={{
-          fontSize: '14px',
-          color: 'var(--primary-600)',
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <span className="e-icons e-spinner" style={{
-            fontSize: '16px',
-            animation: 'spin 1s linear infinite'
-          }} />
-          AI tänker...
-        </div>
-      )}
-
-      {/* TTS Stop button - Synlig när röst spelar */}
-      {isSpeaking && (
-        <button
-          onClick={() => {
-            ttsRef.current?.stop();
-            setIsSpeaking(false);
-          }}
-          className="e-btn e-danger"
-          style={{
+        {/* Processing status */}
+        {isProcessing && (
+          <div style={{
+            fontSize: '14px',
+            color: 'var(--primary-600)',
+            fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
-          }}
-        >
-          <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
-          Avbryt uppläsning
-        </button>
-      )}
+          }}>
+            <span className="e-icons e-spinner" style={{
+              fontSize: '16px',
+              animation: 'spin 1s linear infinite'
+            }} />
+            AI tänker...
+          </div>
+        )}
 
-      {/* Disconnect button - Frigör mikrofon helt (för musik etc) */}
-      {servicesReady && (
-        <button
-          onClick={() => {
-            // Stoppa TTS om igång
-            if (isSpeaking) {
+        {/* TTS Stop button - Synlig när röst spelar */}
+        {isSpeaking && (
+          <button
+            onClick={() => {
               ttsRef.current?.stop();
               setIsSpeaking(false);
-            }
+            }}
+            className="e-btn e-danger"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
+            Avbryt uppläsning
+          </button>
+        )}
 
-            // Disconnect STT helt (stänger WebSocket + frigör mic)
-            sttRef.current?.disconnect();
-            setServicesReady(false);
+        {/* Disconnect button - Frigör mikrofon helt (för musik etc) */}
+        {servicesReady && (
+          <button
+            onClick={() => {
+              // Stoppa TTS om igång
+              if (isSpeaking) {
+                ttsRef.current?.stop();
+                setIsSpeaking(false);
+              }
 
-            toast.success('Mikrofon avstängd - kan nu lyssna på musik', {
-              icon: '🔇',
-              duration: 3000
-            });
-          }}
-          className="e-btn e-danger"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginTop: '8px'
-          }}
-        >
-          <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
-          Stäng mikrofon
-        </button>
-      )}
+              // Disconnect STT helt (stänger WebSocket + frigör mic)
+              sttRef.current?.disconnect();
+              setServicesReady(false);
+
+              toast.success('Mikrofon avstängd - kan nu lyssna på musik', {
+                icon: '🔇',
+                duration: 3000
+              });
+            }}
+            className="e-btn e-danger"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <span className="e-icons e-close" style={{ fontSize: '14px' }}></span>
+            Stäng mikrofon
+          </button>
+        )}
+      </div>
 
 
     </div>

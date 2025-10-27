@@ -85,22 +85,18 @@ export function VoicePushToTalkButton({
     };
   }, [disabled, isProcessing, isRecording]);
 
-  // Keyboard support: Space key = push-to-talk
+  // Keyboard support: Cmd+Space (Mac) / Win+Space (Windows) = push-to-talk
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore om user skriver i input-fält
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
-      if (e.code === 'Space' && !isRecording && !disabled && !isProcessing) {
+      // Cmd+Space (Mac) eller Win+Space (Windows)
+      if (e.code === 'Space' && (e.metaKey || e.ctrlKey) && !isRecording && !disabled && !isProcessing) {
         e.preventDefault();
         handleStart();
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && isRecording) {
+      if (e.code === 'Space' && (e.metaKey || e.ctrlKey) && isRecording) {
         e.preventDefault();
         handleStop();
       }
@@ -201,7 +197,7 @@ export function VoicePushToTalkButton({
     ? 'Tänker...'
     : isRecording
     ? 'Släpp för att skicka'
-    : 'Håll för att prata';
+    : 'Håll eller Cmd+Space';
 
   const iconClass = isProcessing
     ? 'e-spinner'

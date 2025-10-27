@@ -17,8 +17,9 @@ export function HomeView() {
   useEffect(() => {
     const fetchQuote = async () => {
       try {
-        console.log('💬 Fetching quote from ZenQuotes...');
-        const response = await fetch('https://zenquotes.io/api/random');
+        console.log('💬 Fetching quote from backend proxy...');
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+        const response = await fetch(`${BACKEND_URL}/api/quote`);
         const data = await response.json();
         console.log('💬 Quote data:', data);
         if (data && data[0]) {

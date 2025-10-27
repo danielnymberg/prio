@@ -145,7 +145,7 @@ export class SimpleTTS {
   /**
    * Hitta bästa svenska rösten - MANLIG variant
    * macOS: Oskar (manlig), Alva (kvinnlig)
-   * Prioritet: Oskar > Manliga röster > Default svensk
+   * Prioritet: Oskar > Mattias > Manliga röster > Default svensk
    */
   private findBestSwedishVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
     if (voices.length === 0) return null;
@@ -158,19 +158,35 @@ export class SimpleTTS {
       return null;
     }
 
+    // Logga alla svenska röster för debugging
+    console.log('🔊 Available Swedish voices:', swedishVoices.map(v => `${v.name} (${v.lang})`).join(', '));
+
     // Prioritera Oskar (macOS manlig svensk röst)
     const oskar = swedishVoices.find(v => v.name.toLowerCase().includes('oskar'));
-    if (oskar) return oskar;
+    if (oskar) {
+      console.log('✅ Using Oskar (preferred male voice)');
+      return oskar;
+    }
+
+    // Prioritera Mattias (Windows manlig svensk röst)
+    const mattias = swedishVoices.find(v => v.name.toLowerCase().includes('mattias'));
+    if (mattias) {
+      console.log('✅ Using Mattias (Windows male voice)');
+      return mattias;
+    }
 
     // Andra manliga röster (om de finns)
     const maleVoice = swedishVoices.find(v =>
       v.name.toLowerCase().includes('male') ||
-      v.name.toLowerCase().includes('mattias') ||
       v.name.toLowerCase().includes('erik')
     );
-    if (maleVoice) return maleVoice;
+    if (maleVoice) {
+      console.log('✅ Using male voice:', maleVoice.name);
+      return maleVoice;
+    }
 
-    // Annars första svenska rösten (fallback)
+    // Annars första svenska rösten (fallback - kan vara kvinnlig!)
+    console.warn('⚠️ No male Swedish voice found, using default:', swedishVoices[0].name);
     return swedishVoices[0];
   }
 
