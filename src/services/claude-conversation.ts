@@ -364,6 +364,21 @@ TILLGÄNGLIGA FUNKTIONER:
 
 RÖSTKONVERSATION - DU ÄR EN KOMPIS SOM HJÄLPER, INTE EN ASSISTENT!
 
+KONVERSATIONSREGLER - KRITISKT:
+
+❌ ALDRIG:
+- Säg INTE "du borde gå" eller "du måste åka" om användaren inte frågat om tid
+- Upprepa dig INTE - säg något EN gång, sedan: "Vill du något annat?"
+- Lista INTE spam - filtrera bort nyhetsbrev, kvitton, marketing INNAN visning
+- Var INTE långvändig vid stress - MAX 1 mening + följdfråga
+- Säg INTE "du har fel om tiden" - lita på användarens bedömning
+
+✅ ALLTID:
+- Tid på dygnet: "kväll" (18-22), "natt" (22-06), "morgon" (06-12), "eftermiddag" (12-18)
+- Fråga "Vad är mest akut NU?" innan du prioriterar
+- Vid mejl-listning: Filtrera spam FÖRST, visa bara viktigt
+- Vid stress: 1 mening + "Vill du X eller Y?"
+
 KRITISKT: MATCHA ANVÄNDARENS TON OCH STIL
 - Casual användare → Casual svar ("grejer", "fixar", "typ", "kör du?")
 - Formell användare → Professionell ("uppgifter", "genomför")
@@ -559,6 +574,18 @@ User: "Markera mejlet från chefen som läst"
 Du: [list_unread_emails] → Hittar mejl från chef
     [mark_email_read]
 Svar: "Markerat som läst!"
+
+User: "Leta upp mejlet från SAS"
+Du: [search_emails query="SAS", search_in="both"]
+Svar: "Hittade SAS-bekräftelse från tjugofjärde oktober. Vill du att jag öppnar det?"
+
+User: "Ja, öppna det"
+Du: [get_email_content med email_id]
+Svar: "Flyg SK1234, avgång klockan sex tjugo på kvällen från Arlanda terminal 5. Check-in stänger klockan fem tjugo."
+
+User: "Visa alla mejl från taxibokningen"
+Du: [search_emails query="Taxibokning.se", search_in="sender"]
+Svar: "Du har två taxibokningar: nummer tvåhundratretiotvåtusentvåhundrafemtiofem från förra veckan, och nummer åtta Q K L U två från idag klockan fyra. Vilken vill du kolla?"
 
 MEJL-INTEGRATION (SNABBIS FRÅN MEJL):
 ✅ DU HAR TILLGÅNG TILL MEJL-FUNKTIONER! Använd list_unread_emails och process_unread_emails verktygen.
@@ -1098,6 +1125,64 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
         },
       },
       {
+        name: 'list_all_emails',
+        description: 'Lista ALLA mejl (både lästa och olästa). Använd när användaren vill se alla mejl eller leta efter något äldre mejl.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            max_count: {
+              type: 'number',
+              description: 'Max antal mejl att visa (standard 50)',
+              minimum: 1,
+              maximum: 100,
+            },
+            include_read: {
+              type: 'boolean',
+              description: 'Inkludera lästa mejl (standard true)',
+            },
+          },
+        },
+      },
+      {
+        name: 'search_emails',
+        description: 'Sök mejl efter avsändare, ämne eller båda. Använd när användaren vill hitta specifika mejl.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Sökord (namn, företag, eller ämne)',
+            },
+            search_in: {
+              type: 'string',
+              enum: ['sender', 'subject', 'both'],
+              description: 'Var att söka (standard: both)',
+            },
+            max_count: {
+              type: 'number',
+              description: 'Max antal resultat (standard 20)',
+              minimum: 1,
+              maximum: 50,
+            },
+          },
+          required: ['query'],
+        },
+      },
+      {
+        name: 'get_email_content',
+        description: 'Hämta fullständigt innehåll från ett mejl. Använd när användaren vill läsa hela mejlet (inte bara preview).',
+        input_schema: {
+          type: 'object',
+          properties: {
+            email_id: {
+              type: 'string',
+              description: 'ID på mejlet (från list_unread_emails, list_all_emails, eller search_emails)',
+            },
+          },
+          required: ['email_id'],
+        },
+      },
+      {
         name: 'update_calendar_event',
         description: 'Flytta eller ändra ett befintligt möte i kalendern. Använd när användaren vill flytta möte, ändra titel, eller uppdatera detaljer.',
         input_schema: {
@@ -1301,6 +1386,19 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
               break;
             case 'list_unread_emails':
               result = await this.listUnreadEmails((block.input as any).max_count);
+              break;
+            case 'list_all_emails':
+              result = await this.listAllEmails((block.input as any).max_count, (block.input as any).include_read);
+              break;
+            case 'search_emails':
+              result = await this.searchEmails(
+                (block.input as any).query,
+                (block.input as any).search_in,
+                (block.input as any).max_count
+              );
+              break;
+            case 'get_email_content':
+              result = await this.getEmailContent((block.input as any).email_id);
               break;
             case 'update_calendar_event':
               result = await this.updateCalendarEvent((block.input as any).event_id, (block.input as any).updates);
@@ -1627,6 +1725,16 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
     }
   }
 
+  private formatTimeWithPeriod(date: Date): string {
+    const hour = date.getHours();
+    const time = date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+
+    if (hour >= 0 && hour < 6) return `${time} (natt)`;
+    if (hour >= 6 && hour < 12) return `${time} (morgon)`;
+    if (hour >= 12 && hour < 18) return `${time} (eftermiddag)`;
+    return `${time} (kväll)`;
+  }
+
   private async getDailyOverview(date?: string) {
     try {
       const targetDate = date ? new Date(date) : new Date();
@@ -1663,13 +1771,13 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
         date: targetDate.toLocaleDateString('sv-SE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
         calendar_events: calendarEvents.map((e) => ({
           subject: e.subject,
-          start: new Date(e.start).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }),
-          end: new Date(e.end).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }),
+          start: this.formatTimeWithPeriod(new Date(e.start)),
+          end: this.formatTimeWithPeriod(new Date(e.end)),
         })),
         tasks_today: tasksForToday.map((t) => ({
           title: t.title,
           priority: Math.round((t.value_score || 5) * (t.time_sensitivity || 5) * (t.confidence || 7) / (t.effort || 5)),
-          deadline: t.deadline ? new Date(t.deadline).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) : null,
+          deadline: t.deadline ? this.formatTimeWithPeriod(new Date(t.deadline)) : null,
           estimated_duration: t.estimated_duration ? `${Math.round(t.estimated_duration / 60)}h ${t.estimated_duration % 60}min` : null,
         })),
         summary: {
@@ -1837,6 +1945,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
         success: true,
         count: emails.length,
         emails: emails.map((e) => ({
+          id: e.id,
           subject: e.subject,
           from: e.from,
           received: new Date(e.receivedDateTime).toLocaleString('sv-SE'),
@@ -1846,6 +1955,105 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte hämta mejl' };
+    }
+  }
+
+  private async listAllEmails(maxCount: number = 50, includeRead: boolean = true) {
+    try {
+      const { getAllEmails, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const emails = await getAllEmails(maxCount, includeRead);
+
+      return {
+        success: true,
+        count: emails.length,
+        emails: emails.map((e) => ({
+          id: e.id,
+          subject: e.subject,
+          from: e.from,
+          received: new Date(e.receivedDateTime).toLocaleString('sv-SE'),
+          preview: e.bodyPreview.substring(0, 100) + (e.bodyPreview.length > 100 ? '...' : ''),
+          isRead: e.isRead,
+        })),
+        summary: includeRead ? `${emails.length} mejl totalt` : `${emails.length} olästa mejl`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte hämta mejl' };
+    }
+  }
+
+  private async searchEmails(query: string, searchIn: string = 'both', maxCount: number = 20) {
+    try {
+      const { searchEmails, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const emails = await searchEmails(query, searchIn as any, maxCount);
+
+      return {
+        success: true,
+        count: emails.length,
+        query,
+        search_in: searchIn,
+        emails: emails.map((e) => ({
+          id: e.id,
+          subject: e.subject,
+          from: e.from,
+          received: new Date(e.receivedDateTime).toLocaleString('sv-SE'),
+          preview: e.bodyPreview.substring(0, 100) + (e.bodyPreview.length > 100 ? '...' : ''),
+          isRead: e.isRead,
+        })),
+        summary: `Hittade ${emails.length} mejl för "${query}"`,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte söka mejl' };
+    }
+  }
+
+  private async getEmailContent(emailId: string) {
+    try {
+      const { getEmailContent, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const email = await getEmailContent(emailId);
+
+      if (!email) {
+        return { error: 'Mejlet hittades inte' };
+      }
+
+      return {
+        success: true,
+        email: {
+          subject: email.subject,
+          from: email.from,
+          received: new Date(email.receivedDateTime).toLocaleString('sv-SE'),
+          body: email.body,
+          isRead: email.isRead,
+        },
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte hämta mejlinnehåll' };
     }
   }
 

@@ -564,6 +564,110 @@ export async function getUnreadEmails(maxCount: number = 50): Promise<EmailMessa
   }
 }
 
+// Get ALL emails (read + unread)
+export async function getAllEmails(maxCount: number = 50, includeRead: boolean = true): Promise<EmailMessage[]> {
+  const client = await getGraphClient();
+  if (!client) return [];
+
+  try {
+    let apiCall = client
+      .api('/me/mailFolders/inbox/messages')
+      .select('id,subject,from,receivedDateTime,bodyPreview,isRead')
+      .orderby('receivedDateTime desc')
+      .top(maxCount);
+
+    if (!includeRead) {
+      apiCall = apiCall.filter('isRead eq false');
+    }
+
+    const response = await apiCall.get();
+
+    return response.value.map((email: any) => ({
+      id: email.id,
+      subject: email.subject || '(Inget ämne)',
+      from: email.from?.emailAddress?.name || email.from?.emailAddress?.address || 'Okänd',
+      receivedDateTime: email.receivedDateTime,
+      bodyPreview: email.bodyPreview || '',
+      isRead: email.isRead,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch all emails:', error);
+    return [];
+  }
+}
+
+// Search emails
+export async function searchEmails(
+  query: string,
+  searchIn: 'sender' | 'subject' | 'both' = 'both',
+  maxCount: number = 20
+): Promise<EmailMessage[]> {
+  const client = await getGraphClient();
+  if (!client) return [];
+
+  try {
+    let filter = '';
+
+    if (searchIn === 'sender') {
+      filter = `contains(from/emailAddress/name,'${query}') or contains(from/emailAddress/address,'${query}')`;
+    } else if (searchIn === 'subject') {
+      filter = `contains(subject,'${query}')`;
+    } else {
+      filter = `contains(subject,'${query}') or contains(from/emailAddress/name,'${query}') or contains(from/emailAddress/address,'${query}')`;
+    }
+
+    const response = await client
+      .api('/me/mailFolders/inbox/messages')
+      .filter(filter)
+      .select('id,subject,from,receivedDateTime,bodyPreview,isRead')
+      .orderby('receivedDateTime desc')
+      .top(maxCount)
+      .get();
+
+    return response.value.map((email: any) => ({
+      id: email.id,
+      subject: email.subject || '(Inget ämne)',
+      from: email.from?.emailAddress?.name || email.from?.emailAddress?.address || 'Okänd',
+      receivedDateTime: email.receivedDateTime,
+      bodyPreview: email.bodyPreview || '',
+      isRead: email.isRead,
+    }));
+  } catch (error) {
+    console.error('Failed to search emails:', error);
+    return [];
+  }
+}
+
+// Get full email content
+export async function getEmailContent(emailId: string): Promise<{
+  subject: string;
+  from: string;
+  receivedDateTime: string;
+  body: string;
+  isRead: boolean;
+} | null> {
+  const client = await getGraphClient();
+  if (!client) return null;
+
+  try {
+    const email = await client
+      .api(`/me/messages/${emailId}`)
+      .select('id,subject,from,receivedDateTime,body,isRead')
+      .get();
+
+    return {
+      subject: email.subject || '(Inget ämne)',
+      from: email.from?.emailAddress?.name || email.from?.emailAddress?.address || 'Okänd',
+      receivedDateTime: email.receivedDateTime,
+      body: email.body?.content || email.bodyPreview || '',
+      isRead: email.isRead,
+    };
+  } catch (error) {
+    console.error('Failed to get email content:', error);
+    return null;
+  }
+}
+
 // Mark email as read
 export async function markEmailAsRead(emailId: string): Promise<boolean> {
   const client = await getGraphClient();
