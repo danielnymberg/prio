@@ -10,6 +10,7 @@ export class SpeechmaticsSTT {
   private lastSeqNo: number = 0;
   private isStreaming: boolean = false;
   private lastAddTranscriptTime: number = 0; // Timestamp för sista AddTranscript (för smart wait)
+  private micStoppedAt: number = 0; // Timestamp när mic stoppades (för logging)
 
   constructor() {}
 
@@ -17,6 +18,7 @@ export class SpeechmaticsSTT {
     this.onTranscriptCallback = onTranscript;
     this.accumulatedTranscript = ''; // Reset för ny utterance
     this.lastAddTranscriptTime = 0; // Reset för ny turn
+    this.micStoppedAt = 0; // Reset för ny turn
     this.isStreaming = true;
 
     try {
@@ -84,6 +86,13 @@ export class SpeechmaticsSTT {
               // metadata.transcript har redan korrekt spacing och trailing space
               this.accumulatedTranscript += newText;
               this.lastAddTranscriptTime = Date.now(); // Track timing för smart wait
+
+              // Logga med timestamp från mic-stop (om mic är stoppad)
+              if (this.micStoppedAt > 0) {
+                const timeSinceMicStop = Date.now() - this.micStoppedAt;
+                console.log(`📨 AddTranscript (+${timeSinceMicStop}ms):`, newText);
+              }
+
               console.log('✅ Accumulated:', this.accumulatedTranscript);
             }
 
@@ -186,7 +195,7 @@ export class SpeechmaticsSTT {
 
     // STEG 1: Stoppa mikrofon OMEDELBART
     this.stopMicrophone();
-    const micStoppedAt = Date.now(); // Referenspunkt för all timing!
+    this.micStoppedAt = Date.now(); // Referenspunkt för all timing + logging!
     this.lastAddTranscriptTime = Date.now(); // Reset - börja räkna från mic-stop!
 
     // STEG 2: Smart wait från mic-stop
@@ -195,19 +204,19 @@ export class SpeechmaticsSTT {
       console.log('⏳ Waiting 500ms for in-flight audio...');
       await new Promise(r => setTimeout(r, 500));
 
-      // Smart wait: Vänta tills 300ms sen sista AddTranscript
-      console.log('⏳ Smart wait: Waiting until 300ms since last AddTranscript...');
+      // Smart wait: Vänta tills 500ms sen sista AddTranscript
+      console.log('⏳ Smart wait: Waiting until 500ms since last AddTranscript...');
       while (true) {
         const timeSinceLastAdd = Date.now() - this.lastAddTranscriptTime;
 
-        if (timeSinceLastAdd > 300) {
-          // 300ms utan ny AddTranscript - SM är klar!
-          console.log('✅ No AddTranscript for 300ms - stream complete!');
+        if (timeSinceLastAdd > 500) {
+          // 500ms utan ny AddTranscript - SM är klar!
+          console.log('✅ No AddTranscript for 500ms - stream complete!');
           break;
         }
 
-        if (Date.now() - micStoppedAt > 2000) {
-          // Max 2s totalt från mic-stop - säkerhetsnät
+        if (Date.now() - this.micStoppedAt > 2000) {
+          // Max 2s totalt från mic-stop - säkerhetsnät (borde aldrig trigga!)
           console.warn('⏱️ Max wait time (2000ms from mic stop) reached - using accumulated');
           break;
         }
@@ -215,7 +224,7 @@ export class SpeechmaticsSTT {
         await new Promise(r => setTimeout(r, 100)); // Checka var 100ms
       }
 
-      const totalWaitTime = Date.now() - micStoppedAt;
+      const totalWaitTime = Date.now() - this.micStoppedAt;
       console.log(`⏱️ Smart wait completed in ${totalWaitTime}ms from mic stop`);
 
       // Skicka accumulated transcript
