@@ -307,6 +307,45 @@ Dessa fraser indikerar att du gör för mycket:
 - **Selection-modulen är obligatorisk** för Gantt även om du inte använder selection
 - **Testa navigationen** efter att lägga till nya SF-komponenter
 
+### ChatUIComponent + Flexbox Layout (2025-10-27)
+**Problem:** ChatUI kollapsade till smal box (160px bredd) trots `width="100%"` prop
+**Orsak:** Flex-parent med `alignItems: 'center'` påverkade alla children - ChatUI fick bredd från sibling (voice-knapp 160px)
+**Lösning:** Returnera fragment (`<>`) istället för wrapper div - låt ChatUI och andra komponenter vara siblings i parent-containern
+
+**FEL:**
+```tsx
+// ❌ ChatUI inne i wrapper med centrerande sibling
+function Component() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <ChatUIComponent width="100%" /> {/* Blir 160px! */}
+      <VoiceButton /> {/* 160px bred */}
+    </div>
+  );
+}
+```
+
+**RÄTT:**
+```tsx
+// ✅ Fragment - ChatUI och Voice är siblings i parent
+function Component() {
+  return (
+    <>
+      <ChatUIComponent /> {/* Full parent-bredd */}
+      <div style={{ alignSelf: 'center' }}>
+        <VoiceButton /> {/* Centrerad */}
+      </div>
+    </>
+  );
+}
+```
+
+**KRITISKA LÄRDOMAR:**
+- **ChatUIComponent respekterar INTE alltid width="100%" i flex-context**
+- **alignItems: 'center' på parent påverkar alla children** - även de med width="100%"
+- **Fragment (`<>`) är bästa sättet** när komponenter behöver olika alignments
+- **Använd `alignSelf` på specifika children** istället för `alignItems` på parent
+
 ## 🏗️ Arkitektur
 
 ### Tech Stack
