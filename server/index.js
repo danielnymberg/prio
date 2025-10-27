@@ -1,3 +1,11 @@
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// Load .env from server directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, '.env') });
 import WebSocket, { WebSocketServer } from 'ws';
 import express from 'express';
 import cors from 'cors';
@@ -635,7 +643,7 @@ wss.on('connection', (clientWs) => {
             sensitivity: 0.5
           },
           conversation_config: {
-            end_of_utterance_silence_trigger: 0  // DISABLE auto-trigger (använder EndOfStream istället)
+            end_of_utterance_silence_trigger: 0  // Disabled för push-to-talk (fungerar bara i hands-free mode)
           }
         }
       };

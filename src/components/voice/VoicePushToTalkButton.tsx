@@ -85,31 +85,8 @@ export function VoicePushToTalkButton({
     };
   }, [disabled, isProcessing, isRecording]);
 
-  // Keyboard support: Cmd+Space (Mac) / Win+Space (Windows) = push-to-talk
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd+Space (Mac) eller Win+Space (Windows)
-      if (e.code === 'Space' && (e.metaKey || e.ctrlKey) && !isRecording && !disabled && !isProcessing) {
-        e.preventDefault();
-        handleStart();
-      }
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space' && (e.metaKey || e.ctrlKey) && isRecording) {
-        e.preventDefault();
-        handleStop();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [isRecording, disabled, isProcessing]);
+  // Keyboard support: DISABLED (Cmd+Space öppnar Terminal på Mac)
+  // Endast mouse + touch support
 
   /**
    * Start recording - anropas från mouse/touch/keyboard
@@ -197,7 +174,7 @@ export function VoicePushToTalkButton({
     ? 'Tänker...'
     : isRecording
     ? 'Släpp för att skicka'
-    : 'Håll eller Cmd+Space';
+    : 'Håll för att prata';
 
   const iconClass = isProcessing
     ? 'e-spinner'

@@ -176,7 +176,7 @@ export function PushToTalkAssistant() {
       sttRef.current = null;
       claudeRef.current = null;
     };
-  }, [user]);
+  }, [user?.id]); // user.id ändras ALDRIG, även om user-objekt byts ut vid token refresh
 
   /**
    * Update Claude context when tasks change
