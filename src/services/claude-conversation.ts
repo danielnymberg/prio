@@ -2193,6 +2193,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
         return { error: 'Kunde inte uppdatera mötet' };
       }
     } catch (error) {
+      // Säkerhetsblockering returneras som är (innehåller instruktion till Claude)
       return { error: error instanceof Error ? error.message : 'Kunde inte uppdatera möte' };
     }
   }
@@ -2220,6 +2221,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
         return { error: 'Kunde inte radera mötet' };
       }
     } catch (error) {
+      // Säkerhetsblockering returneras som är (innehåller instruktion till Claude)
       return { error: error instanceof Error ? error.message : 'Kunde inte radera möte' };
     }
   }

@@ -698,6 +698,17 @@ export async function updateCalendarEvent(
   if (!client) return false;
 
   try {
+    // SÄKERHETSCHECK: Hämta event först och kolla attendees
+    const event = await client
+      .api(`/me/calendar/events/${eventId}`)
+      .select('attendees,organizer')
+      .get();
+
+    // HÅRDKODAD REGEL: Blockera om fler än 1 deltagare
+    if (event.attendees && event.attendees.length > 1) {
+      throw new Error('SÄKERHETSBLOCKERING: Detta möte har flera deltagare. Claude får INTE flytta möten med andra människor. Be användaren göra det manuellt.');
+    }
+
     const updateData: any = {};
 
     if (updates.subject) {
@@ -729,7 +740,7 @@ export async function updateCalendarEvent(
     return true;
   } catch (error) {
     console.error('Failed to update calendar event:', error);
-    return false;
+    throw error; // Re-throw för att Claude får error message
   }
 }
 
@@ -739,11 +750,22 @@ export async function deleteCalendarEvent(eventId: string): Promise<boolean> {
   if (!client) return false;
 
   try {
+    // SÄKERHETSCHECK: Hämta event först och kolla attendees
+    const event = await client
+      .api(`/me/calendar/events/${eventId}`)
+      .select('attendees,organizer')
+      .get();
+
+    // HÅRDKODAD REGEL: Blockera om fler än 1 deltagare
+    if (event.attendees && event.attendees.length > 1) {
+      throw new Error('SÄKERHETSBLOCKERING: Detta möte har flera deltagare. Claude får INTE radera möten med andra människor. Be användaren göra det manuellt.');
+    }
+
     await client.api(`/me/calendar/events/${eventId}`).delete();
     return true;
   } catch (error) {
     console.error('Failed to delete calendar event:', error);
-    return false;
+    throw error; // Re-throw för att Claude får error message
   }
 }
 
