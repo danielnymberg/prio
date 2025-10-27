@@ -1,5 +1,47 @@
 # TODO - Framtida förbättringar
 
+## 🌟 VÄRLDSLEDANDE CLAUDE - Nästa Nivå (2025-10-27)
+
+**Mål:** MinPrio Claude smartare än Claude.ai + Copilot 365
+
+### ✅ KLART IDAG:
+- Sonnet-first för viktiga queries (mejl, kalender, tasks)
+- Synonym-mapping (tåg→SJ, flyg→SAS, etc)
+- Extended context (ALLA tasks, inte top 15)
+- Proactive Intelligence (föreslå nästa steg)
+- Tid-formatering (18:20 kväll, inte imorse)
+- Säkerhetscheck (blockera möten med flera deltagare)
+
+### 🎯 NÄSTA (Prioriterat):
+
+#### **1. Reflection Loop** (40 min) - HÖGSTA PRIO
+Retry vid misslyckande, 3 olika strategier innan uppgivning.
+**Impact:** 95% success rate (vs 70% nu)
+
+#### **2. Context Caching** (20 min) - GRATIS FÖRBÄTTRING
+90% kostnadsbesparing på system prompt genom Anthropic prompt caching.
+**Impact:** $0.008 → $0.002 per query (samma som Haiku-pris!)
+
+#### **3. Spam Filtering** (30 min)
+Filtrera marketing/nyhetsbrev INNAN visning till användaren.
+**Impact:** Visa bara relevant info
+
+#### **4. Multi-Agent Pattern** (2h)
+Coordinator (Sonnet) + Executor (Haiku) + Validator (Sonnet).
+**Impact:** Snabbare + smartare genom specialisering
+
+#### **5. Metrics Dashboard** (30 min)
+Track success rate, cost, latency i Supabase → visa i Settings.
+**Impact:** Data-driven förbättring
+
+#### **6. Learning System** (1h)
+Spara successful synonyms/strategies i DB, återanvänd nästa gång.
+**Impact:** Claude blir smartare över tid
+
+**Total tid:** ~5 timmar för världsledande AI
+
+---
+
 ## 🔥 AKUT: Återställ Fluent2 efter app.css-borttagning (2025-10-24)
 
 **BAKGRUND:** app.css (512 rader custom CSS) togs bort för att fixa Gantt alignment-problem. Global CSS-reset (`* { padding: 0 }`) bröt SF-komponenter. Nu måste alla vyer återställas med ren SF Fluent2.

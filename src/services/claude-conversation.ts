@@ -272,30 +272,44 @@ export class ClaudeConversation {
   private selectModel(userMessage: string): string {
     const message = userMessage.toLowerCase();
 
-    // Keywords som kräver Sonnet's djupare reasoning
-    const complexKeywords = [
-      'planera hela',
-      'skapa strategi',
-      'analysera alla',
-      'djup analys',
-      'senaste månaden',
-      'optimera allt',
-      'produktivitetsmönster',
-      'detaljerad rapport',
-      'omstrukturera',
-      'prioritera om allt'
+    // SONNET för viktiga queries (noggrannhet > snabbhet)
+    const importantKeywords = [
+      // Mejl-sökning (kräver multi-step reasoning)
+      'mejl', 'mail', 'e-post', 'kolla mejlen', 'leta upp', 'sök mejl',
+      // Kalender-modifiering (viktigt att inte göra fel)
+      'flytta möte', 'ta bort möte', 'boka', 'planera in',
+      // Komplex planering
+      'planera hela', 'skapa strategi', 'analysera alla',
+      'djup analys', 'senaste månaden', 'optimera allt',
+      'produktivitetsmönster', 'detaljerad rapport',
+      'omstrukturera', 'prioritera om allt',
+      // Task-skapande (kräver rätt CPM-värden)
+      'skapa uppgift', 'lägg in', 'ny task',
     ];
 
-    const requiresComplex = complexKeywords.some(kw => message.includes(kw));
+    const requiresSonnet = importantKeywords.some(kw => message.includes(kw));
 
-    if (requiresComplex) {
-      console.log('🧠 Using Sonnet 4.5 for complex query');
+    if (requiresSonnet) {
+      console.log('🧠 Using Sonnet 4.5 for important query');
       return 'claude-sonnet-4-20250514';
     }
 
-    // Default: Haiku 4.5 för 90% av queries
-    console.log('⚡ Using Haiku 4.5 for quick response');
-    return 'claude-haiku-4-5';
+    // HAIKU för triviala queries
+    const trivialKeywords = [
+      'hej', 'tack', 'okej', 'ja', 'nej',
+      'vad heter', 'hur mår',
+    ];
+
+    const isTrivial = trivialKeywords.some(kw => message.includes(kw));
+
+    if (isTrivial) {
+      console.log('⚡ Using Haiku 4.5 for trivial query');
+      return 'claude-haiku-4-5';
+    }
+
+    // Default: Sonnet för säkerhets skull
+    console.log('🧠 Using Sonnet 4.5 (default for quality)');
+    return 'claude-sonnet-4-20250514';
   }
 
   private buildSystemPromptCacheable(): any[] {
@@ -462,6 +476,43 @@ PRIORITERINGSLOGIK (CPM - Consequence Priority Method):
 - Confidence (1-10): Säkerhet i bedömningen
 - Effort (1-10): Uppskattad ansträngning
 
+PROAKTIV INTELLIGENS - Föreslå nästa steg:
+
+Efter VARJE tool execution, föreslå relevant nästa steg:
+
+**Efter search_emails hittar mejl:**
+→ "Vill du att jag öppnar det och extraherar [tider/bokningsnummer/datum]?"
+
+**Efter get_email_content med resetider:**
+→ "Ska jag lägga in resan i kalendern åt dig?"
+
+**Efter create_task med estimated_duration >= 60 min:**
+→ "Uppgiften tar X timmar. Ska jag boka fokustid i kalendern?"
+
+**Efter list_calendar_events visar konflikt:**
+→ "Du har möte klockan två men deadline klockan tre. Vill du att jag flyttar mötet eller flyttar deadlinen?"
+
+**Efter list_unread_emails > 20:**
+→ "Du har många olästa mejl. Vill du att jag filtrerar ut spam och visar bara viktiga?"
+
+**Efter get_contact_info:**
+→ "Ska jag skapa en påminnelse att ringa [namn]?"
+
+**Efter delete_task:**
+→ "Raderat! Hade den någon deadline du vill flytta till en annan uppgift?"
+
+EXEMPEL:
+
+User: "Leta flygtiden"
+Du: [search_emails "SAS"] → Hittar mejl
+    [get_email_content] → Läser: "Avgång 18:20 Arlanda T5"
+Svar: "Flyg klockan sex tjugo på kvällen från Arlanda terminal fem. Ska jag lägga in det i kalendern? Och vill du ha påminnelse när du ska checka in?"
+
+User: "Skapa uppgift fixa presentation, tar 4 timmar"
+Du: [create_task]
+    [analyze_calendar_capacity] → Ser ledig tid imorgon 09-15
+Svar: "Lagt in! Du har sex timmar ledigt imorgon nio till tre. Ska jag boka fyra timmar fokustid för presentationen?"
+
 SMART UPPGIFT-SKAPANDE:
 När användaren ber dig skapa en uppgift, använd följande logik:
 
@@ -567,6 +618,33 @@ Svar: "Kalle på AB Företag - noll sju tre två åtta sju fyra fem. Vill du att
 User: "Maila Lisa"
 Du: [search_contact "Lisa"] → Hittar "Lisa Svensson"
 Svar: "Lisa punkt svensson snabel-a exempel punkt se. Ska jag lägga in det som en uppgift?"
+
+MEJL-SÖKNING - SMART STRATEGI (KRITISKT):
+
+När användaren ber om mejl-sökning, använd ALLTID search_emails (inte list_unread_emails).
+
+SYNONYM-MAPPING - Expandera söktermer automatiskt:
+
+"tåg" eller "tågresor" → Sök OCKSÅ på: "SJ", "MTRX", "Snälltåget", "tågresa", "bokningsbekräftelse"
+"flyg" eller "flygresor" → Sök på: "SAS", "Norwegian", "Ryanair", "boarding pass", "flight", "flygtid"
+"taxi" → Sök på: "Uber", "Taxibokning.se", "Bolt", "Cabonline", "taxi"
+"hotell" → Sök på: "booking.com", "Hotels.com", "hotellbokning", "reservation"
+
+STRATEGI:
+1. search_emails(alla relevanta termer, include_read=true, search_in="both")
+2. Om 0 results: Prova list_all_emails(100) och filtrera
+3. Om fortfarande 0: Fråga "Kommer mejlet från ett specifikt företag? (SJ, SAS, etc)"
+
+EXEMPEL:
+
+User: "Kolla tågresan"
+Du: [search_emails query="SJ OR tågresa OR bokningsbekräftelse", include_read=true]
+Svar: "Hittade SJ-bokningsbekräftelse från tjugofjärde oktober. Avgång klockan sex tjugo på kvällen."
+
+User: "Leta flygtiden"
+Du: [search_emails query="SAS OR flyg OR boarding", include_read=true]
+    [get_email_content] → Extrahera avgångstid
+Svar: "SAS flyg SK1432, avgång arlanda terminal två klockan åtta femton på morgonen."
 
 MEJLFUNKTIONER - EXEMPEL:
 
@@ -718,8 +796,8 @@ Assistant: [Använder list_projects + CPM-analys] "Baserat på CPM-värden och d
   2. Projekt Y (kan bli försenat, påverkar framtida affärer)
 Vill du att jag bokar in fokustid för dessa?"
 
-BEFINTLIGA UPPGIFTER:
-${this.context.tasks.filter(t => t.status !== 'done').slice(0, 15).map(t => {
+BEFINTLIGA UPPGIFTER (alla aktiva):
+${this.context.tasks.filter(t => t.status !== 'done').map(t => {
   const effort = t.estimated_duration
     ? `${Math.floor(t.estimated_duration / 60)}h ${t.estimated_duration % 60}min`
     : `effort: ${t.effort || '?'}`;
