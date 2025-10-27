@@ -22,7 +22,6 @@ import { initEmailScheduler } from './services/email-scheduler';
 const ArchiveView = lazy(() => import('./components/views/ArchiveView').then(m => ({ default: m.ArchiveView })));
 const ImportView = lazy(() => import('./components/views/ImportView').then(m => ({ default: m.ImportView })));
 const AllTasksView = lazy(() => import('./components/views/AllTasksView').then(m => ({ default: m.AllTasksView })));
-const InboxView = lazy(() => import('./components/views/InboxView').then(m => ({ default: m.InboxView })));
 const FocusView = lazy(() => import('./components/focus/FocusView').then(m => ({ default: m.FocusView })));
 const BreakView = lazy(() => import('./components/focus/BreakView').then(m => ({ default: m.BreakView })));
 const TaskImpactPage = lazy(() => import('./pages/TaskImpactPage').then(m => ({ default: m.TaskImpactPage })));
@@ -326,16 +325,6 @@ function App() {
           element={
             <ProtectedRoute>
               <HomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/inbox"
-          element={
-            <ProtectedRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <InboxView />
-              </Suspense>
             </ProtectedRoute>
           }
         />

@@ -13,19 +13,36 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, icon, action }: EmptyStateProps) {
   return (
-    <div className="e-flex e-flex-column e-align-center e-justify-center e-p-32 e-text-center">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '32px',
+      textAlign: 'center'
+    }}>
       {icon && (
-        <div className="e-mb-16" style={{ color: 'var(--e-text-secondary)' }}>
+        <div style={{ marginBottom: '16px', color: 'var(--e-text-secondary)' }}>
           {icon}
         </div>
       )}
 
-      <h3 className="e-text-lg e-font-medium e-mb-8" style={{ color: 'var(--e-text)' }}>
+      <h3 style={{
+        fontSize: '20px',
+        fontWeight: '500',
+        marginBottom: '8px',
+        color: 'var(--e-text)'
+      }}>
         {title}
       </h3>
 
       {description && (
-        <p className="e-text-sm e-mb-16 e-max-w-lg" style={{ color: 'var(--e-text-secondary)' }}>
+        <p style={{
+          fontSize: '14px',
+          marginBottom: '16px',
+          maxWidth: '32rem',
+          color: 'var(--e-text-secondary)'
+        }}>
           {description}
         </p>
       )}
@@ -33,8 +50,14 @@ export function EmptyState({ title, description, icon, action }: EmptyStateProps
       {action && (
         <button
           onClick={action.onClick}
-          className="e-inline-flex e-align-center e-gap-8 e-text-sm e-font-medium e-cursor-pointer e-transition-colors"
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'color 0.2s',
             color: 'var(--primary-600)',
             background: 'none',
             border: 'none',

@@ -91,15 +91,14 @@ export function Header({ onMenuClick }: HeaderProps) {
           <span className="e-icons e-menu" style={{ fontSize: '20px', color: 'var(--e-text)' }}></span>
         </button>
 
-        <div className="e-appbar-separator"></div>
-
         <Link
           to="/home"
           style={{
             fontSize: '1.5rem',
             fontWeight: 'bold',
             color: 'var(--e-text)',
-            textDecoration: 'none'
+            textDecoration: 'none',
+            marginLeft: '12px'
           }}
         >
           MinPrio

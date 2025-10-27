@@ -144,21 +144,21 @@ export function ArchiveView() {
     };
 
     return (
-      <span className="e-rounded-xl e-text-xs" style={{ padding: '4px 8px', ...getImpactStyle() }}>
+      <span style={{ borderRadius: '12px', fontSize: '12px', padding: '4px 8px', ...getImpactStyle() }}>
         {props.impactLabel}
       </span>
     );
   };
 
   return (
-    <div className="e-h-full e-flex e-flex-column e-gap-16">
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
-      <div className="e-flex e-align-center e-justify-between">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 className="e-font-bold" style={{ fontSize: 'clamp(24px, 5vw, 30px)', color: 'var(--e-text)' }}>
+          <h1 style={{ fontSize: 'clamp(24px, 5vw, 30px)', fontWeight: 'bold', color: 'var(--e-text)', margin: 0 }}>
             Arkiv
           </h1>
-          <p className="e-opacity-75" style={{ color: 'var(--e-text)' }}>
+          <p style={{ color: 'var(--e-text)', opacity: 0.75, margin: 0 }}>
             {completedTasks.length} slutförda uppgifter
           </p>
         </div>
@@ -166,7 +166,7 @@ export function ArchiveView() {
 
       {/* Grid eller Empty State */}
       {completedTasks.length === 0 ? (
-        <div className="e-flex-1 e-flex e-align-center e-justify-center">
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <EmptyState
             icon={<span className="e-icons e-folder" style={{ fontSize: '64px' }}></span>}
             title="Inget i arkivet"
@@ -174,7 +174,7 @@ export function ArchiveView() {
           />
         </div>
       ) : (
-        <div className="e-flex-1 e-rounded-lg e-overflow-hidden" style={{ background: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+        <div style={{ flex: 1, borderRadius: '8px', overflow: 'hidden', background: 'var(--e-surface)', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
           <GridComponent
             ref={gridRef}
             dataSource={gridData}

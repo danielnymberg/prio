@@ -242,7 +242,7 @@ export function AllTasksView() {
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
           Alla uppgifter <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--color-sf-black)', opacity: 0.6 }}>
             ({activeTasks.length})

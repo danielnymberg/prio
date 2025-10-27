@@ -245,7 +245,7 @@ Dessa fraser indikerar att du gör för mycket:
 3. Fixa ENDAST det problemet
 4. Testa lokalt
 5. Fråga användaren om osäker
-6. **JÄMFÖR INTE** med andra platser i appen - kan leda till felaktiga antaganden
+6. **ANTA ALDRIG** - "anta", "tror", "kanske", "gissar" är förbjudna ord. Verifiera alltid med faktisk kod, grep, eller testa
 7. Om oklart syfte - FRÅGA användaren
 8. Vid stora problem - bygg om från grunden, ta bort ALL gammal kod
 

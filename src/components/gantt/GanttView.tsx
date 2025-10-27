@@ -14,7 +14,7 @@ import {
 import { useProjects } from '@/hooks/useProjects';
 import { useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addDays, startOfWeek } from 'date-fns';
+import { addDays } from 'date-fns';
 
 export function GanttView() {
   const { projects } = useProjects();
@@ -54,8 +54,15 @@ export function GanttView() {
     });
   }, [projects]);
 
+  // Hitta tidigaste startdatum bland alla projekt
+  const earliestStart = useMemo(() => {
+    if (ganttData.length === 0) return new Date();
+    const dates = ganttData.map(d => d.StartDate.getTime());
+    return new Date(Math.min(...dates));
+  }, [ganttData]);
+
   return (
-    <div style={{ padding: '16px' }}>
+    <>
       <div style={{ marginBottom: '16px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
           Gantt Timeline
@@ -77,12 +84,13 @@ export function GanttView() {
             duration: 'Duration',
             progress: 'Progress',
           }}
-          projectStartDate={startOfWeek(new Date(), { weekStartsOn: 1 })}
+          projectStartDate={earliestStart}
           highlightWeekends={true}
           rowHeight={36}
           dataBound={() => {
             if (ganttRef.current) {
-              ganttRef.current.scrollToDate(new Date().toISOString().split('T')[0]);
+              const today = new Date().toISOString().split('T')[0];
+              ganttRef.current.scrollToDate(today);
             }
           }}
           rowSelected={(args: any) => {
@@ -108,6 +116,6 @@ export function GanttView() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

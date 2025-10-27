@@ -11,16 +11,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="e-flex e-flex-column e-h-screen">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
 
-      <div className="e-flex e-flex-1 e-overflow-hidden">
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
 
-        <main className="e-flex-1 e-overflow-y-auto e-p-16">
+        <main style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
           {children}
         </main>
       </div>

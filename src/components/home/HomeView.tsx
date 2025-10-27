@@ -64,7 +64,6 @@ export function HomeView() {
 
   return (
     <div style={{
-      padding: '16px',
       maxWidth: '600px',
       margin: '0 auto',
       display: 'flex',

@@ -96,9 +96,9 @@ export function ProjectsView() {
   return (
     <>
       {/* Header */}
-      <div className="e-mb-16" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-          Projekt <span className="e-text-sm e-font-normal" style={{ color: 'var(--e-text-secondary)' }}>
+          Projekt <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--e-text-secondary)' }}>
             ({projects.length})
           </span>
         </h1>
@@ -121,8 +121,8 @@ export function ProjectsView() {
       </div>
 
       {projects.length === 0 ? (
-        <div className="e-mt-64" style={{ textAlign: 'center' }}>
-          <p className="e-mb-16">Inga projekt än</p>
+        <div style={{ textAlign: 'center', marginTop: '64px' }}>
+          <p style={{ marginBottom: '16px' }}>Inga projekt än</p>
           <ButtonComponent
             onClick={() => navigate('/projects/new')}
             cssClass="e-primary"

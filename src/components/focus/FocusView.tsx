@@ -191,7 +191,7 @@ export function FocusView() {
 
   // Huvudvy
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
       {/* === 1. STATISTIK-SEKTION === */}
       <div className="e-card" style={{ marginBottom: '24px' }}>
