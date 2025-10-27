@@ -425,15 +425,8 @@ export function PushToTalkAssistant() {
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '24px',
-      gap: '24px',
-      maxWidth: '600px',
-      margin: '0 auto'
-    }}>
-      {/* ChatUI - Textinput + Conversation */}
+    <>
+      {/* ChatUI Block - helt separerad från voice-controls */}
       <div style={{ width: '100%' }}>
         {/* Header med Rensa-knapp */}
         {messages.length > 0 && (
@@ -461,15 +454,13 @@ export function PushToTalkAssistant() {
           </div>
         )}
 
-        {/* SF Best Practice: Wrapper med fast höjd, ChatUI med 100% */}
-        <div style={{ width: '100%', height: '500px' }}>
+        {/* ChatUI med minHeight, låter växa med innehåll */}
+        <div style={{ width: '100%', minHeight: '200px', display: 'block' }}>
           <ChatUIComponent
             user={currentUserModel}
             showTimeBreak={false}
             showFooter={true}
             placeholder="Skriv till AI..."
-            width="100%"
-            height="100%"
             messageSend={(args: any) => {
               // När användaren skickar meddelande via ChatUI (text-input = INGEN TTS!)
               const userMessage: Message = {
@@ -510,13 +501,13 @@ export function PushToTalkAssistant() {
         </div>
       )}
 
-      {/* Voice controls - centrerade */}
+      {/* Voice controls - knappen centrerad, resten full bredd */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         gap: '16px',
-        alignSelf: 'center'
+        width: '100%'
       }}>
         {/* Push-to-Talk Button */}
         <VoicePushToTalkButton
@@ -595,8 +586,6 @@ export function PushToTalkAssistant() {
           </button>
         )}
       </div>
-
-
-    </div>
+    </>
   );
 }
