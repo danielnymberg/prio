@@ -1813,6 +1813,27 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
     return `${time} (kväll)`;
   }
 
+  private expandSearchTerms(query: string): string[] {
+    const synonyms: { [key: string]: string[] } = {
+      'tåg': ['SJ', 'MTRX', 'Snälltåget', 'bokningsbekräftelse', 'tågresa', 'tågresor'],
+      'flyg': ['SAS', 'Norwegian', 'Ryanair', 'boarding', 'flight', 'flyg'],
+      'taxi': ['Uber', 'Taxibokning', 'Bolt', 'Cabonline', 'taxi'],
+      'hotell': ['booking.com', 'Hotels.com', 'hotell', 'reservation'],
+    };
+
+    const queries = [query];
+    const lowerQuery = query.toLowerCase();
+
+    for (const [keyword, terms] of Object.entries(synonyms)) {
+      if (lowerQuery.includes(keyword)) {
+        queries.push(...terms);
+        break; // Hitta första matchningen och använd den
+      }
+    }
+
+    return queries;
+  }
+
   private async getDailyOverview(date?: string) {
     try {
       const targetDate = date ? new Date(date) : new Date();
@@ -2070,7 +2091,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
 
   private async searchEmails(query: string, searchIn: string = 'both', maxCount: number = 20) {
     try {
-      const { searchEmails, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+      const { searchEmails, getAllEmails, isMicrosoftLoggedIn } = await import('./microsoft-graph');
 
       const isLoggedIn = await isMicrosoftLoggedIn();
       if (!isLoggedIn) {
@@ -2080,7 +2101,41 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
         };
       }
 
-      const emails = await searchEmails(query, searchIn as any, maxCount);
+      // RETRY LOGIC: 3 försök med olika strategier
+
+      // Försök 1: Direkt sökning
+      let emails = await searchEmails(query, searchIn as any, maxCount);
+
+      if (emails.length === 0) {
+        console.log(`🔄 Försök 1 misslyckades (${query}), provar med expanderade termer...`);
+
+        // Försök 2: Expandera med synonymer
+        const expandedTerms = this.expandSearchTerms(query);
+
+        for (const term of expandedTerms) {
+          emails = await searchEmails(term, searchIn as any, maxCount);
+          if (emails.length > 0) {
+            console.log(`✅ Försök 2 lyckades med: ${term}`);
+            break;
+          }
+        }
+      }
+
+      if (emails.length === 0) {
+        console.log('🔄 Försök 2 misslyckades, hämtar alla mejl och filtrerar lokalt...');
+
+        // Försök 3: Hämta alla mejl och filtrera client-side
+        const allEmails = await getAllEmails(100, true);
+        emails = allEmails.filter(e => {
+          const searchText = `${e.subject} ${e.from} ${e.bodyPreview}`.toLowerCase();
+          const terms = this.expandSearchTerms(query);
+          return terms.some(term => searchText.includes(term.toLowerCase()));
+        });
+
+        if (emails.length > 0) {
+          console.log(`✅ Försök 3 lyckades, hittade ${emails.length} mejl genom local filtering`);
+        }
+      }
 
       return {
         success: true,
@@ -2095,7 +2150,9 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
           preview: e.bodyPreview.substring(0, 100) + (e.bodyPreview.length > 100 ? '...' : ''),
           isRead: e.isRead,
         })),
-        summary: `Hittade ${emails.length} mejl för "${query}"`,
+        summary: emails.length > 0
+          ? `Hittade ${emails.length} mejl för "${query}"`
+          : `Hittade inga mejl för "${query}"`,
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte söka mejl' };
