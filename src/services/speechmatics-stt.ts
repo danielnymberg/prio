@@ -261,15 +261,17 @@ export class SpeechmaticsSTT {
       console.log('🔇 AudioContext suspended');
     }
 
-    // Optional: Close efter 30s inaktivitet (frigör resurser)
+    // Frigör mikrofon efter 10s inaktivitet (andra apps kan använda)
+    // Men behåll AudioContext + WebSocket öppna för snabb restart!
     clearTimeout(this.closeTimer);
     this.closeTimer = setTimeout(() => {
-      if (this.audioContext && this.audioContext.state !== 'closed') {
-        console.log('🗑️ Closing AudioContext after 30s inactivity');
-        this.audioContext.close();
-        this.audioContext = null;
+      if (this.stream) {
+        console.log('🎤 Releasing microphone after 10s inactivity');
+        this.stream.getTracks().forEach(track => track.stop());
+        this.stream = null;
+        // AudioContext & WebSocket förblir öppna för snabb restart!
       }
-    }, 30000);
+    }, 10000);
   }
 
   /**
