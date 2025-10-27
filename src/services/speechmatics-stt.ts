@@ -187,6 +187,7 @@ export class SpeechmaticsSTT {
     // STEG 1: Stoppa mikrofon OMEDELBART
     this.stopMicrophone();
     const micStoppedAt = Date.now(); // Referenspunkt för all timing!
+    this.lastAddTranscriptTime = Date.now(); // Reset - börja räkna från mic-stop!
 
     // STEG 2: Smart wait från mic-stop
     if (this.ws?.readyState === WebSocket.OPEN) {
