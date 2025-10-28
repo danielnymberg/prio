@@ -10,7 +10,8 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { SpeechmaticsSTT } from '@/services/speechmatics-stt';
+// import { SpeechmaticsSTT } from '@/services/speechmatics-stt'; // COMMENTED OUT - Using AssemblyAI instead
+import { AssemblyAISTT } from '@/services/assemblyai-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
@@ -56,7 +57,7 @@ export function PushToTalkAssistant() {
   // Context pre-fetching: Hämta under inspelning för snabbare respons
   const contextPromiseRef = useRef<Promise<any> | null>(null);
 
-  const sttRef = useRef<SpeechmaticsSTT | null>(null);
+  const sttRef = useRef<AssemblyAISTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const finalTextRef = useRef<string>(''); // Ref för EndOfUtterance callback
   const ttsQueueRef = useRef<HTMLAudioElement[]>([]); // TTS queue för att spela en mening i taget
@@ -238,8 +239,8 @@ export function PushToTalkAssistant() {
 
     const initServices = async () => {
       try {
-        // Initialize STT
-        sttRef.current = new SpeechmaticsSTT();
+        // Initialize STT with AssemblyAI
+        sttRef.current = new AssemblyAISTT();
 
         // Initialize Claude with context
         let calendarEvents: any[] = [];
