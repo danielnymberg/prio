@@ -828,3 +828,81 @@ export async function getContactInfo(contactId: string): Promise<any | null> {
     return null;
   }
 }
+
+// Send email via MS Graph
+export async function sendEmail(
+  to: string,
+  subject: string,
+  body: string,
+  isHtml: boolean = false
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    const msal = await getMsalInstance();
+    if (!msal) {
+      return { success: false, error: 'Microsoft auth not configured' };
+    }
+
+    const accounts = msal.getAllAccounts();
+    if (accounts.length === 0) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    // Get access token
+    let accessToken: string;
+    try {
+      const response = await msal.acquireTokenSilent({
+        ...loginRequest,
+        account: accounts[0],
+      });
+      accessToken = response.accessToken;
+    } catch (error) {
+      if (error instanceof InteractionRequiredAuthError) {
+        const response = await msal.acquireTokenPopup(loginRequest);
+        accessToken = response.accessToken;
+      } else {
+        throw error;
+      }
+    }
+
+    const message = {
+      message: {
+        subject,
+        body: {
+          contentType: isHtml ? 'HTML' : 'Text',
+          content: body,
+        },
+        toRecipients: [
+          {
+            emailAddress: {
+              address: to,
+            },
+          },
+        ],
+      },
+      saveToSentItems: true,
+    };
+
+    const response = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to send email:', errorText);
+      return { success: false, error: `HTTP ${response.status}: ${errorText}` };
+    }
+
+    // MS Graph sendMail returnerar 202 Accepted utan body
+    console.log('✅ Email sent successfully to:', to);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}

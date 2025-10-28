@@ -1,5 +1,6 @@
 import { Task, CreateTaskInput, UpdateTaskInput, Project } from '@/lib/types';
 import { parseNaturalDateTime } from '@/lib/dateParser';
+import { queryTrafikverket, type TrafikverketObjectType } from './trafikverket-api';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
 
@@ -489,6 +490,14 @@ TILLGÄNGLIGA FUNKTIONER:
 ✅ Kontakter: Sök kontakter, hämta kontaktinfo (mail, telefon, adress)
 ✅ Projekt: Visa, analysera projekt och budgetar
 ✅ Tid: Tolka naturliga tidsuttryck ("kl 14", "imorgon", "på fredag")
+✅ Trafikverket: Sök tågavgångar, färjor, vägsituationer, väglag, väder, restider (search_trafikverket)
+
+TRAFIKVERKET API - EXEMPEL:
+- Tåg: "När går nästa tåg till Stockholm?" → search_trafikverket(object_type: 'TrainAnnouncement', filters: [{field: 'LocationSignature', value: 'Cst'}])
+- Färjor: "Vilka färjor går idag?" → search_trafikverket(object_type: 'FerryAnnouncement')
+- Vägsituationer: "Finns det olyckor på E4?" → search_trafikverket(object_type: 'Situation', filters: [{field: 'Road', value: 'E4', operator: 'LIKE'}])
+- Väglag: "Hur är väglaget i Stockholm?" → search_trafikverket(object_type: 'RoadCondition', filters: [{field: 'CountyNo', value: 1}])
+- Väder: "Vilken temperatur är det ute?" → search_trafikverket(object_type: 'WeatherObservation')
 
 RÖSTKONVERSATION - DU ÄR EN KOMPIS SOM HJÄLPER, INTE EN ASSISTENT!
 
@@ -1495,6 +1504,70 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
           required: ['contact_id'],
         },
       },
+      {
+        name: 'search_trafikverket',
+        description: 'Sök trafikinformation från Trafikverket API. Stödjer: tågavgångar, färjor, vägsituationer, väglag, väder, restider, etc. Använd när användaren frågar om trafik, resor, väglag.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            object_type: {
+              type: 'string',
+              description: 'Typ av data att hämta',
+              enum: [
+                'TrainAnnouncement',
+                'TrainMessage',
+                'TrainStation',
+                'TrainStationMessage',
+                'TrainPosition',
+                'FerryAnnouncement',
+                'FerryRoute',
+                'Situation',
+                'RoadCondition',
+                'RoadData',
+                'RoadGeometry',
+                'WeatherObservation',
+                'WeatherMeasurepoint',
+                'TravelTimeRoute',
+                'TrafficFlow',
+                'TrafficSafetyCamera',
+                'Camera',
+                'Parking',
+                'PavementData',
+                'RailCrossing',
+                'ReasonCode',
+                'MeasurementData20',
+                'MeasurementData100',
+                'Icon',
+              ],
+            },
+            filters: {
+              type: 'array',
+              description: 'Filtrera resultat. Exempel: [{"field": "LocationSignature", "value": "Cst", "operator": "EQ"}]',
+              items: {
+                type: 'object',
+                properties: {
+                  field: { type: 'string' },
+                  value: { type: 'string' },
+                  operator: {
+                    type: 'string',
+                    enum: ['EQ', 'GT', 'GTE', 'LT', 'LTE', 'NE', 'LIKE', 'NOTLIKE', 'IN', 'NOTIN'],
+                  },
+                },
+                required: ['field', 'value'],
+              },
+            },
+            limit: {
+              type: 'number',
+              description: 'Max antal resultat (default: 10)',
+            },
+            orderby: {
+              type: 'string',
+              description: 'Sortering, ex: "AdvertisedTimeAtLocation" eller "CreationTime desc"',
+            },
+          },
+          required: ['object_type'],
+        },
+      },
     ];
   }
 
@@ -1691,6 +1764,14 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
               break;
             case 'get_contact_info':
               result = await this.getContactDetails((block.input as any).contact_id);
+              break;
+            case 'search_trafikverket':
+              result = await queryTrafikverket({
+                objectType: (block.input as any).object_type as TrafikverketObjectType,
+                filters: (block.input as any).filters,
+                limit: (block.input as any).limit,
+                orderby: (block.input as any).orderby,
+              });
               break;
             default:
               result = { error: 'Unknown tool' };
