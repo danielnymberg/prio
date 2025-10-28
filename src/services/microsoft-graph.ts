@@ -86,6 +86,10 @@ export interface CalendarEvent {
   start: string;
   end: string;
   isAllDay: boolean;
+  location?: { displayName: string };
+  attendees?: any[];
+  organizer?: any;
+  isOnlineMeeting?: boolean;
 }
 
 export interface FreeTimeSlot {
@@ -193,7 +197,7 @@ export async function getCalendarEvents(
       .filter(
         `start/dateTime ge '${startDate.toISOString()}' and end/dateTime le '${endDate.toISOString()}'`
       )
-      .select('id,subject,start,end,isAllDay')
+      .select('id,subject,start,end,isAllDay,location,attendees,organizer,isOnlineMeeting')
       .orderby('start/dateTime')
       .get();
 
@@ -204,6 +208,10 @@ export async function getCalendarEvents(
       start: event.start.dateTime + 'Z',
       end: event.end.dateTime + 'Z',
       isAllDay: event.isAllDay,
+      location: event.location,
+      attendees: event.attendees,
+      organizer: event.organizer,
+      isOnlineMeeting: event.isOnlineMeeting,
     }));
   } catch (error) {
     console.error('Failed to fetch calendar events:', error);

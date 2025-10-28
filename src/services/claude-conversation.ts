@@ -495,11 +495,21 @@ TILLGÄNGLIGA FUNKTIONER:
 ✅ Projekt: Visa, analysera projekt och budgetar
 ✅ Tid: Tolka naturliga tidsuttryck ("kl 14", "imorgon", "på fredag")
 ✅ Kollektivtrafik: Tåg, bussar, färjor i hela Sverige (ResRobot API)
+✅ Position: Smart platsbestämning via GPS + kalender (get_current_location)
+
+PLATSINFORMATION - VIKTIGT:
+- Användaren BOR i Visby (hemma = Visby)
+- Övernattar i Tyresö (Stockholm) vid behov - INTE hemma!
+- Pendlar Visby ↔ Stockholm varje vecka
+- ANVÄND get_current_location INNAN transportfrågor för att veta var användaren är/ska vara
+- Fysiska möten (inte länkmöten) som börjar <60 min → användaren är där eller på väg
+- Läs location från kalenderhändelser för kontext
+- Ändra ALDRIG möten med andra deltagare (attendees.length > 1)
 
 RESROBOT API - EXEMPEL:
-- Färjor Visby/Nynäshamn: "När går nästa färja från Visby?" → search_departures(station_name: "Visby")
-- Tåg: "När går tåget till Stockholm?" → search_departures(station_name: "Stockholm Central")
-- Sök station: "Hitta stationen Nynäshamn hamn" → search_station(name: "Nynäshamn")
+- "När går färjan?" → get_current_location → "Du är i Göteborg" → search_departures(station_name: "Göteborg")
+- "När går färjan ikväll?" → get_current_location(time_context: "tonight") → "Du ska till Stockholm" → search_departures(station_name: "Stockholm")
+- "Tåg till Uppsala imorgon" → get_current_location(time_context: "tomorrow") → search_departures(station_name: "Uppsala")
 
 RÖSTKONVERSATION - DU ÄR EN KOMPIS SOM HJÄLPER, INTE EN ASSISTENT!
 
@@ -1553,6 +1563,20 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
           required: ['name'],
         },
       },
+      {
+        name: 'get_current_location',
+        description: 'Hämta användarens aktuella position (stad). ANVÄND INNAN transportfrågor! Kombinerar GPS + kalender för smart positionsbestämning.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            time_context: {
+              type: 'string',
+              description: 'Tidskontext för frågan: "now" (nu/snart), "tonight" (ikväll), "tomorrow" (imorgon), "later" (framtid)',
+              enum: ['now', 'tonight', 'tomorrow', 'later'],
+            },
+          },
+        },
+      },
     ];
   }
 
@@ -1791,6 +1815,11 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
                 type: 'S',
               });
               break;
+
+            case 'get_current_location':
+              result = await this.getCurrentLocation((block.input as any).time_context || 'now');
+              break;
+
             default:
               result = { error: 'Unknown tool' };
           }
@@ -2085,6 +2114,10 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
           start: new Date(e.start).toLocaleString('sv-SE'),
           end: new Date(e.end).toLocaleString('sv-SE'),
           isAllDay: e.isAllDay,
+          location: e.location?.displayName,
+          isOnlineMeeting: e.isOnlineMeeting,
+          attendees: e.attendees?.length || 0,
+          organizer: e.organizer?.emailAddress?.name,
         })),
         summary: `${events.length} händelser mellan ${start.toLocaleDateString('sv-SE')} och ${end.toLocaleDateString('sv-SE')}`,
       };
@@ -2794,5 +2827,154 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte hämta kontakt' };
     }
+  }
+
+  /**
+   * Get current location with smart time-aware logic
+   * - "now"/"soon" → GPS or currently ongoing physical meeting
+   * - "tonight"/"tomorrow"/"later" → Next physical meeting location or fallback to home
+   */
+  private async getCurrentLocation(timeContext: 'now' | 'tonight' | 'tomorrow' | 'later' = 'now') {
+    try {
+      const now = new Date();
+      const ONE_HOUR = 60 * 60 * 1000;
+
+      // Check if we need future location (not "now")
+      const needsFutureLocation = timeContext !== 'now';
+
+      // Try to get calendar events for context
+      let upcomingPhysicalMeeting: any = null;
+      let ongoingPhysicalMeeting: any = null;
+
+      try {
+        const { getCalendarEvents, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+        const isLoggedIn = await isMicrosoftLoggedIn();
+
+        if (isLoggedIn) {
+          // Get events for today + next 2 days
+          const endDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+          const events = await getCalendarEvents(now, endDate);
+
+          // Filter physical meetings (not online)
+          const physicalMeetings = events.filter((e: any) => !e.isOnlineMeeting && e.location?.displayName);
+
+          // Find ongoing meeting (started, not ended yet)
+          ongoingPhysicalMeeting = physicalMeetings.find((e: any) => {
+            const start = new Date(e.start);
+            const end = new Date(e.end);
+            return start <= now && end > now;
+          });
+
+          // Find next upcoming meeting
+          upcomingPhysicalMeeting = physicalMeetings.find((e: any) => {
+            const start = new Date(e.start);
+            return start > now;
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch calendar for location context:', error);
+      }
+
+      // LOGIC FOR "NOW" / "SOON"
+      if (!needsFutureLocation) {
+        // 1. Physical meeting starting within 60 min → User is on the way or there
+        if (upcomingPhysicalMeeting) {
+          const meetingStart = new Date(upcomingPhysicalMeeting.start);
+          const timeUntilMeeting = meetingStart.getTime() - now.getTime();
+
+          if (timeUntilMeeting < ONE_HOUR) {
+            const location = this.normalizeLocation(upcomingPhysicalMeeting.location.displayName);
+            return {
+              city: location,
+              source: 'calendar_upcoming',
+              context: `Möte "${upcomingPhysicalMeeting.subject}" börjar om ${Math.round(timeUntilMeeting / 60000)} min`,
+              meeting: upcomingPhysicalMeeting.subject,
+            };
+          }
+        }
+
+        // 2. Try GPS
+        try {
+          const { getCurrentPosition } = await import('./geolocation');
+          const gpsLocation = await getCurrentPosition();
+
+          if (gpsLocation && gpsLocation.city) {
+            return {
+              city: gpsLocation.city,
+              source: 'gps',
+              latitude: gpsLocation.latitude,
+              longitude: gpsLocation.longitude,
+              timestamp: gpsLocation.timestamp,
+            };
+          }
+        } catch (error) {
+          console.error('GPS failed:', error);
+        }
+
+        // 3. Ongoing physical meeting → User is probably there
+        if (ongoingPhysicalMeeting) {
+          const location = this.normalizeLocation(ongoingPhysicalMeeting.location.displayName);
+          return {
+            city: location,
+            source: 'calendar_ongoing',
+            context: `Pågående möte: "${ongoingPhysicalMeeting.subject}"`,
+            meeting: ongoingPhysicalMeeting.subject,
+          };
+        }
+
+        // 4. Fallback: Home (Visby)
+        return {
+          city: 'Visby',
+          source: 'default',
+          context: 'Ingen aktiv position eller möte - antar hemma (Visby)',
+        };
+      }
+
+      // LOGIC FOR "TONIGHT" / "TOMORROW" / "LATER"
+      if (upcomingPhysicalMeeting) {
+        const location = this.normalizeLocation(upcomingPhysicalMeeting.location.displayName);
+        const meetingStart = new Date(upcomingPhysicalMeeting.start);
+
+        return {
+          city: location,
+          source: 'calendar_future',
+          context: `Nästa fysiska möte: "${upcomingPhysicalMeeting.subject}" ${meetingStart.toLocaleDateString('sv-SE')} ${meetingStart.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}`,
+          meeting: upcomingPhysicalMeeting.subject,
+          meeting_time: meetingStart.toISOString(),
+        };
+      }
+
+      // Fallback: Home (Visby)
+      return {
+        city: 'Visby',
+        source: 'default',
+        context: 'Inga kommande fysiska möten - antar hemma (Visby)',
+      };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Kunde inte hämta position',
+        city: 'Visby',
+        source: 'error_fallback',
+      };
+    }
+  }
+
+  /**
+   * Normalize location names to consistent city names
+   * Maps aliases like "hemma", "kontoret" to actual cities
+   */
+  private normalizeLocation(location: string): string {
+    const normalized = location.toLowerCase().trim();
+
+    const aliases: Record<string, string> = {
+      'hemma': 'Visby',
+      'kontoret': 'Visby',
+      'kontor': 'Visby',
+      'tyresö': 'Stockholm',
+      'tutviksvägen': 'Stockholm',
+      'tyreso': 'Stockholm',
+    };
+
+    return aliases[normalized] || location;
   }
 }
