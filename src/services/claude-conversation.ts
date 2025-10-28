@@ -1685,6 +1685,12 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
           required: ['latitude', 'longitude'],
         },
       },
+      // Anthropic Web Search (built-in tool)
+      {
+        type: 'web_search_20250305',
+        name: 'web_search',
+        max_uses: 5,
+      },
     ];
 
     console.log(`🛠️ Loaded ${tools.length} tools:`, tools.map(t => t.name).join(', '));

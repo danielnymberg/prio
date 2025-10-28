@@ -489,6 +489,22 @@ export async function calculateRealisticDeadline(
   return analysis;
 }
 
+/**
+ * Format Date to local time string without timezone suffix
+ * MS Graph expects "2025-10-28T14:00:00" (NOT "2025-10-28T13:00:00Z")
+ * when using timeZone field
+ */
+function formatLocalDateTime(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
 // Block time in calendar for focus session
 export async function blockCalendarTime(
   startTime: Date,
@@ -504,11 +520,11 @@ export async function blockCalendarTime(
     const event = await client.api('/me/calendar/events').post({
       subject: `🎯 ${taskTitle}`,
       start: {
-        dateTime: startTime.toISOString(),
+        dateTime: formatLocalDateTime(startTime),
         timeZone: 'Europe/Stockholm',
       },
       end: {
-        dateTime: endTime.toISOString(),
+        dateTime: formatLocalDateTime(endTime),
         timeZone: 'Europe/Stockholm',
       },
       categories: ['Prio Focus'],
@@ -542,11 +558,11 @@ export async function blockMultipleSessions(
       await client.api('/me/calendar/events').post({
         subject: `🎯 Fokus: ${taskTitle}${sessionLabel}`,
         start: {
-          dateTime: session.start.toISOString(),
+          dateTime: formatLocalDateTime(session.start),
           timeZone: 'Europe/Stockholm',
         },
         end: {
-          dateTime: session.end.toISOString(),
+          dateTime: formatLocalDateTime(session.end),
           timeZone: 'Europe/Stockholm',
         },
         categories: ['Prio Focus'],
@@ -807,14 +823,14 @@ export async function updateCalendarEvent(
 
     if (updates.start) {
       updateData.start = {
-        dateTime: updates.start.toISOString(),
+        dateTime: formatLocalDateTime(updates.start),
         timeZone: 'Europe/Stockholm',
       };
     }
 
     if (updates.end) {
       updateData.end = {
-        dateTime: updates.end.toISOString(),
+        dateTime: formatLocalDateTime(updates.end),
         timeZone: 'Europe/Stockholm',
       };
     }
