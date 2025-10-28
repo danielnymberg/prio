@@ -41,3 +41,14 @@ services:
         name: Cache-Control
         value: public, max-age=604800
     # SPA routing hanteras av _redirects fil (se public/_redirects)
+
+  - type: cron
+    name: morning-briefing
+    schedule: "0 7 * * *"  # Kl 07:00 varje dag (UTC+1 = 08:00 svensk tid vintertid)
+    buildCommand: npm install
+    startCommand: node scripts/morning-briefing.js
+    envVars:
+      - key: BACKEND_URL
+        value: https://prio-backend.onrender.com
+      - key: USER_ID
+        sync: false  # Set in Render dashboard
