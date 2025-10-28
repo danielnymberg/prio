@@ -8,6 +8,7 @@ import {
   EmailTask,
 } from '@/services/email-to-task';
 import { toast } from 'react-hot-toast';
+import { blockCalendarTime } from '@/services/microsoft-graph';
 
 export function EmailTaskListener() {
   const { user } = useAuth();
@@ -38,31 +39,74 @@ export function EmailTaskListener() {
         console.log('📧 New email task received:', emailTask);
 
         try {
-          // Konvertera till task input
-          const taskInput = emailTaskToTaskInput(emailTask);
+          // Kolla om detta är en bokning
+          const booking = emailTask.task_data?.booking;
 
-          // Skapa task
-          const createdTask = await createTask(taskInput);
+          if (booking && booking.departure_time) {
+            console.log('📅 Booking detected, creating calendar event...', booking);
 
-          if (createdTask && isSubscribed) {
-            // Markera som processad
-            await markEmailTaskProcessed(emailTask.id);
+            try {
+              // Skapa kalenderhändelse
+              const departureDate = new Date(booking.departure_time);
+              const arrivalDate = booking.arrival_time ? new Date(booking.arrival_time) : null;
 
-            // Visa notifikation
-            toast.success(
-              `📧 Task skapad från mejl: ${emailTask.task_data.title}`,
-              {
-                duration: 5000,
-                icon: '✉️',
+              const duration = arrivalDate
+                ? Math.round((arrivalDate.getTime() - departureDate.getTime()) / (1000 * 60))
+                : 120; // Default 2h om ingen arrival_time
+
+              const eventId = await blockCalendarTime(
+                departureDate,
+                duration,
+                booking.title || emailTask.subject
+              );
+
+              if (eventId && isSubscribed) {
+                // Markera som processad
+                await markEmailTaskProcessed(emailTask.id);
+
+                // Visa notifikation
+                toast.success(
+                  `📅 Bokning inlagd i kalender: ${booking.title}`,
+                  {
+                    duration: 6000,
+                    icon: '✈️',
+                  }
+                );
+
+                console.log('✅ Booking calendar event created:', eventId);
               }
-            );
+            } catch (bookingError) {
+              console.error('Failed to create calendar event for booking:', bookingError);
+              toast.error('Kunde inte lägga in bokning i kalender');
+            }
+          } else {
+            // Normal task (inte bokning)
+            // Konvertera till task input
+            const taskInput = emailTaskToTaskInput(emailTask);
 
-            console.log('✅ Email task processed:', createdTask.id);
+            // Skapa task
+            const createdTask = await createTask(taskInput);
+
+            if (createdTask && isSubscribed) {
+              // Markera som processad
+              await markEmailTaskProcessed(emailTask.id);
+
+              // Visa notifikation
+              toast.success(
+                `📧 Task skapad från mejl: ${emailTask.task_data.title}`,
+                {
+                  duration: 5000,
+                  icon: '✉️',
+                }
+              );
+
+              console.log('✅ Email task processed:', createdTask.id);
+            }
           }
         } catch (error) {
           console.error('Failed to process email task:', error);
           if (isSubscribed) {
-            toast.error('Kunde inte skapa task från mejl');
+            toast.error('Kunde inte bearbeta mejl');
           }
         }
       });

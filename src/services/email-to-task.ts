@@ -12,6 +12,14 @@ export interface EmailTask {
     deadline: string | null;
     priority: number;
     estimated_duration: number;
+    booking?: {
+      title: string;
+      departure_time: string;
+      arrival_time: string | null;
+      location: string;
+      details: string;
+      booking_type: 'flight' | 'train' | 'hotel' | 'other';
+    };
   };
   processed: boolean;
   created_at: string;
