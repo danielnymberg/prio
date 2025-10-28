@@ -1,6 +1,6 @@
 import { Task, CreateTaskInput, UpdateTaskInput, Project } from '@/lib/types';
 import { parseNaturalDateTime } from '@/lib/dateParser';
-import { queryTrafikverket, type TrafikverketObjectType } from './trafikverket-api';
+import { getDepartures, searchLocations } from './resrobot-api';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
 
@@ -494,14 +494,12 @@ TILLGÄNGLIGA FUNKTIONER:
 ✅ Kontakter: Sök kontakter, hämta kontaktinfo (mail, telefon, adress)
 ✅ Projekt: Visa, analysera projekt och budgetar
 ✅ Tid: Tolka naturliga tidsuttryck ("kl 14", "imorgon", "på fredag")
-✅ Trafikverket: Sök tågavgångar, färjor, vägsituationer, väglag, väder, restider (search_trafikverket)
+✅ Kollektivtrafik: Tåg, bussar, färjor i hela Sverige (ResRobot API)
 
-TRAFIKVERKET API - EXEMPEL:
-- Tåg: "När går nästa tåg till Stockholm?" → search_trafikverket(object_type: 'TrainAnnouncement', filters: [{field: 'LocationSignature', value: 'Cst'}])
-- Färjor: "Vilka färjor går idag?" → search_trafikverket(object_type: 'FerryAnnouncement')
-- Vägsituationer: "Finns det olyckor på E4?" → search_trafikverket(object_type: 'Situation', filters: [{field: 'Road', value: 'E4', operator: 'LIKE'}])
-- Väglag: "Hur är väglaget i Stockholm?" → search_trafikverket(object_type: 'RoadCondition', filters: [{field: 'CountyNo', value: 1}])
-- Väder: "Vilken temperatur är det ute?" → search_trafikverket(object_type: 'WeatherObservation')
+RESROBOT API - EXEMPEL:
+- Färjor Visby/Nynäshamn: "När går nästa färja från Visby?" → search_departures(station_name: "Visby")
+- Tåg: "När går tåget till Stockholm?" → search_departures(station_name: "Stockholm Central")
+- Sök station: "Hitta stationen Nynäshamn hamn" → search_station(name: "Nynäshamn")
 
 RÖSTKONVERSATION - DU ÄR EN KOMPIS SOM HJÄLPER, INTE EN ASSISTENT!
 
@@ -1509,67 +1507,50 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
         },
       },
       {
-        name: 'search_trafikverket',
-        description: 'Sök trafikinformation från Trafikverket API. Stödjer: tågavgångar, färjor, vägsituationer, väglag, väder, restider, etc. Använd när användaren frågar om trafik, resor, väglag.',
+        name: 'search_departures',
+        description: 'Sök avgångar för tåg, bussar, och färjor i hela Sverige (ResRobot API). Använd när användaren frågar "när går tåget/färjan" eller liknande.',
         input_schema: {
           type: 'object',
           properties: {
-            object_type: {
+            station_name: {
               type: 'string',
-              description: 'Typ av data att hämta',
-              enum: [
-                'TrainAnnouncement',
-                'TrainMessage',
-                'TrainStation',
-                'TrainStationMessage',
-                'TrainPosition',
-                'FerryAnnouncement',
-                'FerryRoute',
-                'Situation',
-                'RoadCondition',
-                'RoadData',
-                'RoadGeometry',
-                'WeatherObservation',
-                'WeatherMeasurepoint',
-                'TravelTimeRoute',
-                'TrafficFlow',
-                'TrafficSafetyCamera',
-                'Camera',
-                'Parking',
-                'PavementData',
-                'RailCrossing',
-                'ReasonCode',
-                'MeasurementData20',
-                'MeasurementData100',
-                'Icon',
-              ],
+              description: 'Sök station med namn. Exempel: "Visby", "Nynäshamn", "Stockholm Central"',
             },
-            filters: {
-              type: 'array',
-              description: 'Filtrera resultat. Exempel: [{"field": "LocationSignature", "value": "Cst", "operator": "EQ"}]',
-              items: {
-                type: 'object',
-                properties: {
-                  field: { type: 'string' },
-                  value: { type: 'string' },
-                  operator: {
-                    type: 'string',
-                    enum: ['EQ', 'GT', 'GTE', 'LT', 'LTE', 'NE', 'LIKE', 'NOTLIKE', 'IN', 'NOTIN'],
-                  },
-                },
-                required: ['field', 'value'],
-              },
+            station_id: {
+              type: 'string',
+              description: 'Station ID (om känt). Används direkt istället för station_name.',
             },
-            limit: {
+            max_journeys: {
+              type: 'number',
+              description: 'Max antal avgångar att hämta (default: 10)',
+            },
+            date: {
+              type: 'string',
+              description: 'Datum för avgångar (YYYY-MM-DD). Default: idag',
+            },
+            time: {
+              type: 'string',
+              description: 'Tid för avgångar (HH:MM). Default: nu',
+            },
+          },
+        },
+      },
+      {
+        name: 'search_station',
+        description: 'Hitta stationer/hållplatser i Sverige (tåg, buss, färja). Använd för att hitta station-ID eller verifiera stationsnamn.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              description: 'Sök efter station. Exempel: "Nynäshamn hamn", "Visby färjeterminal"',
+            },
+            max_results: {
               type: 'number',
               description: 'Max antal resultat (default: 10)',
             },
-            orderby: {
-              type: 'string',
-              description: 'Sortering, ex: "AdvertisedTimeAtLocation" eller "CreationTime desc"',
-            },
           },
-          required: ['object_type'],
+          required: ['name'],
         },
       },
     ];
@@ -1769,12 +1750,45 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
             case 'get_contact_info':
               result = await this.getContactDetails((block.input as any).contact_id);
               break;
-            case 'search_trafikverket':
-              result = await queryTrafikverket({
-                objectType: (block.input as any).object_type as TrafikverketObjectType,
-                filters: (block.input as any).filters,
-                limit: (block.input as any).limit,
-                orderby: (block.input as any).orderby,
+            case 'search_departures':
+              {
+                const input = block.input as any;
+                let stationId = input.station_id;
+
+                // If station_name provided, search for station first
+                if (!stationId && input.station_name) {
+                  const stations = await searchLocations({
+                    input: input.station_name,
+                    maxNo: 1,
+                    type: 'S',
+                  });
+                  if (stations.length > 0) {
+                    stationId = stations[0].id;
+                  } else {
+                    result = { error: `Hittade ingen station: ${input.station_name}` };
+                    break;
+                  }
+                }
+
+                if (!stationId) {
+                  result = { error: 'Station ID eller station_name krävs' };
+                  break;
+                }
+
+                result = await getDepartures({
+                  id: stationId,
+                  maxJourneys: input.max_journeys,
+                  date: input.date,
+                  time: input.time,
+                });
+              }
+              break;
+
+            case 'search_station':
+              result = await searchLocations({
+                input: (block.input as any).name,
+                maxNo: (block.input as any).max_results,
+                type: 'S',
               });
               break;
             default:
