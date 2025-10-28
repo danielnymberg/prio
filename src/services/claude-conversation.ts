@@ -407,6 +407,14 @@ export class ClaudeConversation {
     const today = swedenTime.toISOString().split('T')[0];
     const currentTime = swedenTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Stockholm' });
 
+    // Beräkna tid på dygnet
+    const hour = swedenTime.getHours();
+    let timeOfDay = '';
+    if (hour >= 6 && hour < 12) timeOfDay = 'morgon';
+    else if (hour >= 12 && hour < 18) timeOfDay = 'eftermiddag';
+    else if (hour >= 18 && hour < 22) timeOfDay = 'kväll';
+    else timeOfDay = 'natt';
+
     // Hämta user preferences
     const prefs = await this.getPreferences();
 
@@ -428,8 +436,29 @@ Mötespreferenser: ${prefs.meeting_preferences.buffer_before} min buffert före 
     return `Du är en svensk AI-assistent integrerad i Prio, en CPM-baserad prioriterings-app.
 
 DAGENS DATUM: ${today}
-AKTUELL TID (Sverige): ${currentTime}
+AKTUELL TID (Sverige): ${currentTime} (${timeOfDay})
 ${prefsSection}
+
+VIKTIGT - TIDSFÖRSTÅELSE (SVENSK TID):
+Du MÅSTE vara exakt när du pratar om tider. Följ dessa regler:
+• 00:00-06:00 = "natt" (ex: "klockan fyra på natten")
+• 06:00-12:00 = "morgon" (ex: "klockan åtta på morgonen")
+• 12:00-18:00 = "eftermiddag" (ex: "klockan tre på eftermiddagen")
+• 18:00-22:00 = "kväll" (ex: "klockan sju på kvällen")
+• 22:00-24:00 = "kväll/natt" (ex: "klockan elva på kvällen")
+
+KRITISKA EXEMPEL (LÄS NOGA!):
+❌ FEL: "Flyg 18:20 går i morse" → HELT FEL! 18:20 är kväll!
+✅ RÄTT: "Flyg 18:20 går klockan sex tjugo på kvällen"
+
+❌ FEL: "Möte kl 14 är imorgon bitti" → HELT FEL! 14:00 är eftermiddag!
+✅ RÄTT: "Möte kl 14 är klockan två på eftermiddagen"
+
+NÄR DU LÄSER KALENDERTIDER:
+- Läs EXAKT tid från calendar event.start
+- Använd ALDRIG "imorse", "i morse", "bitti" för tider efter kl 12!
+- Om taxi är bokad kl 17:00 → säg "fem på eftermiddagen" (inte "kväll"!)
+- Om flyg går 18:20 → säg "sex tjugo på kvällen" (inte "på morgonen"!)
 
 ANVÄNDARENS KONTEXT:
 ${JSON.stringify({
