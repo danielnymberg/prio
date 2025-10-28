@@ -1,6 +1,9 @@
 import { Task, CreateTaskInput, UpdateTaskInput, Project } from '@/lib/types';
 import { parseNaturalDateTime } from '@/lib/dateParser';
 import { getDepartures, searchLocations } from './resrobot-api';
+import { getWeatherSummary, formatWeatherSummary } from './smhi-api';
+import { getSituations, getCommuteStatus, formatSituations } from './trafikverket-api';
+import { nearbySearch, formatPlaces, filterByPreferences } from './google-places-api';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
 
@@ -1599,6 +1602,89 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
           },
         },
       },
+      {
+        name: 'get_weather_forecast',
+        description: 'Hämta väderprognos från SMHI för en specifik plats. Returnerar temperatur, regn, vind, molnighet. Använd INNAN reserekommendationer (påverkar transportval).',
+        input_schema: {
+          type: 'object',
+          properties: {
+            latitude: {
+              type: 'number',
+              description: 'Latitud (ex: 59.2419 för Tyresö, 59.3293 för Stockholm C)',
+            },
+            longitude: {
+              type: 'number',
+              description: 'Longitud (ex: 18.2558 för Tyresö, 18.0686 för Stockholm C)',
+            },
+            location_name: {
+              type: 'string',
+              description: 'Platsnamn för användarvänlig output (ex: "Tyresö", "Stockholm")',
+            },
+          },
+          required: ['latitude', 'longitude'],
+        },
+      },
+      {
+        name: 'get_traffic_situation',
+        description: 'Hämta trafiksituation från Trafikverket (olyckor, vägarbete, köer). Använd INNAN bilresa-rekommendationer för Stockholm-området.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            roads: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Vägnummer att kolla (ex: ["E4", "222", "73"]). Vanliga Stockholm-vägar: E4, 222 (Värmdöleden), 73 (Nynäsvägen)',
+            },
+            check_commute: {
+              type: 'boolean',
+              description: 'Om true, kollar standardrutt Tyresö-Stockholm (E4, Värmdöleden, Nynäsvägen)',
+            },
+          },
+        },
+      },
+      {
+        name: 'find_nearby_places',
+        description: 'Hitta restauranger, caféer, butiker nära en plats (Google Places). Använd för mat/shopping-rekommendationer.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            latitude: {
+              type: 'number',
+              description: 'Latitud för sökning (ex: 59.3293 för Stockholm C)',
+            },
+            longitude: {
+              type: 'number',
+              description: 'Longitud för sökning (ex: 18.0686 för Stockholm C)',
+            },
+            radius: {
+              type: 'number',
+              description: 'Sökradie i meter (max 50000). Standard: 1000m för lunch, 500m för kaffe',
+            },
+            type: {
+              type: 'string',
+              description: 'Platstyp: "restaurant", "cafe", "grocery_store", "pharmacy", "atm", etc',
+            },
+            keyword: {
+              type: 'string',
+              description: 'Sökord (ex: "vegetarian", "pizza", "sushi")',
+            },
+            open_now: {
+              type: 'boolean',
+              description: 'Endast öppna platser nu',
+            },
+            exclude_keywords: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Exkludera platser med dessa ord (ex: ["sushi", "shellfish"] för skaldjursallergiker)',
+            },
+            max_price: {
+              type: 'number',
+              description: 'Max prisnivå (0-4, där 0=gratis, 4=mycket dyrt)',
+            },
+          },
+          required: ['latitude', 'longitude'],
+        },
+      },
     ];
   }
 
@@ -1843,6 +1929,90 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
 
             case 'get_current_location':
               result = await this.getCurrentLocation((block.input as any).time_context || 'now');
+              break;
+
+            case 'get_weather_forecast':
+              {
+                const input = block.input as any;
+                const summary = await getWeatherSummary(input.latitude, input.longitude);
+                const formatted = formatWeatherSummary(summary);
+
+                result = {
+                  success: true,
+                  location: input.location_name || `${input.latitude}, ${input.longitude}`,
+                  summary: formatted,
+                  raw_data: {
+                    current: summary.now,
+                    next3Hours: summary.next3Hours,
+                    rainWarning: summary.rainWarning,
+                    rainStartTime: summary.rainStartTime,
+                  },
+                };
+              }
+              break;
+
+            case 'get_traffic_situation':
+              {
+                const input = block.input as any;
+
+                if (input.check_commute) {
+                  // Standard Stockholm commute check
+                  const commuteStatus = await getCommuteStatus();
+                  result = {
+                    success: true,
+                    commute: commuteStatus.message,
+                    hasIssues: commuteStatus.hasIssues,
+                    situations: commuteStatus.situations,
+                    formatted: formatSituations(commuteStatus.situations),
+                  };
+                } else if (input.roads && input.roads.length > 0) {
+                  // Custom roads check
+                  const situations = await getSituations({ roads: input.roads });
+                  result = {
+                    success: true,
+                    roads: input.roads,
+                    situationCount: situations.length,
+                    situations,
+                    formatted: formatSituations(situations),
+                  };
+                } else {
+                  result = {
+                    error: 'Either check_commute=true or roads array required',
+                  };
+                }
+              }
+              break;
+
+            case 'find_nearby_places':
+              {
+                const input = block.input as any;
+
+                // Perform nearby search
+                let places = await nearbySearch({
+                  location: { lat: input.latitude, lng: input.longitude },
+                  radius: input.radius || 1000,
+                  type: input.type,
+                  keyword: input.keyword,
+                  openNow: input.open_now,
+                });
+
+                // Filter by preferences (dietary restrictions, price, etc)
+                if (input.exclude_keywords || input.max_price !== undefined) {
+                  places = filterByPreferences(places, {
+                    excludeKeywords: input.exclude_keywords,
+                    maxPrice: input.max_price,
+                    minRating: 3.5, // Always filter low-rated places
+                    openNow: input.open_now,
+                  });
+                }
+
+                result = {
+                  success: true,
+                  count: places.length,
+                  places: places.slice(0, 10), // Top 10
+                  formatted: formatPlaces(places, 5), // Show 5 in summary
+                };
+              }
               break;
 
             default:
