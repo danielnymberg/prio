@@ -30,6 +30,9 @@ import {
 import { SwitchComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { CheckBoxComponent, RadioButtonComponent } from '@syncfusion/ej2-react-buttons';
+import { TextAreaComponent } from '@syncfusion/ej2-react-inputs';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function SettingsView() {
   console.log('🔍 DEBUG: SettingsView mounting');
@@ -42,6 +45,7 @@ export function SettingsView() {
   let emailSchedule, setEmailSchedule;
   let ttsSpeed, setTtsSpeed;
   let ttsVoice, setTtsVoice;
+  let aiPreferences, setAiPreferences;
 
   try {
     console.log('🔍 DEBUG: Initializing state hooks...');
@@ -55,16 +59,73 @@ export function SettingsView() {
     [emailSchedule, setEmailSchedule] = useState<EmailScheduleConfig>(getScheduleConfig());
     [ttsSpeed, setTtsSpeed] = useState<string>(localStorage.getItem('tts_speed') || '1.0');
     [ttsVoice, setTtsVoice] = useState<string>(localStorage.getItem('tts_voice') || 'sv-SE-SofieNeural');
+    [aiPreferences, setAiPreferences] = useState<string>('');
     console.log('✅ DEBUG: All state hooks initialized successfully');
   } catch (error) {
     console.error('❌ DEBUG: Error initializing state hooks:', error);
     throw error;
   }
 
+  const { user } = useAuth();
+
   useEffect(() => {
     console.log('🔍 DEBUG: useEffect running - checkMicrosoftConnection');
     checkMicrosoftConnection();
   }, []);
+
+  useEffect(() => {
+    // Hämta AI preferences vid mount
+    if (user?.id) {
+      loadAiPreferences();
+    }
+  }, [user?.id]);
+
+  const loadAiPreferences = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('custom_context')
+        .eq('user_id', user!.id)
+        .single();
+
+      if (data && !error) {
+        setAiPreferences(data.custom_context || '');
+      }
+    } catch (error) {
+      console.error('Failed to load AI preferences:', error);
+    }
+  };
+
+  const handleSaveAiPreferences = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          custom_context: aiPreferences
+        });
+
+      if (error) throw error;
+
+      // Invalidera cache
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await fetch(`${import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com'}/api/preferences/invalidate`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        });
+      }
+
+      showToast.success('AI-preferenser sparade!');
+    } catch (error) {
+      console.error('Failed to save AI preferences:', error);
+      showToast.error('Kunde inte spara preferenser');
+    }
+  };
 
   const checkMicrosoftConnection = async () => {
     const connected = await isMicrosoftLoggedIn();
@@ -841,6 +902,81 @@ export function SettingsView() {
   };
 
   // Notifications Content
+  const aiPreferencesContent = () => {
+    return (
+      <div style={{
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '0.75rem'
+        }}>
+          <div style={{
+            padding: '0.75rem',
+            backgroundColor: 'var(--primary-100)',
+            borderRadius: '8px'
+          }}>
+            <span className="e-icons e-comment" style={{
+              fontSize: '24px',
+              color: 'var(--primary-600)'
+            }}></span>
+          </div>
+
+          <div style={{ flex: 1 }}>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--e-text)',
+              opacity: 0.7,
+              marginBottom: '1rem'
+            }}>
+              Berätta om dig själv så att AI-assistenten kan ge bättre svar från start.
+            </p>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem'
+            }}>
+              <TextAreaComponent
+                placeholder="Exempel: Jag jobbar som restaureringskonsult, reser till Stockholm varje vecka med SAS, brukar jobba 9-17 men flexibelt, föredrar casual kommunikation..."
+                value={aiPreferences}
+                change={(e: any) => setAiPreferences(e.value)}
+                rows={6}
+                floatLabelType="Auto"
+              />
+
+              <Button
+                onClick={handleSaveAiPreferences}
+                className="e-primary"
+                style={{ alignSelf: 'flex-start' }}
+              >
+                Spara preferenser
+              </Button>
+
+              <div style={{
+                backgroundColor: 'var(--info-100, #dbeafe)',
+                border: '1px solid var(--info-500, #3b82f6)',
+                borderRadius: '8px',
+                padding: '0.75rem'
+              }}>
+                <div style={{
+                  fontSize: '0.875rem',
+                  color: 'var(--info-700, #1d4ed8)'
+                }}>
+                  💡 <strong>Tips:</strong> Inkludera information om dina arbetstider, resvanor, kommunikationsstil, och andra preferenser som kan hjälpa AI att ge bättre svar.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const notificationsContent = () => {
     console.log('🔍 DEBUG: notificationsContent() called');
     return (
@@ -1116,6 +1252,12 @@ export function SettingsView() {
               header="Automatisk mejl-processorering"
               iconCss="e-icons e-mail"
               content={emailSchedulerContent}
+            />
+
+            <AccordionItemDirective
+              header="AI-preferenser"
+              iconCss="e-icons e-comment"
+              content={aiPreferencesContent}
             />
 
             <AccordionItemDirective

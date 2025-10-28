@@ -331,7 +331,10 @@ Svara ENDAST med valid JSON i detta format:
 
     const userId = users.id;
 
-    // Spara email task
+    // TEMPORÄR variabel för booking data (sparas senare om den hittas)
+    let tempBookingData = null;
+
+    // Spara email task (booking_data läggs till senare om detekterat)
     const { data: emailTask, error: insertError } = await supabase
       .from('email_tasks')
       .insert({
@@ -414,9 +417,20 @@ Svara ENDAST med valid JSON:
           bookingData = null;
         }
 
-        // Om vi fick booking data och det finns avgångstid, returnera det för att frontend ska skapa event
+        // Om vi fick booking data och det finns avgångstid, spara det i task_data
         if (bookingData && bookingData.departure_time) {
           console.log('✅ Booking data extracted:', bookingData);
+
+          // Uppdatera email_task med booking_data
+          await supabase
+            .from('email_tasks')
+            .update({
+              task_data: {
+                ...taskData,
+                booking: bookingData  // Lägg till booking i task_data
+              }
+            })
+            .eq('id', emailTask.id);
 
           res.json({
             success: true,
@@ -736,6 +750,86 @@ app.get('/api/conversation/load', authenticateUser, async (req, res) => {
   } catch (error) {
     console.error('Redis load error:', error);
     res.status(500).json({ error: 'Failed to load conversation history' });
+  }
+});
+
+// GET /api/preferences - Hämta user preferences med Redis cache
+app.get('/api/preferences', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const redisKey = `preferences:${userId}`;
+
+    // 1. Kolla Redis cache först (5ms)
+    if (redis) {
+      const cached = await redis.get(redisKey);
+      if (cached) {
+        console.log('✅ Preferences from Redis cache');
+        return res.json({
+          success: true,
+          preferences: JSON.parse(cached),
+          from_cache: true
+        });
+      }
+    }
+
+    // 2. Hämta från Supabase (50ms)
+    console.log('⏳ Fetching preferences from Supabase...');
+    const { data, error } = await supabase
+      .from('user_preferences')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
+      console.error('Failed to fetch preferences:', error);
+      return res.status(500).json({ error: 'Failed to fetch preferences' });
+    }
+
+    // Om ingen preferences finns, skapa default
+    const preferences = data || {
+      user_id: userId,
+      work_hours: { start: '09:00', end: '17:00', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] },
+      travel_patterns: { frequent_routes: [], preferred_airline: null },
+      meeting_preferences: { buffer_before: 15, buffer_after: 0, max_per_day: 4 },
+      communication_style: 'casual',
+      custom_context: null
+    };
+
+    // Spara i Redis cache (24h TTL)
+    if (redis) {
+      await redis.setex(redisKey, 86400, JSON.stringify(preferences));
+    }
+
+    res.json({
+      success: true,
+      preferences,
+      from_cache: false
+    });
+  } catch (error) {
+    console.error('Preferences fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch preferences' });
+  }
+});
+
+// POST /api/preferences/invalidate - Invalidera preferences cache
+app.post('/api/preferences/invalidate', authenticateUser, async (req, res) => {
+  try {
+    if (!redis) {
+      return res.json({ success: true, message: 'No cache to invalidate' });
+    }
+
+    const userId = req.user.id;
+    const redisKey = `preferences:${userId}`;
+
+    await redis.del(redisKey);
+
+    res.json({
+      success: true,
+      message: 'Preferences cache invalidated'
+    });
+  } catch (error) {
+    console.error('Cache invalidation error:', error);
+    res.status(500).json({ error: 'Failed to invalidate cache' });
   }
 });
 

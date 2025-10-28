@@ -12,9 +12,30 @@ export interface ConversationContext {
   userId: string;
 }
 
+export interface UserPreferences {
+  user_id: string;
+  work_hours: {
+    start: string;
+    end: string;
+    days: string[];
+  };
+  travel_patterns: {
+    frequent_routes: string[];
+    preferred_airline: string | null;
+  };
+  meeting_preferences: {
+    buffer_before: number;
+    buffer_after: number;
+    max_per_day: number;
+  };
+  communication_style: string;
+  custom_context: string | null;
+}
+
 export class ClaudeConversation {
   private context: ConversationContext;
   private conversationHistory: any[] = [];
+  private cachedPreferences: UserPreferences | null = null;
   private onTaskCreate?: (input: CreateTaskInput) => Promise<Task>;
   private onTaskUpdate?: (id: string, input: UpdateTaskInput) => Promise<Task>;
   private onTaskDelete?: (id: string) => Promise<boolean>;
@@ -97,7 +118,7 @@ export class ClaudeConversation {
         },
         body: JSON.stringify({
           messages: this.conversationHistory,
-          system: this.buildSystemPromptCacheable(),
+          system: await this.buildSystemPromptCacheable(),
           tools: this.getTools(),
           max_tokens: 2000,
           model: selectedModel,
@@ -212,7 +233,7 @@ export class ClaudeConversation {
         },
         body: JSON.stringify({
           messages: this.conversationHistory,
-          system: this.buildSystemPromptCacheable(), // Array med cache_control för 90% besparing!
+          system: await this.buildSystemPromptCacheable(), // Array med cache_control för 90% besparing!
           tools: this.getTools(),
           max_tokens: 2000,
           model: selectedModel, // Haiku (90%) eller Sonnet (10%)
@@ -269,6 +290,51 @@ export class ClaudeConversation {
    * Haiku: Snabbare (2x), billigare (67%), bra för quick queries
    * Sonnet: Smartare, för komplex planering och djup analys
    */
+  private async getPreferences(): Promise<UserPreferences | null> {
+    // 1. In-memory cache (0ms)
+    if (this.cachedPreferences) {
+      console.log('✅ Preferences from memory cache');
+      return this.cachedPreferences;
+    }
+
+    try {
+      // 2. Fetch from backend (which checks Redis, then Supabase)
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        console.log('❌ No session - skipping preferences');
+        return null;
+      }
+
+      console.log('⏳ Fetching preferences from backend...');
+      const response = await fetch(`${BACKEND_URL}/api/preferences`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch preferences:', response.statusText);
+        return null;
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.preferences) {
+        this.cachedPreferences = result.preferences;
+        console.log(`✅ Preferences loaded (from ${result.from_cache ? 'Redis cache' : 'Supabase'})`);
+        return this.cachedPreferences;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error fetching preferences:', error);
+      return null;
+    }
+  }
+
   private selectModel(userMessage: string): string {
     const message = userMessage.toLowerCase();
 
@@ -312,8 +378,8 @@ export class ClaudeConversation {
     return 'claude-sonnet-4-20250514';
   }
 
-  private buildSystemPromptCacheable(): any[] {
-    const systemText = this.buildSystemPrompt();
+  private async buildSystemPromptCacheable(): Promise<any[]> {
+    const systemText = await this.buildSystemPrompt();
 
     // Split system prompt into cacheable parts
     // Static instructions (samma för alla samtal) - cacheas
@@ -335,16 +401,35 @@ export class ClaudeConversation {
     ];
   }
 
-  private buildSystemPrompt(): string {
+  private async buildSystemPrompt(): Promise<string> {
     const now = new Date();
     const swedenTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
     const today = swedenTime.toISOString().split('T')[0];
     const currentTime = swedenTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Stockholm' });
 
+    // Hämta user preferences
+    const prefs = await this.getPreferences();
+
+    // Bygg preferences section
+    let prefsSection = '';
+    if (prefs) {
+      prefsSection = `
+
+ANVÄNDARENS PREFERENSER:
+${prefs.custom_context || 'Inga anpassade preferenser ännu'}
+
+Arbetstider: ${prefs.work_hours.start}-${prefs.work_hours.end} (${prefs.work_hours.days.join(', ')})
+Resvanor: ${prefs.travel_patterns.frequent_routes.join(', ') || 'Inga frekventa rutter'}
+Föredraget flygbolag: ${prefs.travel_patterns.preferred_airline || 'Inget föredraget'}
+Kommunikationsstil: ${prefs.communication_style}
+Mötespreferenser: ${prefs.meeting_preferences.buffer_before} min buffert före möten, max ${prefs.meeting_preferences.max_per_day} möten/dag`;
+    }
+
     return `Du är en svensk AI-assistent integrerad i Prio, en CPM-baserad prioriterings-app.
 
 DAGENS DATUM: ${today}
 AKTUELL TID (Sverige): ${currentTime}
+${prefsSection}
 
 ANVÄNDARENS KONTEXT:
 ${JSON.stringify({
