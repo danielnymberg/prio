@@ -58,40 +58,42 @@ export interface TextSearchParams {
  * Nearby search - Find places near a location
  */
 export async function nearbySearch(params: NearbySearchParams): Promise<GooglePlace[]> {
-  const apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
 
-  if (!apiKey) {
-    console.warn('⚠️ VITE_GOOGLE_PLACES_API_KEY saknas - returnerar mock data');
+  try {
+    const { supabase } = await import('@/lib/supabase');
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      console.warn('⚠️ Not authenticated - returnerar mock data');
+      return getMockPlaces(params);
+    }
+
+    const response = await fetch(`${BACKEND_URL}/api/google-places/nearby`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Google Places API error (${response.status})`);
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      throw new Error(`Google Places API error: ${data.status} - ${data.error_message || 'Unknown error'}`);
+    }
+
+    return data.results || [];
+  } catch (error) {
+    console.error('Google Places nearbySearch error:', error);
+    console.warn('⚠️ Falling back to mock data');
     return getMockPlaces(params);
   }
-
-  const queryParams = new URLSearchParams({
-    key: apiKey,
-    location: `${params.location.lat},${params.location.lng}`,
-    radius: String(params.radius),
-  });
-
-  if (params.type) queryParams.set('type', params.type);
-  if (params.keyword) queryParams.set('keyword', params.keyword);
-  if (params.openNow) queryParams.set('opennow', 'true');
-  if (params.minPrice !== undefined) queryParams.set('minprice', String(params.minPrice));
-  if (params.maxPrice !== undefined) queryParams.set('maxprice', String(params.maxPrice));
-
-  const url = `${API_BASE_URL}/nearbysearch/json?${queryParams.toString()}`;
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Google Places API error (${response.status}): ${response.statusText}`);
-  }
-
-  const data = await response.json();
-
-  if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-    throw new Error(`Google Places API error: ${data.status} - ${data.error_message || 'Unknown error'}`);
-  }
-
-  return data.results || [];
 }
 
 /**

@@ -9,7 +9,7 @@
  * - Bus departures (all operators in Sweden)
  */
 
-const API_BASE_URL = 'https://api.resrobot.se/v2';
+const API_BASE_URL = 'https://api.resrobot.se/v2.1';
 
 export interface ResRobotDeparture {
   name: string;           // Line name (e.g., "Destination Gotland")
@@ -60,7 +60,7 @@ export async function getDepartures(params: DeparturesParams): Promise<ResRobotD
   }
 
   const queryParams = new URLSearchParams({
-    key: apiKey,
+    accessId: apiKey,
     id: params.id,
     format: 'json',
     maxJourneys: String(params.maxJourneys || 10),
@@ -100,7 +100,7 @@ export async function searchLocations(params: LocationParams): Promise<ResRobotL
   }
 
   const queryParams = new URLSearchParams({
-    key: apiKey,
+    accessId: apiKey,
     input: params.input,
     format: 'json',
     maxNo: String(params.maxNo || 10),

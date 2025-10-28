@@ -833,6 +833,48 @@ app.post('/api/preferences/invalidate', authenticateUser, async (req, res) => {
   }
 });
 
+// POST /api/google-places/nearby - Proxy för Google Places Nearby Search
+app.post('/api/google-places/nearby', authenticateUser, async (req, res) => {
+  try {
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    if (!apiKey) {
+      console.error('[Google Places] GOOGLE_PLACES_API_KEY missing in env');
+      return res.status(500).json({ error: 'GOOGLE_PLACES_API_KEY missing' });
+    }
+
+    const { location, radius, type, keyword, openNow, minPrice, maxPrice } = req.body;
+
+    const params = new URLSearchParams({
+      key: apiKey,
+      location: `${location.lat},${location.lng}`,
+      radius: String(radius),
+    });
+
+    if (type) params.set('type', type);
+    if (keyword) params.set('keyword', keyword);
+    if (openNow) params.set('opennow', 'true');
+    if (minPrice !== undefined) params.set('minprice', String(minPrice));
+    if (maxPrice !== undefined) params.set('maxprice', String(maxPrice));
+
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params}`;
+
+    console.log(`[Google Places] Fetching nearby places near ${location.lat},${location.lng}`);
+    const response = await fetch(url);
+    const data = await response.json();
+
+    console.log(`[Google Places] Status: ${data.status}, Results: ${data.results?.length || 0}`);
+
+    if (!response.ok) {
+      throw new Error(`Google Places API error (${response.status}): ${response.statusText}`);
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('[Google Places] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Sentry v10 error handler (replaces old Handlers.errorHandler)
 if (process.env.SENTRY_DSN) {
   Sentry.setupExpressErrorHandler(app);

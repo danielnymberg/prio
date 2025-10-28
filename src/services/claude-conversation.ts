@@ -947,7 +947,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
   }
 
   private getTools(): any[] {
-    return [
+    const tools = [
       {
         name: 'create_task',
         description: 'Skapa en ny uppgift i Prio. Använd när användaren beskriver något de behöver göra.',
@@ -1686,6 +1686,9 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
         },
       },
     ];
+
+    console.log(`🛠️ Loaded ${tools.length} tools:`, tools.map(t => t.name).join(', '));
+    return tools;
   }
 
   private isSpam(email: any): boolean {
