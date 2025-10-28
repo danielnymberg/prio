@@ -355,6 +355,83 @@ Svara ENDAST med valid JSON i detta format:
 
     console.log('✅ Email task saved to database:', emailTask.id);
 
+    // NYTT: Detektera bokningar och skapa kalenderhändelse automatiskt
+    const isBooking = subject.toLowerCase().includes('bokning') ||
+                      subject.toLowerCase().includes('bekräftelse') ||
+                      subject.toLowerCase().includes('confirmation') ||
+                      emailBody.toLowerCase().includes('flight') ||
+                      emailBody.toLowerCase().includes('flyg') ||
+                      emailBody.toLowerCase().includes('tåg') ||
+                      emailBody.toLowerCase().includes('sj.se') ||
+                      emailBody.toLowerCase().includes('sas.se');
+
+    if (isBooking) {
+      console.log('📅 Booking detected, extracting details...');
+
+      try {
+        // Extrahera bokningsdetaljer med Claude
+        const bookingExtraction = await anthropic.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: `Du är en AI som extraherar bokningsdetaljer från mejl.
+
+Analysera mejlet och extrahera:
+1. **title**: Kort beskrivning av bokningen (t.ex. "SAS SK1432 Stockholm-Göteborg")
+2. **departure_time**: Avgångstid i ISO format (YYYY-MM-DDTHH:MM:SS)
+3. **arrival_time**: Ankomsttid i ISO format (YYYY-MM-DDTHH:MM:SS)
+4. **location**: Plats (t.ex. "Arlanda Terminal 5", "Stockholm Central")
+5. **details**: Extra detaljer (bokningsnummer, check-in tid, etc.)
+6. **booking_type**: "flight", "train", "hotel", eller "other"
+
+Om någon information saknas, använd null.
+
+Svara ENDAST med valid JSON:
+{
+  "title": "...",
+  "departure_time": "2025-10-29T14:10:00" eller null,
+  "arrival_time": "2025-10-29T15:15:00" eller null,
+  "location": "...",
+  "details": "...",
+  "booking_type": "flight"
+}`,
+          messages: [{
+            role: 'user',
+            content: `Ämne: ${subject}\n\nMeddelande:\n${emailBody}`
+          }]
+        });
+
+        const bookingText = bookingExtraction.content[0].text;
+        console.log('🤖 Claude booking extraction:', bookingText);
+
+        let bookingData;
+        try {
+          const jsonMatch = bookingText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            bookingData = JSON.parse(jsonMatch[0]);
+          }
+        } catch (parseError) {
+          console.error('Failed to parse booking JSON:', parseError);
+          bookingData = null;
+        }
+
+        // Om vi fick booking data och det finns avgångstid, returnera det för att frontend ska skapa event
+        if (bookingData && bookingData.departure_time) {
+          console.log('✅ Booking data extracted:', bookingData);
+
+          res.json({
+            success: true,
+            message: 'Email processed and booking detected',
+            email_task_id: emailTask.id,
+            booking: bookingData
+          });
+          return;
+        }
+      } catch (bookingError) {
+        console.error('Booking extraction failed:', bookingError);
+        // Fortsätt med normal response om booking extraction failar
+      }
+    }
+
     res.json({
       success: true,
       message: 'Email processed and saved to queue',
