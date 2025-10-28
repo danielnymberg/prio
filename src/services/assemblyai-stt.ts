@@ -154,7 +154,8 @@ export class AssemblyAISTT {
     // Skapa nya nodes
     this.source = this.audioContext.createMediaStreamSource(stream);
     // AssemblyAI rekommenderar 100ms chunks = 1600 samples @ 16kHz
-    this.processor = this.audioContext.createScriptProcessor(1600, 1, 1);
+    // Men createScriptProcessor kräver power of 2, så använd 2048 (128ms @ 16kHz)
+    this.processor = this.audioContext.createScriptProcessor(2048, 1, 1);
 
     this.processor.onaudioprocess = (e) => {
       if (this.isStreaming && this.ws?.readyState === WebSocket.OPEN) {
