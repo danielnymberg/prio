@@ -833,6 +833,38 @@ app.post('/api/preferences/invalidate', authenticateUser, async (req, res) => {
   }
 });
 
+// POST /api/assemblyai/token - Generate temporary streaming token
+app.post('/api/assemblyai/token', authenticateUser, async (req, res) => {
+  try {
+    const apiKey = process.env.ASSEMBLYAI_API_KEY;
+    if (!apiKey) {
+      console.error('[AssemblyAI] ASSEMBLYAI_API_KEY missing in env');
+      return res.status(500).json({ error: 'ASSEMBLYAI_API_KEY missing' });
+    }
+
+    console.log('[AssemblyAI] Generating temporary streaming token...');
+
+    const response = await fetch('https://streaming.assemblyai.com/v3/token?expires_in_seconds=3600', {
+      method: 'GET',
+      headers: {
+        'Authorization': apiKey
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`AssemblyAI token generation failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(`[AssemblyAI] Token generated, expires in ${data.expires_in_seconds}s`);
+
+    res.json({ token: data.token, expires_in: data.expires_in_seconds });
+  } catch (error) {
+    console.error('[AssemblyAI] Token generation error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /api/google-places/nearby - Proxy för Google Places Nearby Search
 app.post('/api/google-places/nearby', authenticateUser, async (req, res) => {
   try {

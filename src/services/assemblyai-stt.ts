@@ -47,18 +47,44 @@ export class AssemblyAISTT {
   }
 
   private async connectWebSocket(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       console.log('🔌 Connecting to AssemblyAI...');
 
-      const apiKey = import.meta.env.VITE_ASSEMBLYAI_API_KEY;
-      if (!apiKey) {
-        reject(new Error('VITE_ASSEMBLYAI_API_KEY saknas i .env.local'));
+      try {
+        // 1. Hämta temporary token från backend
+        const { supabase } = await import('@/lib/supabase');
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+          reject(new Error('Not authenticated'));
+          return;
+        }
+
+        const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+
+        console.log('🔑 Fetching temporary AssemblyAI token...');
+        const tokenResponse = await fetch(`${BACKEND_URL}/api/assemblyai/token`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
+
+        if (!tokenResponse.ok) {
+          throw new Error(`Failed to get AssemblyAI token: ${tokenResponse.status}`);
+        }
+
+        const { token, expires_in } = await tokenResponse.json();
+        console.log(`✅ Got temporary token, expires in ${expires_in}s`);
+
+        // 2. Använd temporary token i WebSocket
+        const wsUrl = `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`;
+        this.ws = new WebSocket(wsUrl);
+      } catch (error) {
+        console.error('Failed to get AssemblyAI token:', error);
+        reject(error);
         return;
       }
-
-      // AssemblyAI Real-time Transcription endpoint
-      const wsUrl = `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${apiKey}`;
-      this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
         console.log('✅ WebSocket connected to AssemblyAI');
