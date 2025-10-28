@@ -842,6 +842,7 @@ app.post('/api/assemblyai/token', authenticateUser, async (req, res) => {
       return res.status(500).json({ error: 'ASSEMBLYAI_API_KEY missing' });
     }
 
+    console.log('[AssemblyAI] API Key exists:', apiKey ? `${apiKey.substring(0, 10)}...` : 'undefined');
     console.log('[AssemblyAI] Generating temporary streaming token...');
 
     const response = await fetch('https://streaming.assemblyai.com/v3/token?expires_in_seconds=600', {
@@ -851,12 +852,17 @@ app.post('/api/assemblyai/token', authenticateUser, async (req, res) => {
       }
     });
 
+    console.log('[AssemblyAI] Token generation response status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`AssemblyAI token generation failed: ${response.status}`);
+      const errorText = await response.text();
+      console.error('[AssemblyAI] Token generation failed:', errorText);
+      throw new Error(`AssemblyAI token generation failed: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log(`[AssemblyAI] Token generated, expires in ${data.expires_in_seconds}s`);
+    console.log(`[AssemblyAI] Token generated successfully, expires in ${data.expires_in_seconds}s`);
+    console.log('[AssemblyAI] Token value:', data.token ? `${data.token.substring(0, 20)}...` : 'undefined');
 
     res.json({ token: data.token, expires_in: data.expires_in_seconds });
   } catch (error) {
