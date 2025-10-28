@@ -1396,6 +1396,28 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
         },
       },
       {
+        name: 'create_email_draft',
+        description: 'Skapa ett mejlutkast i Outlook. Användaren kan sedan granska och skicka det manuellt. Använd när användaren ber om att skriva/förbereda ett mejl.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            to: {
+              type: 'string',
+              description: 'Mottagarens e-postadress',
+            },
+            subject: {
+              type: 'string',
+              description: 'Mejlets ämnesrad',
+            },
+            body: {
+              type: 'string',
+              description: 'Mejlets innehåll (HTML eller plain text)',
+            },
+          },
+          required: ['to', 'subject', 'body'],
+        },
+      },
+      {
         name: 'update_calendar_event',
         description: 'Flytta eller ändra ett befintligt möte i kalendern. Använd när användaren vill flytta möte, ändra titel, eller uppdatera detaljer.',
         input_schema: {
@@ -1750,6 +1772,9 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
             }
             case 'get_email_content':
               result = await this.getEmailContent((block.input as any).email_id);
+              break;
+            case 'create_email_draft':
+              result = await this.createEmailDraft((block.input as any).to, (block.input as any).subject, (block.input as any).body);
               break;
             case 'update_calendar_event':
               result = await this.updateCalendarEvent((block.input as any).event_id, (block.input as any).updates);
@@ -2512,6 +2537,34 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte hämta mejlinnehåll' };
+    }
+  }
+
+  private async createEmailDraft(to: string, subject: string, body: string) {
+    try {
+      const { createEmailDraft, isMicrosoftLoggedIn } = await import('./microsoft-graph');
+
+      const isLoggedIn = await isMicrosoftLoggedIn();
+      if (!isLoggedIn) {
+        return {
+          error: 'Användaren är inte inloggad på Microsoft.',
+          requires_login: true,
+        };
+      }
+
+      const result = await createEmailDraft(to, subject, body);
+
+      if (!result.success) {
+        return { error: result.error || 'Kunde inte skapa mejlutkast' };
+      }
+
+      return {
+        success: true,
+        message: `Mejlutkast skapat till ${to} med ämne "${subject}". Du hittar det i Outlook under Utkast.`,
+        draftId: result.draftId,
+      };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Kunde inte skapa mejlutkast' };
     }
   }
 

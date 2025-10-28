@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMicrosoftGraph } from '@/contexts/MicrosoftGraphContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { AppBarComponent } from '@syncfusion/ej2-react-navigations';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DropDownButtonComponent, ItemModel } from '@syncfusion/ej2-react-splitbuttons';
-import { Task, DailyCheckIn } from '@/lib/types';
-import { isMicrosoftLoggedIn } from '@/services/microsoft-graph';
-import { UppgiftRegistrering } from '@/components/tasks/UppgiftRegistrering';
+import { DailyCheckIn } from '@/lib/types';
 import { DagligCheckIn } from '@/components/focus/DagligCheckIn';
 
 interface HeaderProps {
@@ -16,22 +15,9 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut } = useAuth();
+  const { isConnected, login } = useMicrosoftGraph();
   const navigate = useNavigate();
-  const [isMicrosoftConnected, setIsMicrosoftConnected] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
-  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
-
-  useEffect(() => {
-    const checkMicrosoftStatus = async () => {
-      const connected = await isMicrosoftLoggedIn();
-      setIsMicrosoftConnected(connected);
-    };
-    checkMicrosoftStatus();
-
-    const interval = setInterval(checkMicrosoftStatus, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
 
   const handleCheckInComplete = (checkIn: DailyCheckIn) => {
@@ -108,14 +94,12 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         {/* Right: Actions - Responsiv layout */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Microsoft status - Dold på mobil */}
+          {/* Microsoft status - FÖRBÄTTRAD */}
           <div
             onClick={async () => {
-              if (!isMicrosoftConnected) {
+              if (!isConnected) {
                 // Inte inloggad → Logga in direkt
-                const { loginToMicrosoft, isMicrosoftLoggedIn } = await import('@/services/microsoft-graph');
-                await loginToMicrosoft(true);
-                setIsMicrosoftConnected(await isMicrosoftLoggedIn());
+                await login();
               } else {
                 // Redan inloggad → Gå till Settings
                 navigate('/settings');
@@ -126,19 +110,22 @@ export function Header({ onMenuClick }: HeaderProps) {
               alignItems: 'center',
               gap: '8px',
               padding: '8px 12px',
-              borderRadius: '4px',
-              backgroundColor: 'var(--e-surface-secondary)',
-              cursor: 'pointer'
+              borderRadius: '8px',
+              backgroundColor: isConnected
+                ? 'rgba(16, 124, 16, 0.1)'
+                : 'rgba(196, 43, 28, 0.1)',
+              cursor: 'pointer',
+              border: `1px solid ${isConnected ? '#107c10' : '#c42b1c'}`,
+              transition: 'all 0.2s ease',
             }}
-            title={isMicrosoftConnected ? 'Microsoft Calendar ansluten - Klicka för inställningar' : 'Klicka för att logga in på Microsoft'}
+            title={isConnected
+              ? 'Microsoft Calendar & Mail ansluten - Klicka för inställningar'
+              : 'Klicka för att logga in på Microsoft'}
           >
-            <div style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: isMicrosoftConnected ? 'var(--success-500)' : 'var(--error-500)'
-            }} />
-            <span style={{ fontSize: '12px', display: window.innerWidth < 768 ? 'none' : 'inline' }}>MSFT</span>
+            <span className="e-icons e-contact" style={{ fontSize: '16px', color: isConnected ? '#107c10' : '#c42b1c' }}></span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: isConnected ? '#107c10' : '#c42b1c' }}>
+              {isConnected ? 'MSFT ✓' : 'MSFT ×'}
+            </span>
           </div>
 
           {/* Avstämning - Endast ikon på mobil */}
@@ -147,17 +134,6 @@ export function Header({ onMenuClick }: HeaderProps) {
             iconCss="e-icons e-refresh"
             onClick={() => setIsCheckInOpen(true)}
             content={window.innerWidth < 768 ? '' : 'Avstämning'}
-          />
-
-          {/* Ny uppgift - Endast ikon på mobil */}
-          <ButtonComponent
-            cssClass="e-primary"
-            iconCss="e-icons e-plus"
-            content={window.innerWidth < 768 ? '' : 'Ny uppgift'}
-            onClick={() => {
-              setSelectedTask(undefined);
-              setIsTaskFormOpen(true);
-            }}
           />
 
           {/* ThemeToggle - Dold på små skärmar */}
@@ -181,16 +157,6 @@ export function Header({ onMenuClick }: HeaderProps) {
         isOpen={isCheckInOpen}
         onClose={() => setIsCheckInOpen(false)}
         onComplete={handleCheckInComplete}
-      />
-
-      {/* UppgiftRegistrering */}
-      <UppgiftRegistrering
-        isOpen={isTaskFormOpen}
-        onClose={() => {
-          setIsTaskFormOpen(false);
-          setSelectedTask(undefined);
-        }}
-        taskToEdit={selectedTask}
       />
     </>
   );

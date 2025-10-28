@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import { MicrosoftGraphProvider } from './contexts/MicrosoftGraphContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
@@ -301,16 +302,17 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* Global Toast Component - TEMPORÄRT DISABLED: Testing crash */}
-      {/* <ToastComponent
-        ref={globalToastRef}
-        id="toast_global"
-        position={{ X: 'Right', Y: 'Top' }}
-        showCloseButton={true}
-        newestOnTop={true}
-        showProgressBar={true}
-        timeOut={3000}
-        animation={{
+      <MicrosoftGraphProvider>
+        {/* Global Toast Component - TEMPORÄRT DISABLED: Testing crash */}
+        {/* <ToastComponent
+          ref={globalToastRef}
+          id="toast_global"
+          position={{ X: 'Right', Y: 'Top' }}
+          showCloseButton={true}
+          newestOnTop={true}
+          showProgressBar={true}
+          timeOut={3000}
+          animation={{
           show: { effect: 'SlideRightIn', duration: 300 },
           hide: { effect: 'SlideRightOut', duration: 300 }
         }}
@@ -507,6 +509,7 @@ function App() {
           }
         />
       </Routes>
+      </MicrosoftGraphProvider>
     </BrowserRouter>
   );
 }

@@ -480,6 +480,58 @@ npm run preview      # Testa production build
 - **Auto-deploy:** Push till `main` → Render bygger automatiskt
 - **Manual deploy:** Via Render API med RENDER_API_KEY
 
+## 📧 Email & Voice Features (2025-10-28)
+
+### Microsoft Graph API Integration
+**Implementerade funktioner:**
+
+1. **create_email_draft** - Skapa mejlutkast i Outlook
+   - Tool i `claude-conversation.ts`
+   - Funktion i `microsoft-graph.ts`
+   - AI kan skriva utkast som användaren granskar manuellt i Outlook
+
+2. **Progressiv mejlsökning** - Intelligent djupsökning
+   - Steg 1: Sök 150 mejl (senaste veckan) - snabbast
+   - Steg 2: Om inget → 300 mejl (~2 veckor)
+   - Steg 3: Om inget → 500 mejl (~1 månad)
+   - Steg 4: Om inget → 1000 mejl (~2-3 månader MAX)
+   - Söker automatiskt i både inbox OCH sentitems
+   - Logs: "🔍 Söker 150 mejl..." / "✅ Hittade X mejl med Y mejl-djup"
+
+3. **checkNewEmails** - Polling-funktion
+   - Hämtar nya mejl sedan viss tidpunkt
+   - Grund för framtida email monitoring
+
+**Exempel:**
+```typescript
+// AI kan nu:
+"Skriv ett mejlutkast till anders.carlsson@wsp.com..." → Skapar i Outlook Drafts
+"Leta mejlet från Anders Carlsson" → Söker progressivt tills det hittas
+```
+
+### Voice Mode - Mobile Improvements (2025-10-28)
+
+1. **Browser TTS** - Ersatt Azure TTS (buggar)
+   - Använder `window.speechSynthesis`
+   - Svenskt röstval automatiskt
+   - Anpassbar hastighet från localStorage
+
+2. **Mobil-detektion** - `window.matchMedia('(max-width: 768px)')`
+
+3. **Kontinuerlig dialog på mobil**
+   - Micken startar automatiskt 500ms efter AI:s svar
+   - Desktop: Manuell klick varje gång (som tidigare)
+
+4. **TTS-avbrott** - Ny röstinput avbryter uppläsning automatiskt
+
+5. **Silence timeout** - 10s inaktivitet stoppar mic
+
+**Location-aware features:**
+- GPS-integration med OpenStreetMap reverse geocoding
+- Tid-medveten positionsbestämning (nu vs ikväll)
+- Cache i localStorage (10 min)
+- `get_current_location` tool med smart logik
+
 ## 📚 Resurser
 
 - **SyncFusion Docs:** https://ej2.syncfusion.com/react/documentation/

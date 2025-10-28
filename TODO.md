@@ -1,5 +1,47 @@
 # TODO - Framtida förbättringar
 
+## ✅ KLART - 2025-10-28 (MS GRAPH + VOICE FIXES!)
+
+### **🔑 MS GRAPH TOKEN-HANTERING**
+
+**Problem:** Måste logga in varje ~1h när token gick ut
+
+**Lösning:**
+- MicrosoftGraphContext med auto-refresh (5 min innan expiry)
+- Smart token refresh i microsoft-graph.ts
+- Förbättrad Header-indikator (grön/röd + klickbar)
+- Borttaget "Ny uppgift"-knapp (AI gör detta nu!)
+- Borttaget polling (event-baserad status)
+
+**Resultat:** Logga in ~1 gång/dag, tydligare status, ingen onödig polling!
+
+**Filer:**
+- `src/contexts/MicrosoftGraphContext.tsx` (NY)
+- `src/services/microsoft-graph.ts` (smart refresh)
+- `src/components/layout/Header.tsx` (förbättrad UI)
+- `src/App.tsx` (Context integration)
+
+**Dokumentation:** MS_GRAPH_FIXES.md
+
+---
+
+### **🎤 VOICE MODE FÖRBÄTTRINGAR**
+
+**Problem:** Partial transcript visades inte + TTS localStorage key var fel
+
+**Lösning:**
+- Live partial transcript display (blå box under inspelning)
+- Standardiserad TTS localStorage key (prio-tts-speed)
+
+**Resultat:** Bättre UX - instant feedback medan du pratar!
+
+**Filer:**
+- `src/components/voice/PushToTalkAssistant.tsx`
+
+**Dokumentation:** TRANSCRIPTION_ANALYSIS.md
+
+---
+
 ## ✅ KLART - 2025-10-27 (STOR DAG!)
 
 ### **🎤 VOICE ASSISTANT - Komplett Ombyggnad**
@@ -67,9 +109,9 @@
 #### **1. ~~Reflection Loop~~** ✅ KLART!
 ~~Retry vid misslyckande~~ → Implementerat med 3-försök autonomous retry
 
-#### **2. Context Caching** (20 min) - HÖGSTA PRIO
-90% kostnadsbesparing på system prompt genom Anthropic prompt caching.
-**Impact:** Sonnet-kvalitet till Haiku-pris ($0.008 → $0.002 per query)
+#### **2. ~~Context Caching~~** ✅ KLART!
+~~90% kostnadsbesparing på system prompt~~ → Implementerat i claude-conversation.ts:382-399
+**Impact:** Sonnet-kvalitet till Haiku-pris ($0.008 → $0.002 per query) - LEVERERAT!
 
 #### **3. Spam Filtering** (30 min)
 Filtrera marketing/nyhetsbrev INNAN visning till användaren.

@@ -44,7 +44,7 @@ async function getMsalInstance() {
   return msalInstance;
 }
 
-// Get authenticated Graph client
+// Get authenticated Graph client with smart token refresh
 async function getGraphClient(): Promise<Client | null> {
   const msal = await getMsalInstance();
   if (!msal) return null;
@@ -56,10 +56,30 @@ async function getGraphClient(): Promise<Client | null> {
   }
 
   try {
-    const response = await msal.acquireTokenSilent({
+    // Försök hämta token (använd cache om giltig)
+    let response = await msal.acquireTokenSilent({
       ...loginRequest,
       account: accounts[0],
+      forceRefresh: false,
     });
+
+    // Kolla om token snart går ut
+    const expiresOn = response.expiresOn;
+    if (expiresOn) {
+      const minutesUntilExpiry = (expiresOn.getTime() - Date.now()) / (1000 * 60);
+      console.log(`🔑 MS Graph token expires in ${minutesUntilExpiry.toFixed(1)} minutes`);
+
+      // Refresh proaktivt om <5 min kvar
+      if (minutesUntilExpiry < 5) {
+        console.log('🔄 Token expiring soon, force refresh');
+        response = await msal.acquireTokenSilent({
+          ...loginRequest,
+          account: accounts[0],
+          forceRefresh: true,
+        });
+        console.log(`✅ Token refreshed, new expiry: ${response.expiresOn?.toLocaleTimeString('sv-SE')}`);
+      }
+    }
 
     return Client.init({
       authProvider: (done) => {
@@ -68,6 +88,7 @@ async function getGraphClient(): Promise<Client | null> {
     });
   } catch (error) {
     if (error instanceof InteractionRequiredAuthError) {
+      console.warn('⚠️ Interactive login required');
       // Require interactive login
       const response = await msal.acquireTokenPopup(loginRequest);
       return Client.init({
@@ -604,11 +625,50 @@ export async function getAllEmails(maxCount: number = 50, includeRead: boolean =
   }
 }
 
-// Search emails
+// Progressive search: Start with recent emails, expand if nothing found
+async function searchWithLimit(
+  client: any,
+  filter: string,
+  limit: number
+): Promise<any[]> {
+  const allResults: any[] = [];
+
+  // Search in inbox
+  try {
+    const inboxResponse = await client
+      .api('/me/mailFolders/inbox/messages')
+      .filter(filter)
+      .select('id,subject,from,receivedDateTime,bodyPreview,isRead')
+      .orderby('receivedDateTime desc')
+      .top(limit)
+      .get();
+    allResults.push(...(inboxResponse.value || []));
+  } catch (error) {
+    console.error('Failed to search inbox:', error);
+  }
+
+  // Search in sent items
+  try {
+    const sentResponse = await client
+      .api('/me/mailFolders/sentitems/messages')
+      .filter(filter)
+      .select('id,subject,from,receivedDateTime,bodyPreview,isRead')
+      .orderby('receivedDateTime desc')
+      .top(limit)
+      .get();
+    allResults.push(...(sentResponse.value || []));
+  } catch (error) {
+    console.error('Failed to search sent items:', error);
+  }
+
+  return allResults;
+}
+
+// Search emails with progressive depth (150 → 300 → 500 → 1000)
 export async function searchEmails(
   query: string,
   searchIn: 'sender' | 'subject' | 'both' = 'both',
-  maxCount: number = 20
+  maxCount: number = 150
 ): Promise<EmailMessage[]> {
   const client = await getGraphClient();
   if (!client) return [];
@@ -624,22 +684,44 @@ export async function searchEmails(
       filter = `contains(subject,'${query}') or contains(from/emailAddress/name,'${query}') or contains(from/emailAddress/address,'${query}')`;
     }
 
-    const response = await client
-      .api('/me/mailFolders/inbox/messages')
-      .filter(filter)
-      .select('id,subject,from,receivedDateTime,bodyPreview,isRead')
-      .orderby('receivedDateTime desc')
-      .top(maxCount)
-      .get();
+    // Progressive search: 150 → 300 → 500 → 1000
+    const searchLimits = [150, 300, 500, 1000];
+    let allResults: any[] = [];
 
-    return response.value.map((email: any) => ({
-      id: email.id,
-      subject: email.subject || '(Inget ämne)',
-      from: email.from?.emailAddress?.name || email.from?.emailAddress?.address || 'Okänd',
-      receivedDateTime: email.receivedDateTime,
-      bodyPreview: email.bodyPreview || '',
-      isRead: email.isRead,
-    }));
+    for (const limit of searchLimits) {
+      console.log(`🔍 Söker ${limit} mejl efter "${query}"...`);
+      allResults = await searchWithLimit(client, filter, limit);
+
+      // Filter matches
+      const matches = allResults.filter((email: any) => {
+        const searchText = `${email.subject} ${email.from?.emailAddress?.name || ''} ${email.from?.emailAddress?.address || ''}`.toLowerCase();
+        return searchText.includes(query.toLowerCase());
+      });
+
+      if (matches.length > 0) {
+        console.log(`✅ Hittade ${matches.length} mejl med ${limit} mejl-djup`);
+        allResults = matches;
+        break;
+      }
+
+      // Don't continue if we've reached the limit
+      if (limit === 1000) {
+        console.log('⚠️ Inget hittat efter sökning i 1000 mejl');
+      }
+    }
+
+    // Sort by date descending and limit
+    return allResults
+      .sort((a, b) => new Date(b.receivedDateTime).getTime() - new Date(a.receivedDateTime).getTime())
+      .slice(0, maxCount)
+      .map((email: any) => ({
+        id: email.id,
+        subject: email.subject || '(Inget ämne)',
+        from: email.from?.emailAddress?.name || email.from?.emailAddress?.address || 'Okänd',
+        receivedDateTime: email.receivedDateTime,
+        bodyPreview: email.bodyPreview || '',
+        isRead: email.isRead,
+      }));
   } catch (error) {
     console.error('Failed to search emails:', error);
     return [];
@@ -912,5 +994,87 @@ export async function sendEmail(
   } catch (error) {
     console.error('Failed to send email:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+/**
+ * Create email draft in Outlook
+ * @param to Recipient email address
+ * @param subject Email subject
+ * @param body Email body (plain text or HTML)
+ * @returns Draft ID if successful
+ */
+export async function createEmailDraft(
+  to: string,
+  subject: string,
+  body: string
+): Promise<{ success: boolean; draftId?: string; error?: string }> {
+  try {
+    const client = await getGraphClient();
+    if (!client) {
+      return { success: false, error: 'Not logged in to Microsoft' };
+    }
+
+    const draft = {
+      subject,
+      body: {
+        contentType: 'HTML',
+        content: body,
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: to,
+          },
+        },
+      ],
+    };
+
+    const response = await client.api('/me/messages').post(draft);
+
+    console.log('✅ Email draft created:', response.id);
+    return { success: true, draftId: response.id };
+  } catch (error) {
+    console.error('Failed to create email draft:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+/**
+ * Check for new emails since last check
+ * @param since ISO timestamp of last check
+ * @param folders Array of folder names to check
+ */
+export async function checkNewEmails(
+  since: string,
+  folders: string[] = ['inbox']
+): Promise<any[]> {
+  try {
+    const client = await getGraphClient();
+    if (!client) {
+      return [];
+    }
+
+    const allResults: any[] = [];
+
+    for (const folder of folders) {
+      try {
+        const response = await client
+          .api(`/me/mailFolders/${folder}/messages`)
+          .filter(`receivedDateTime ge ${since}`)
+          .select('id,subject,from,toRecipients,receivedDateTime,bodyPreview,body,hasAttachments')
+          .orderby('receivedDateTime DESC')
+          .get();
+
+        allResults.push(...(response.value || []));
+      } catch (error) {
+        console.error(`Failed to check ${folder}:`, error);
+      }
+    }
+
+    return allResults;
+  } catch (error) {
+    console.error('Failed to check new emails:', error);
+    return [];
   }
 }

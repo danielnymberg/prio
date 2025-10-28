@@ -50,6 +50,8 @@ export function PushToTalkAssistant() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [servicesReady, setServicesReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [partialText, setPartialText] = useState(''); // Live transcript från STT
 
   // Context pre-fetching: Hämta under inspelning för snabbare respons
   const contextPromiseRef = useRef<Promise<any> | null>(null);
@@ -60,6 +62,7 @@ export function PushToTalkAssistant() {
   const ttsQueueRef = useRef<HTMLAudioElement[]>([]); // TTS queue för att spela en mening i taget
   const currentAudioRef = useRef<HTMLAudioElement | null>(null); // Pågående audio
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null); // Auto-stop timeout
+  const handleStartRecordingRef = useRef<(() => Promise<void>) | null>(null); // Ref för circular dep
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
 
@@ -162,46 +165,70 @@ export function PushToTalkAssistant() {
   }, []);
 
   /**
-   * Azure TTS playback with queue
+   * Browser TTS playback (Azure TTS disabled due to bugs)
    */
-  const playAzureTTS = useCallback(async (text: string) => {
+  const playBrowserTTS = useCallback((text: string) => {
     try {
-      const { supabase } = await import('@/lib/supabase');
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const voice = localStorage.getItem('tts_voice') || 'sv-SE-SofieNeural';
-      const speed = parseFloat(localStorage.getItem('tts_speed') || '1.0');
-
-      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
-
-      const response = await fetch(`${BACKEND_URL}/api/azure-tts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({ text, voice, format: 'audio-16khz-32kbitrate-mono-mp3' })
-      });
-
-      if (!response.ok) throw new Error(`TTS failed: ${response.status}`);
-
-      const { audioData } = await response.json();
-      const audio = new Audio(`data:audio/mp3;base64,${audioData}`);
-      audio.playbackRate = speed;
-
-      // Lägg till i kö
-      ttsQueueRef.current.push(audio);
-
-      // Starta playback om ingen pågår
-      if (!currentAudioRef.current) {
-        setVoiceState('playing_tts');
-        playNextAudio();
+      if (!window.speechSynthesis) {
+        console.warn('Browser TTS not supported');
+        return;
       }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+
+      // Get speed from localStorage (standardiserad nyckel: prio-tts-speed)
+      const speedPref = localStorage.getItem('prio-tts-speed') || 'normal';
+      let speed = 1.2; // default: normal
+      if (speedPref === 'slow') speed = 1.0;
+      else if (speedPref === 'fast') speed = 1.5;
+      utterance.rate = speed;
+
+      // Try to find Swedish voice
+      const voices = window.speechSynthesis.getVoices();
+      const swedishVoice = voices.find(v => v.lang.startsWith('sv'));
+      if (swedishVoice) {
+        utterance.voice = swedishVoice;
+      }
+
+      utterance.onstart = () => {
+        setVoiceState('playing_tts');
+      };
+
+      utterance.onend = () => {
+        // On mobile: Auto-restart recording after TTS finishes (continuous dialog)
+        if (isMobile && handleStartRecordingRef.current) {
+          console.log('📱 Mobile: Auto-restarting recording after TTS');
+          setTimeout(() => {
+            handleStartRecordingRef.current?.();
+          }, 500); // Short delay to prevent audio overlap
+        } else {
+          setVoiceState('idle');
+        }
+      };
+
+      utterance.onerror = (error) => {
+        console.error('Browser TTS error:', error);
+        setVoiceState('idle');
+      };
+
+      window.speechSynthesis.speak(utterance);
     } catch (error) {
-      console.error('Azure TTS error:', error);
+      console.error('Browser TTS failed:', error);
     }
-  }, [playNextAudio]);
+  }, [isMobile]);
+
+  /**
+   * Detect mobile device
+   */
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   /**
    * Initialize services
@@ -324,18 +351,18 @@ export function PushToTalkAssistant() {
                     return prev;
                   });
 
-                  // Azure TTS sentence-by-sentence
+                  // Browser TTS sentence-by-sentence
                   if (/[.!?]\s*$/.test(chunk.trim()) && currentSentence.trim().length > 10) {
                     const cleanSentence = stripMarkdown(currentSentence.trim());
                     console.log('🔊 Playing sentence:', cleanSentence);
-                    playAzureTTS(cleanSentence);
+                    playBrowserTTS(cleanSentence);
                     currentSentence = '';
                   }
                 });
 
                 // Final sentence
                 if (currentSentence.trim()) {
-                  await playAzureTTS(stripMarkdown(currentSentence.trim()));
+                  playBrowserTTS(stripMarkdown(currentSentence.trim()));
                 }
 
                 // Save to Redis
@@ -401,6 +428,13 @@ export function PushToTalkAssistant() {
 
     try {
       console.log('🎤 Starting hands-free recording...');
+
+      // Interrupt TTS if playing
+      if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        console.log('🔇 Interrupting TTS playback');
+        window.speechSynthesis.cancel();
+      }
+
       setVoiceState('recording');
       setFinalText('');
       setError(null);
@@ -448,8 +482,12 @@ export function PushToTalkAssistant() {
           console.log('✅ Final transcript:', text);
           setFinalText(text);
           finalTextRef.current = text; // Sync till ref för callback
+          setPartialText(''); // Rensa partial när final kommer
+        } else {
+          // Partial transcript - visa live feedback! ✅
+          console.log('⏳ Partial transcript:', text);
+          setPartialText(text);
         }
-        // Partial updates visas inte i ChatUI (bara för logging)
       });
 
     } catch (err) {
@@ -459,6 +497,11 @@ export function PushToTalkAssistant() {
       setVoiceState('idle');
     }
   }, []);
+
+  // Update ref for circular dependency
+  useEffect(() => {
+    handleStartRecordingRef.current = handleStartRecording;
+  }, [handleStartRecording]);
 
   /**
    * STOP ALL - Avbryt allt (recording, processing, TTS)
@@ -475,12 +518,10 @@ export function PushToTalkAssistant() {
     // Stop mic
     sttRef.current?.stopListening();
 
-    // Stop TTS
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current = null;
+    // Stop browser TTS
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
-    ttsQueueRef.current = [];
 
     // Reset state
     setVoiceState('idle');
@@ -557,21 +598,21 @@ export function PushToTalkAssistant() {
           }
         });
 
-        // Azure TTS: Sentence-by-sentence (endast om useTTS)
+        // Browser TTS: Sentence-by-sentence (endast om useTTS)
         if (useTTS && /[.!?]\s*$/.test(chunk.trim())) {
           const sentenceToPlay = currentSentence.trim();
           if (sentenceToPlay.length > 10) {
             const cleanSentence = stripMarkdown(sentenceToPlay);
             console.log('🔊 Playing sentence:', cleanSentence);
-            playAzureTTS(cleanSentence);
+            playBrowserTTS(cleanSentence);
           }
           currentSentence = '';
         }
       });
 
-      // Azure TTS: Spela sista biten om ingen avslutande punkt
+      // Browser TTS: Spela sista biten om ingen avslutande punkt
       if (useTTS && currentSentence.trim()) {
-        await playAzureTTS(stripMarkdown(currentSentence.trim()));
+        playBrowserTTS(stripMarkdown(currentSentence.trim()));
       }
 
       // Spara conversation history till Redis
@@ -628,6 +669,36 @@ export function PushToTalkAssistant() {
               content="Rensa"
               onClick={clearConversation}
             />
+          </div>
+        )}
+
+        {/* Live partial transcript - visar vad du säger medan du pratar */}
+        {voiceState === 'recording' && partialText && (
+          <div style={{
+            padding: '12px',
+            marginBottom: '12px',
+            backgroundColor: 'rgba(0, 120, 212, 0.05)',
+            border: '1px dashed rgba(0, 120, 212, 0.3)',
+            borderRadius: '8px',
+          }}>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: 'rgba(0, 120, 212, 0.8)',
+              marginBottom: '6px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              🎤 Lyssnar...
+            </div>
+            <div style={{
+              fontSize: '14px',
+              fontStyle: 'italic',
+              color: 'rgba(0, 0, 0, 0.6)',
+              lineHeight: '1.5'
+            }}>
+              {partialText}
+            </div>
           </div>
         )}
 
