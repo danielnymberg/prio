@@ -1498,6 +1498,37 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
     ];
   }
 
+  private isSpam(email: any): boolean {
+    const spamKeywords = [
+      'unsubscribe', 'avregistrera', 'newsletter', 'nyhetsbrev',
+      'marknadsföring', 'erbjudande', 'kampanj', 'rabatt',
+      'prenumerera', 'marketing', 'sale', 'deal', 'offer'
+    ];
+
+    const spamSenders = [
+      'noreply@', 'no-reply@', 'newsletter@', 'marketing@',
+      'info@', 'support@', 'promo@', 'promotions@'
+    ];
+
+    // Check subject
+    const subjectHasSpam = spamKeywords.some(kw =>
+      email.subject?.toLowerCase().includes(kw)
+    );
+
+    // Check sender
+    const senderEmail = email.from?.emailAddress?.address?.toLowerCase() || '';
+    const senderIsSpam = spamSenders.some(sender =>
+      senderEmail.includes(sender)
+    );
+
+    // MS Graph categories
+    const categoryIsSpam = email.categories?.includes('Promotions') ||
+                           email.categories?.includes('Newsletter') ||
+                           email.categories?.includes('Marketing');
+
+    return subjectHasSpam || senderIsSpam || categoryIsSpam;
+  }
+
   private async executeTools(content: any[]): Promise<any> {
     const toolResults: any[] = [];
 
@@ -1576,19 +1607,65 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
                 (block.input as any).auto_mark_read
               );
               break;
-            case 'list_unread_emails':
-              result = await this.listUnreadEmails((block.input as any).max_count);
+            case 'list_unread_emails': {
+              const rawResult = await this.listUnreadEmails((block.input as any).max_count);
+
+              // Kolla om det är ett success response med emails
+              if ('emails' in rawResult && Array.isArray(rawResult.emails)) {
+                const filtered = rawResult.emails.filter((e: any) => !this.isSpam(e));
+                const spamCount = rawResult.emails.length - filtered.length;
+
+                result = {
+                  ...rawResult,
+                  emails: filtered,
+                  count: filtered.length,
+                  _spam_filtered: spamCount
+                };
+              } else {
+                result = rawResult; // Error response, returnera som är
+              }
               break;
-            case 'list_all_emails':
-              result = await this.listAllEmails((block.input as any).max_count, (block.input as any).include_read);
+            }
+            case 'list_all_emails': {
+              const rawResult = await this.listAllEmails((block.input as any).max_count, (block.input as any).include_read);
+
+              if ('emails' in rawResult && Array.isArray(rawResult.emails)) {
+                const filtered = rawResult.emails.filter((e: any) => !this.isSpam(e));
+                const spamCount = rawResult.emails.length - filtered.length;
+
+                result = {
+                  ...rawResult,
+                  emails: filtered,
+                  count: filtered.length,
+                  _spam_filtered: spamCount
+                };
+              } else {
+                result = rawResult;
+              }
               break;
-            case 'search_emails':
-              result = await this.searchEmails(
+            }
+            case 'search_emails': {
+              const rawResult = await this.searchEmails(
                 (block.input as any).query,
                 (block.input as any).search_in,
                 (block.input as any).max_count
               );
+
+              if ('emails' in rawResult && Array.isArray(rawResult.emails)) {
+                const filtered = rawResult.emails.filter((e: any) => !this.isSpam(e));
+                const spamCount = rawResult.emails.length - filtered.length;
+
+                result = {
+                  ...rawResult,
+                  emails: filtered,
+                  count: filtered.length,
+                  _spam_filtered: spamCount
+                };
+              } else {
+                result = rawResult;
+              }
               break;
+            }
             case 'get_email_content':
               result = await this.getEmailContent((block.input as any).email_id);
               break;
