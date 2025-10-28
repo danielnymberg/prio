@@ -26,6 +26,24 @@ interface Message {
 
 type VoiceState = 'idle' | 'recording' | 'paused' | 'processing' | 'playing_tts';
 
+/**
+ * Strip markdown formatting from text before TTS
+ * Removes: **bold**, *italic*, `code`, [links](url), etc.
+ */
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')  // **bold** → bold
+    .replace(/\*(.+?)\*/g, '$1')       // *italic* → italic
+    .replace(/__(.+?)__/g, '$1')       // __bold__ → bold
+    .replace(/_(.+?)_/g, '$1')         // _italic_ → italic
+    .replace(/`(.+?)`/g, '$1')         // `code` → code
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1') // [text](url) → text
+    .replace(/#{1,6}\s/g, '')          // # headers → remove #
+    .replace(/>\s/g, '')               // > blockquote → remove >
+    .replace(/[-*+]\s/g, '')           // - list → remove -
+    .replace(/\d+\.\s/g, '');          // 1. list → remove number
+}
+
 export function PushToTalkAssistant() {
   const [voiceState, setVoiceState] = useState<VoiceState>('idle');
   const [finalText, setFinalText] = useState('');
@@ -308,15 +326,16 @@ export function PushToTalkAssistant() {
 
                   // Azure TTS sentence-by-sentence
                   if (/[.!?]\s*$/.test(chunk.trim()) && currentSentence.trim().length > 10) {
-                    console.log('🔊 Playing sentence:', currentSentence.trim());
-                    playAzureTTS(currentSentence.trim());
+                    const cleanSentence = stripMarkdown(currentSentence.trim());
+                    console.log('🔊 Playing sentence:', cleanSentence);
+                    playAzureTTS(cleanSentence);
                     currentSentence = '';
                   }
                 });
 
                 // Final sentence
                 if (currentSentence.trim()) {
-                  await playAzureTTS(currentSentence.trim());
+                  await playAzureTTS(stripMarkdown(currentSentence.trim()));
                 }
 
                 // Save to Redis
@@ -542,8 +561,9 @@ export function PushToTalkAssistant() {
         if (useTTS && /[.!?]\s*$/.test(chunk.trim())) {
           const sentenceToPlay = currentSentence.trim();
           if (sentenceToPlay.length > 10) {
-            console.log('🔊 Playing sentence:', sentenceToPlay);
-            playAzureTTS(sentenceToPlay);
+            const cleanSentence = stripMarkdown(sentenceToPlay);
+            console.log('🔊 Playing sentence:', cleanSentence);
+            playAzureTTS(cleanSentence);
           }
           currentSentence = '';
         }
@@ -551,7 +571,7 @@ export function PushToTalkAssistant() {
 
       // Azure TTS: Spela sista biten om ingen avslutande punkt
       if (useTTS && currentSentence.trim()) {
-        await playAzureTTS(currentSentence.trim());
+        await playAzureTTS(stripMarkdown(currentSentence.trim()));
       }
 
       // Spara conversation history till Redis

@@ -408,6 +408,10 @@ export class ClaudeConversation {
     const today = swedenTime.toISOString().split('T')[0];
     const currentTime = swedenTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Stockholm' });
 
+    // Beräkna veckodag på svenska (JavaScript: 0=söndag, men vi vill måndag=0)
+    const weekdayNames = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'];
+    const weekday = weekdayNames[swedenTime.getDay()]; // getDay() ger redan rätt: 0=sön, 1=mån, 2=tis, etc
+
     // Beräkna tid på dygnet
     const hour = swedenTime.getHours();
     let timeOfDay = '';
@@ -436,7 +440,7 @@ Mötespreferenser: ${prefs.meeting_preferences.buffer_before} min buffert före 
 
     return `Du är en svensk AI-assistent integrerad i Prio, en CPM-baserad prioriterings-app.
 
-DAGENS DATUM: ${today}
+DAGENS DATUM: ${today} (${weekday})
 AKTUELL TID (Sverige): ${currentTime} (${timeOfDay})
 ${prefsSection}
 
