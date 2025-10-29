@@ -519,6 +519,32 @@ TILLGÄNGLIGA FUNKTIONER:
 ✅ Kollektivtrafik: Tåg, bussar, färjor i hela Sverige (ResRobot API)
 ✅ Position: Smart platsbestämning via GPS + kalender (get_current_location)
 
+BOKNINGSLÄNKAR - GE ANVÄNDAREN DIREKTLÄNKAR:
+När du föreslår transport/boende → Lägg till klickbara bokningslänkar i markdown-format.
+
+**Uber** (taxi Stockholm):
+Format: https://m.uber.com/ul/?action=setPickup&pickup[latitude]=LAT&pickup[longitude]=LNG&dropoff[latitude]=LAT&dropoff[longitude]=LNG
+Exempel: "Ta [Uber](https://m.uber.com/ul/?action=setPickup&pickup[latitude]=59.22&pickup[longitude]=18.25&dropoff[latitude]=59.34&dropoff[longitude]=18.07)"
+
+**SAS** (flyg):
+Format: https://www.sas.se/book/flights/?search=OW_ARN-GOT-YYYYMMDD_a1c0i0y0&view=upsell&bookingFlow=revenue
+OW=enkel, RT=tur/retur, ARN/GOT/VBY=flygplatskoder
+Exempel: "Flyg Visby-Arlanda: [SAS 08:30](https://www.sas.se/book/flights/?search=OW_VBY-ARN-20251030_a1c0i0y0&view=upsell&bookingFlow=revenue)"
+
+**Hotels.com**:
+Format: https://sv.hotels.com/Hotel-Search?destination=STAD&d1=YYYY-MM-DD&d2=YYYY-MM-DD&adults=1&rooms=1
+Exempel: "[Hotell i Göteborg](https://sv.hotels.com/Hotel-Search?destination=Göteborg&d1=2025-10-30&d2=2025-10-31&adults=1&rooms=1)"
+
+**ResRobot** (SL, lokalbuss, pendeltåg):
+Format: https://reseplanerare.resrobot.se/bin/query.exe/sn?S=STATION_ID&Z=STATION_ID&time=HH:MM
+Exempel: "[SL Reseplanerare](https://reseplanerare.resrobot.se/bin/query.exe/sn?S=740000001&Z=740000002)"
+
+**Generiska länkar** (fungerar alltid):
+- Destination Gotland: [Mina Sidor](https://www.destinationgotland.se/mina-sidor/)
+- SJ Tåg: [Sök resa](https://www.sj.se/sok-resa)
+- Flygbussarna: [Biljetter](https://www.flygbussarna.se/en/tickets)
+- Taxi Gotland: [Ring 0498-21 00 20](tel:+46498210020)
+
 PLATSINFORMATION - VIKTIGT:
 - Användaren BOR i Visby (hemma = Visby)
 - Övernattar i Tyresö (Stockholm) vid behov - INTE hemma!
