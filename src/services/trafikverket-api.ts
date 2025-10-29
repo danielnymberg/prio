@@ -113,7 +113,7 @@ function buildTrafikverketQuery(params?: GetSituationsParams): string {
       <LOGIN authenticationkey="${apiKey}" />
       <QUERY objecttype="Situation" schemaversion="1.5">
         <FILTER>
-          ${filters || '<EQ name="Deviation.MessageType" value="Olycka,Vägarbete,Restriktion,Trafikmeddelande" />'}
+          ${filters || '<IN name="Deviation.MessageType" value="Olycka,Vägarbete,Restriktion,Trafikmeddelande" />'}
         </FILTER>
         <INCLUDE>Id</INCLUDE>
         <INCLUDE>PublicationTime</INCLUDE>

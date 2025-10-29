@@ -3332,39 +3332,55 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
 
       // LOGIC FOR "NOW" / "SOON"
       if (!needsFutureLocation) {
-        // 1. Physical meeting starting within 60 min → User is on the way or there
+        // 1. Try GPS first
+        let gpsLocation = null;
+        try {
+          const { getCurrentPosition } = await import('./geolocation');
+          gpsLocation = await getCurrentPosition();
+        } catch (error) {
+          console.error('GPS failed:', error);
+        }
+
+        // 2. Check if user has upcoming meeting within 60 min
+        let upcomingMeetingContext = null;
         if (upcomingPhysicalMeeting) {
           const meetingStart = new Date(upcomingPhysicalMeeting.start);
           const timeUntilMeeting = meetingStart.getTime() - now.getTime();
 
           if (timeUntilMeeting < ONE_HOUR) {
             const location = this.normalizeLocation(upcomingPhysicalMeeting.location.displayName);
-            return {
-              city: location,
-              source: 'calendar_upcoming',
-              context: `Möte "${upcomingPhysicalMeeting.subject}" börjar om ${Math.round(timeUntilMeeting / 60000)} min`,
-              meeting: upcomingPhysicalMeeting.subject,
+            upcomingMeetingContext = {
+              meeting_location: location,
+              meeting_subject: upcomingPhysicalMeeting.subject,
+              minutes_until_meeting: Math.round(timeUntilMeeting / 60000),
             };
           }
         }
 
-        // 2. Try GPS
-        try {
-          const { getCurrentPosition } = await import('./geolocation');
-          const gpsLocation = await getCurrentPosition();
+        // Return GPS + meeting context if both available
+        if (gpsLocation && gpsLocation.city) {
+          return {
+            city: gpsLocation.city,
+            source: 'gps',
+            latitude: gpsLocation.latitude,
+            longitude: gpsLocation.longitude,
+            accuracy: gpsLocation.accuracy,
+            timestamp: gpsLocation.timestamp,
+            ...(upcomingMeetingContext && {
+              upcoming_meeting: upcomingMeetingContext,
+              context: `GPS-position: ${gpsLocation.city}. Möte "${upcomingMeetingContext.meeting_subject}" på ${upcomingMeetingContext.meeting_location} om ${upcomingMeetingContext.minutes_until_meeting} min`
+            })
+          };
+        }
 
-          if (gpsLocation && gpsLocation.city) {
-            return {
-              city: gpsLocation.city,
-              source: 'gps',
-              latitude: gpsLocation.latitude,
-              longitude: gpsLocation.longitude,
-              accuracy: gpsLocation.accuracy,
-              timestamp: gpsLocation.timestamp,
-            };
-          }
-        } catch (error) {
-          console.error('GPS failed:', error);
+        // If GPS failed but has upcoming meeting, use meeting location
+        if (upcomingMeetingContext) {
+          return {
+            city: upcomingMeetingContext.meeting_location,
+            source: 'calendar_upcoming',
+            context: `Möte "${upcomingMeetingContext.meeting_subject}" börjar om ${upcomingMeetingContext.minutes_until_meeting} min (GPS saknas)`,
+            meeting: upcomingMeetingContext.meeting_subject,
+          };
         }
 
         // 3. Ongoing physical meeting → User is probably there
