@@ -51,7 +51,6 @@ export function PushToTalkAssistant() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [servicesReady, setServicesReady] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [partialText, setPartialText] = useState(''); // Live transcript från STT
 
   // Context pre-fetching: Hämta under inspelning för snabbare respons
@@ -60,8 +59,9 @@ export function PushToTalkAssistant() {
   const sttRef = useRef<SonioxSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const finalTextRef = useRef<string>(''); // Ref för EndOfUtterance callback
-  const ttsQueueRef = useRef<HTMLAudioElement[]>([]); // TTS queue för att spela en mening i taget
-  const currentAudioRef = useRef<HTMLAudioElement | null>(null); // Pågående audio
+  const ttsQueueRef = useRef<string[]>([]); // TTS sentence queue
+  const isTTSPlayingRef = useRef<boolean>(false); // TTS state flag
+  const wasInterruptedRef = useRef<boolean>(false); // Track if user interrupted TTS
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null); // Auto-stop timeout
   const handleStartRecordingRef = useRef<(() => Promise<void>) | null>(null); // Ref för circular dep
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
@@ -144,62 +144,65 @@ export function PushToTalkAssistant() {
   }, []);
 
   /**
-   * Play next audio from queue
+   * Play next sentence from TTS queue
    */
-  const playNextAudio = useCallback(() => {
+  const playNextInQueue = useCallback(() => {
     if (ttsQueueRef.current.length === 0) {
-      console.log('✅ TTS queue tom - återgår till idle');
-      setVoiceState('idle');
-      currentAudioRef.current = null;
+      console.log('✅ TTS queue tom - auto-restart recording');
+      isTTSPlayingRef.current = false;
+
+      // Auto-restart recording efter TTS (om inte manuellt avbruten)
+      if (!wasInterruptedRef.current && handleStartRecordingRef.current) {
+        setTimeout(() => {
+          handleStartRecordingRef.current?.();
+        }, 300);
+      } else {
+        setVoiceState('idle');
+        wasInterruptedRef.current = false; // Reset för nästa gång
+      }
       return;
     }
 
-    const nextAudio = ttsQueueRef.current.shift()!;
-    currentAudioRef.current = nextAudio;
-
-    nextAudio.onended = () => {
-      console.log('✅ Mening klar, spelar nästa...');
-      playNextAudio();
-    };
-
-    nextAudio.play();
+    const nextSentence = ttsQueueRef.current.shift()!;
+    playBrowserTTS(nextSentence);
   }, []);
 
   /**
-   * Browser TTS playback (Azure TTS disabled due to bugs)
+   * Browser TTS playback with queue (ONE sentence at a time)
    */
   const playBrowserTTS = useCallback((text: string) => {
     try {
       if (!window.speechSynthesis) {
         console.warn('Browser TTS not supported');
+        playNextInQueue(); // Skip to next in queue
         return;
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
 
-      // Get speed from localStorage (standardiserad nyckel: prio-tts-speed)
+      // Get speed from localStorage
       const speedPref = localStorage.getItem('prio-tts-speed') || 'normal';
-      let speed = 1.2; // default: normal
+      let speed = 1.2;
       if (speedPref === 'slow') speed = 1.0;
       else if (speedPref === 'fast') speed = 1.5;
       utterance.rate = speed;
 
-      // Try to find Swedish voice
+      // Swedish voice
       const voices = window.speechSynthesis.getVoices();
       const swedishVoice = voices.find(v => v.lang.startsWith('sv'));
-      if (swedishVoice) {
-        utterance.voice = swedishVoice;
-      }
+      if (swedishVoice) utterance.voice = swedishVoice;
 
       utterance.onstart = () => {
         console.log('🔊 TTS started - pausing STT temporarily');
         setVoiceState('playing_tts');
-        // Stoppa STT under TTS för att undvika feedback och falska transcripts
+        isTTSPlayingRef.current = true;
+
+        // Stop STT during TTS (prevent feedback loop)
         sttRef.current?.stopListening();
-        // Resetta transcript så gamla texter inte spökar
         sttRef.current?.resetTranscript();
         setFinalText('');
-        // VIKTIGT: Pausa inactivity timer under TTS
+
+        // Clear inactivity timer during TTS
         if (inactivityTimerRef.current) {
           clearTimeout(inactivityTimerRef.current);
           inactivityTimerRef.current = null;
@@ -207,40 +210,36 @@ export function PushToTalkAssistant() {
       };
 
       utterance.onend = () => {
-        console.log('🔊 TTS finished - auto-restarting recording');
-        // Auto-restart recording after TTS finishes (continuous dialog på ALLA devices)
-        if (handleStartRecordingRef.current) {
-          setTimeout(() => {
-            handleStartRecordingRef.current?.();
-          }, 300); // Short delay to prevent audio overlap
-        } else {
-          setVoiceState('idle');
-        }
+        console.log('🔊 TTS sentence finished');
+        isTTSPlayingRef.current = false;
+
+        // Play next in queue
+        playNextInQueue();
       };
 
       utterance.onerror = (error) => {
         console.error('Browser TTS error:', error);
-        setVoiceState('idle');
+        isTTSPlayingRef.current = false;
+
+        // If interrupted by user → continue to recording
+        if (error.error === 'interrupted') {
+          wasInterruptedRef.current = true;
+          console.log('🔇 TTS interrupted by user - clearing queue');
+          ttsQueueRef.current = []; // Clear rest of queue
+          setVoiceState('recording'); // Go to recording state
+        } else {
+          // Other errors → try next in queue
+          playNextInQueue();
+        }
       };
 
       window.speechSynthesis.speak(utterance);
     } catch (error) {
       console.error('Browser TTS failed:', error);
+      playNextInQueue();
     }
-  }, [isMobile]);
+  }, [playNextInQueue]);
 
-  /**
-   * Detect mobile device
-   */
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   /**
    * Initialize services
@@ -444,11 +443,14 @@ export function PushToTalkAssistant() {
       // Interrupt TTS if playing
       if (window.speechSynthesis && window.speechSynthesis.speaking) {
         console.log('🔇 Interrupting TTS playback');
-        window.speechSynthesis.cancel();
+        wasInterruptedRef.current = true; // Flag that user interrupted
+        window.speechSynthesis.cancel(); // This triggers onerror='interrupted'
+        ttsQueueRef.current = []; // Clear remaining queue
       }
 
       setVoiceState('recording');
       setFinalText('');
+      setPartialText(''); // Clear old partial
       setError(null);
 
       // OPTIMERING: Pre-fetch context MEDAN användaren pratar
@@ -610,21 +612,34 @@ export function PushToTalkAssistant() {
           }
         });
 
-        // Browser TTS: Sentence-by-sentence (endast om useTTS)
+        // Queue TTS sentences (instead of playing immediately)
         if (useTTS && /[.!?]\s*$/.test(chunk.trim())) {
           const sentenceToPlay = currentSentence.trim();
           if (sentenceToPlay.length > 10) {
             const cleanSentence = stripMarkdown(sentenceToPlay);
-            console.log('🔊 Playing sentence:', cleanSentence);
-            playBrowserTTS(cleanSentence);
+            console.log('🔊 Queueing sentence:', cleanSentence);
+
+            // Add to queue
+            ttsQueueRef.current.push(cleanSentence);
+
+            // Start playing if not already playing
+            if (!isTTSPlayingRef.current) {
+              playNextInQueue();
+            }
           }
           currentSentence = '';
         }
       });
 
-      // Browser TTS: Spela sista biten om ingen avslutande punkt
+      // Queue final sentence if any
       if (useTTS && currentSentence.trim()) {
-        playBrowserTTS(stripMarkdown(currentSentence.trim()));
+        const cleanSentence = stripMarkdown(currentSentence.trim());
+        ttsQueueRef.current.push(cleanSentence);
+
+        // Start playing if not already playing
+        if (!isTTSPlayingRef.current) {
+          playNextInQueue();
+        }
       }
 
       // Spara conversation history till Redis
@@ -684,14 +699,18 @@ export function PushToTalkAssistant() {
           </div>
         )}
 
-        {/* Live partial transcript - visar vad du säger medan du pratar */}
+        {/* Live partial transcript - STICKY för att alltid synas */}
         {voiceState === 'recording' && partialText && (
           <div style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
             padding: '12px',
             marginBottom: '12px',
-            backgroundColor: 'rgba(0, 120, 212, 0.05)',
-            border: '1px dashed rgba(0, 120, 212, 0.3)',
+            backgroundColor: 'rgba(0, 120, 212, 0.1)',
+            border: '2px solid rgba(0, 120, 212, 0.4)',
             borderRadius: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
           }}>
             <div style={{
               fontSize: '11px',
