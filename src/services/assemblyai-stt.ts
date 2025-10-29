@@ -75,10 +75,11 @@ export class AssemblyAISTT {
         }
 
         const { token, expires_in } = await tokenResponse.json();
-        console.log(`✅ Got temporary token, expires in ${expires_in}s`);
+        console.log(`✅ Got API key from backend, expires in ${expires_in}s`);
 
-        // 2. Använd temporary token i WebSocket
-        const wsUrl = `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`;
+        // 2. Universal-Streaming v3 WebSocket endpoint med SVENSKA
+        const wsUrl = `wss://streaming.assemblyai.com/v3/ws?sample_rate=16000&encoding=pcm_s16le&language=sv&token=${token}`;
+        console.log('🔌 Connecting to Universal-Streaming v3 (Svenska)...');
         this.ws = new WebSocket(wsUrl);
       } catch (error) {
         console.error('Failed to get AssemblyAI token:', error);
@@ -97,48 +98,47 @@ export class AssemblyAISTT {
         try {
           const data = JSON.parse(event.data);
 
-          if (data.message_type === 'PartialTranscript') {
-            // Partial transcript - visa live med grå text
-            const partialText = data.text || '';
-            console.log('📝 Partial:', partialText);
+          // Universal-Streaming v3 message format
+          if (data.type === 'Begin') {
+            console.log('🎬 AssemblyAI session started:', data.id);
 
-            // Skicka combined: previous finals + current partial
-            const combined = this.accumulatedTranscript + partialText;
-            this.onTranscriptCallback?.(combined, false);
+          } else if (data.type === 'Turn') {
+            // V3 uses "Turn" messages with turn_is_formatted
+            const text = data.transcript || '';
+            const isFinal = data.turn_is_formatted || false;
 
-          } else if (data.message_type === 'FinalTranscript') {
-            // Final transcript - permanent text
-            const finalText = data.text || '';
-            console.log('✅ Final:', finalText);
+            if (isFinal) {
+              // Final formatted transcript
+              console.log('✅ Final:', text);
 
-            if (finalText) {
-              // Lägg till space mellan meningar
-              if (this.accumulatedTranscript && !this.accumulatedTranscript.endsWith(' ')) {
-                this.accumulatedTranscript += ' ';
+              if (text) {
+                // Lägg till space mellan meningar
+                if (this.accumulatedTranscript && !this.accumulatedTranscript.endsWith(' ')) {
+                  this.accumulatedTranscript += ' ';
+                }
+                this.accumulatedTranscript += text;
+
+                // Skicka som final
+                this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
+
+                // Trigga EndOfUtterance callback
+                this.onEndOfUtteranceCallback?.();
               }
-              this.accumulatedTranscript += finalText;
+            } else {
+              // Partial transcript
+              console.log('📝 Partial:', text);
 
-              // Skicka som final
-              this.onTranscriptCallback?.(this.accumulatedTranscript.trim(), true);
-
-              // Trigga EndOfUtterance callback (händer efter varje final transcript)
-              this.onEndOfUtteranceCallback?.();
+              // Skicka combined: previous finals + current partial
+              const combined = this.accumulatedTranscript + text;
+              this.onTranscriptCallback?.(combined, false);
             }
 
-          } else if (data.message_type === 'SessionBegins') {
-            console.log('🎬 AssemblyAI session started:', data.session_id);
+          } else if (data.type === 'Termination') {
+            console.log('🏁 Session ended:', data);
 
           } else if (data.error) {
             console.error('❌ AssemblyAI error:', data.error);
-
-            // Handle specific errors
-            if (data.error.includes('insufficient funds')) {
-              throw new Error('AssemblyAI: Insufficient API credits');
-            } else if (data.error.includes('authentication')) {
-              throw new Error('AssemblyAI: Invalid API key');
-            } else {
-              throw new Error(`AssemblyAI: ${data.error}`);
-            }
+            throw new Error(`AssemblyAI: ${data.error}`);
           }
         } catch (err) {
           console.error('Error parsing AssemblyAI message:', err);
@@ -188,9 +188,8 @@ export class AssemblyAISTT {
         const float32Audio = e.inputBuffer.getChannelData(0);
         const int16Audio = this.convertFloat32ToInt16(float32Audio);
 
-        // AssemblyAI förväntar sig base64-encoded PCM16
-        const base64Audio = this.arrayBufferToBase64(int16Audio.buffer);
-        this.ws.send(JSON.stringify({ audio_data: base64Audio }));
+        // Universal-Streaming v3: Skicka RAW binary PCM16 direkt
+        this.ws.send(int16Audio.buffer);
       }
     };
 

@@ -10,8 +10,8 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-// import { SpeechmaticsSTT } from '@/services/speechmatics-stt'; // COMMENTED OUT - Using AssemblyAI instead
-import { AssemblyAISTT } from '@/services/assemblyai-stt';
+// import { SpeechmaticsSTT } from '@/services/speechmatics-stt'; // COMMENTED OUT - Using Soniox instead
+import { SonioxSTT } from '@/services/soniox-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
@@ -57,7 +57,7 @@ export function PushToTalkAssistant() {
   // Context pre-fetching: Hämta under inspelning för snabbare respons
   const contextPromiseRef = useRef<Promise<any> | null>(null);
 
-  const sttRef = useRef<AssemblyAISTT | null>(null);
+  const sttRef = useRef<SonioxSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const finalTextRef = useRef<string>(''); // Ref för EndOfUtterance callback
   const ttsQueueRef = useRef<HTMLAudioElement[]>([]); // TTS queue för att spela en mening i taget
@@ -192,16 +192,27 @@ export function PushToTalkAssistant() {
       }
 
       utterance.onstart = () => {
+        console.log('🔊 TTS started - pausing STT temporarily');
         setVoiceState('playing_tts');
+        // Stoppa STT under TTS för att undvika feedback och falska transcripts
+        sttRef.current?.stopListening();
+        // Resetta transcript så gamla texter inte spökar
+        sttRef.current?.resetTranscript();
+        setFinalText('');
+        // VIKTIGT: Pausa inactivity timer under TTS
+        if (inactivityTimerRef.current) {
+          clearTimeout(inactivityTimerRef.current);
+          inactivityTimerRef.current = null;
+        }
       };
 
       utterance.onend = () => {
-        // On mobile: Auto-restart recording after TTS finishes (continuous dialog)
-        if (isMobile && handleStartRecordingRef.current) {
-          console.log('📱 Mobile: Auto-restarting recording after TTS');
+        console.log('🔊 TTS finished - auto-restarting recording');
+        // Auto-restart recording after TTS finishes (continuous dialog på ALLA devices)
+        if (handleStartRecordingRef.current) {
           setTimeout(() => {
             handleStartRecordingRef.current?.();
-          }, 500); // Short delay to prevent audio overlap
+          }, 300); // Short delay to prevent audio overlap
         } else {
           setVoiceState('idle');
         }
@@ -239,8 +250,8 @@ export function PushToTalkAssistant() {
 
     const initServices = async () => {
       try {
-        // Initialize STT with AssemblyAI
-        sttRef.current = new AssemblyAISTT();
+        // Initialize STT with Soniox
+        sttRef.current = new SonioxSTT();
 
         // Initialize Claude with context
         let calendarEvents: any[] = [];
@@ -289,7 +300,7 @@ export function PushToTalkAssistant() {
         );
 
         // Registrera EndOfUtterance callback för hands-free mode (EFTER Claude skapats!)
-        sttRef.current.setOnEndOfUtterance(async () => {
+        sttRef.current.setOnEndOfUtteranceCallback(async () => {
           console.log('🔴 EndOfUtterance callback - auto sending to Claude');
           setVoiceState('paused');
 
@@ -396,7 +407,7 @@ export function PushToTalkAssistant() {
 
     return () => {
       // Disconnect STT session helt (stänger WebSocket)
-      sttRef.current?.disconnect();
+      sttRef.current?.destroy();
       sttRef.current = null;
       claudeRef.current = null;
     };
@@ -460,9 +471,9 @@ export function PushToTalkAssistant() {
 
       // Inactivity timeout: Auto-stop om ingen faktisk text på 10s
       inactivityTimerRef.current = setTimeout(() => {
-        console.warn('⏱️ Inaktivitet timeout (10s) - stoppar mic');
+        console.warn('⏱️ Inaktivitet timeout (5s) - stoppar mic');
         stopAll();
-      }, 10000);
+      }, 5000);
 
       await sttRef.current.startListening((text, isFinal) => {
         console.log('📝 Transcript:', { text, isFinal });
@@ -473,9 +484,9 @@ export function PushToTalkAssistant() {
             clearTimeout(inactivityTimerRef.current);
           }
           inactivityTimerRef.current = setTimeout(() => {
-            console.warn('⏱️ Inaktivitet timeout (10s) - stoppar mic');
+            console.warn('⏱️ Inaktivitet timeout (5s) - stoppar mic');
             stopAll();
-          }, 10000);
+          }, 5000);
         }
 
         if (isFinal) {
@@ -843,10 +854,16 @@ export function PushToTalkAssistant() {
             </div>
             <ButtonComponent
               iconCss="e-icons e-close"
-              cssClass="e-flat e-small"
+              cssClass="e-danger"
               onClick={stopAll}
+              style={{
+                width: '200px',
+                height: '60px',
+                fontSize: '18px',
+                fontWeight: 700
+              } as any}
             >
-              Avbryt uppläsning
+              🛑 STOPPA
             </ButtonComponent>
           </>
         )}

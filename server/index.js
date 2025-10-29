@@ -708,15 +708,24 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
     const key = `conversation:${userId}`;
 
     // Save with 24h TTL
-    await redis.setex(key, 86400, JSON.stringify(history));
-
-    res.json({
-      success: true,
-      message: 'Conversation history saved',
-      messages_count: history.length
-    });
+    try {
+      await redis.setex(key, 86400, JSON.stringify(history));
+      res.json({
+        success: true,
+        message: 'Conversation history saved',
+        messages_count: history.length
+      });
+    } catch (redisError) {
+      console.warn('Redis save failed:', redisError.message);
+      // Return success with warning - conversation fungerar men sparas inte
+      res.json({
+        success: true,
+        warning: 'Conversation history not persisted - Redis unavailable',
+        messages_count: history.length
+      });
+    }
   } catch (error) {
-    console.error('Redis save error:', error);
+    console.error('Conversation save error:', error);
     res.status(500).json({ error: 'Failed to save conversation history' });
   }
 });
@@ -796,14 +805,21 @@ app.get('/api/preferences', authenticateUser, async (req, res) => {
     };
 
     // Spara i Redis cache (24h TTL)
+    let cacheWarning = null;
     if (redis) {
-      await redis.setex(redisKey, 86400, JSON.stringify(preferences));
+      try {
+        await redis.setex(redisKey, 86400, JSON.stringify(preferences));
+      } catch (redisError) {
+        console.warn('Redis cache save failed:', redisError.message);
+        cacheWarning = 'Cache unavailable - preferences will be fetched from DB each time';
+      }
     }
 
     res.json({
       success: true,
       preferences,
-      from_cache: false
+      from_cache: false,
+      ...(cacheWarning && { warning: cacheWarning })
     });
   } catch (error) {
     console.error('Preferences fetch error:', error);
@@ -833,41 +849,26 @@ app.post('/api/preferences/invalidate', authenticateUser, async (req, res) => {
   }
 });
 
-// POST /api/assemblyai/token - Generate temporary streaming token
-app.post('/api/assemblyai/token', authenticateUser, async (req, res) => {
+// POST /api/soniox/config - Return Soniox API key for WebSocket
+// NOTE: This is safe because it's a server-side endpoint requiring authentication
+app.post('/api/soniox/config', authenticateUser, async (req, res) => {
   try {
-    const apiKey = process.env.ASSEMBLYAI_API_KEY;
+    const apiKey = process.env.SONIOX_API_KEY;
     if (!apiKey) {
-      console.error('[AssemblyAI] ASSEMBLYAI_API_KEY missing in env');
-      return res.status(500).json({ error: 'ASSEMBLYAI_API_KEY missing' });
+      console.error('[Soniox] SONIOX_API_KEY missing in env');
+      return res.status(500).json({ error: 'SONIOX_API_KEY missing' });
     }
 
-    console.log('[AssemblyAI] API Key exists:', apiKey ? `${apiKey.substring(0, 10)}...` : 'undefined');
-    console.log('[AssemblyAI] Generating temporary streaming token...');
+    console.log('[Soniox] Returning API key for WebSocket streaming...');
 
-    const response = await fetch('https://api.assemblyai.com/v2/realtime/token', {
-      method: 'POST',
-      headers: {
-        'Authorization': apiKey
-      },
-      body: JSON.stringify({ expires_in: 600 })
+    // Return config for Soniox WebSocket: wss://stt-rt.soniox.com/transcribe-websocket
+    res.json({
+      api_key: apiKey,
+      model: 'stt-rt-preview',
+      language_hints: ['sv']
     });
-
-    console.log('[AssemblyAI] Token generation response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[AssemblyAI] Token generation failed:', errorText);
-      throw new Error(`AssemblyAI token generation failed: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    console.log(`[AssemblyAI] Token generated successfully, expires in ${data.expires_in}s`);
-    console.log('[AssemblyAI] Token value:', data.token ? `${data.token.substring(0, 20)}...` : 'undefined');
-
-    res.json({ token: data.token, expires_in: data.expires_in });
   } catch (error) {
-    console.error('[AssemblyAI] Token generation error:', error.message);
+    console.error('[Soniox] Config error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

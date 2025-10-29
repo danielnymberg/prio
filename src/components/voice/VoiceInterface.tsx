@@ -4,8 +4,8 @@ import { SyncButton as Button } from '@/components/ui/SyncButton';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
 import { DialogComponent, AnimationSettingsModel } from '@syncfusion/ej2-react-popups';
 import { TextBoxComponent } from '@syncfusion/ej2-react-inputs';
-// import { SpeechmaticsSTT } from '@/services/speechmatics-stt'; // COMMENTED OUT - Using AssemblyAI instead
-import { AssemblyAISTT } from '@/services/assemblyai-stt';
+// import { SpeechmaticsSTT } from '@/services/speechmatics-stt'; // COMMENTED OUT - Using Soniox instead
+import { SonioxSTT } from '@/services/soniox-stt';
 import { ClaudeConversation } from '@/services/claude-conversation';
 import { useTasks } from '@/hooks/useTasks';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,7 +32,7 @@ export function VoiceInterface() {
   const [showTextInput, setShowTextInput] = useState(false);
   const [textInputValue, setTextInputValue] = useState('');
 
-  const sttRef = useRef<AssemblyAISTT | null>(null);
+  const sttRef = useRef<SonioxSTT | null>(null);
   const claudeRef = useRef<ClaudeConversation | null>(null);
   const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const { user } = useAuth();
@@ -96,8 +96,8 @@ export function VoiceInterface() {
     try {
       // TTS borttagen - använder text-dialog istället för att undvika feedback loop
 
-      // Initialize STT with AssemblyAI
-      sttRef.current = new AssemblyAISTT();
+      // Initialize STT with Soniox
+      sttRef.current = new SonioxSTT();
 
       // Initialize Claude (backend har API-nyckeln)
       // Hämta kalenderhändelser om användaren är inloggad på Microsoft
@@ -390,7 +390,7 @@ export function VoiceInterface() {
     if (!sttRef.current) return;
 
     // Registrera EndOfUtterance callback för hands-free mode
-    sttRef.current.setOnEndOfUtterance(() => {
+    sttRef.current.setOnEndOfUtteranceCallback(() => {
       console.log('🔴 EndOfUtterance detected - auto sending to Claude');
       setVoiceState('paused');
 
