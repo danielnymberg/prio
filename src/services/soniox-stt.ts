@@ -83,12 +83,22 @@ export class SonioxSTT {
               // Soniox skickar flera finals med växande text - använd senaste direkt
               this.accumulatedTranscript = currentText.trim();
 
-              // Send as final
-              this.onTranscriptCallback?.(this.accumulatedTranscript, true);
-
-              // Trigger EndOfUtterance callback ENDAST om <end> finns (sista finalen)
+              // Check for end of utterance BEFORE sending to callback
               if (currentText.includes('<end>')) {
+                // Strip <end> token from transcript
+                const cleanText = this.accumulatedTranscript.replace('<end>', '').trim();
+
+                // Send clean text
+                this.onTranscriptCallback?.(cleanText, true);
+
+                // Trigger end of utterance callback
                 this.onEndOfUtteranceCallback?.();
+
+                // Stop listening after utterance complete
+                this.stopListening();
+              } else {
+                // Regular final (not end of utterance yet)
+                this.onTranscriptCallback?.(this.accumulatedTranscript, true);
               }
             }
           } else if (currentText.trim()) {
