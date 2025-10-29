@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { ChatUIComponent, UserModel } from '@syncfusion/ej2-react-interactive-chat';
 import { ButtonComponent } from '@syncfusion/ej2-react-buttons';
+import { marked } from 'marked';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -43,6 +44,31 @@ function stripMarkdown(text: string): string {
     .replace(/>\s/g, '')               // > blockquote → remove >
     .replace(/[-*+]\s/g, '')           // - list → remove -
     .replace(/\d+\.\s/g, '');          // 1. list → remove number
+}
+
+/**
+ * Parse markdown to HTML for ChatUI display
+ * Supports: links, bold, italic, code
+ */
+function parseMarkdown(text: string): string {
+  // Configure marked
+  marked.setOptions({
+    breaks: true,
+    gfm: true,
+  });
+
+  // Use sync parse (not async parseInline)
+  let html = marked.parse(text, { async: false }) as string;
+
+  // Remove wrapping <p> tags
+  html = html.replace(/^<p>|<\/p>$/g, '').trim();
+
+  // Sanitize: Remove scripts and event handlers
+  const safeHtml = html
+    .replace(/<script[^>]*>.*?<\/script>/gi, '')
+    .replace(/on\w+="[^"]*"/gi, '');
+
+  return safeHtml;
 }
 
 export function PushToTalkAssistant() {
@@ -745,6 +771,36 @@ export function PushToTalkAssistant() {
               author: msg.role === 'user' ? currentUserModel : assistantUser,
               timeStamp: msg.timestamp
             }))}
+            messageTemplate={(context: any) => {
+              const msg = context.message;
+              const isUser = msg.author.id === currentUserModel.id;
+
+              return (
+                <div className="e-message-wrapper" style={{
+                  display: 'flex',
+                  justifyContent: isUser ? 'flex-end' : 'flex-start',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{
+                    maxWidth: '75%',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    backgroundColor: isUser ? 'var(--color-sf-primary)' : 'var(--color-sf-grey-100)',
+                    color: isUser ? 'white' : 'var(--color-sf-black)'
+                  }}>
+                    <div
+                      dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.text) }}
+                      style={{
+                        fontSize: '14px',
+                        lineHeight: '1.5',
+                        wordBreak: 'break-word'
+                      }}
+                      className="markdown-content"
+                    />
+                  </div>
+                </div>
+              );
+            }}
             messageSend={(args: any) => {
               // När användaren skickar meddelande via ChatUI (text-input = INGEN TTS!)
               const userMessage: Message = {

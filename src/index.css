@@ -131,3 +131,31 @@ body:not(.e-modal-open) .e-dlg-overlay {
   padding-left: 0 !important;
 }
 
+/* ChatUI Markdown Content Styling */
+.markdown-content a {
+  color: var(--color-sf-primary, #0078D4);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.markdown-content a:hover {
+  opacity: 0.8;
+}
+
+.markdown-content strong {
+  font-weight: 700;
+}
+
+.markdown-content em {
+  font-style: italic;
+}
+
+.markdown-content code {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+}
+
