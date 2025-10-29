@@ -429,12 +429,11 @@ export class ClaudeConversation {
     const today = `${year}-${month}-${day}`;
     const currentTime = `${hour.toString().padStart(2, '0')}:${minute}`;
 
-    // Skapa Date-objekt för svensk tid (för getDay() att fungera korrekt)
-    const swedenTime = new Date(`${today}T${currentTime}:00+01:00`);
-
-    // Beräkna veckodag på svenska (JavaScript: 0=söndag, men vi vill måndag=0)
-    const weekdayNames = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'];
-    const weekday = weekdayNames[swedenTime.getDay()]; // getDay() ger redan rätt: 0=sön, 1=mån, 2=tis, etc
+    // Beräkna veckodag direkt med Intl (säkrare än Date-objekt med timezone)
+    const weekday = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Europe/Stockholm',
+      weekday: 'long'
+    }).format(now);
 
     // Beräkna tid på dygnet
     let timeOfDay = '';
