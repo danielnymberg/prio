@@ -921,11 +921,15 @@ app.post('/api/google-routes', authenticateUser, async (req, res) => {
         }
       },
       travelMode: travelMode || 'DRIVE', // DRIVE, BICYCLE, WALK, TRANSIT
-      routingPreference: 'TRAFFIC_AWARE',
       computeAlternativeRoutes: false,
       languageCode: 'sv',
       units: 'METRIC'
     };
+
+    // routingPreference only supported for DRIVE mode
+    if (travelMode === 'DRIVE') {
+      requestBody.routingPreference = 'TRAFFIC_AWARE';
+    }
 
     if (departureTime) {
       requestBody.departureTime = departureTime;
