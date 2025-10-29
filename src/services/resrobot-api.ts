@@ -73,20 +73,27 @@ export async function getDepartures(params: DeparturesParams): Promise<ResRobotD
 
   const url = `${API_BASE_URL}/departureBoard?${queryParams.toString()}`;
 
+  console.log('🚌 ResRobot departures URL:', url);
+
   const response = await fetch(url);
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ ResRobot API error:', response.status, errorText);
     throw new Error(`ResRobot API error (${response.status}): ${errorText}`);
   }
 
   const data = await response.json();
+  console.log('🚌 ResRobot response:', data);
 
   if (!data.Departure) {
+    console.warn('⚠️ No departures found in response');
     return [];
   }
 
-  return Array.isArray(data.Departure) ? data.Departure : [data.Departure];
+  const departures = Array.isArray(data.Departure) ? data.Departure : [data.Departure];
+  console.log(`✅ Found ${departures.length} departures`);
+  return departures;
 }
 
 /**
@@ -110,20 +117,31 @@ export async function searchLocations(params: LocationParams): Promise<ResRobotL
 
   const url = `${API_BASE_URL}/location.name?${queryParams.toString()}`;
 
+  console.log('🔍 ResRobot station search URL:', url);
+
   const response = await fetch(url);
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('❌ ResRobot API error:', response.status, errorText);
     throw new Error(`ResRobot API error (${response.status}): ${errorText}`);
   }
 
   const data = await response.json();
+  console.log('🔍 ResRobot response:', data);
 
-  if (!data.StopLocation) {
+  // API returns stopLocationOrCoordLocation array with nested StopLocation
+  if (!data.stopLocationOrCoordLocation || data.stopLocationOrCoordLocation.length === 0) {
+    console.warn('⚠️ No stations found in response');
     return [];
   }
 
-  return Array.isArray(data.StopLocation) ? data.StopLocation : [data.StopLocation];
+  const stations = data.stopLocationOrCoordLocation
+    .map((item: any) => item.StopLocation)
+    .filter(Boolean);
+
+  console.log(`✅ Found ${stations.length} stations`);
+  return stations;
 }
 
 /**
@@ -149,4 +167,85 @@ export async function getFerryDepartures(from: 'visby' | 'nynashamn', maxJourney
 export async function findStation(name: string): Promise<ResRobotLocation | null> {
   const results = await searchLocations({ input: name, maxNo: 1, type: 'S' });
   return results.length > 0 ? results[0] : null;
+}
+
+/**
+ * Plan a trip from A to B with public transit
+ */
+export interface TripParams {
+  originId: string;      // Origin station ID
+  destId: string;        // Destination station ID
+  date?: string;         // Travel date (YYYY-MM-DD, default: today)
+  time?: string;         // Travel time (HH:MM, default: now)
+  searchForArrival?: boolean; // Search for arrival time instead of departure (default: false)
+  numTrips?: number;     // Number of trip suggestions (default: 3)
+}
+
+export interface TripLeg {
+  name: string;          // Line name (e.g., "SJ Regional")
+  type: string;          // Transport type
+  origin: string;        // Origin stop name
+  destination: string;   // Destination stop name
+  departure: string;     // Departure time (HH:MM:SS)
+  arrival: string;       // Arrival time (HH:MM:SS)
+  duration: string;      // Duration (HH:MM:SS)
+}
+
+export interface Trip {
+  legs: TripLeg[];
+  departure: string;     // Total trip departure time
+  arrival: string;       // Total trip arrival time
+  duration: string;      // Total duration (HH:MM:SS)
+  changes: number;       // Number of changes
+}
+
+export async function planTrip(params: TripParams): Promise<Trip[]> {
+  const apiKey = import.meta.env.VITE_TRAFIKLAB_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('VITE_TRAFIKLAB_API_KEY saknas i miljövariabler');
+  }
+
+  const queryParams = new URLSearchParams({
+    accessId: apiKey,
+    originId: params.originId,
+    destId: params.destId,
+    format: 'json',
+    numTrips: String(params.numTrips || 3),
+  });
+
+  if (params.date) queryParams.set('date', params.date);
+  if (params.time) queryParams.set('time', params.time);
+  if (params.searchForArrival) queryParams.set('searchForArrival', '1');
+
+  const url = `${API_BASE_URL}/trip?${queryParams.toString()}`;
+
+  console.log('🚌 ResRobot trip planner URL:', url);
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ ResRobot trip API error:', response.status, errorText);
+    throw new Error(`ResRobot trip API error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  console.log('🚌 ResRobot trip response:', data);
+
+  if (!data.Trip) {
+    console.warn('⚠️ No trips found in response');
+    return [];
+  }
+
+  const trips = Array.isArray(data.Trip) ? data.Trip : [data.Trip];
+  console.log(`✅ Found ${trips.length} trip options`);
+
+  return trips.map((trip: any) => ({
+    legs: Array.isArray(trip.LegList?.Leg) ? trip.LegList.Leg : [trip.LegList?.Leg],
+    departure: trip.LegList?.Leg[0]?.Origin?.time || '',
+    arrival: trip.LegList?.Leg[trip.LegList?.Leg.length - 1]?.Destination?.time || '',
+    duration: trip.duration || '',
+    changes: trip.LegList?.Leg?.length - 1 || 0
+  }));
 }

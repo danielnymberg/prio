@@ -9,6 +9,7 @@ const CACHE_DURATION_MS = 10 * 60 * 1000; // 10 minutes
 export interface LocationResult {
   latitude: number;
   longitude: number;
+  accuracy?: number; // Accuracy in meters
   city?: string;
   country?: string;
   timestamp: number;
@@ -32,18 +33,21 @@ export async function getCurrentPosition(): Promise<LocationResult | null> {
   try {
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: false, // Fast, battery-friendly
-        timeout: 10000, // 10 seconds
-        maximumAge: 5 * 60 * 1000, // Accept 5 min old cached position
+        enableHighAccuracy: true, // Use GPS for best accuracy (~5-10m)
+        timeout: 15000, // 15 seconds (GPS can take longer)
+        maximumAge: 60 * 1000, // Accept 1 min old cached position
       });
     });
 
     const result: LocationResult = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
+      accuracy: position.coords.accuracy, // Accuracy in meters (WiFi = 100-5000m, GPS = 5-10m)
       timestamp: Date.now(),
       source: 'gps',
     };
+
+    console.log(`📍 Location accuracy: ${Math.round(position.coords.accuracy)}m (${position.coords.accuracy > 100 ? 'WiFi/Cell' : 'GPS'})`)
 
     // Reverse geocode to get city name
     const cityInfo = await reverseGeocode(result.latitude, result.longitude);
@@ -79,9 +83,12 @@ export function watchPosition(
       const result: LocationResult = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy,
         timestamp: Date.now(),
         source: 'gps',
       };
+
+      console.log(`📍 Location accuracy: ${Math.round(position.coords.accuracy)}m (${position.coords.accuracy > 100 ? 'WiFi/Cell' : 'GPS'})`);
 
       // Reverse geocode
       const cityInfo = await reverseGeocode(result.latitude, result.longitude);
@@ -97,9 +104,9 @@ export function watchPosition(
       console.error('Watch position error:', error);
     },
     {
-      enableHighAccuracy: false,
+      enableHighAccuracy: true, // Use GPS for best accuracy
       timeout: 15000,
-      maximumAge: 5 * 60 * 1000,
+      maximumAge: 60 * 1000, // 1 min
     }
   );
 }

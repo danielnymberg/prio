@@ -93,6 +93,7 @@ const allowedOrigins = [
   'https://prio-mr9r.onrender.com', // Render frontend
   'http://localhost:5173',
   'http://localhost:5174',
+  'http://localhost:5175',
 ];
 
 // Helmet for security headers
@@ -739,25 +740,36 @@ app.get('/api/conversation/load', authenticateUser, async (req, res) => {
     const userId = req.user.id;
     const key = `conversation:${userId}`;
 
-    const historyJson = await redis.get(key);
+    try {
+      const historyJson = await redis.get(key);
 
-    if (!historyJson) {
-      return res.json({
+      if (!historyJson) {
+        return res.json({
+          success: true,
+          history: null,
+          message: 'No conversation history found'
+        });
+      }
+
+      const history = JSON.parse(historyJson);
+
+      res.json({
+        success: true,
+        history,
+        messages_count: history.length
+      });
+    } catch (redisError) {
+      console.warn('Redis cache corrupted, invalidating:', redisError.message);
+      await redis.del(key).catch(() => {}); // Delete corrupted cache
+      // Return success with empty history - conversation fungerar men history sparas inte
+      res.json({
         success: true,
         history: null,
-        message: 'No conversation history found'
+        warning: 'Conversation history unavailable - Redis error'
       });
     }
-
-    const history = JSON.parse(historyJson);
-
-    res.json({
-      success: true,
-      history,
-      messages_count: history.length
-    });
   } catch (error) {
-    console.error('Redis load error:', error);
+    console.error('Conversation load error:', error);
     res.status(500).json({ error: 'Failed to load conversation history' });
   }
 });
@@ -770,14 +782,20 @@ app.get('/api/preferences', authenticateUser, async (req, res) => {
 
     // 1. Kolla Redis cache först (5ms)
     if (redis) {
-      const cached = await redis.get(redisKey);
-      if (cached) {
-        console.log('✅ Preferences from Redis cache');
-        return res.json({
-          success: true,
-          preferences: JSON.parse(cached),
-          from_cache: true
-        });
+      try {
+        const cached = await redis.get(redisKey);
+        if (cached) {
+          const preferences = JSON.parse(cached);
+          console.log('✅ Preferences from Redis cache');
+          return res.json({
+            success: true,
+            preferences,
+            from_cache: true
+          });
+        }
+      } catch (cacheError) {
+        console.warn('Redis cache corrupted, invalidating:', cacheError.message);
+        await redis.del(redisKey).catch(() => {}); // Delete corrupted cache
       }
     }
 
@@ -869,6 +887,76 @@ app.post('/api/soniox/config', authenticateUser, async (req, res) => {
     });
   } catch (error) {
     console.error('[Soniox] Config error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/google-routes - Google Routes API för multi-modal reseplanering
+app.post('/api/google-routes', authenticateUser, async (req, res) => {
+  try {
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY; // Samma nyckel för Routes API
+    if (!apiKey) {
+      console.error('[Google Routes] GOOGLE_PLACES_API_KEY missing in env');
+      return res.status(500).json({ error: 'GOOGLE_PLACES_API_KEY missing' });
+    }
+
+    const { origin, destination, travelMode, departureTime } = req.body;
+
+    // Routes API v2 använder POST med JSON body
+    const requestBody = {
+      origin: {
+        location: {
+          latLng: {
+            latitude: origin.lat,
+            longitude: origin.lng
+          }
+        }
+      },
+      destination: {
+        location: {
+          latLng: {
+            latitude: destination.lat,
+            longitude: destination.lng
+          }
+        }
+      },
+      travelMode: travelMode || 'DRIVE', // DRIVE, BICYCLE, WALK, TRANSIT
+      routingPreference: 'TRAFFIC_AWARE',
+      computeAlternativeRoutes: false,
+      languageCode: 'sv',
+      units: 'METRIC'
+    };
+
+    if (departureTime) {
+      requestBody.departureTime = departureTime;
+    }
+
+    const url = `https://routes.googleapis.com/directions/v2:computeRoutes`;
+
+    console.log(`[Google Routes] Computing route: ${origin.lat},${origin.lng} → ${destination.lat},${destination.lng} (${travelMode})`);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline,routes.legs'
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    const data = await response.json();
+
+    console.log(`[Google Routes] Status: ${response.status}, Routes: ${data.routes?.length || 0}`);
+
+    if (!response.ok) {
+      console.error('[Google Routes] API error:', data);
+      throw new Error(`Google Routes API error (${response.status}): ${data.error?.message || response.statusText}`);
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('[Google Routes] Error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

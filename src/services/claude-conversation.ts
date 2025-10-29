@@ -407,16 +407,36 @@ export class ClaudeConversation {
 
   private async buildSystemPrompt(): Promise<string> {
     const now = new Date();
-    const swedenTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }));
-    const today = swedenTime.toISOString().split('T')[0];
-    const currentTime = swedenTime.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Stockholm' });
+
+    // Korrekt svensk tid med Intl API (undviker toLocaleString bug)
+    const formatter = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Europe/Stockholm',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+
+    const parts = formatter.formatToParts(now);
+    const year = parts.find(p => p.type === 'year')!.value;
+    const month = parts.find(p => p.type === 'month')!.value;
+    const day = parts.find(p => p.type === 'day')!.value;
+    const hour = parseInt(parts.find(p => p.type === 'hour')!.value);
+    const minute = parts.find(p => p.type === 'minute')!.value;
+
+    const today = `${year}-${month}-${day}`;
+    const currentTime = `${hour.toString().padStart(2, '0')}:${minute}`;
+
+    // Skapa Date-objekt för svensk tid (för getDay() att fungera korrekt)
+    const swedenTime = new Date(`${today}T${currentTime}:00+01:00`);
 
     // Beräkna veckodag på svenska (JavaScript: 0=söndag, men vi vill måndag=0)
     const weekdayNames = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'];
     const weekday = weekdayNames[swedenTime.getDay()]; // getDay() ger redan rätt: 0=sön, 1=mån, 2=tis, etc
 
     // Beräkna tid på dygnet
-    const hour = swedenTime.getHours();
     let timeOfDay = '';
     if (hour >= 6 && hour < 12) timeOfDay = 'morgon';
     else if (hour >= 12 && hour < 18) timeOfDay = 'eftermiddag';
@@ -537,11 +557,11 @@ KRITISKT: MATCHA ANVÄNDARENS TON OCH STIL
 - Kort fråga → Kort svar (max 2-3 meningar!)
 - Lång fråga → Resonera mer, men håll under 100 ord
 
-TALSPRÅK - ALDRIG SKRIFTSPRÅK:
-✅ "klockan två" (INTE "14:00" eller "kl 14")
-✅ "fem grejer" (INTE "5 uppgifter" eller "5 st")
-✅ "imorse" (INTE "tidigare idag" eller "04:00")
-✅ "typ sju timmar" (INTE "uppskattningsvis 7h 30min")
+TALSPRÅK - REGLER:
+✅ **KLOCKSLAG ALLTID MED SIFFROR:** "11:08", "14:30", "09:15" (ALDRIG "elva åtta", "klockan två")
+✅ **ANTAL > 4 MED SIFFROR:** "5 uppgifter", "12 mejl", "8 stationer"
+✅ **ANTAL ≤ 4 MED ORD:** "tre stationer", "två möten", "en grej"
+✅ **NATURLIGT TALSPRÅK:** "imorse", "typ", "grejer", "fixar"
 ✅ "Har du börjat?" (INTE "Har denna påbörjats?")
 ✅ "Hanterbart?" "Kör du?" "Låter tough!"
 
@@ -1589,6 +1609,36 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
         },
       },
       {
+        name: 'plan_public_transit_trip',
+        description: 'Planera kollektivtrafikresa A→B i Sverige (tåg, buss, färja) med ResRobot. Ger kompletta resor med byten, avgångar och restid.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            origin_name: {
+              type: 'string',
+              description: 'Från station (namn). Exempel: "Stockholm Central", "Visby"',
+            },
+            destination_name: {
+              type: 'string',
+              description: 'Till station (namn). Exempel: "Göteborg Central", "Nynäshamn hamn"',
+            },
+            date: {
+              type: 'string',
+              description: 'Resedatum (YYYY-MM-DD). Default: idag',
+            },
+            time: {
+              type: 'string',
+              description: 'Resetid (HH:MM). Default: nu',
+            },
+            search_for_arrival: {
+              type: 'boolean',
+              description: 'Sök för ankomsttid istället för avgång (default: false)',
+            },
+          },
+          required: ['origin_name', 'destination_name'],
+        },
+      },
+      {
         name: 'get_current_location',
         description: 'Hämta användarens aktuella position (stad). ANVÄND INNAN transportfrågor! Kombinerar GPS + kalender för smart positionsbestämning.',
         input_schema: {
@@ -1683,6 +1733,41 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
             },
           },
           required: ['latitude', 'longitude'],
+        },
+      },
+      // Multi-modal route planning (Google Routes API)
+      {
+        name: 'get_directions',
+        description: 'Planera resa A→B med olika färdmedel (bil, cykel, gång, kollektivtrafik). Jämför restid och avstånd. Använd för "hur tar jag mig till X" frågor.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            origin_lat: {
+              type: 'number',
+              description: 'Startpunkt latitud',
+            },
+            origin_lng: {
+              type: 'number',
+              description: 'Startpunkt longitud',
+            },
+            destination_lat: {
+              type: 'number',
+              description: 'Destination latitud',
+            },
+            destination_lng: {
+              type: 'number',
+              description: 'Destination longitud',
+            },
+            modes: {
+              type: 'array',
+              items: {
+                type: 'string',
+                enum: ['DRIVE', 'BICYCLE', 'WALK', 'TRANSIT'],
+              },
+              description: 'Färdmedel att jämföra (default: [BICYCLE, WALK, TRANSIT])',
+            },
+          },
+          required: ['origin_lat', 'origin_lng', 'destination_lat', 'destination_lng'],
         },
       },
       // Anthropic Web Search (built-in tool)
@@ -1936,6 +2021,67 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
               });
               break;
 
+            case 'plan_public_transit_trip':
+              {
+                const input = block.input as any;
+                const { searchLocations, planTrip } = await import('./resrobot-api');
+
+                // Find origin station
+                const originStations = await searchLocations({
+                  input: input.origin_name,
+                  maxNo: 1,
+                  type: 'S'
+                });
+
+                if (originStations.length === 0) {
+                  result = { error: `Hittade ingen station: ${input.origin_name}` };
+                  break;
+                }
+
+                // Find destination station
+                const destStations = await searchLocations({
+                  input: input.destination_name,
+                  maxNo: 1,
+                  type: 'S'
+                });
+
+                if (destStations.length === 0) {
+                  result = { error: `Hittade ingen station: ${input.destination_name}` };
+                  break;
+                }
+
+                // Plan trip
+                const trips = await planTrip({
+                  originId: originStations[0].id,
+                  destId: destStations[0].id,
+                  date: input.date,
+                  time: input.time,
+                  searchForArrival: input.search_for_arrival,
+                  numTrips: 3
+                });
+
+                result = {
+                  success: true,
+                  origin: originStations[0].name,
+                  destination: destStations[0].name,
+                  trips_found: trips.length,
+                  trips: trips.map(t => ({
+                    departure: t.departure,
+                    arrival: t.arrival,
+                    duration: t.duration,
+                    changes: t.changes,
+                    legs: t.legs.map(leg => ({
+                      transport: leg.name,
+                      from: leg.origin,
+                      to: leg.destination,
+                      departure: leg.departure,
+                      arrival: leg.arrival
+                    }))
+                  }))
+                };
+              }
+              break;
+
             case 'get_current_location':
               result = await this.getCurrentLocation((block.input as any).time_context || 'now');
               break;
@@ -2020,6 +2166,78 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
                   count: places.length,
                   places: places.slice(0, 10), // Top 10
                   formatted: formatPlaces(places, 5), // Show 5 in summary
+                };
+              }
+              break;
+
+            case 'get_directions':
+              {
+                const input = block.input as any;
+                const modes = input.modes || ['BICYCLE', 'WALK', 'TRANSIT'];
+
+                // Get session for auth
+                const { supabase } = await import('@/lib/supabase');
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                  result = { error: 'Not authenticated' };
+                  break;
+                }
+
+                // Fetch routes for all travel modes in parallel
+                const routePromises = modes.map(async (mode: string) => {
+                  const response = await fetch(`${BACKEND_URL}/api/google-routes`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({
+                      origin: { lat: input.origin_lat, lng: input.origin_lng },
+                      destination: { lat: input.destination_lat, lng: input.destination_lng },
+                      travelMode: mode
+                    })
+                  });
+
+                  if (!response.ok) {
+                    return { mode, error: `API error: ${response.status}` };
+                  }
+
+                  const data = await response.json();
+                  const route = data.routes?.[0];
+
+                  if (!route) {
+                    return { mode, error: 'Ingen rutt hittades' };
+                  }
+
+                  return {
+                    mode,
+                    duration: route.duration,
+                    distance: route.distanceMeters,
+                    duration_minutes: Math.ceil(parseInt(route.duration.replace('s', '')) / 60),
+                    distance_km: (route.distanceMeters / 1000).toFixed(1)
+                  };
+                });
+
+                const routes = await Promise.all(routePromises);
+                const successful = routes.filter(r => !r.error);
+
+                // Sort by duration (fastest first)
+                successful.sort((a, b) => (a.duration_minutes || 999) - (b.duration_minutes || 999));
+
+                const modeNames: Record<string, string> = {
+                  BICYCLE: 'Cykel',
+                  WALK: 'Gång',
+                  TRANSIT: 'Kollektivtrafik',
+                  DRIVE: 'Bil'
+                };
+
+                result = {
+                  success: true,
+                  routes: successful,
+                  fastest: successful[0],
+                  formatted: successful.map((r, i) =>
+                    `${i+1}. ${modeNames[r.mode]}: ${r.duration_minutes} min (${r.distance_km} km)`
+                  ).join('\n')
                 };
               }
               break;
@@ -3136,6 +3354,7 @@ ${this.context.tasks.filter(t => t.status !== 'done').map(t => {
               source: 'gps',
               latitude: gpsLocation.latitude,
               longitude: gpsLocation.longitude,
+              accuracy: gpsLocation.accuracy,
               timestamp: gpsLocation.timestamp,
             };
           }
