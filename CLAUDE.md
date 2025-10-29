@@ -509,28 +509,45 @@ npm run preview      # Testa production build
 "Leta mejlet från Anders Carlsson" → Söker progressivt tills det hittas
 ```
 
-### Voice Mode - Mobile Improvements (2025-10-28)
+### Voice Mode - Soniox STT Integration (2025-10-29)
 
-1. **Browser TTS** - Ersatt Azure TTS (buggar)
-   - Använder `window.speechSynthesis`
-   - Svenskt röstval automatiskt
-   - Anpassbar hastighet från localStorage
+**STT (Speech-to-Text): Soniox**
+- **SDK:** `@soniox/speech-to-text-web`
+- **Språk:** Svenska (`languageHints: ['sv']`)
+- **Endpoint Detection:** `enableEndpointDetection: true` - ML-baserad EOU-detektion
+- **Pris:** $0.12/timme streaming
+- **Accuracy:** Enterprise-level med svenska specialstöd
 
-2. **Mobil-detektion** - `window.matchMedia('(max-width: 768px)')`
+**Implementation:** `src/services/soniox-stt.ts`
+- API key hämtas säkert från backend (`/api/soniox/config`)
+- `<end>` token indikerar true end-of-utterance
+- `isActive` flag förhindrar callbacks efter stop (förhindrar feedback loop)
+- Endast senaste final används (Soniox bygger växande transcripts)
 
-3. **Kontinuerlig dialog på mobil**
-   - Micken startar automatiskt 500ms efter AI:s svar
-   - Desktop: Manuell klick varje gång (som tidigare)
+**TTS (Text-to-Speech): Browser**
+- Använder `window.speechSynthesis`
+- Svenskt röstval automatiskt
+- Anpassbar hastighet från localStorage
 
-4. **TTS-avbrott** - Ny röstinput avbryter uppläsning automatiskt
+**Timings:**
+- Inactivity timeout: **5s** (stoppar mic om tyst)
+- TTS→Mic delay: **300ms** (auto-restart efter TTS)
+- Auto-restart på alla devices (inte bara mobil)
 
-5. **Silence timeout** - 10s inaktivitet stoppar mic
+**Feedback Loop Prevention:**
+- STT stoppas under TTS (`stopListening()`)
+- `isActive` flag blockerar callbacks efter stop
+- Transcript resettas när TTS börjar
 
 **Location-aware features:**
 - GPS-integration med OpenStreetMap reverse geocoding
 - Tid-medveten positionsbestämning (nu vs ikväll)
 - Cache i localStorage (10 min)
 - `get_current_location` tool med smart logik
+
+**Tidigare STT-providers (bortkommenterade):**
+- AssemblyAI: Fungerar EJ (ingen svenskstöd i Universal-Streaming v3)
+- Speechmatics: Fungerande kod finns kvar bortkommenterad i backend
 
 ## 📚 Resurser
 
