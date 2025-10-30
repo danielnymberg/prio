@@ -680,18 +680,6 @@ app.post('/api/azure-tts', authenticateUser, rateLimiter, async (req, res) => {
   }
 });
 
-// Proxy endpoint för ZenQuotes (undviker CORS)
-app.get('/api/quote', async (req, res) => {
-  try {
-    const response = await fetch('https://zenquotes.io/api/random');
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error('Quote proxy error:', error);
-    res.status(500).json({ error: 'Failed to fetch quote' });
-  }
-});
-
 // Redis conversation history endpoints
 app.post('/api/conversation/save', authenticateUser, async (req, res) => {
   try {

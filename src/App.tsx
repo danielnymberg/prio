@@ -5,19 +5,13 @@ import { MicrosoftGraphProvider } from './contexts/MicrosoftGraphContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { AppLayout } from './components/layout/AppLayout';
-// import { QuickCaptureBar } from './components/ui/QuickCaptureBar'; // TEMPORÄRT DISABLED
-// import { QuickNoteInput } from './components/tasks/QuickNoteInput'; // TEMPORÄRT DISABLED
 import { VersionBanner } from './components/VersionBanner';
 import { InstallPrompt } from './components/pwa/InstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
-// import { ToastComponent } from '@syncfusion/ej2-react-notifications'; // TEMPORÄRT DISABLED
-// import { globalToastRef, showToast } from './services/toast'; // TEMPORÄRT DISABLED
+import { ConsoleViewer } from './components/debug/ConsoleViewer';
 import { useTasks } from './hooks/useTasks';
 import { checkAndSendNotifications } from './services/notifications';
-// import { WeeklyReviewModal } from './components/focus/WeeklyReviewModal'; // TEMPORÄRT DISABLED
 import { initEmailScheduler } from './services/email-scheduler';
-// import { EmailTaskListener } from './components/email/EmailTaskListener'; // TEMPORÄRT DISABLED
-// import { GlobalSearch } from './components/search/GlobalSearch'; // TEMPORÄRT DISABLED
 
 // Lazy load routes för bättre initial load performance
 const ArchiveView = lazy(() => import('./components/views/ArchiveView').then(m => ({ default: m.ArchiveView })));
@@ -319,7 +313,7 @@ function App() {
       /> */}
       <VersionBanner />
       <OfflineBanner />
-      {/* <GlobalSearch isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} /> */}
+      <ConsoleViewer />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route

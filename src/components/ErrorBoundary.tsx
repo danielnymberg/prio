@@ -39,8 +39,21 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Logga till extern service här om du har det (t.ex. Sentry)
-    // logErrorToService(error, errorInfo);
+    // Spara till localStorage för mobil-debugging
+    try {
+      const errorLog = {
+        timestamp: new Date().toISOString(),
+        error: error.toString(),
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+      };
+      const existingErrors = JSON.parse(localStorage.getItem('prio-error-log') || '[]');
+      existingErrors.push(errorLog);
+      // Behåll senaste 20 errors
+      localStorage.setItem('prio-error-log', JSON.stringify(existingErrors.slice(-20)));
+    } catch (err) {
+      console.error('Failed to save error to localStorage:', err);
+    }
   }
 
   handleReloadApp = async () => {
@@ -85,17 +98,33 @@ export class ErrorBoundary extends Component<Props, State> {
               Appen stötte på ett oväntat fel. Försök ladda om appen för att fortsätta.
             </p>
 
-            {/* Visa felinformation i development mode */}
-            {import.meta.env.DEV && this.state.error && (
-              <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: 'var(--e-surface)', borderRadius: '8px' }}>
-                <p style={{ fontSize: '14px', fontFamily: 'monospace', color: '#ef4444', marginBottom: '8px' }}>
+            {/* Visa felinformation ALLTID (för mobil-debugging) */}
+            {this.state.error && (
+              <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
+                <p style={{ fontSize: '14px', fontFamily: 'monospace', color: '#ef4444', marginBottom: '8px', wordBreak: 'break-word' }}>
                   {this.state.error.toString()}
                 </p>
                 {this.state.errorInfo && (
-                  <pre style={{ fontSize: '12px', color: 'var(--e-text)', overflowX: 'auto', maxHeight: '128px' }}>
-                    {this.state.errorInfo.componentStack}
-                  </pre>
+                  <details style={{ marginTop: '8px' }}>
+                    <summary style={{ fontSize: '12px', color: '#ef4444', cursor: 'pointer', marginBottom: '8px' }}>
+                      Component Stack (klicka för att visa)
+                    </summary>
+                    <pre style={{ fontSize: '11px', color: '#991b1b', overflowX: 'auto', maxHeight: '200px', padding: '8px', backgroundColor: 'white', borderRadius: '4px' }}>
+                      {this.state.errorInfo.componentStack}
+                    </pre>
+                  </details>
                 )}
+                <button
+                  onClick={() => {
+                    const errorText = `Error: ${this.state.error}\n\nStack: ${this.state.error?.stack}\n\nComponent Stack: ${this.state.errorInfo?.componentStack}`;
+                    navigator.clipboard.writeText(errorText).then(() => {
+                      alert('Felmeddelande kopierat till urklipp!');
+                    });
+                  }}
+                  style={{ marginTop: '12px', padding: '8px 12px', backgroundColor: 'white', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  📋 Kopiera fel
+                </button>
               </div>
             )}
 

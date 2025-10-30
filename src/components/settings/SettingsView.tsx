@@ -41,6 +41,9 @@ export function SettingsView() {
   const [ttsVoice, setTtsVoice] = useState<string>(localStorage.getItem('tts_voice') || 'sv-SE-SofieNeural');
   const [aiPreferences, setAiPreferences] = useState<string>('');
   const [advancedExpanded, setAdvancedExpanded] = useState(false);
+  const [debugConsoleEnabled, setDebugConsoleEnabled] = useState(() => {
+    return localStorage.getItem('prio-debug-console') === 'true';
+  });
 
   const { user } = useAuth();
 
@@ -228,6 +231,15 @@ export function SettingsView() {
     setTtsVoice(newVoice);
     localStorage.setItem('tts_voice', newVoice);
     showToast.success('Röst sparad!');
+  };
+
+  const handleToggleDebugConsole = (args: any) => {
+    const enabled = args.checked;
+    setDebugConsoleEnabled(enabled);
+    localStorage.setItem('prio-debug-console', enabled ? 'true' : 'false');
+    // Trigger storage event för att uppdatera ConsoleViewer
+    window.dispatchEvent(new Event('storage'));
+    showToast.success(enabled ? 'Debug-konsol aktiverad' : 'Debug-konsol avstängd');
   };
 
   // Dropdown data
@@ -565,6 +577,35 @@ export function SettingsView() {
                           change={handleToggleNotifyOnly}
                         />
                       </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* DEBUG CONSOLE */}
+                <div style={{ paddingTop: '16px', borderTop: '1px solid var(--e-border)' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+                    <span className="e-icons e-code" style={{ fontSize: '14px', marginRight: '6px' }}></span>
+                    Debug-konsol
+                  </h3>
+                  <p style={{ fontSize: '13px', opacity: 0.6, marginBottom: '12px' }}>
+                    Visa live console.log feed längst ner på skärmen för mobilfelsökning.
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '14px' }}>Visa debug-konsol</span>
+                    <SwitchComponent
+                      checked={debugConsoleEnabled}
+                      change={handleToggleDebugConsole}
+                    />
+                  </div>
+                  {debugConsoleEnabled && (
+                    <div style={{
+                      backgroundColor: '#fef3c7',
+                      padding: '8px 12px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      marginTop: '12px'
+                    }}>
+                      ⚠️ Debug-konsolen visas längst ner på skärmen. Du kan minimera/maximera, rensa och exportera loggar.
                     </div>
                   )}
                 </div>
