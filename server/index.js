@@ -965,7 +965,7 @@ app.post('/api/google-routes', authenticateUser, async (req, res) => {
   }
 });
 
-// POST /api/google-places/nearby - Proxy för Google Places Nearby Search
+// POST /api/google-places/nearby - Proxy för Google Places API (New)
 app.post('/api/google-places/nearby', authenticateUser, async (req, res) => {
   try {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
@@ -976,31 +976,73 @@ app.post('/api/google-places/nearby', authenticateUser, async (req, res) => {
 
     const { location, radius, type, keyword, openNow, minPrice, maxPrice } = req.body;
 
-    const params = new URLSearchParams({
-      key: apiKey,
-      location: `${location.lat},${location.lng}`,
-      radius: String(radius),
-    });
+    // Places API (New) request body
+    const requestBody = {
+      locationRestriction: {
+        circle: {
+          center: {
+            latitude: location.lat,
+            longitude: location.lng
+          },
+          radius: radius
+        }
+      }
+    };
 
-    if (type) params.set('type', type);
-    if (keyword) params.set('keyword', keyword);
-    if (openNow) params.set('opennow', 'true');
-    if (minPrice !== undefined) params.set('minprice', String(minPrice));
-    if (maxPrice !== undefined) params.set('maxprice', String(maxPrice));
-
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params}`;
-
-    console.log(`[Google Places] Fetching nearby places near ${location.lat},${location.lng}`);
-    const response = await fetch(url);
-    const data = await response.json();
-
-    console.log(`[Google Places] Status: ${data.status}, Results: ${data.results?.length || 0}`);
-
-    if (!response.ok) {
-      throw new Error(`Google Places API error (${response.status}): ${response.statusText}`);
+    // Add type filter if provided
+    if (type) {
+      requestBody.includedTypes = [type];
     }
 
-    res.json(data);
+    const url = 'https://places.googleapis.com/v1/places:searchNearby';
+
+    console.log(`[Google Places] Fetching nearby places near ${location.lat},${location.lng} (radius: ${radius}m)`);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.currentOpeningHours,places.types,places.location,places.id'
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    const data = await response.json();
+
+    console.log(`[Google Places] Response:`, data.places?.length || 0, 'places');
+
+    if (!response.ok) {
+      console.error('[Google Places] API error:', data);
+      return res.status(500).json({ error: `Google Places API error: ${data.error?.message || response.statusText}` });
+    }
+
+    // Convert new format to legacy format for compatibility
+    const legacyFormat = {
+      status: 'OK',
+      results: (data.places || []).map(place => ({
+        place_id: place.id,
+        name: place.displayName?.text || 'Unknown',
+        vicinity: place.formattedAddress || '',
+        rating: place.rating,
+        user_ratings_total: place.userRatingCount,
+        price_level: place.priceLevel === 'PRICE_LEVEL_FREE' ? 0 :
+                     place.priceLevel === 'PRICE_LEVEL_INEXPENSIVE' ? 1 :
+                     place.priceLevel === 'PRICE_LEVEL_MODERATE' ? 2 :
+                     place.priceLevel === 'PRICE_LEVEL_EXPENSIVE' ? 3 :
+                     place.priceLevel === 'PRICE_LEVEL_VERY_EXPENSIVE' ? 4 : undefined,
+        opening_hours: place.currentOpeningHours ? { open_now: place.currentOpeningHours.openNow } : undefined,
+        types: place.types || [],
+        geometry: {
+          location: {
+            lat: place.location?.latitude,
+            lng: place.location?.longitude
+          }
+        }
+      }))
+    };
+
+    res.json(legacyFormat);
   } catch (error) {
     console.error('[Google Places] Error:', error.message);
     res.status(500).json({ error: error.message });
