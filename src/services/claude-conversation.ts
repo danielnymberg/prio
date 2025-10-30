@@ -342,18 +342,22 @@ export class ClaudeConversation {
   private selectModel(userMessage: string): string {
     const q = userMessage.toLowerCase();
 
-    // SONNET keywords - komplex reasoning
+    // SONNET keywords - komplex reasoning (använd partial matching för flexibilitet)
     const sonnetKeywords = [
-      'planera',      // Planering (vecka, månad, etc)
-      'analysera',    // Analys av projekt, tasks
-      'optimera',     // Optimering
-      'granska',      // Granskning
+      'planer',       // Planering (vecka, månad, etc) - matchar planera, planering, planerar
+      'analys',       // Analys av projekt, tasks - matchar analysera, analys, analyser
+      'optimer',      // Optimering - matchar optimera, optimering, optimizer
+      'gransk',       // Granskning - matchar granska, granskning, granskar
       'jämför',       // Jämförelser
-      'utvärdera',    // Utvärdering
+      'utvärder',     // Utvärdering - matchar utvärdera, utvärdering, utvärderar
       'leta',         // Sökning (oavsett vad)
       'sök',          // Sökning (oavsett vad)
       'hitta',        // Sökning (oavsett vad)
       'finn',         // Sökning (oavsett vad)
+      'översikt',     // Översikt av projekt/tasks
+      'sammanfatt',   // Sammanfattning
+      'prioriter',    // Prioritering - matchar prioritera, prioritering, prioriterar
+      'deadline',     // När användaren frågar om deadlines
     ];
 
     const needsSonnet = sonnetKeywords.some(keyword => q.includes(keyword));
