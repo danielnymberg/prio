@@ -680,13 +680,9 @@ app.post('/api/azure-tts', authenticateUser, rateLimiter, async (req, res) => {
   }
 });
 
-// Redis conversation history endpoints
+// Conversation history endpoints (Supabase + Redis cache)
 app.post('/api/conversation/save', authenticateUser, async (req, res) => {
   try {
-    if (!redis) {
-      return res.status(503).json({ error: 'Redis not configured' });
-    }
-
     const { history } = req.body;
 
     if (!history || !Array.isArray(history)) {
@@ -694,26 +690,42 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
     }
 
     const userId = req.user.id;
-    const key = `conversation:${userId}`;
 
-    // Save with 24h TTL
+    // 1. Save to Supabase (persistent storage)
     try {
-      console.log('💾 Saving conversation history:', history.length, 'messages');
-      // Upstash Redis auto-deserializes on read, so we stringify for storage
-      await redis.setex(key, 86400, JSON.stringify(history));
+      console.log('💾 Saving conversation history to Supabase:', history.length, 'messages');
+
+      const { error } = await supabase
+        .from('conversation_history')
+        .upsert({
+          user_id: userId,
+          messages: history,
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) throw error;
+
+      // 2. Cache in Redis (optional, for faster reads)
+      if (redis) {
+        try {
+          const key = `conversation:${userId}`;
+          await redis.setex(key, 86400, JSON.stringify(history)); // 24h TTL
+          console.log('✅ Cached conversation in Redis');
+        } catch (redisError) {
+          console.warn('Redis cache failed (non-critical):', redisError.message);
+        }
+      }
+
       res.json({
         success: true,
         message: 'Conversation history saved',
         messages_count: history.length
       });
-    } catch (redisError) {
-      console.warn('Redis save failed:', redisError.message);
-      // Return success with warning - conversation fungerar men sparas inte
-      res.json({
-        success: true,
-        warning: 'Conversation history not persisted - Redis unavailable',
-        messages_count: history.length
-      });
+
+    } catch (dbError) {
+      console.error('Supabase save error:', dbError);
+      res.status(500).json({ error: 'Failed to save conversation history' });
     }
   } catch (error) {
     console.error('Conversation save error:', error);
@@ -723,42 +735,85 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
 
 app.get('/api/conversation/load', authenticateUser, async (req, res) => {
   try {
-    if (!redis) {
-      return res.status(503).json({ error: 'Redis not configured' });
-    }
-
     const userId = req.user.id;
     const key = `conversation:${userId}`;
 
-    try {
-      const history = await redis.get(key);
+    // 1. Try Redis cache first (fast: ~5ms)
+    if (redis) {
+      try {
+        const cached = await redis.get(key);
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+          console.log('📥 Loaded conversation from Redis cache:', cached.length, 'messages');
+          return res.json({
+            success: true,
+            history: cached,
+            messages_count: cached.length,
+            source: 'cache'
+          });
+        }
+      } catch (redisError) {
+        console.warn('Redis cache miss:', redisError.message);
+        // Continue to Supabase
+      }
+    }
 
-      if (!history) {
+    // 2. Load from Supabase (slower: ~50-200ms)
+    try {
+      console.log('📥 Loading conversation from Supabase...');
+
+      const { data, error } = await supabase
+        .from('conversation_history')
+        .select('messages')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No rows found - new user
+          return res.json({
+            success: true,
+            history: null,
+            message: 'No conversation history found'
+          });
+        }
+        throw error;
+      }
+
+      const history = data?.messages || null;
+
+      if (history && Array.isArray(history) && history.length > 0) {
+        console.log('✅ Loaded conversation from Supabase:', history.length, 'messages');
+
+        // Cache in Redis for next time
+        if (redis) {
+          try {
+            await redis.setex(key, 86400, JSON.stringify(history));
+            console.log('✅ Cached conversation in Redis');
+          } catch (cacheError) {
+            console.warn('Redis cache failed (non-critical):', cacheError.message);
+          }
+        }
+
         return res.json({
           success: true,
-          history: null,
-          message: 'No conversation history found'
+          history,
+          messages_count: history.length,
+          source: 'database'
         });
       }
 
-      // Upstash Redis auto-deserializes JSON - no need for JSON.parse
-      console.log('📥 Loaded conversation history:', history.length, 'messages');
-
-      res.json({
-        success: true,
-        history,
-        messages_count: history.length
-      });
-    } catch (redisError) {
-      console.warn('Redis cache corrupted, invalidating:', redisError.message);
-      await redis.del(key).catch(() => {}); // Delete corrupted cache
-      // Return success with empty history - conversation fungerar men history sparas inte
-      res.json({
+      // Empty history
+      return res.json({
         success: true,
         history: null,
-        warning: 'Conversation history unavailable - Redis error'
+        message: 'No conversation history found'
       });
+
+    } catch (dbError) {
+      console.error('Supabase load error:', dbError);
+      res.status(500).json({ error: 'Failed to load conversation history' });
     }
+
   } catch (error) {
     console.error('Conversation load error:', error);
     res.status(500).json({ error: 'Failed to load conversation history' });

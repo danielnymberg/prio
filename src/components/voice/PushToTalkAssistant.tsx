@@ -693,17 +693,6 @@ export function PushToTalkAssistant() {
   };
 
 
-  /**
-   * Clear conversation
-   */
-  const clearConversation = () => {
-    setMessages([]);
-    claudeRef.current?.clearHistory();
-    setFinalText('');
-    finalTextRef.current = '';
-    toast.success('Konversation rensad');
-  };
-
   if (!user) {
     return null;
   }
@@ -712,12 +701,9 @@ export function PushToTalkAssistant() {
     <>
       {/* ChatUI Block - helt separerad från voice-controls */}
       <div style={{ width: '100%' }}>
-        {/* Header med Rensa-knapp */}
+        {/* Header */}
         {messages.length > 0 && (
           <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
             marginBottom: '8px'
           }}>
             <span style={{
@@ -729,12 +715,6 @@ export function PushToTalkAssistant() {
             }}>
               Konversation
             </span>
-            <ButtonComponent
-              cssClass="e-flat e-small"
-              iconCss="e-icons e-close"
-              content="Rensa"
-              onClick={clearConversation}
-            />
           </div>
         )}
 
@@ -772,9 +752,10 @@ export function PushToTalkAssistant() {
           </div>
         )}
 
-        {/* ChatUI med minHeight, låter växa med innehåll */}
-        <div style={{ width: '100%', minHeight: '200px', display: 'block' }}>
+        {/* ChatUI med fixed height + scroll */}
+        <div style={{ width: '100%', height: '400px', overflow: 'hidden', display: 'block' }}>
           <ChatUIComponent
+            height="100%"
             user={currentUserModel}
             showTimeBreak={false}
             showFooter={true}
