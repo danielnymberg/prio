@@ -109,7 +109,12 @@ export function PushToTalkAssistant() {
   /**
    * Redis conversation persistence
    */
+  const historyLoadedRef = useRef(false); // Prevent double-loading
   const loadConversationHistory = useCallback(async () => {
+    // Prevent duplicate loads (React StrictMode in dev runs useEffect twice)
+    if (historyLoadedRef.current) return;
+    historyLoadedRef.current = true;
+
     try {
       const { supabase } = await import('@/lib/supabase');
       const { data: { session } } = await supabase.auth.getSession();
@@ -137,7 +142,7 @@ export function PushToTalkAssistant() {
           }));
         setMessages(restoredMessages);
 
-        console.log('✅ Loaded conversation history from Redis:', history.length, 'messages');
+        console.log('✅ Loaded conversation history:', history.length, 'messages');
       }
     } catch (error) {
       console.error('Failed to load conversation history:', error);
@@ -753,9 +758,9 @@ export function PushToTalkAssistant() {
         )}
 
         {/* ChatUI med fixed height + scroll */}
-        <div style={{ width: '100%', height: '400px', overflow: 'hidden', display: 'block' }}>
+        <div style={{ width: '100%', height: '500px', display: 'flex', flexDirection: 'column' }}>
           <ChatUIComponent
-            height="100%"
+            height="500px"
             user={currentUserModel}
             showTimeBreak={false}
             showFooter={true}

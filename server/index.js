@@ -690,6 +690,7 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
     }
 
     const userId = req.user.id;
+    const CACHE_VERSION = 'v2'; // Increment to invalidate old cache
 
     // 1. Save to Supabase (persistent storage)
     try {
@@ -709,7 +710,7 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
       // 2. Cache in Redis (optional, for faster reads)
       if (redis) {
         try {
-          const key = `conversation:${userId}`;
+          const key = `conversation:${CACHE_VERSION}:${userId}`;
           await redis.setex(key, 86400, JSON.stringify(history)); // 24h TTL
           console.log('✅ Cached conversation in Redis');
         } catch (redisError) {
@@ -736,7 +737,8 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
 app.get('/api/conversation/load', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const key = `conversation:${userId}`;
+    const CACHE_VERSION = 'v2'; // Must match save version
+    const key = `conversation:${CACHE_VERSION}:${userId}`;
 
     // 1. Try Redis cache first (fast: ~5ms)
     if (redis) {
