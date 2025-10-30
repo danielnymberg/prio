@@ -2208,7 +2208,7 @@ ${this.context.tasks
       return {
         success: true,
         project: data,
-        message: `Projekt "${data.name}" skapat! Budget: ${data.total_budget.toLocaleString('sv-SE')} kr (${data.quoted_hours}h × ${data.hourly_rate} kr/h + ${data.external_costs} kr övriga kostnader)`,
+        message: `Projekt "${data.name}" skapat! Budget: ${data.total_budget ? data.total_budget.toLocaleString('sv-SE') : '0'} kr (${data.quoted_hours}h × ${data.hourly_rate} kr/h + ${data.external_costs} kr övriga kostnader)`,
       };
     } catch (error) {
       return { error: error instanceof Error ? error.message : 'Kunde inte skapa projekt' };
@@ -2245,7 +2245,7 @@ ${this.context.tasks
           name: p.name,
           client_name: p.client_name,
           status: p.status,
-          total_budget: p.total_budget.toLocaleString('sv-SE') + ' kr',
+          total_budget: p.total_budget ? p.total_budget.toLocaleString('sv-SE') + ' kr' : '0 kr',
           quoted_hours: p.quoted_hours + 'h',
           completion_percentage: p.completion_percentage + '%',
           deadline: p.project_deadline ? new Date(p.project_deadline).toLocaleDateString('sv-SE') : 'Ingen deadline',
@@ -2281,7 +2281,7 @@ ${this.context.tasks
           quoted_hours: data.quoted_hours,
           hourly_rate: data.hourly_rate,
           external_costs: data.external_costs,
-          total_budget: data.total_budget.toLocaleString('sv-SE') + ' kr',
+          total_budget: data.total_budget ? data.total_budget.toLocaleString('sv-SE') + ' kr' : '0 kr',
           completion_percentage: data.completion_percentage,
           project_deadline: data.project_deadline ? new Date(data.project_deadline).toLocaleDateString('sv-SE') : null,
           created_at: new Date(data.created_at).toLocaleDateString('sv-SE'),

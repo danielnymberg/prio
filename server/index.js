@@ -698,6 +698,8 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
 
     // Save with 24h TTL
     try {
+      console.log('💾 Saving conversation history:', history.length, 'messages');
+      // Upstash Redis auto-deserializes on read, so we stringify for storage
       await redis.setex(key, 86400, JSON.stringify(history));
       res.json({
         success: true,
@@ -729,9 +731,9 @@ app.get('/api/conversation/load', authenticateUser, async (req, res) => {
     const key = `conversation:${userId}`;
 
     try {
-      const historyJson = await redis.get(key);
+      const history = await redis.get(key);
 
-      if (!historyJson) {
+      if (!history) {
         return res.json({
           success: true,
           history: null,
@@ -739,7 +741,8 @@ app.get('/api/conversation/load', authenticateUser, async (req, res) => {
         });
       }
 
-      const history = JSON.parse(historyJson);
+      // Upstash Redis auto-deserializes JSON - no need for JSON.parse
+      console.log('📥 Loaded conversation history:', history.length, 'messages');
 
       res.json({
         success: true,

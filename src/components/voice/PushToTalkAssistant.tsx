@@ -404,6 +404,14 @@ export function PushToTalkAssistant() {
 
                 // Save to Redis
                 await saveConversationHistory();
+
+                // Sätt tillbaka till idle om ingen TTS körs
+                // (playBrowserTTS sätter 'playing_tts' vid onstart)
+                setTimeout(() => {
+                  if (!isTTSPlayingRef.current && ttsQueueRef.current.length === 0) {
+                    setVoiceState('idle');
+                  }
+                }, 100);
               }
 
             } catch (err) {
@@ -666,6 +674,11 @@ export function PushToTalkAssistant() {
         if (!isTTSPlayingRef.current) {
           playNextInQueue();
         }
+      }
+
+      // Om inte TTS, sätt tillbaka till idle (TTS hanterar detta själv)
+      if (!useTTS) {
+        setVoiceState('idle');
       }
 
       // Spara conversation history till Redis
