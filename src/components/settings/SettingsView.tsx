@@ -39,6 +39,7 @@ export function SettingsView() {
   const [emailSchedule, setEmailSchedule] = useState<EmailScheduleConfig>(getScheduleConfig());
   const [ttsSpeed, setTtsSpeed] = useState<string>(localStorage.getItem('tts_speed') || '1.0');
   const [ttsVoice, setTtsVoice] = useState<string>(localStorage.getItem('tts_voice') || 'sv-SE-SofieNeural');
+  const [ttsProvider, setTtsProvider] = useState<string>(localStorage.getItem('prio-tts-provider') || 'browser');
   const [aiPreferences, setAiPreferences] = useState<string>('');
   const [advancedExpanded, setAdvancedExpanded] = useState(false);
   const [debugConsoleEnabled, setDebugConsoleEnabled] = useState(() => {
@@ -242,6 +243,13 @@ export function SettingsView() {
     showToast.success(enabled ? 'Debug-konsol aktiverad' : 'Debug-konsol avstängd');
   };
 
+  const handleTtsProviderChange = (args: any) => {
+    const provider = args.value;
+    setTtsProvider(provider);
+    localStorage.setItem('prio-tts-provider', provider);
+    showToast.success(provider === 'azure' ? 'Azure Neural TTS aktiverad (högre kvalitet)' : 'Browser TTS aktiverad (gratis)');
+  };
+
   // Dropdown data
   const startHourData = Array.from({ length: 13 }, (_, i) => ({
     value: i + 6,
@@ -273,58 +281,93 @@ export function SettingsView() {
       {/* Settings Cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-        {/* 1. TTS SPEED - MOST USED */}
+        {/* 1. TTS RÖSTINSTÄLLNINGAR - MOST USED */}
         <div className="e-card">
           <div className="e-card-header">
             <div className="e-card-title">
               <span className="e-icons e-microphone" style={{ fontSize: '16px', marginRight: '8px' }}></span>
-              Rösthastighet
+              Röstassistent
             </div>
           </div>
           <div className="e-card-content">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <DropDownListComponent
-                dataSource={[
-                  { text: 'Sofie (Kvinnlig, varm)', value: 'sv-SE-SofieNeural' },
-                  { text: 'Mattias (Manlig, professionell)', value: 'sv-SE-MattiasNeural' },
-                  { text: 'Hillevi (Kvinnlig, äldre)', value: 'sv-SE-HilleviNeural' }
-                ]}
-                fields={{ text: 'text', value: 'value' }}
-                value={ttsVoice}
-                change={handleTtsVoiceChange}
-                placeholder="Välj röst"
-                floatLabelType="Auto"
-              />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <RadioButtonComponent
-                  label="Långsam (0.8x)"
+              {/* TTS Provider */}
+              <div>
+                <label style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+                  Röstkvalitet
+                </label>
+                <DropDownListComponent
+                  dataSource={[
+                    { text: 'Browser TTS (Gratis, lokal)', value: 'browser' },
+                    { text: 'Azure Neural (Högkvalitet, ~$0.50/mån)', value: 'azure' }
+                  ]}
+                  fields={{ text: 'text', value: 'value' }}
+                  value={ttsProvider}
+                  change={handleTtsProviderChange}
+                  floatLabelType="Auto"
+                />
+              </div>
+
+              {/* Azure Voice (endast om Azure är valt) */}
+              {ttsProvider === 'azure' && (
+                <div>
+                  <label style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+                    Azure Neural Röst
+                  </label>
+                  <DropDownListComponent
+                    dataSource={[
+                      { text: 'Mattias (Manlig, naturlig)', value: 'sv-SE-MattiasNeural' },
+                      { text: 'Sofie (Kvinnlig, varm)', value: 'sv-SE-SofieNeural' },
+                      { text: 'Hillevi (Kvinnlig, äldre)', value: 'sv-SE-HilleviNeural' }
+                    ]}
+                    fields={{ text: 'text', value: 'value' }}
+                    value={ttsVoice}
+                    change={handleTtsVoiceChange}
+                    floatLabelType="Auto"
+                  />
+                </div>
+              )}
+
+              {/* Speed (endast Browser TTS) */}
+              <div>
+                <label style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+                  Hastighet {ttsProvider === 'azure' && <span style={{ fontSize: '11px', opacity: 0.6 }}>(endast Browser TTS)</span>}
+                </label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <RadioButtonComponent
+                    label="Långsam (0.8x)"
+                    disabled={ttsProvider === 'azure'}
                   name="tts-speed"
                   value="0.8"
                   checked={ttsSpeed === '0.8'}
                   change={() => handleTtsSpeedChange('0.8')}
                 />
-                <RadioButtonComponent
-                  label="Normal (1.0x) - Rekommenderad"
-                  name="tts-speed"
-                  value="1.0"
-                  checked={ttsSpeed === '1.0'}
-                  change={() => handleTtsSpeedChange('1.0')}
-                />
-                <RadioButtonComponent
-                  label="Snabb (1.3x)"
-                  name="tts-speed"
-                  value="1.3"
-                  checked={ttsSpeed === '1.3'}
-                  change={() => handleTtsSpeedChange('1.3')}
-                />
-                <RadioButtonComponent
-                  label="Mycket snabb (1.5x)"
-                  name="tts-speed"
-                  value="1.5"
-                  checked={ttsSpeed === '1.5'}
-                  change={() => handleTtsSpeedChange('1.5')}
-                />
+                  <RadioButtonComponent
+                    label="Normal (1.0x) - Rekommenderad"
+                    name="tts-speed"
+                    value="1.0"
+                    checked={ttsSpeed === '1.0'}
+                    change={() => handleTtsSpeedChange('1.0')}
+                    disabled={ttsProvider === 'azure'}
+                  />
+                  <RadioButtonComponent
+                    label="Snabb (1.3x)"
+                    name="tts-speed"
+                    value="1.3"
+                    checked={ttsSpeed === '1.3'}
+                    change={() => handleTtsSpeedChange('1.3')}
+                    disabled={ttsProvider === 'azure'}
+                  />
+                  <RadioButtonComponent
+                    label="Mycket snabb (1.5x)"
+                    name="tts-speed"
+                    value="1.5"
+                    checked={ttsSpeed === '1.5'}
+                    change={() => handleTtsSpeedChange('1.5')}
+                    disabled={ttsProvider === 'azure'}
+                  />
+                </div>
               </div>
             </div>
           </div>

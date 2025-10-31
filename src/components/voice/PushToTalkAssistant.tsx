@@ -195,7 +195,14 @@ export function PushToTalkAssistant() {
     }
 
     const nextSentence = ttsQueueRef.current.shift()!;
-    playBrowserTTS(nextSentence);
+
+    // Check TTS provider from localStorage
+    const ttsProvider = localStorage.getItem('prio-tts-provider') || 'browser';
+    if (ttsProvider === 'azure') {
+      playAzureTTS(nextSentence);
+    } else {
+      playBrowserTTS(nextSentence);
+    }
   }, []);
 
   /**
@@ -270,6 +277,81 @@ export function PushToTalkAssistant() {
       playNextInQueue();
     }
   }, [playNextInQueue]);
+
+  /**
+   * Azure TTS playback with queue (ONE sentence at a time)
+   */
+  const playAzureTTS = useCallback(async (text: string) => {
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        console.warn('No session - fallback to browser TTS');
+        playBrowserTTS(text);
+        return;
+      }
+
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prio-backend.onrender.com';
+
+      // Get voice from localStorage (default: MattiasNeural)
+      const voice = localStorage.getItem('tts_voice') || 'sv-SE-MattiasNeural';
+
+      console.log('🔊 Azure TTS starting:', text.substring(0, 50) + '...');
+      setVoiceState('playing_tts');
+      isTTSPlayingRef.current = true;
+
+      // Stop STT during TTS (prevent feedback loop)
+      sttRef.current?.stopListening();
+      sttRef.current?.resetTranscript();
+      setFinalText('');
+
+      // Clear inactivity timer during TTS
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+        inactivityTimerRef.current = null;
+      }
+
+      const response = await fetch(`${BACKEND_URL}/api/azure-tts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ text, voice })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Azure TTS failed: ${response.statusText}`);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+
+      audio.onended = () => {
+        console.log('🔊 Azure TTS finished');
+        isTTSPlayingRef.current = false;
+        URL.revokeObjectURL(audioUrl);
+        playNextInQueue();
+      };
+
+      audio.onerror = (error) => {
+        console.error('Azure TTS playback error:', error);
+        isTTSPlayingRef.current = false;
+        URL.revokeObjectURL(audioUrl);
+        playNextInQueue();
+      };
+
+      await audio.play();
+
+    } catch (error) {
+      console.error('Azure TTS failed:', error);
+      isTTSPlayingRef.current = false;
+      // Fallback to browser TTS
+      playBrowserTTS(text);
+    }
+  }, [playBrowserTTS, playNextInQueue]);
 
 
   /**
