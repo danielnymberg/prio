@@ -624,7 +624,7 @@ app.post('/api/azure-tts', authenticateUser, rateLimiter, async (req, res) => {
     }
 
     console.log('Azure TTS request received');
-    const { text, voice = 'sv-SE-SofieNeural', format = 'audio-16khz-32kbitrate-mono-mp3' } = req.body || {};
+    const { text, voice = 'sv-SE-SofieNeural', rate = 1.3, format = 'audio-16khz-32kbitrate-mono-mp3' } = req.body || {};
 
     if (!text || typeof text !== 'string') {
       return res.status(400).json({ error: 'Text string required' });
@@ -645,9 +645,19 @@ app.post('/api/azure-tts', authenticateUser, rateLimiter, async (req, res) => {
     // Use pull stream to get audio data
     const synthesizer = new sdk.SpeechSynthesizer(speechConfig, null);
 
+    // Build SSML with rate control (1.3x = 30% snabbare)
+    const ratePercent = Math.round((rate - 1) * 100);
+    const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="sv-SE">
+      <voice name="${voice}">
+        <prosody rate="${ratePercent >= 0 ? '+' : ''}${ratePercent}%">
+          ${text}
+        </prosody>
+      </voice>
+    </speak>`;
+
     const result = await new Promise((resolve, reject) => {
-      synthesizer.speakTextAsync(
-        text,
+      synthesizer.speakSsmlAsync(
+        ssml,
         result => {
           if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
             resolve(result);

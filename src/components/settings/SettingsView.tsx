@@ -329,43 +329,32 @@ export function SettingsView() {
                 </div>
               )}
 
-              {/* Speed (endast Browser TTS) */}
+              {/* Speed */}
               <div>
                 <label style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
-                  Hastighet {ttsProvider === 'azure' && <span style={{ fontSize: '11px', opacity: 0.6 }}>(endast Browser TTS)</span>}
+                  Hastighet
                 </label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <RadioButtonComponent
-                    label="Långsam (0.8x)"
-                    disabled={ttsProvider === 'azure'}
-                  name="tts-speed"
-                  value="0.8"
-                  checked={ttsSpeed === '0.8'}
-                  change={() => handleTtsSpeedChange('0.8')}
-                />
-                  <RadioButtonComponent
-                    label="Normal (1.0x) - Rekommenderad"
+                    label="Långsam (1.0x)"
                     name="tts-speed"
-                    value="1.0"
-                    checked={ttsSpeed === '1.0'}
-                    change={() => handleTtsSpeedChange('1.0')}
-                    disabled={ttsProvider === 'azure'}
+                    value="slow"
+                    checked={ttsSpeed === 'slow' || ttsSpeed === '0.8'}
+                    change={() => handleTtsSpeedChange('slow')}
                   />
                   <RadioButtonComponent
-                    label="Snabb (1.3x)"
+                    label="Normal (1.5x) - Rekommenderad"
                     name="tts-speed"
-                    value="1.3"
-                    checked={ttsSpeed === '1.3'}
-                    change={() => handleTtsSpeedChange('1.3')}
-                    disabled={ttsProvider === 'azure'}
+                    value="normal"
+                    checked={ttsSpeed === 'normal' || ttsSpeed === '1.0'}
+                    change={() => handleTtsSpeedChange('normal')}
                   />
                   <RadioButtonComponent
-                    label="Mycket snabb (1.5x)"
+                    label="Snabb (1.7x)"
                     name="tts-speed"
-                    value="1.5"
-                    checked={ttsSpeed === '1.5'}
-                    change={() => handleTtsSpeedChange('1.5')}
-                    disabled={ttsProvider === 'azure'}
+                    value="fast"
+                    checked={ttsSpeed === 'fast' || ttsSpeed === '1.3'}
+                    change={() => handleTtsSpeedChange('fast')}
                   />
                 </div>
               </div>

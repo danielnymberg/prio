@@ -198,6 +198,8 @@ export function PushToTalkAssistant() {
 
     // Check TTS provider from localStorage
     const ttsProvider = localStorage.getItem('prio-tts-provider') || 'browser';
+    console.log('🔊 TTS Provider:', ttsProvider);
+
     if (ttsProvider === 'azure') {
       playAzureTTS(nextSentence);
     } else {
@@ -312,20 +314,34 @@ export function PushToTalkAssistant() {
         inactivityTimerRef.current = null;
       }
 
+      // Get rate from localStorage (default: 1.8x för bättre UX)
+      const speedPref = localStorage.getItem('prio-tts-speed') || 'normal';
+      let rate = 1.8; // Default snabbare
+      if (speedPref === 'slow') rate = 1.3;
+      else if (speedPref === 'fast') rate = 2.0; // Max för Azure
+
       const response = await fetch(`${BACKEND_URL}/api/azure-tts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         },
-        body: JSON.stringify({ text, voice })
+        body: JSON.stringify({ text, voice, rate })
       });
 
       if (!response.ok) {
         throw new Error(`Azure TTS failed: ${response.statusText}`);
       }
 
-      const audioBlob = await response.blob();
+      const result = await response.json();
+
+      if (!result.success || !result.audioData) {
+        throw new Error('Invalid Azure TTS response');
+      }
+
+      // Decode base64 audio to blob
+      const audioBytes = Uint8Array.from(atob(result.audioData), c => c.charCodeAt(0));
+      const audioBlob = new Blob([audioBytes], { type: 'audio/mpeg' });
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
 
@@ -475,18 +491,32 @@ export function PushToTalkAssistant() {
                     return prev;
                   });
 
-                  // Browser TTS sentence-by-sentence
+                  // Queue TTS sentences (instead of playing immediately)
                   if (/[.!?]\s*$/.test(chunk.trim()) && currentSentence.trim().length > 10) {
                     const cleanSentence = stripMarkdown(currentSentence.trim());
-                    console.log('🔊 Playing sentence:', cleanSentence);
-                    playBrowserTTS(cleanSentence);
+                    console.log('🔊 Queueing sentence:', cleanSentence);
+
+                    // Add to queue
+                    ttsQueueRef.current.push(cleanSentence);
+
+                    // Start playing if not already playing
+                    if (!isTTSPlayingRef.current) {
+                      playNextInQueue();
+                    }
+
                     currentSentence = '';
                   }
                 });
 
-                // Final sentence
+                // Queue final sentence if any
                 if (currentSentence.trim()) {
-                  playBrowserTTS(stripMarkdown(currentSentence.trim()));
+                  const cleanSentence = stripMarkdown(currentSentence.trim());
+                  ttsQueueRef.current.push(cleanSentence);
+
+                  // Start playing if not already playing
+                  if (!isTTSPlayingRef.current) {
+                    playNextInQueue();
+                  }
                 }
 
                 // Save to Redis
@@ -708,12 +738,10 @@ export function PushToTalkAssistant() {
       console.log('🤖 Streaming from Claude:', userMessage, useTTS ? '(with TTS)' : '(text only)');
 
       let fullResponse = '';
-      let currentSentence = '';
 
       await claudeRef.current.chatStreaming(userMessage, (chunk) => {
         // Chunk kommer in löpande från Claude
         fullResponse += chunk;
-        currentSentence += chunk;
 
         // Uppdatera UI i realtid
         setMessages(prev => {
@@ -732,34 +760,27 @@ export function PushToTalkAssistant() {
             ];
           }
         });
-
-        // Queue TTS sentences (instead of playing immediately)
-        if (useTTS && /[.!?]\s*$/.test(chunk.trim())) {
-          const sentenceToPlay = currentSentence.trim();
-          if (sentenceToPlay.length > 10) {
-            const cleanSentence = stripMarkdown(sentenceToPlay);
-            console.log('🔊 Queueing sentence:', cleanSentence);
-
-            // Add to queue
-            ttsQueueRef.current.push(cleanSentence);
-
-            // Start playing if not already playing
-            if (!isTTSPlayingRef.current) {
-              playNextInQueue();
-            }
-          }
-          currentSentence = '';
-        }
       });
 
-      // Queue final sentence if any
-      if (useTTS && currentSentence.trim()) {
-        const cleanSentence = stripMarkdown(currentSentence.trim());
-        ttsQueueRef.current.push(cleanSentence);
+      // När hela svaret är klart → Spela ALLT i EN TTS-request (Azure Neural) eller queue (Browser)
+      if (useTTS && fullResponse.trim()) {
+        const cleanText = stripMarkdown(fullResponse.trim());
+        const ttsProvider = localStorage.getItem('prio-tts-provider') || 'browser';
 
-        // Start playing if not already playing
-        if (!isTTSPlayingRef.current) {
-          playNextInQueue();
+        if (ttsProvider === 'azure') {
+          // Azure: Skicka HELA svaret i ETT anrop (inga pauser!)
+          console.log('🔊 Sending full response to Azure TTS:', cleanText.length, 'chars');
+          await playAzureTTS(cleanText);
+        } else {
+          // Browser: Queue sentence-by-sentence för progressiv playback
+          const sentences = cleanText.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+          sentences.forEach(sentence => {
+            ttsQueueRef.current.push(sentence);
+          });
+
+          if (!isTTSPlayingRef.current) {
+            playNextInQueue();
+          }
         }
       }
 
