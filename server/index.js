@@ -700,7 +700,7 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
     }
 
     const userId = req.user.id;
-    const CACHE_VERSION = 'v2'; // Increment to invalidate old cache
+    const CACHE_VERSION = 'v3'; // Increment to invalidate old cache
 
     // 1. Save to Supabase (persistent storage)
     try {
@@ -747,7 +747,7 @@ app.post('/api/conversation/save', authenticateUser, async (req, res) => {
 app.get('/api/conversation/load', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const CACHE_VERSION = 'v2'; // Must match save version
+    const CACHE_VERSION = 'v3'; // Must match save version
     const key = `conversation:${CACHE_VERSION}:${userId}`;
 
     // 1. Try Redis cache first (fast: ~5ms)

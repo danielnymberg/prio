@@ -476,7 +476,6 @@ export function PushToTalkAssistant() {
 
                 await claudeRef.current.chatStreaming(textToSend, async (chunk) => {
                   fullResponse += chunk;
-                  currentSentence += chunk;
 
                   // Update assistant message i ChatUI
                   setMessages(prev => {
@@ -490,32 +489,27 @@ export function PushToTalkAssistant() {
                     }
                     return prev;
                   });
+                });
 
-                  // Queue TTS sentences (instead of playing immediately)
-                  if (/[.!?]\s*$/.test(chunk.trim()) && currentSentence.trim().length > 10) {
-                    const cleanSentence = stripMarkdown(currentSentence.trim());
-                    console.log('🔊 Queueing sentence:', cleanSentence);
+                // När hela svaret är klart → Spela med Azure (1 call) eller Browser (queue)
+                if (fullResponse.trim()) {
+                  const cleanText = stripMarkdown(fullResponse.trim());
+                  const ttsProvider = localStorage.getItem('prio-tts-provider') || 'browser';
 
-                    // Add to queue
-                    ttsQueueRef.current.push(cleanSentence);
+                  if (ttsProvider === 'azure') {
+                    // Azure: HELA svaret i ETT anrop
+                    console.log('🔊 Voice mode - Azure TTS (full response):', cleanText.length, 'chars');
+                    await playAzureTTS(cleanText);
+                  } else {
+                    // Browser: Queue sentence-by-sentence
+                    const sentences = cleanText.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+                    sentences.forEach(sentence => {
+                      ttsQueueRef.current.push(sentence);
+                    });
 
-                    // Start playing if not already playing
                     if (!isTTSPlayingRef.current) {
                       playNextInQueue();
                     }
-
-                    currentSentence = '';
-                  }
-                });
-
-                // Queue final sentence if any
-                if (currentSentence.trim()) {
-                  const cleanSentence = stripMarkdown(currentSentence.trim());
-                  ttsQueueRef.current.push(cleanSentence);
-
-                  // Start playing if not already playing
-                  if (!isTTSPlayingRef.current) {
-                    playNextInQueue();
                   }
                 }
 
