@@ -464,7 +464,6 @@ export function PushToTalkAssistant() {
                 claudeRef.current.updateContext({ tasks, calendarEvents: calEvts });
 
                 let fullResponse = '';
-                let currentSentence = '';
 
                 // Lägg till temporary assistant message
                 const assistantMessage: Message = {
